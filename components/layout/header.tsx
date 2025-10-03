@@ -1,20 +1,17 @@
-import Link from "next/link"
-import { getUser } from "@/lib/actions/auth"
-import { isUserAdmin } from "@/lib/actions/admin"
-import { UserMenu } from "./user-menu"
-import { ThemeToggle } from "./theme-toggle"
-import { Button } from "@/components/ui/button"
+import { Button } from '@/components/ui/button'
+import { isUserAdmin } from '@/lib/actions/admin'
+import { getUser } from '@/lib/actions/auth'
+import Link from 'next/link'
+import { ThemeToggle } from './theme-toggle'
+import { UserMenu } from './user-menu'
 
 export async function Header() {
-  console.log("[v0] Header rendering")
   const user = await getUser()
-  console.log("[v0] Header - User:", user?.email)
 
   const isAdmin = user ? await isUserAdmin() : false
-  console.log("[v0] Header - isAdmin:", isAdmin)
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-6">
       <div className="container flex h-16 items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">

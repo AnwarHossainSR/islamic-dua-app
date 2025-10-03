@@ -23,6 +23,16 @@ CREATE TABLE IF NOT EXISTS categories (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Add missing columns to existing tables
+DO $$ 
+BEGIN
+  -- Add is_active to categories if it doesn't exist
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                 WHERE table_name = 'categories' AND column_name = 'is_active') THEN
+    ALTER TABLE categories ADD COLUMN is_active BOOLEAN DEFAULT true;
+  END IF;
+END $$;
+
 -- Tags table
 CREATE TABLE IF NOT EXISTS tags (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -52,6 +62,15 @@ CREATE TABLE IF NOT EXISTS duas (
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Add missing columns to duas table
+DO $$ 
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                 WHERE table_name = 'duas' AND column_name = 'is_active') THEN
+    ALTER TABLE duas ADD COLUMN is_active BOOLEAN DEFAULT true;
+  END IF;
+END $$;
 
 -- Dua Tags junction table
 CREATE TABLE IF NOT EXISTS dua_tags (
@@ -99,6 +118,15 @@ CREATE TABLE IF NOT EXISTS dhikr_presets (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Add missing columns to dhikr_presets table
+DO $$ 
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                 WHERE table_name = 'dhikr_presets' AND column_name = 'is_active') THEN
+    ALTER TABLE dhikr_presets ADD COLUMN is_active BOOLEAN DEFAULT true;
+  END IF;
+END $$;
+
 -- User Bookmarks table
 CREATE TABLE IF NOT EXISTS user_bookmarks (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -132,6 +160,15 @@ CREATE TABLE IF NOT EXISTS admin_users (
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Add missing columns to admin_users table
+DO $$ 
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                 WHERE table_name = 'admin_users' AND column_name = 'is_active') THEN
+    ALTER TABLE admin_users ADD COLUMN is_active BOOLEAN DEFAULT true;
+  END IF;
+END $$;
 
 -- ============================================
 -- INDEXES

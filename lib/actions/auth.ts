@@ -3,6 +3,7 @@
 import { getSupabaseServerClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
+import { cookies } from "next/headers"
 
 export async function signUp(email: string, password: string) {
   const supabase = await getSupabaseServerClient()
@@ -32,16 +33,58 @@ export async function signIn(email: string, password: string) {
   })
 
   if (error) {
+    if (error.message.includes("Email not confirmed") || error.message.includes("email_not_confirmed")) {
+      return {
+        error: "Please confirm your email address before signing in. Check your inbox for the confirmation link.",
+        code: "email_not_confirmed",
+      }
+    }
     return { error: error.message }
   }
 
+  if (data.session) {
+    const cookieStore = await cookies()
+    cookieStore.set("sb-access-token", data.session.access_token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+    })
+    cookieStore.set("sb-refresh-token", data.session.refresh_token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+    })
+  }
+
   revalidatePath("/", "layout")
-  redirect("/")
+  redirect("/duas")
+}
+
+export async function resendConfirmationEmail(email: string) {
+  const supabase = await getSupabaseServerClient()
+
+  const { error } = await supabase.auth.resend({
+    type: "signup",
+    email,
+  })
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  return { success: true, message: "Confirmation email sent! Please check your inbox." }
 }
 
 export async function signOut() {
   const supabase = await getSupabaseServerClient()
   await supabase.auth.signOut()
+
+  const cookieStore = await cookies()
+  cookieStore.delete("sb-access-token")
+  cookieStore.delete("sb-refresh-token")
+
   revalidatePath("/", "layout")
   redirect("/login")
 }

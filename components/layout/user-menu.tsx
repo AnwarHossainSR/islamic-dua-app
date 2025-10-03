@@ -13,14 +13,30 @@ import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { signOut } from "@/lib/actions/auth"
 import Link from "next/link"
+import { useEffect, useState } from "react"
 
-export function UserMenu({ user }: { user: User }) {
+export function UserMenu({ user, isAdmin }: { user: User; isAdmin: boolean }) {
   const initials = user.email?.substring(0, 2).toUpperCase() || "U"
+  const [open, setOpen] = useState(false)
+
+  useEffect(() => {
+    console.log("[v0] UserMenu rendered - User:", user.email, "IsAdmin:", isAdmin)
+  }, [user.email, isAdmin])
+
+  useEffect(() => {
+    console.log("[v0] UserMenu dropdown open state:", open)
+  }, [open])
 
   return (
-    <DropdownMenu>
+    <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+        <Button
+          variant="ghost"
+          className="relative h-10 w-10 rounded-full"
+          onClick={() => {
+            console.log("[v0] UserMenu trigger clicked")
+          }}
+        >
           <Avatar>
             <AvatarFallback className="bg-primary text-primary-foreground">{initials}</AvatarFallback>
           </Avatar>
@@ -40,12 +56,24 @@ export function UserMenu({ user }: { user: User }) {
         <DropdownMenuItem asChild>
           <Link href="/settings">Settings</Link>
         </DropdownMenuItem>
+        {isAdmin && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link href="/admin" className="text-primary font-medium">
+                Admin Panel
+              </Link>
+            </DropdownMenuItem>
+          </>
+        )}
         <DropdownMenuSeparator />
-        <DropdownMenuItem asChild>
-          <Link href="/admin">Admin Panel</Link>
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => signOut()}>
+        <DropdownMenuItem
+          className="text-destructive focus:text-destructive"
+          onClick={() => {
+            console.log("[v0] Sign out clicked")
+            signOut()
+          }}
+        >
           Sign Out
         </DropdownMenuItem>
       </DropdownMenuContent>

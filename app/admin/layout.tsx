@@ -11,9 +11,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <Suspense fallback={<div className="w-64 border-r border-border" />}>
         <AdminSidebar />
       </Suspense>
-      <main className="flex-1 overflow-auto">
-        <div className="container py-8">{children}</div>
-      </main>
+      <main className="flex-1 overflow-auto px-8 py-8">{children}</main>
     </div>
   )
 }

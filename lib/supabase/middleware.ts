@@ -6,11 +6,19 @@ export async function updateSession(request: NextRequest) {
     request,
   })
 
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    console.log("[v0] Supabase environment variables not found in middleware")
+    return supabaseResponse
+  }
+
   // Get auth tokens from cookies
   const accessToken = request.cookies.get("sb-access-token")?.value
   const refreshToken = request.cookies.get("sb-refresh-token")?.value
 
-  const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
+  const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     auth: {
       persistSession: false,
     },

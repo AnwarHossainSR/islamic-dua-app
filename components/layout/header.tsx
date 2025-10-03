@@ -1,0 +1,42 @@
+import Link from "next/link"
+import { getUser } from "@/lib/actions/auth"
+import { UserMenu } from "./user-menu"
+import { ThemeToggle } from "./theme-toggle"
+import { Button } from "@/components/ui/button"
+
+export async function Header() {
+  const user = await getUser()
+
+  return (
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container flex h-16 items-center justify-between">
+        <Link href="/" className="flex items-center gap-2">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+            <span className="text-xl font-bold">HR</span>
+          </div>
+          <span className="hidden text-lg font-semibold sm:inline-block">Heaven Rose Islamic</span>
+        </Link>
+
+        <nav className="flex items-center gap-2">
+          <Button variant="ghost" asChild>
+            <Link href="/duas">Duas</Link>
+          </Button>
+          <Button variant="ghost" asChild>
+            <Link href="/dhikr">Dhikr</Link>
+          </Button>
+          <Button variant="ghost" asChild>
+            <Link href="/categories">Categories</Link>
+          </Button>
+          <ThemeToggle />
+          {user ? (
+            <UserMenu user={user} />
+          ) : (
+            <Button asChild>
+              <Link href="/login">Sign In</Link>
+            </Button>
+          )}
+        </nav>
+      </div>
+    </header>
+  )
+}

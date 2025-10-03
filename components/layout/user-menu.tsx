@@ -13,9 +13,14 @@ import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { signOut } from "@/lib/actions/auth"
 import Link from "next/link"
+import { useEffect } from "react"
 
-export function UserMenu({ user }: { user: User }) {
+export function UserMenu({ user, isAdmin }: { user: User; isAdmin: boolean }) {
   const initials = user.email?.substring(0, 2).toUpperCase() || "U"
+
+  useEffect(() => {
+    console.log("[v0] UserMenu rendered - User:", user.email, "IsAdmin:", isAdmin)
+  }, [user.email, isAdmin])
 
   return (
     <DropdownMenu>
@@ -40,10 +45,14 @@ export function UserMenu({ user }: { user: User }) {
         <DropdownMenuItem asChild>
           <Link href="/settings">Settings</Link>
         </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem asChild>
-          <Link href="/admin">Admin Panel</Link>
-        </DropdownMenuItem>
+        {isAdmin && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link href="/admin">Admin Panel</Link>
+            </DropdownMenuItem>
+          </>
+        )}
         <DropdownMenuSeparator />
         <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => signOut()}>
           Sign Out

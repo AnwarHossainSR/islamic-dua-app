@@ -1,11 +1,13 @@
 import Link from "next/link"
 import { getUser } from "@/lib/actions/auth"
+import { isUserAdmin } from "@/lib/actions/admin"
 import { UserMenu } from "./user-menu"
 import { ThemeToggle } from "./theme-toggle"
 import { Button } from "@/components/ui/button"
 
 export async function Header() {
   const user = await getUser()
+  const isAdmin = user ? await isUserAdmin() : false
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -29,7 +31,7 @@ export async function Header() {
           </Button>
           <ThemeToggle />
           {user ? (
-            <UserMenu user={user} />
+            <UserMenu user={user} isAdmin={isAdmin} />
           ) : (
             <Button asChild>
               <Link href="/login">Sign In</Link>

@@ -66,3 +66,23 @@ export async function getRecentDuas(limit = 5) {
 
   return data
 }
+
+export async function isUserAdmin() {
+  const supabase = await getSupabaseServerClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return false
+  }
+
+  const { data: adminUser } = await supabase
+    .from("admin_users")
+    .select("*")
+    .eq("user_id", user.id)
+    .eq("is_active", true)
+    .single()
+
+  return !!adminUser
+}

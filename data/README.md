@@ -4,8 +4,8 @@ This directory contains CSV files with popular Islamic duas that can be imported
 
 ## Files
 
-- `popular-duas.csv` - Contains popular duas including:
-  - Ayatul Kursi
+- `popular-duas.csv` - Contains 16 popular duas including:
+  - Ayatul Kursi (complete)
   - Surah Al-Ikhlas (112)
   - Surah Al-Falaq (113)
   - Surah An-Nas (114)
@@ -13,27 +13,40 @@ This directory contains CSV files with popular Islamic duas that can be imported
   - Tasbih of Fatimah
   - Morning and Evening Duas
   - Sleep and Waking Duas
+  - Eating Duas
+  - Entering/Leaving Home Duas
+  - Entering/Leaving Masjid Duas
 
 ## How to Import
 
 1. Go to Admin Panel > Import/Export
-2. Convert the CSV to JSON format (or use the provided conversion tool)
-3. Upload the JSON file
-4. The duas will be imported with their categories and tags
+2. Select "CSV" as the import format
+3. Upload the `popular-duas.csv` file
+4. The duas will be imported with their categories
 
 ## CSV Format
 
-The CSV includes the following columns:
-- title: English title of the dua
-- arabic: Arabic text
-- transliteration: Romanized pronunciation
-- translation_en: English translation
-- translation_bn: Bangla translation
-- category: Category name
-- tags: Pipe-separated tags (e.g., "morning|protection")
-- reference: Source reference (Quran/Hadith)
-- benefits: Benefits and when to recite
+The CSV includes the following required columns:
+- **title_bn**: Bangla title of the dua (required)
+- **title_ar**: Arabic title
+- **arabic_text**: Full Arabic text (required)
+- **transliteration_bn**: Bangla transliteration
+- **translation_bn**: Bangla translation (required)
+- **reference**: Source reference (Quran/Hadith)
+- **category_slug**: Category slug (required) - must match existing category
+- **is_featured**: true/false - whether to feature the dua
+- **is_active**: true/false - whether the dua is active
+
+## Prerequisites
+
+Before importing, make sure these categories exist in your database:
+- `quran` - For Quranic duas
+- `salah` - For prayer-related duas
+- `dhikr` - For dhikr and tasbih
+- `daily` - For daily duas
+
+You can create these categories from the Admin Panel > Categories page, or run the seed data script.
 
 ## Note
 
-Before importing, make sure the referenced categories exist in your database. You may need to create categories first.
+The import function will automatically map category slugs to category IDs. If a category doesn't exist, the dua will be imported without a category.

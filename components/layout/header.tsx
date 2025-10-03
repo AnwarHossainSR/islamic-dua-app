@@ -6,8 +6,12 @@ import { ThemeToggle } from "./theme-toggle"
 import { Button } from "@/components/ui/button"
 
 export async function Header() {
+  console.log("[v0] Header rendering")
   const user = await getUser()
+  console.log("[v0] Header - User:", user?.email)
+
   const isAdmin = user ? await isUserAdmin() : false
+  console.log("[v0] Header - isAdmin:", isAdmin)
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">

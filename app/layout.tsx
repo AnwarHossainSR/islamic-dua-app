@@ -51,7 +51,7 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
           <Suspense fallback={null}>
             <Header />
-            <main className="min-h-[calc(100vh-4rem)]">{children}</main>
+            <main className="container min-h-[calc(100vh-4rem)] py-6">{children}</main>
             <Toaster />
           </Suspense>
           <Analytics />

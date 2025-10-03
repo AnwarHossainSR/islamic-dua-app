@@ -7,15 +7,39 @@ import { Plus, Shield, Mail, Calendar } from "lucide-react"
 
 async function getAdminUsers() {
   const supabase = await getSupabaseServerClient()
-  const { data } = await supabase
+
+  const { data, error } = await supabase
     .from("admin_users")
-    .select("*, user:auth.users(email)")
+    .select(`
+      *,
+      user_email:user_id
+    `)
     .order("created_at", { ascending: false })
-  return data || []
+
+  console.log("[v0] Admin users query result:", { data, error })
+
+  if (error) {
+    console.error("[v0] Error fetching admin users:", error)
+    return []
+  }
+
+  const usersWithEmails = await Promise.all(
+    (data || []).map(async (admin) => {
+      const { data: userData } = await supabase.auth.admin.getUserById(admin.user_id)
+      return {
+        ...admin,
+        user: userData?.user,
+      }
+    }),
+  )
+
+  return usersWithEmails
 }
 
 export default async function AdminUsersPage() {
   const adminUsers = await getAdminUsers()
+
+  console.log("[v0] Rendering admin users page with:", adminUsers.length, "users")
 
   return (
     <div className="space-y-8">
@@ -104,7 +128,7 @@ export default async function AdminUsersPage() {
             {adminUsers.length === 0 && (
               <div className="flex min-h-[200px] items-center justify-center">
                 <div className="text-center">
-                  <p className="mb-4 text-muted-foreground">No admin users yet</p>
+                  <p className="mb-4 text-muted-foreground">No admin users found</p>
                   <Button asChild>
                     <Link href="/admin/users/new">
                       <Plus className="mr-2 h-4 w-4" />

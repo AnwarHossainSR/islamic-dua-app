@@ -32,11 +32,32 @@ export async function signIn(email: string, password: string) {
   })
 
   if (error) {
+    if (error.message.includes("Email not confirmed") || error.message.includes("email_not_confirmed")) {
+      return {
+        error: "Please confirm your email address before signing in. Check your inbox for the confirmation link.",
+        code: "email_not_confirmed",
+      }
+    }
     return { error: error.message }
   }
 
   revalidatePath("/", "layout")
-  redirect("/")
+  redirect("/duas")
+}
+
+export async function resendConfirmationEmail(email: string) {
+  const supabase = await getSupabaseServerClient()
+
+  const { error } = await supabase.auth.resend({
+    type: "signup",
+    email,
+  })
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  return { success: true, message: "Confirmation email sent! Please check your inbox." }
 }
 
 export async function signOut() {

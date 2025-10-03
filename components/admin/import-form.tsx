@@ -5,7 +5,7 @@ import type React from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { importDuasFromJSON } from "@/lib/actions/import-export"
+import { importDuasFromJSON, importDuasFromCSV } from "@/lib/actions/import-export"
 import { Upload } from "lucide-react"
 import { useState } from "react"
 import { useToast } from "@/hooks/use-toast"
@@ -21,7 +21,7 @@ export function ImportForm() {
     if (!file) {
       toast({
         title: "No File Selected",
-        description: "Please select a JSON file to import",
+        description: "Please select a JSON or CSV file to import",
         variant: "destructive",
       })
       return
@@ -31,7 +31,8 @@ export function ImportForm() {
 
     try {
       const content = await file.text()
-      const result = await importDuasFromJSON(content)
+      const isCSV = file.name.endsWith(".csv")
+      const result = isCSV ? await importDuasFromCSV(content) : await importDuasFromJSON(content)
 
       if (result.error) {
         toast({
@@ -63,11 +64,11 @@ export function ImportForm() {
   return (
     <form onSubmit={handleImport} className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="file-upload">Select JSON File</Label>
+        <Label htmlFor="file-upload">Select JSON or CSV File</Label>
         <Input
           id="file-upload"
           type="file"
-          accept=".json"
+          accept=".json,.csv"
           onChange={(e) => setFile(e.target.files?.[0] || null)}
           disabled={loading}
         />

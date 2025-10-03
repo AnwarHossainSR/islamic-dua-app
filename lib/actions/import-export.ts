@@ -120,3 +120,95 @@ export async function exportDuasToCSV() {
 
   return { data: csv }
 }
+
+export async function importDuasFromCSV(csvData: string) {
+  const supabase = await getSupabaseServerClient()
+
+  try {
+    // Parse CSV
+    const lines = csvData.trim().split("\n")
+    if (lines.length < 2) {
+      return { error: "CSV file is empty or invalid" }
+    }
+
+    // Get headers
+    const headers = lines[0].split(",").map((h) => h.trim().replace(/^"|"$/g, ""))
+
+    // Expected headers
+    const requiredHeaders = ["title_bn", "arabic_text", "translation_bn", "category_slug"]
+    const missingHeaders = requiredHeaders.filter((h) => !headers.includes(h))
+
+    if (missingHeaders.length > 0) {
+      return { error: `Missing required headers: ${missingHeaders.join(", ")}` }
+    }
+
+    // Parse rows
+    const duas = []
+    for (let i = 1; i < lines.length; i++) {
+      const line = lines[i].trim()
+      if (!line) continue
+
+      // Parse CSV line (handle quoted values)
+      const values: string[] = []
+      let currentValue = ""
+      let insideQuotes = false
+
+      for (let j = 0; j < line.length; j++) {
+        const char = line[j]
+
+        if (char === '"') {
+          insideQuotes = !insideQuotes
+        } else if (char === "," && !insideQuotes) {
+          values.push(currentValue.trim())
+          currentValue = ""
+        } else {
+          currentValue += char
+        }
+      }
+      values.push(currentValue.trim())
+
+      // Create dua object
+      const dua: any = {}
+      headers.forEach((header, index) => {
+        const value = values[index] || ""
+        dua[header] = value
+      })
+
+      // Get category ID from slug
+      if (dua.category_slug) {
+        const { data: category } = await supabase.from("categories").select("id").eq("slug", dua.category_slug).single()
+
+        if (category) {
+          dua.category_id = category.id
+        }
+        delete dua.category_slug
+      }
+
+      // Convert boolean fields
+      if (dua.is_featured) {
+        dua.is_featured = dua.is_featured.toLowerCase() === "true" || dua.is_featured === "1"
+      }
+      if (dua.is_active !== undefined) {
+        dua.is_active = dua.is_active.toLowerCase() === "true" || dua.is_active === "1"
+      }
+
+      duas.push(dua)
+    }
+
+    if (duas.length === 0) {
+      return { error: "No valid duas found in CSV" }
+    }
+
+    // Insert duas
+    const { data, error } = await supabase.from("duas").insert(duas).select()
+
+    if (error) {
+      return { error: error.message }
+    }
+
+    return { success: true, count: data.length }
+  } catch (err) {
+    console.error("[v0] CSV import error:", err)
+    return { error: "Failed to parse CSV data" }
+  }
+}

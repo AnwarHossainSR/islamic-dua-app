@@ -33,7 +33,7 @@ export default function ImportExportPage() {
               <Upload className="h-5 w-5 text-primary" />
               <CardTitle>Import Data</CardTitle>
             </div>
-            <CardDescription>Upload JSON files to bulk import duas</CardDescription>
+            <CardDescription>Upload JSON or CSV files to bulk import duas</CardDescription>
           </CardHeader>
           <CardContent>
             <ImportForm />
@@ -57,8 +57,12 @@ export default function ImportExportPage() {
           <div>
             <h3 className="mb-2 font-semibold">Import Requirements</h3>
             <ul className="list-inside list-disc space-y-1 text-sm text-muted-foreground">
-              <li>Only JSON format is supported for imports</li>
-              <li>Ensure category IDs exist before importing duas</li>
+              <li>Both JSON and CSV formats are supported for imports</li>
+              <li>
+                CSV must include headers: title_bn, title_ar, title_en, arabic_text, transliteration_bn, translation_bn,
+                translation_en, reference, category_slug
+              </li>
+              <li>Ensure category slugs exist before importing duas</li>
               <li>Duplicate entries will be rejected by the database</li>
               <li>Large imports may take several seconds to process</li>
             </ul>

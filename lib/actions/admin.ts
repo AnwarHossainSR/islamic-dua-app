@@ -68,13 +68,10 @@ export async function getRecentDuas(limit = 5) {
 }
 
 export async function isUserAdmin() {
-  console.log('[v0] isUserAdmin called')
   const supabase = await getSupabaseServerClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
-
-  console.log('[v0] isUserAdmin - User ID:', user?.id)
 
   if (!user) {
     console.log('[v0] isUserAdmin - No user found, returning false')
@@ -87,9 +84,6 @@ export async function isUserAdmin() {
     .eq('user_id', user.id)
     .eq('is_active', true)
     .single()
-
-  console.log('[v0] isUserAdmin - Error:', error)
-  console.log('[v0] isUserAdmin - Result:', !!adminUser)
 
   return !!adminUser
 }

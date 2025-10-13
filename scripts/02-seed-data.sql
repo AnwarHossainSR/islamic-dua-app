@@ -107,4 +107,3 @@ WHERE NOT EXISTS (SELECT 1 FROM dhikr_presets WHERE name_en = v.name_en);
 
 -- Note:
 -- Dua of Yunus (A.S.) is to be recited 300 times daily after Isha prayer for 21 consecutive days.
-

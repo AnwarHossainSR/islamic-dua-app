@@ -8,10 +8,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   return (
     <div className="flex min-h-[calc(100vh-4rem)]">
-      <Suspense fallback={<div className="hidden w-64 border-r border-border lg:block" />}>
+      <Suspense fallback={<div className="w-64 border-r border-border" />}>
         <AdminSidebar />
       </Suspense>
-      <main className="flex-1 overflow-auto px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-8">{children}</main>
+      <main className="flex-1 overflow-auto px-8 py-8">{children}</main>
     </div>
   )
 }

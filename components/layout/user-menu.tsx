@@ -1,6 +1,7 @@
-"use client"
+'use client'
 
-import type { User } from "@supabase/supabase-js"
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,24 +9,15 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { signOut } from "@/lib/actions/auth"
-import Link from "next/link"
-import { useEffect, useState } from "react"
+} from '@/components/ui/dropdown-menu'
+import { signOut } from '@/lib/actions/auth'
+import type { User } from '@supabase/supabase-js'
+import Link from 'next/link'
+import { useState } from 'react'
 
 export function UserMenu({ user, isAdmin }: { user: User; isAdmin: boolean }) {
-  const initials = user.email?.substring(0, 2).toUpperCase() || "U"
+  const initials = user.email?.substring(0, 2).toUpperCase() || 'U'
   const [open, setOpen] = useState(false)
-
-  useEffect(() => {
-    console.log("[v0] UserMenu rendered - User:", user.email, "IsAdmin:", isAdmin)
-  }, [user.email, isAdmin])
-
-  useEffect(() => {
-    console.log("[v0] UserMenu dropdown open state:", open)
-  }, [open])
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
@@ -34,11 +26,13 @@ export function UserMenu({ user, isAdmin }: { user: User; isAdmin: boolean }) {
           variant="ghost"
           className="relative h-10 w-10 rounded-full"
           onClick={() => {
-            console.log("[v0] UserMenu trigger clicked")
+            console.log('[v0] UserMenu trigger clicked')
           }}
         >
           <Avatar>
-            <AvatarFallback className="bg-primary text-primary-foreground">{initials}</AvatarFallback>
+            <AvatarFallback className="bg-primary text-primary-foreground">
+              {initials}
+            </AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
@@ -70,7 +64,7 @@ export function UserMenu({ user, isAdmin }: { user: User; isAdmin: boolean }) {
         <DropdownMenuItem
           className="text-destructive focus:text-destructive"
           onClick={() => {
-            console.log("[v0] Sign out clicked")
+            console.log('[v0] Sign out clicked')
             signOut()
           }}
         >

@@ -384,18 +384,26 @@ export async function createChallengeTemplate(formData: FormData) {
     translation_en: formData.get('translation_en') as string,
     daily_target_count: parseInt(formData.get('daily_target_count') as string) || 21,
     total_days: parseInt(formData.get('total_days') as string) || 21,
-    recommended_time: formData.get('recommended_time') as string,
-    recommended_prayer: formData.get('recommended_prayer') as string,
+    recommended_time: (formData.get('recommended_time') as string) || null,
+    recommended_prayer: (formData.get('recommended_prayer') as string) || null,
     reference: formData.get('reference') as string,
     fazilat_bn: formData.get('fazilat_bn') as string,
     fazilat_ar: formData.get('fazilat_ar') as string,
     fazilat_en: formData.get('fazilat_en') as string,
-    difficulty_level: formData.get('difficulty_level') as string,
+    difficulty_level: (formData.get('difficulty_level') as string) || 'medium',
     icon: formData.get('icon') as string,
     color: formData.get('color') as string,
     display_order: parseInt(formData.get('display_order') as string) || 0,
-    is_featured: formData.get('is_featured') === 'on',
-    is_active: formData.get('is_active') === 'on',
+    is_featured: formData.get('is_featured') === 'true',
+    is_active: formData.get('is_active') === 'true',
+  }
+
+  // Clean up null/empty values
+  if (!challengeData.recommended_time || challengeData.recommended_time === 'anytime') {
+    challengeData.recommended_time = null
+  }
+  if (!challengeData.recommended_prayer || challengeData.recommended_prayer === '') {
+    challengeData.recommended_prayer = null
   }
 
   const { data, error } = await supabase
@@ -429,18 +437,26 @@ export async function updateChallengeTemplate(id: string, formData: FormData) {
     translation_en: formData.get('translation_en') as string,
     daily_target_count: parseInt(formData.get('daily_target_count') as string) || 21,
     total_days: parseInt(formData.get('total_days') as string) || 21,
-    recommended_time: formData.get('recommended_time') as string,
-    recommended_prayer: formData.get('recommended_prayer') as string,
+    recommended_time: (formData.get('recommended_time') as string) || null,
+    recommended_prayer: (formData.get('recommended_prayer') as string) || null,
     reference: formData.get('reference') as string,
     fazilat_bn: formData.get('fazilat_bn') as string,
     fazilat_ar: formData.get('fazilat_ar') as string,
     fazilat_en: formData.get('fazilat_en') as string,
-    difficulty_level: formData.get('difficulty_level') as string,
+    difficulty_level: (formData.get('difficulty_level') as string) || 'medium',
     icon: formData.get('icon') as string,
     color: formData.get('color') as string,
     display_order: parseInt(formData.get('display_order') as string) || 0,
-    is_featured: formData.get('is_featured') === 'on',
-    is_active: formData.get('is_active') === 'on',
+    is_featured: formData.get('is_featured') === 'true',
+    is_active: formData.get('is_active') === 'true',
+  }
+
+  // Clean up null/empty values
+  if (!challengeData.recommended_time || challengeData.recommended_time === 'anytime') {
+    challengeData.recommended_time = null
+  }
+  if (!challengeData.recommended_prayer || challengeData.recommended_prayer === '') {
+    challengeData.recommended_prayer = null
   }
 
   const { error } = await supabase.from('challenge_templates').update(challengeData).eq('id', id)

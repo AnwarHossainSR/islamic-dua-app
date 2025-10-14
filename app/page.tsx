@@ -1,11 +1,11 @@
-import { Button } from "@/components/ui/button"
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import Link from "next/link"
-import { BookOpen, Clock, Heart, Sparkles } from "lucide-react"
+import { Button } from '@/components/ui/button'
+import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { BookOpen, Clock, Heart, Sparkles } from 'lucide-react'
+import Link from 'next/link'
 
 export default function HomePage() {
   return (
-    <div className="container py-8">
+    <div className=" py-8">
       {/* Hero Section */}
       <section className="mb-16 text-center">
         <div className="mx-auto max-w-3xl space-y-4">
@@ -13,8 +13,8 @@ export default function HomePage() {
             Your Daily Companion for <span className="text-primary">Islamic Duas</span>
           </h1>
           <p className="text-lg text-muted-foreground text-pretty">
-            Access authentic duas and dhikr with Bangla translations. Build your spiritual routine with our
-            comprehensive collection.
+            Access authentic duas and dhikr with Bangla translations. Build your spiritual routine
+            with our comprehensive collection.
           </p>
           <div className="flex flex-wrap justify-center gap-4 pt-4">
             <Button size="lg" asChild>
@@ -35,7 +35,9 @@ export default function HomePage() {
             <CardHeader>
               <BookOpen className="mb-2 h-10 w-10 text-primary" />
               <CardTitle>Comprehensive Collection</CardTitle>
-              <CardDescription>Authentic duas from Quran and Sunnah with references</CardDescription>
+              <CardDescription>
+                Authentic duas from Quran and Sunnah with references
+              </CardDescription>
             </CardHeader>
           </Card>
 
@@ -43,7 +45,9 @@ export default function HomePage() {
             <CardHeader>
               <Clock className="mb-2 h-10 w-10 text-primary" />
               <CardTitle>Day-wise Recommendations</CardTitle>
-              <CardDescription>Get daily dua suggestions based on the day of the week</CardDescription>
+              <CardDescription>
+                Get daily dua suggestions based on the day of the week
+              </CardDescription>
             </CardHeader>
           </Card>
 
@@ -51,7 +55,9 @@ export default function HomePage() {
             <CardHeader>
               <Heart className="mb-2 h-10 w-10 text-primary" />
               <CardTitle>Bookmark Favorites</CardTitle>
-              <CardDescription>Save and organize your most-used duas for quick access</CardDescription>
+              <CardDescription>
+                Save and organize your most-used duas for quick access
+              </CardDescription>
             </CardHeader>
           </Card>
 
@@ -59,7 +65,9 @@ export default function HomePage() {
             <CardHeader>
               <Sparkles className="mb-2 h-10 w-10 text-primary" />
               <CardTitle>Digital Dhikr Counter</CardTitle>
-              <CardDescription>Track your dhikr with our fullscreen counter feature</CardDescription>
+              <CardDescription>
+                Track your dhikr with our fullscreen counter feature
+              </CardDescription>
             </CardHeader>
           </Card>
         </div>

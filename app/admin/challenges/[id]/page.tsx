@@ -27,7 +27,6 @@ interface Props {
 }
 
 export default async function ChallengeFormPage({ params }: Props) {
-  console.log('params', params)
   const isEdit = params.id && params.id !== 'new'
   const challenge = isEdit ? await getChallengeById(params.id) : null
 
@@ -40,7 +39,7 @@ export default async function ChallengeFormPage({ params }: Props) {
     'use server'
 
     if (isEdit && challenge) {
-      await updateChallengeTemplate(challenge?.id, formData)
+      await updateChallengeTemplate(challenge.id, formData)
     } else {
       await createChallengeTemplate(formData)
     }
@@ -49,7 +48,7 @@ export default async function ChallengeFormPage({ params }: Props) {
   }
 
   return (
-    <div className="mx-auto max-w-4xl space-y-8">
+    <div className="mx-auto max-w-4xl space-y-8 pb-20">
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" asChild>
           <Link href="/admin/challenges">
@@ -119,6 +118,29 @@ export default async function ChallengeFormPage({ params }: Props) {
                 />
               </div>
 
+              <div className="space-y-2">
+                <Label htmlFor="description_ar">Description (Arabic)</Label>
+                <Textarea
+                  id="description_ar"
+                  name="description_ar"
+                  defaultValue={challenge?.description_ar || ''}
+                  rows={3}
+                  placeholder="وصف التحدي"
+                  className="arabic-text"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="description_en">Description (English)</Label>
+                <Textarea
+                  id="description_en"
+                  name="description_en"
+                  defaultValue={challenge?.description_en || ''}
+                  rows={3}
+                  placeholder="Challenge description"
+                />
+              </div>
+
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="icon">Icon (Emoji)</Label>
@@ -127,7 +149,7 @@ export default async function ChallengeFormPage({ params }: Props) {
                     name="icon"
                     defaultValue={challenge?.icon || ''}
                     placeholder="📿"
-                    maxLength={2}
+                    maxLength={4}
                   />
                 </div>
                 <div className="space-y-2">
@@ -264,7 +286,7 @@ export default async function ChallengeFormPage({ params }: Props) {
                       <SelectValue placeholder="Select prayer" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="null">None</SelectItem>
+                      <SelectItem value="none">None</SelectItem>
                       <SelectItem value="fajr">Fajr</SelectItem>
                       <SelectItem value="dhuhr">Dhuhr</SelectItem>
                       <SelectItem value="asr">Asr</SelectItem>
@@ -312,6 +334,29 @@ export default async function ChallengeFormPage({ params }: Props) {
               </div>
 
               <div className="space-y-2">
+                <Label htmlFor="fazilat_ar">Fazilat (Arabic)</Label>
+                <Textarea
+                  id="fazilat_ar"
+                  name="fazilat_ar"
+                  defaultValue={challenge?.fazilat_ar || ''}
+                  rows={4}
+                  placeholder="فضائل هذا الذكر"
+                  className="arabic-text"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="fazilat_en">Fazilat (English)</Label>
+                <Textarea
+                  id="fazilat_en"
+                  name="fazilat_en"
+                  defaultValue={challenge?.fazilat_en || ''}
+                  rows={4}
+                  placeholder="Benefits of this dhikr"
+                />
+              </div>
+
+              <div className="space-y-2">
                 <Label htmlFor="reference">Reference</Label>
                 <Input
                   id="reference"
@@ -344,6 +389,7 @@ export default async function ChallengeFormPage({ params }: Props) {
                   id="is_featured"
                   name="is_featured"
                   defaultChecked={challenge?.is_featured}
+                  value="true"
                 />
                 <Label htmlFor="is_featured" className="font-normal">
                   Featured Challenge
@@ -355,6 +401,7 @@ export default async function ChallengeFormPage({ params }: Props) {
                   id="is_active"
                   name="is_active"
                   defaultChecked={challenge?.is_active ?? true}
+                  value="true"
                 />
                 <Label htmlFor="is_active" className="font-normal">
                   Active

@@ -10,8 +10,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { deleteChallengeTemplate, getChallenges } from '@/lib/actions/challenges'
-import { getSupabaseServerClient } from '@/lib/supabase/server'
+import { deleteChallengeTemplate, getChallenges, getRecentLogs } from '@/lib/actions/challenges'
 import {
   Calendar,
   Edit,
@@ -28,7 +27,6 @@ import { revalidatePath } from 'next/cache'
 import Link from 'next/link'
 
 export default async function AdminChallengesPage() {
-  const supabase = await getSupabaseServerClient()
   const challenges = await getChallenges()
 
   // Calculate overall stats
@@ -36,21 +34,9 @@ export default async function AdminChallengesPage() {
   const totalParticipants = challenges.reduce((sum, c) => sum + (c.total_participants || 0), 0)
   const totalCompletions = challenges.reduce((sum, c) => sum + (c.total_completions || 0), 0)
   const avgCompletionRate =
-    totalParticipants > 0 ? Math.round((totalCompletions / totalParticipants) * 100) : 0
+    totalParticipants > 0 ? Math.round((totalCompletions / challenges[0].total_days) * 100) : 0
 
-  // Get recent activity (Fixed join to challenge_templates)
-  const { data: recentLogs } = await supabase
-    .from('user_challenge_daily_logs')
-    .select(
-      `
-      *,
-      user_progress:user_challenge_progress(
-        challenge:challenge_templates(title_bn, icon)
-      )
-    `
-    )
-    .order('created_at', { ascending: false })
-    .limit(10)
+  const recentLogs = await getRecentLogs(10)
 
   async function handleDelete(formData: FormData) {
     'use server'

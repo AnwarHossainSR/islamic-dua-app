@@ -1,21 +1,21 @@
-import { getUserBookmarks } from "@/lib/actions/duas"
-import { DuaCard } from "@/components/duas/dua-card"
-import { getUser } from "@/lib/actions/auth"
-import { redirect } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
+import { DuaCard } from '@/components/duas/dua-card'
+import { Button } from '@/components/ui/button'
+import { getUser } from '@/lib/actions/auth'
+import { getUserBookmarks } from '@/lib/actions/duas'
+import Link from 'next/link'
+import { redirect } from 'next/navigation'
 
 export default async function BookmarksPage() {
   const user = await getUser()
 
   if (!user) {
-    redirect("/login")
+    redirect('/login')
   }
 
   const bookmarks = await getUserBookmarks()
 
   return (
-    <div className="container py-8">
+    <div className=" py-8">
       <div className="mb-8">
         <h1 className="mb-2 text-4xl font-bold">My Bookmarks</h1>
         <p className="text-muted-foreground">Your saved duas for quick access</p>

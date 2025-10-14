@@ -1,8 +1,8 @@
-import { getDuas, getCategories } from "@/lib/actions/duas"
-import { DuaCard } from "@/components/duas/dua-card"
-import { DuaFilters } from "@/components/duas/dua-filters"
-import { Suspense } from "react"
-import { DuaCardSkeleton } from "@/components/duas/dua-card-skeleton"
+import { DuaCard } from '@/components/duas/dua-card'
+import { DuaCardSkeleton } from '@/components/duas/dua-card-skeleton'
+import { DuaFilters } from '@/components/duas/dua-filters'
+import { getCategories, getDuas } from '@/lib/actions/duas'
+import { Suspense } from 'react'
 
 export default async function DuasPage({
   searchParams,
@@ -13,10 +13,12 @@ export default async function DuasPage({
   const categories = await getCategories()
 
   return (
-    <div className="container py-8">
+    <div className=" py-8">
       <div className="mb-8">
         <h1 className="mb-2 text-4xl font-bold">Duas Collection</h1>
-        <p className="text-muted-foreground">Browse our comprehensive collection of Islamic supplications</p>
+        <p className="text-muted-foreground">
+          Browse our comprehensive collection of Islamic supplications
+        </p>
       </div>
 
       <DuaFilters categories={categories} />
@@ -49,7 +51,7 @@ async function DuasList({ categoryId, search }: { categoryId?: string; search?: 
 
   return (
     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-      {duas.map((dua) => (
+      {duas.map(dua => (
         <DuaCard key={dua.id} dua={dua} />
       ))}
     </div>

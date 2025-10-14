@@ -6,7 +6,7 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- ============================================
--- TABLES
+-- TABLES (Non-Challenge Parts Unchanged)
 -- ============================================
 
 -- Categories table
@@ -171,7 +171,7 @@ BEGIN
 END $$;
 
 -- ============================================
--- INDEXES
+-- INDEXES (Non-Challenge Parts Unchanged)
 -- ============================================
 
 CREATE INDEX IF NOT EXISTS idx_duas_category ON duas(category_id);
@@ -182,7 +182,7 @@ CREATE INDEX IF NOT EXISTS idx_user_bookmarks_user ON user_bookmarks(user_id);
 CREATE INDEX IF NOT EXISTS idx_fazilat_dua ON fazilat(dua_id);
 
 -- ============================================
--- TRIGGERS
+-- TRIGGERS (Non-Challenge Parts Unchanged)
 -- ============================================
 
 -- Create updated_at trigger function
@@ -218,7 +218,7 @@ CREATE TRIGGER update_admin_users_updated_at BEFORE UPDATE ON admin_users
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- ============================================
--- ROW LEVEL SECURITY
+-- ROW LEVEL SECURITY (Non-Challenge Parts Unchanged)
 -- ============================================
 
 -- Enable RLS on all tables
@@ -384,7 +384,7 @@ CREATE POLICY "Super admins can manage admin users"
   WITH CHECK (is_super_admin());
 
 -- ============================================
--- SEED DATA
+-- SEED DATA (Non-Challenge Parts Unchanged)
 -- ============================================
 
 -- Insert Categories (only if they don't exist)
@@ -490,13 +490,20 @@ SELECT * FROM (VALUES
 ) AS v(name_bn, name_ar, name_en, arabic_text, transliteration_bn, translation_bn, target_count, is_default, display_order)
 WHERE NOT EXISTS (SELECT 1 FROM dhikr_presets WHERE name_en = v.name_en);
 
-
 -- ============================================
--- DAILY DHIKR CHALLENGE TABLES
+-- DAILY DHIKR CHALLENGE TABLES (Renamed to challenge_templates)
 -- ============================================
 
--- Challenge Templates (Admin creates these)
-CREATE TABLE IF NOT EXISTS dhikr_challenges (
+-- Drop old tables if they exist (to clean up dhikr_challenges references)
+DROP TABLE IF EXISTS user_challenge_daily_logs CASCADE;
+DROP TABLE IF EXISTS user_challenge_bookmarks CASCADE;
+DROP TABLE IF EXISTS user_achievements CASCADE;
+DROP TABLE IF EXISTS challenge_achievements CASCADE;
+DROP TABLE IF EXISTS user_challenge_progress CASCADE;
+DROP TABLE IF EXISTS dhikr_challenges CASCADE;
+
+-- Challenge Templates (Renamed from dhikr_challenges)
+CREATE TABLE IF NOT EXISTS challenge_templates (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   title_bn TEXT NOT NULL,
   title_ar TEXT,
@@ -537,11 +544,11 @@ CREATE TABLE IF NOT EXISTS dhikr_challenges (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- User Challenge Progress (User's active/completed challenges)
+-- User Challenge Progress (Updated FK to challenge_templates)
 CREATE TABLE IF NOT EXISTS user_challenge_progress (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID NOT NULL,
-  challenge_id UUID REFERENCES dhikr_challenges(id) ON DELETE CASCADE,
+  challenge_id UUID REFERENCES challenge_templates(id) ON DELETE CASCADE,
   
   -- Progress tracking
   current_day INTEGER DEFAULT 1, -- Which day they're on (1-21)
@@ -569,12 +576,12 @@ CREATE TABLE IF NOT EXISTS user_challenge_progress (
   UNIQUE(user_id, challenge_id, started_at) -- Allow user to restart same challenge
 );
 
--- Daily Completion Records
+-- Daily Completion Records (Updated FK to challenge_templates)
 CREATE TABLE IF NOT EXISTS user_challenge_daily_logs (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_progress_id UUID REFERENCES user_challenge_progress(id) ON DELETE CASCADE,
   user_id UUID NOT NULL,
-  challenge_id UUID REFERENCES dhikr_challenges(id) ON DELETE CASCADE,
+  challenge_id UUID REFERENCES challenge_templates(id) ON DELETE CASCADE,
   
   -- Day info
   day_number INTEGER NOT NULL, -- Which day of the challenge (1-21)
@@ -599,11 +606,11 @@ CREATE TABLE IF NOT EXISTS user_challenge_daily_logs (
   UNIQUE(user_progress_id, day_number)
 );
 
--- User Challenge Bookmarks (Save challenges for later)
+-- User Challenge Bookmarks (Updated FK to challenge_templates)
 CREATE TABLE IF NOT EXISTS user_challenge_bookmarks (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID NOT NULL,
-  challenge_id UUID REFERENCES dhikr_challenges(id) ON DELETE CASCADE,
+  challenge_id UUID REFERENCES challenge_templates(id) ON DELETE CASCADE,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   
   UNIQUE(user_id, challenge_id)
@@ -638,11 +645,11 @@ CREATE TABLE IF NOT EXISTS user_achievements (
 );
 
 -- ============================================
--- INDEXES
+-- INDEXES (Updated for challenge_templates)
 -- ============================================
 
-CREATE INDEX IF NOT EXISTS idx_dhikr_challenges_active ON dhikr_challenges(is_active) WHERE is_active = true;
-CREATE INDEX IF NOT EXISTS idx_dhikr_challenges_featured ON dhikr_challenges(is_featured) WHERE is_featured = true;
+CREATE INDEX IF NOT EXISTS idx_challenge_templates_active ON challenge_templates(is_active) WHERE is_active = true;
+CREATE INDEX IF NOT EXISTS idx_challenge_templates_featured ON challenge_templates(is_featured) WHERE is_featured = true;
 CREATE INDEX IF NOT EXISTS idx_user_challenge_progress_user ON user_challenge_progress(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_challenge_progress_status ON user_challenge_progress(status);
 CREATE INDEX IF NOT EXISTS idx_user_challenge_daily_logs_user ON user_challenge_daily_logs(user_id);
@@ -652,20 +659,20 @@ CREATE INDEX IF NOT EXISTS idx_user_challenge_bookmarks_user ON user_challenge_b
 CREATE INDEX IF NOT EXISTS idx_user_achievements_user ON user_achievements(user_id);
 
 -- ============================================
--- TRIGGERS
+-- TRIGGERS (Updated for challenge_templates)
 -- ============================================
 
-CREATE TRIGGER update_dhikr_challenges_updated_at BEFORE UPDATE ON dhikr_challenges
+CREATE TRIGGER update_challenge_templates_updated_at BEFORE UPDATE ON challenge_templates
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 CREATE TRIGGER update_user_challenge_progress_updated_at BEFORE UPDATE ON user_challenge_progress
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- ============================================
--- ROW LEVEL SECURITY
+-- ROW LEVEL SECURITY (Updated for challenge_templates)
 -- ============================================
 
-ALTER TABLE dhikr_challenges ENABLE ROW LEVEL SECURITY;
+ALTER TABLE challenge_templates ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_challenge_progress ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_challenge_daily_logs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_challenge_bookmarks ENABLE ROW LEVEL SECURITY;
@@ -673,8 +680,8 @@ ALTER TABLE challenge_achievements ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_achievements ENABLE ROW LEVEL SECURITY;
 
 -- Drop existing policies
-DROP POLICY IF EXISTS "Challenges are viewable by everyone" ON dhikr_challenges;
-DROP POLICY IF EXISTS "Admins can manage challenges" ON dhikr_challenges;
+DROP POLICY IF EXISTS "Challenges are viewable by everyone" ON challenge_templates;
+DROP POLICY IF EXISTS "Admins can manage challenges" ON challenge_templates;
 DROP POLICY IF EXISTS "Users can view their own progress" ON user_challenge_progress;
 DROP POLICY IF EXISTS "Users can manage their own progress" ON user_challenge_progress;
 DROP POLICY IF EXISTS "Users can view their own daily logs" ON user_challenge_daily_logs;
@@ -686,11 +693,11 @@ DROP POLICY IF EXISTS "Users can view their own achievements" ON user_achievemen
 
 -- Challenge policies
 CREATE POLICY "Challenges are viewable by everyone"
-  ON dhikr_challenges FOR SELECT
+  ON challenge_templates FOR SELECT
   USING (is_active = true);
 
 CREATE POLICY "Admins can manage challenges"
-  ON dhikr_challenges FOR ALL
+  ON challenge_templates FOR ALL
   USING (is_admin())
   WITH CHECK (is_admin());
 
@@ -734,15 +741,15 @@ CREATE POLICY "Users can view their own achievements"
   USING (auth.uid() = user_id);
 
 -- ============================================
--- FUNCTIONS
+-- FUNCTIONS (Updated for challenge_templates)
 -- ============================================
 
--- Function to update challenge stats
+-- Function to update challenge stats (Updated table name)
 CREATE OR REPLACE FUNCTION update_challenge_stats()
 RETURNS TRIGGER AS $$
 BEGIN
   IF NEW.status = 'completed' AND OLD.status != 'completed' THEN
-    UPDATE dhikr_challenges
+    UPDATE challenge_templates
     SET total_completions = total_completions + 1
     WHERE id = NEW.challenge_id;
   END IF;
@@ -757,7 +764,7 @@ CREATE TRIGGER trigger_update_challenge_stats
   FOR EACH ROW
   EXECUTE FUNCTION update_challenge_stats();
 
--- Function to check and award achievements
+-- Function to check and award achievements (Unchanged)
 CREATE OR REPLACE FUNCTION check_and_award_achievements(p_user_id UUID)
 RETURNS void AS $$
 DECLARE
@@ -800,12 +807,31 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
+-- Updated increment function: Allow any authenticated user (or adjust as needed)
+CREATE OR REPLACE FUNCTION increment(p_row_id UUID, p_table_name TEXT, p_column_name TEXT)
+RETURNS void AS $$  
+BEGIN
+  -- Optional: Remove or comment out the admin check for user-initiated actions
+  -- IF NOT is_admin() THEN
+  --   RAISE EXCEPTION 'Only admins can increment stats';
+  -- END IF;
+  
+  -- Validate table/column exist (basic safety)
+  IF p_table_name != 'challenge_templates' OR p_column_name != 'total_participants' THEN
+    RAISE EXCEPTION 'Invalid table or column for increment';
+  END IF;
+  
+  -- Execute the update
+  EXECUTE format('UPDATE %I SET %I = COALESCE(%I, 0) + 1 WHERE id = $1', p_table_name, p_column_name, p_column_name) USING p_row_id;
+END;
+  $$ LANGUAGE plpgsql SECURITY DEFINER;
+
 -- ============================================
--- SEED DATA
+-- SEED DATA (Updated for challenge_templates)
 -- ============================================
 
 -- Insert sample challenges
-INSERT INTO dhikr_challenges (
+INSERT INTO challenge_templates (
   title_bn, title_ar, title_en, description_bn, arabic_text, transliteration_bn, 
   translation_bn, daily_target_count, total_days, recommended_time, 
   recommended_prayer, reference, fazilat_bn, difficulty_level, is_featured
@@ -862,20 +888,20 @@ SELECT * FROM (VALUES
     'medium',
     true
   )
-) AS v
+) AS v(title_bn, title_ar, title_en, description_bn, arabic_text, transliteration_bn, translation_bn, daily_target_count, total_days, recommended_time, recommended_prayer, reference, fazilat_bn, difficulty_level, is_featured)
 WHERE NOT EXISTS (
-  SELECT 1 FROM dhikr_challenges WHERE title_en = v.title_en
+  SELECT 1 FROM challenge_templates WHERE title_en = v.title_en
 );
 
 -- Insert achievements
-INSERT INTO challenge_achievements (code, title_bn, title_en, description_bn, icon, badge_color, requirement_type, requirement_value, display_order)
+INSERT INTO challenge_achievements (code, title_bn, title_ar, title_en, description_bn, description_ar, description_en, icon, badge_color, requirement_type, requirement_value, display_order)
 SELECT * FROM (VALUES
-  ('first_challenge', 'প্রথম চ্যালেঞ্জ', 'First Challenge', 'প্রথম চ্যালেঞ্জ সম্পূর্ণ করেছেন', '🎯', '#10b981', 'challenges_completed', 1, 1),
-  ('streak_7', '৭ দিনের স্ট্রীক', '7-Day Streak', 'টানা ৭ দিন চ্যালেঞ্জ চালিয়ে গেছেন', '🔥', '#f59e0b', 'streak', 7, 2),
-  ('streak_21', '২১ দিনের স্ট্রীক', '21-Day Streak', 'টানা ২১ দিন চ্যালেঞ্জ চালিয়ে গেছেন', '⚡', '#ef4444', 'streak', 21, 3),
-  ('complete_3', '৩টি চ্যালেঞ্জ', '3 Challenges', '৩টি চ্যালেঞ্জ সম্পূর্ণ করেছেন', '🏆', '#8b5cf6', 'challenges_completed', 3, 4),
-  ('complete_10', '১০টি চ্যালেঞ্জ', '10 Challenges', '১০টি চ্যালেঞ্জ সম্পূর্ণ করেছেন', '👑', '#ec4899', 'challenges_completed', 10, 5)
-) AS v
+  ('first_challenge', 'প্রথম চ্যালেঞ্জ', null, 'First Challenge', 'প্রথম চ্যালেঞ্জ সম্পূর্ণ করেছেন', null, null, '🎯', '#10b981', 'challenges_completed', 1, 1),
+  ('streak_7', '৭ দিনের স্ট্রীক', null, '7-Day Streak', 'টানা ৭ দিন চ্যালেঞ্জ চালিয়ে গেছেন', null, null, '🔥', '#f59e0b', 'streak', 7, 2),
+  ('streak_21', '২১ দিনের স্ট্রীক', null, '21-Day Streak', 'টানা ২১ দিন চ্যালেঞ্জ চালিয়ে গেছেন', null, null, '⚡', '#ef4444', 'streak', 21, 3),
+  ('complete_3', '৩টি চ্যালেঞ্জ', null, '3 Challenges', '৩টি চ্যালেঞ্জ সম্পূর্ণ করেছেন', null, null, '🏆', '#8b5cf6', 'challenges_completed', 3, 4),
+  ('complete_10', '১০টি চ্যালেঞ্জ', null, '10 Challenges', '১০টি চ্যালেঞ্জ সম্পূর্ণ করেছেন', null, null, '👑', '#ec4899', 'challenges_completed', 10, 5)
+) AS v(code, title_bn, title_ar, title_en, description_bn, description_ar, description_en, icon, badge_color, requirement_type, requirement_value, display_order)
 WHERE NOT EXISTS (
   SELECT 1 FROM challenge_achievements WHERE code = v.code
 );

@@ -10,8 +10,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { deleteChallengeTemplate, getChallenges } from '@/lib/actions/challenges'
-import { getSupabaseServerClient } from '@/lib/supabase/server'
+import { deleteChallengeTemplate, getChallenges, getRecentLogs } from '@/lib/actions/challenges'
 import {
   Calendar,
   Edit,
@@ -28,7 +27,6 @@ import { revalidatePath } from 'next/cache'
 import Link from 'next/link'
 
 export default async function AdminChallengesPage() {
-  const supabase = await getSupabaseServerClient()
   const challenges = await getChallenges()
 
   // Calculate overall stats
@@ -36,21 +34,9 @@ export default async function AdminChallengesPage() {
   const totalParticipants = challenges.reduce((sum, c) => sum + (c.total_participants || 0), 0)
   const totalCompletions = challenges.reduce((sum, c) => sum + (c.total_completions || 0), 0)
   const avgCompletionRate =
-    totalParticipants > 0 ? Math.round((totalCompletions / totalParticipants) * 100) : 0
+    totalParticipants > 0 ? Math.round((totalCompletions / challenges[0].total_days) * 100) : 0
 
-  // Get recent activity (mock for now - you can add a query)
-  const { data: recentLogs } = await supabase
-    .from('user_challenge_daily_logs')
-    .select(
-      `
-      *,
-      user_progress:user_challenge_progress(
-        challenge:dhikr_challenges(title_bn, icon)
-      )
-    `
-    )
-    .order('created_at', { ascending: false })
-    .limit(10)
+  const recentLogs = await getRecentLogs(10)
 
   async function handleDelete(formData: FormData) {
     'use server'
@@ -177,10 +163,10 @@ export default async function AdminChallengesPage() {
           <div className="space-y-4">
             {challenges.map(challenge => {
               const completionRate =
-                challenge.total_participants > 0
-                  ? Math.round((challenge.total_completions / challenge.total_participants) * 100)
+                challenge.total_completions > 0
+                  ? Math.round((challenge.total_completions / challenge.total_days) * 100)
                   : 0
-
+              console.log('challenge', challenge)
               return (
                 <Card key={challenge.id} className="overflow-hidden">
                   <div className="flex flex-col gap-6 p-6 md:flex-row">
@@ -341,7 +327,7 @@ export default async function AdminChallengesPage() {
             </CardHeader>
             <CardContent>
               <p className="text-center text-sm text-muted-foreground">
-                Active user tracking coming soon...
+                Active user tracking coming soon... (Start a challenge to see data here)
               </p>
             </CardContent>
           </Card>
@@ -368,7 +354,7 @@ export default async function AdminChallengesPage() {
                         </span>
                         <div>
                           <p className="text-sm font-medium">
-                            {log.user_progress?.challenge?.title_bn || 'Challenge'}
+                            {log.user_progress?.challenge?.title_bn || 'Unknown Challenge'}
                           </p>
                           <p className="text-xs text-muted-foreground">
                             Day {log.day_number} • {log.count_completed} repetitions
@@ -382,7 +368,9 @@ export default async function AdminChallengesPage() {
                   ))}
                 </div>
               ) : (
-                <p className="text-center text-sm text-muted-foreground">No recent activity</p>
+                <p className="text-center text-sm text-muted-foreground">
+                  No recent activity. Complete some days to see logs here.
+                </p>
               )}
             </CardContent>
           </Card>
@@ -399,20 +387,20 @@ export default async function AdminChallengesPage() {
               <CardContent>
                 <div className="space-y-3">
                   {challenges
-                    .filter(c => c.total_participants > 0)
+                    .filter(c => (c.total_participants || 0) > 0)
                     .sort((a, b) => {
-                      const rateA = (a.total_completions / a.total_participants) * 100
-                      const rateB = (b.total_completions / b.total_participants) * 100
+                      const rateA = ((a.total_completions || 0) / (a.total_participants || 1)) * 100
+                      const rateB = ((b.total_completions || 0) / (b.total_participants || 1)) * 100
                       return rateB - rateA
                     })
                     .slice(0, 5)
                     .map(challenge => {
                       const rate = Math.round(
-                        (challenge.total_completions / challenge.total_participants) * 100
+                        ((challenge.total_completions || 0) / (challenge.total_days || 1)) * 100
                       )
                       return (
                         <div key={challenge.id} className="flex items-center gap-3">
-                          <span className="text-xl">{challenge.icon}</span>
+                          <span className="text-xl">{challenge.icon || '📿'}</span>
                           <div className="flex-1">
                             <p className="text-sm font-medium">{challenge.title_bn}</p>
                             <div className="mt-1 h-2 overflow-hidden rounded-full bg-muted">
@@ -425,7 +413,11 @@ export default async function AdminChallengesPage() {
                           <span className="text-sm font-bold">{rate}%</span>
                         </div>
                       )
-                    })}
+                    }) || (
+                    <p className="text-sm text-muted-foreground">
+                      No data yet—start challenges to see rankings.
+                    </p>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -443,12 +435,16 @@ export default async function AdminChallengesPage() {
                     .map(challenge => (
                       <div key={challenge.id} className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <span className="text-xl">{challenge.icon}</span>
+                          <span className="text-xl">{challenge.icon || '📿'}</span>
                           <p className="text-sm font-medium">{challenge.title_bn}</p>
                         </div>
                         <Badge variant="secondary">{challenge.total_participants || 0} users</Badge>
                       </div>
-                    ))}
+                    )) || (
+                    <p className="text-sm text-muted-foreground">
+                      No data yet—start challenges to see popularity.
+                    </p>
+                  )}
                 </div>
               </CardContent>
             </Card>

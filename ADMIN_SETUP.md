@@ -19,7 +19,7 @@ After confirming your email, run the SQL script to promote yourself to super adm
 
 1. Go to your Supabase Dashboard
 2. Navigate to: **SQL Editor**
-3. Run the script: `scripts/04-create-admin-user.sql`
+3. Run the script: `scripts/03-create-admin-user.sql`
 
 This will add your user to the `admin_users` table with `super_admin` role.
 
@@ -48,18 +48,18 @@ To promote other users to admin:
 
 \`\`\`sql
 INSERT INTO admin_users (user_id, email, role, is_active)
-SELECT 
-  id,
-  email,
-  'admin',  -- or 'super_admin'
-  true
+SELECT
+id,
+email,
+'admin', -- or 'super_admin'
+true
 FROM auth.users
 WHERE email = 'new-admin@example.com'
-ON CONFLICT (user_id) 
-DO UPDATE SET 
-  role = 'admin',
-  is_active = true,
-  updated_at = now();
+ON CONFLICT (user_id)
+DO UPDATE SET
+role = 'admin',
+is_active = true,
+updated_at = now();
 \`\`\`
 
 ---
@@ -67,11 +67,13 @@ DO UPDATE SET
 ## Troubleshooting
 
 **"Email not confirmed" error when logging in:**
+
 - Check your email inbox for the confirmation link
 - Check spam/junk folder
 - In Supabase Dashboard → Authentication → Settings, you can disable email confirmation for development (not recommended for production)
 
 **Can't access admin panel:**
+
 - Verify you ran the `04-create-admin-user.sql` script
 - Check if your user exists in `admin_users` table
 - Ensure `is_active` is `true` and `role` is set correctly

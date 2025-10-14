@@ -301,7 +301,12 @@ export async function completeDailyChallenge(
 
   // Check and award achievements
   await supabase.rpc('check_and_award_achievements', { p_user_id: userId })
-
+  // Update challenge participants count
+  await supabase.rpc('increment', {
+    row_id: challengeId,
+    table_name: 'challenge_templates',
+    column_name: 'total_completions',
+  })
   revalidatePath(`/challenges/${progressId}`)
   revalidatePath('/challenges')
 
@@ -544,5 +549,27 @@ export async function getUserBookmarkedChallenges(userId: string) {
     return []
   }
 
+  return data
+}
+
+export async function getRecentLogs(limit: number) {
+  const supabase = await getSupabaseServerClient()
+  const { data, error } = await supabase
+    .from('user_challenge_daily_logs')
+    .select(
+      `
+      *,
+      user_progress:user_challenge_progress(
+        challenge:challenge_templates(title_bn, icon)
+      )
+    `
+    )
+    .order('created_at', { ascending: false })
+    .limit(limit)
+
+  if (error) {
+    console.error('Error fetching recent logs:', error)
+    return []
+  }
   return data
 }

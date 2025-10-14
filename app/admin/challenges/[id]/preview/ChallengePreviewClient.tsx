@@ -3,20 +3,7 @@
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Progress } from '@/components/ui/progress'
-import {
-  ArrowLeft,
-  BookOpen,
-  Calendar,
-  Check,
-  Clock,
-  Play,
-  RotateCcw,
-  Star,
-  Target,
-  Trophy,
-  Users,
-} from 'lucide-react'
+import { ArrowLeft, BookOpen, Calendar, Clock, Star, Target, Trophy, Users } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 
 interface ChallengePreviewClientProps {
@@ -235,111 +222,6 @@ export default function ChallengePreviewClient({
           )}
         </CardContent>
       </Card>
-
-      {/* Interactive Counter Section */}
-      {!isCounterActive ? (
-        <Card className="border-2 border-emerald-500">
-          <CardContent className="py-12 text-center">
-            <div className="mb-6 flex justify-center">
-              <div className="rounded-full bg-emerald-100 p-6 dark:bg-emerald-900">
-                <Play className="h-12 w-12 text-emerald-500" />
-              </div>
-            </div>
-            <h3 className="mb-2 text-2xl font-bold">Try the Counter</h3>
-            <p className="mb-6 text-muted-foreground">
-              {isPreviewMode
-                ? 'Test how the challenge counter works'
-                : 'Start your daily dhikr practice'}
-            </p>
-            <Button
-              size="lg"
-              onClick={handleStartCounter}
-              style={{ backgroundColor: challenge.color || '#10b981' }}
-            >
-              <Play className="mr-2 h-5 w-5" />
-              Start Counter
-            </Button>
-          </CardContent>
-        </Card>
-      ) : (
-        <Card className="border-2 border-emerald-500">
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <span>Counter Active</span>
-              <Badge variant="secondary" className="text-base">
-                {count} / {target}
-              </Badge>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Progress Bar */}
-            <div className="space-y-2">
-              <Progress value={dailyProgress} className="h-3" />
-              <p className="text-center text-sm text-muted-foreground">
-                {remaining > 0 ? `${remaining} more to go!` : 'Target reached! 🎉'}
-              </p>
-            </div>
-
-            {/* Counter Display */}
-            <div className="flex items-center justify-center">
-              <div className="text-center">
-                <div
-                  className="mb-4 text-8xl font-bold tabular-nums"
-                  style={{ color: challenge.color || '#10b981' }}
-                >
-                  {count}
-                </div>
-                <p className="text-muted-foreground">Tap or press Space</p>
-              </div>
-            </div>
-
-            {/* Main Counter Button - ADD EXPLICIT TYPE AND TEST HANDLER */}
-            <Button
-              type="button"
-              size="lg"
-              className="h-32 w-full text-2xl font-bold"
-              style={{ backgroundColor: challenge.color || '#10b981' }}
-              onClick={e => {
-                console.log('Button clicked!', e)
-                handleIncrement()
-              }}
-              disabled={count >= target}
-            >
-              {count >= target ? (
-                <>
-                  <Check className="mr-2 h-8 w-8" />
-                  Target Reached!
-                </>
-              ) : (
-                <>
-                  <Target className="mr-2 h-8 w-8" />
-                  Tap to Count
-                </>
-              )}
-            </Button>
-
-            {/* Action Buttons */}
-            <div className="grid gap-3 sm:grid-cols-2">
-              <Button variant="outline" onClick={handleReset} disabled={count === 0}>
-                <RotateCcw className="mr-2 h-4 w-4" />
-                Reset Counter
-              </Button>
-
-              <Button
-                variant="default"
-                onClick={handleComplete}
-                disabled={count === 0}
-                style={{
-                  backgroundColor: count >= target ? challenge.color || '#10b981' : undefined,
-                }}
-              >
-                <Check className="mr-2 h-4 w-4" />
-                {isPreviewMode ? 'Finish Preview' : 'Complete Today'}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Fazilat (Benefits) */}
       {challenge.fazilat_bn && (

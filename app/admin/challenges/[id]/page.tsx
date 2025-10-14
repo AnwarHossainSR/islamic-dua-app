@@ -39,7 +39,7 @@ export default async function ChallengeFormPage({ params }: Props) {
     'use server'
 
     if (isEdit && challenge) {
-      await updateChallengeTemplate(challenge.id, formData)
+      await updateChallengeTemplate(challenge?.id, formData)
     } else {
       await createChallengeTemplate(formData)
     }

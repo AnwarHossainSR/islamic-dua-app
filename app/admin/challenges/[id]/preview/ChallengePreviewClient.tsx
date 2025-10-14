@@ -17,7 +17,7 @@ import {
   Trophy,
   Users,
 } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 interface ChallengePreviewClientProps {
   challenge: any
@@ -31,8 +31,7 @@ export default function ChallengePreviewClient({
   const [count, setCount] = useState(0)
   const [isCounterActive, setIsCounterActive] = useState(false)
   const [startTime, setStartTime] = useState<number | null>(null)
-
-  const target = challenge.daily_target_count
+  const target = challenge.repetitions_per_day
   const dailyProgress = (count / target) * 100
   const remaining = Math.max(0, target - count)
 
@@ -43,23 +42,29 @@ export default function ChallengePreviewClient({
     challenge.recommended_prayer?.charAt(0).toUpperCase() + challenge.recommended_prayer?.slice(1)
 
   // Vibration feedback
-  const vibrate = () => {
+  const vibrate = useCallback(() => {
     if ('vibrate' in navigator) {
       navigator.vibrate(50)
     }
-  }
+  }, [])
 
-  const handleIncrement = () => {
+  // Use useCallback to memoize handleIncrement
+  const handleIncrement = useCallback(() => {
     if (count < target) {
-      setCount(prev => prev + 1)
+      setCount(prev => {
+        return prev + 1
+      })
       vibrate()
+    } else {
+      console.log('Count already at target, not incrementing')
     }
-  }
+  }, [count, target, vibrate])
 
   const handleReset = () => {
     if (confirm('Are you sure you want to reset the counter?')) {
       setCount(0)
       setStartTime(null)
+      console.log('Counter reset')
     }
   }
 
@@ -75,18 +80,20 @@ export default function ChallengePreviewClient({
     setStartTime(null)
   }
 
-  // Keyboard shortcuts
   useEffect(() => {
+    if (!isCounterActive) return
+
     const handleKeyPress = (e: KeyboardEvent) => {
-      if (isCounterActive && e.code === 'Space' && e.target === document.body) {
+      if (e.code === 'Space' && e.target === document.body) {
         e.preventDefault()
+        console.log('Space key pressed')
         handleIncrement()
       }
     }
 
     document.addEventListener('keydown', handleKeyPress)
     return () => document.removeEventListener('keydown', handleKeyPress)
-  }, [isCounterActive, count])
+  }, [isCounterActive, handleIncrement])
 
   return (
     <div className="mx-auto max-w-4xl space-y-6 pb-20">
@@ -286,12 +293,16 @@ export default function ChallengePreviewClient({
               </div>
             </div>
 
-            {/* Main Counter Button */}
+            {/* Main Counter Button - ADD EXPLICIT TYPE AND TEST HANDLER */}
             <Button
+              type="button"
               size="lg"
               className="h-32 w-full text-2xl font-bold"
               style={{ backgroundColor: challenge.color || '#10b981' }}
-              onClick={handleIncrement}
+              onClick={e => {
+                console.log('Button clicked!', e)
+                handleIncrement()
+              }}
               disabled={count >= target}
             >
               {count >= target ? (

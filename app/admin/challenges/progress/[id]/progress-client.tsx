@@ -20,6 +20,8 @@ import {
   CheckCircle2,
   Circle,
   Flame,
+  Maximize2,
+  Minimize2,
   RotateCcw,
   Target,
   Trophy,
@@ -42,6 +44,7 @@ export default function UserChallengeProgressClient({
   const [count, setCount] = useState(0)
   const [isCompleting, setIsCompleting] = useState(false)
   const [showSuccessModal, setShowSuccessModal] = useState(false)
+  const [isFullscreen, setIsFullscreen] = useState(false)
   const [notes, setNotes] = useState('')
   const [mood, setMood] = useState('')
   const [startTime] = useState(Date.now())
@@ -52,6 +55,25 @@ export default function UserChallengeProgressClient({
   const remaining = Math.max(0, target - count)
   const overallProgress = ((progress.current_day - 1) / challenge.total_days) * 100
   const isAlreadyCompleted = todayLog?.is_completed
+
+  // Format last completed date from progress.last_completed_at
+  const formatLastCompleted = (dateString: string) => {
+    if (!dateString) return null
+    const date = new Date(dateString)
+    const now = new Date()
+    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60))
+
+    if (diffInHours < 1) return 'Just now'
+    if (diffInHours < 24) return `${diffInHours}h ago`
+    if (diffInHours < 48) return 'Yesterday'
+
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+  }
 
   // Vibration feedback
   const vibrate = useCallback(() => {
@@ -102,7 +124,6 @@ export default function UserChallengeProgressClient({
 
       setShowSuccessModal(true)
 
-      // Auto-close modal and refresh after 3 seconds
       setTimeout(() => {
         setShowSuccessModal(false)
         router.refresh()
@@ -123,69 +144,151 @@ export default function UserChallengeProgressClient({
         e.preventDefault()
         handleIncrement()
       }
+      if (e.code === 'KeyF' && e.ctrlKey) {
+        e.preventDefault()
+        setIsFullscreen(prev => !prev)
+      }
     }
 
     document.addEventListener('keydown', handleKeyPress)
     return () => document.removeEventListener('keydown', handleKeyPress)
   }, [handleIncrement, isAlreadyCompleted])
 
+  // Fullscreen Counter View
+  if (isFullscreen && !isAlreadyCompleted) {
+    return (
+      <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-950 dark:to-slate-950">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="absolute right-4 top-4 h-12 w-12"
+          onClick={() => setIsFullscreen(false)}
+        >
+          <Minimize2 className="h-6 w-6" />
+        </Button>
+
+        <div className="flex flex-col items-center justify-center space-y-8 px-4">
+          <div className="text-center">
+            <p className="mb-2 text-sm font-medium text-muted-foreground sm:text-base">
+              Day {progress.current_day} • {challenge.title_bn}
+            </p>
+            <Badge
+              variant={count >= target ? 'default' : 'secondary'}
+              className="text-lg sm:text-xl"
+            >
+              {count} / {target}
+            </Badge>
+          </div>
+
+          <div
+            className="text-center text-9xl font-bold tabular-nums sm:text-[12rem] md:text-[16rem]"
+            style={{ color: challenge.color || '#10b981' }}
+          >
+            {count}
+          </div>
+
+          <div className="w-full max-w-md space-y-4 px-4">
+            <Progress value={dailyProgress} className="h-4" />
+            <p className="text-center text-sm text-muted-foreground sm:text-base">
+              {remaining > 0 ? `${remaining} more to go!` : 'Target reached! 🎉'}
+            </p>
+          </div>
+
+          <Button
+            type="button"
+            size="lg"
+            className="h-32 w-32 rounded-full text-2xl font-bold sm:h-40 sm:w-40 sm:text-3xl"
+            style={{ backgroundColor: challenge.color || '#10b981' }}
+            onClick={handleIncrement}
+            disabled={count >= target}
+          >
+            {count >= target ? <Check className="h-12 w-12" /> : '+1'}
+          </Button>
+
+          <p className="text-sm text-muted-foreground sm:text-base">Tap button or press Space</p>
+
+          <div className="flex gap-3">
+            <Button variant="outline" onClick={handleReset} disabled={count === 0} className="h-12">
+              <RotateCcw className="mr-2 h-5 w-5" />
+              Reset
+            </Button>
+            <Button
+              variant="default"
+              onClick={handleComplete}
+              disabled={isCompleting || count === 0}
+              className="h-12"
+            >
+              <Check className="mr-2 h-5 w-5" />
+              {isCompleting ? 'Saving...' : 'Complete'}
+            </Button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="mx-auto max-w-4xl space-y-6 pb-20">
+    <div className="mx-auto max-w-4xl space-y-4 px-4 pb-20 pt-4 sm:space-y-6 sm:px-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => router.back()}>
+      <div className="flex items-center gap-3">
+        <Button variant="ghost" size="icon" onClick={() => router.back()} className="shrink-0">
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        <div className="flex-1">
-          <div className="flex items-center gap-2">
-            <span className="text-3xl">{challenge.icon}</span>
-            <div>
-              <h1 className="text-2xl font-bold">{challenge.title_bn}</h1>
-              <p className="text-sm text-muted-foreground">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start gap-2">
+            <span className="shrink-0 text-2xl sm:text-3xl">{challenge.icon || '📿'}</span>
+            <div className="min-w-0 flex-1">
+              <h1 className="truncate text-xl font-bold sm:text-2xl">{challenge.title_bn}</h1>
+              <p className="text-xs text-muted-foreground sm:text-sm">
                 Day {progress.current_day} of {challenge.total_days}
               </p>
+              {progress.last_completed_at && (
+                <p className="text-xs text-emerald-600 dark:text-emerald-400">
+                  Last completed: {formatLastCompleted(progress.last_completed_at)}
+                </p>
+              )}
             </div>
           </div>
         </div>
       </div>
 
       {/* Stats Overview */}
-      <div className="grid gap-4 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
         <Card>
-          <CardContent className="pt-6">
+          <CardContent className="pt-4 sm:pt-6">
             <div className="flex flex-col items-center text-center">
-              <Calendar className="mb-2 h-5 w-5 text-blue-500" />
-              <p className="text-2xl font-bold">{progress.current_day}</p>
+              <Calendar className="mb-1 h-4 w-4 text-blue-500 sm:mb-2 sm:h-5 sm:w-5" />
+              <p className="text-xl font-bold sm:text-2xl">{progress.current_day}</p>
               <p className="text-xs text-muted-foreground">Current Day</p>
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="pt-6">
+          <CardContent className="pt-4 sm:pt-6">
             <div className="flex flex-col items-center text-center">
-              <Flame className="mb-2 h-5 w-5 text-orange-500" />
-              <p className="text-2xl font-bold">{progress.current_streak}</p>
+              <Flame className="mb-1 h-4 w-4 text-orange-500 sm:mb-2 sm:h-5 sm:w-5" />
+              <p className="text-xl font-bold sm:text-2xl">{progress.current_streak}</p>
               <p className="text-xs text-muted-foreground">Streak</p>
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="pt-6">
+          <CardContent className="pt-4 sm:pt-6">
             <div className="flex flex-col items-center text-center">
-              <Trophy className="mb-2 h-5 w-5 text-amber-500" />
-              <p className="text-2xl font-bold">{progress.total_completed_days}</p>
+              <Trophy className="mb-1 h-4 w-4 text-amber-500 sm:mb-2 sm:h-5 sm:w-5" />
+              <p className="text-xl font-bold sm:text-2xl">{progress.total_completed_days}</p>
               <p className="text-xs text-muted-foreground">Completed</p>
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="pt-6">
+          <CardContent className="pt-4 sm:pt-6">
             <div className="flex flex-col items-center text-center">
-              <Target className="mb-2 h-5 w-5 text-emerald-500" />
-              <p className="text-2xl font-bold">
+              <Target className="mb-1 h-4 w-4 text-emerald-500 sm:mb-2 sm:h-5 sm:w-5" />
+              <p className="text-xl font-bold sm:text-2xl">
                 {challenge.total_days - progress.current_day + 1}
               </p>
               <p className="text-xs text-muted-foreground">Remaining</p>
@@ -196,11 +299,11 @@ export default function UserChallengeProgressClient({
 
       {/* Overall Progress */}
       <Card>
-        <CardContent className="pt-6">
+        <CardContent className="pt-4 sm:pt-6">
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Overall Progress</span>
-              <span className="text-sm text-muted-foreground">
+              <span className="text-xs font-medium sm:text-sm">Overall Progress</span>
+              <span className="text-xs text-muted-foreground sm:text-sm">
                 {progress.current_day - 1}/{challenge.total_days} days
               </span>
             </div>
@@ -211,39 +314,68 @@ export default function UserChallengeProgressClient({
 
       {/* Dhikr Content */}
       <Card>
-        <CardContent className="space-y-4 pt-6">
-          <div className="rounded-lg border-2 border-emerald-200 bg-emerald-50 p-6 dark:border-emerald-900 dark:bg-emerald-950">
-            <p className="arabic-text text-center text-3xl leading-loose">
+        <CardContent className="space-y-3 pt-4 sm:space-y-4 sm:pt-6">
+          <div className="rounded-lg border-2 border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-900 dark:bg-emerald-950 sm:p-6">
+            <p className="arabic-text text-center text-2xl leading-loose sm:text-3xl">
               {challenge.arabic_text}
             </p>
           </div>
 
           {challenge.transliteration_bn && (
-            <p className="text-center text-lg text-muted-foreground">
+            <p className="text-center text-sm text-muted-foreground sm:text-lg">
               {challenge.transliteration_bn}
             </p>
           )}
 
-          <p className="text-center leading-relaxed">{challenge.translation_bn}</p>
+          <p className="text-center text-sm leading-relaxed sm:text-base">
+            {challenge.translation_bn}
+          </p>
+
+          {challenge.fazilat_bn && (
+            <div className="rounded-lg bg-amber-50 p-3 dark:bg-amber-950 sm:p-4">
+              <p className="text-xs leading-relaxed text-amber-900 dark:text-amber-100 sm:text-sm">
+                <strong>ফযীলত:</strong> {challenge.fazilat_bn}
+              </p>
+              {challenge.reference && (
+                <p className="mt-1 text-xs text-amber-700 dark:text-amber-300">
+                  সূত্র: {challenge.reference}
+                </p>
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
 
       {/* Counter Section */}
       {!isAlreadyCompleted ? (
         <Card className="border-2 border-emerald-500">
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
+          <CardHeader className="pb-3 sm:pb-6">
+            <CardTitle className="flex items-center justify-between text-base sm:text-lg">
               <span>Today's Count</span>
-              <Badge variant={count >= target ? 'default' : 'secondary'} className="text-base">
-                {count} / {target}
-              </Badge>
+              <div className="flex items-center gap-2">
+                <Badge
+                  variant={count >= target ? 'default' : 'secondary'}
+                  className="text-sm sm:text-base"
+                >
+                  {count} / {target}
+                </Badge>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => setIsFullscreen(true)}
+                  title="Fullscreen mode (Ctrl+F)"
+                >
+                  <Maximize2 className="h-4 w-4" />
+                </Button>
+              </div>
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-4 sm:space-y-6">
             {/* Progress Bar */}
             <div className="space-y-2">
-              <Progress value={dailyProgress} className="h-3" />
-              <p className="text-center text-sm text-muted-foreground">
+              <Progress value={dailyProgress} className="h-2 sm:h-3" />
+              <p className="text-center text-xs text-muted-foreground sm:text-sm">
                 {remaining > 0 ? `${remaining} more to go!` : 'Target reached! 🎉'}
               </p>
             </div>
@@ -252,12 +384,14 @@ export default function UserChallengeProgressClient({
             <div className="flex items-center justify-center">
               <div className="text-center">
                 <div
-                  className="mb-4 text-8xl font-bold tabular-nums"
-                  style={{ color: challenge.color }}
+                  className="mb-2 text-6xl font-bold tabular-nums sm:mb-4 sm:text-8xl"
+                  style={{ color: challenge.color || '#10b981' }}
                 >
                   {count}
                 </div>
-                <p className="text-muted-foreground">Tap or press Space</p>
+                <p className="text-xs text-muted-foreground sm:text-sm">
+                  Tap or press Space • Ctrl+F for fullscreen
+                </p>
               </div>
             </div>
 
@@ -265,27 +399,32 @@ export default function UserChallengeProgressClient({
             <Button
               type="button"
               size="lg"
-              className="h-32 w-full text-2xl font-bold"
-              style={{ backgroundColor: challenge.color }}
+              className="h-24 w-full text-xl font-bold sm:h-32 sm:text-2xl"
+              style={{ backgroundColor: challenge.color || '#10b981' }}
               onClick={handleIncrement}
               disabled={count >= target}
             >
               {count >= target ? (
                 <>
-                  <Check className="mr-2 h-8 w-8" />
+                  <Check className="mr-2 h-6 w-6 sm:h-8 sm:w-8" />
                   Target Reached!
                 </>
               ) : (
                 <>
-                  <Target className="mr-2 h-8 w-8" />
+                  <Target className="mr-2 h-6 w-6 sm:h-8 sm:w-8" />
                   Tap to Count
                 </>
               )}
             </Button>
 
             {/* Action Buttons */}
-            <div className="grid gap-3 sm:grid-cols-2">
-              <Button variant="outline" onClick={handleReset} disabled={count === 0}>
+            <div className="grid gap-2 sm:grid-cols-2 sm:gap-3">
+              <Button
+                variant="outline"
+                onClick={handleReset}
+                disabled={count === 0}
+                className="text-sm sm:text-base"
+              >
                 <RotateCcw className="mr-2 h-4 w-4" />
                 Reset Counter
               </Button>
@@ -294,6 +433,7 @@ export default function UserChallengeProgressClient({
                 variant="default"
                 onClick={handleComplete}
                 disabled={isCompleting || count === 0}
+                className="text-sm sm:text-base"
               >
                 <Check className="mr-2 h-4 w-4" />
                 {isCompleting ? 'Saving...' : 'Complete Today'}
@@ -303,9 +443,11 @@ export default function UserChallengeProgressClient({
             {/* Optional Notes */}
             <div className="space-y-3 border-t pt-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium">How do you feel? (Optional)</label>
+                <label className="text-xs font-medium sm:text-sm">
+                  How do you feel? (Optional)
+                </label>
                 <Select value={mood} onValueChange={setMood}>
-                  <SelectTrigger>
+                  <SelectTrigger className="text-sm">
                     <SelectValue placeholder="Select mood" />
                   </SelectTrigger>
                   <SelectContent>
@@ -318,12 +460,13 @@ export default function UserChallengeProgressClient({
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">Notes (Optional)</label>
+                <label className="text-xs font-medium sm:text-sm">Notes (Optional)</label>
                 <Textarea
                   value={notes}
                   onChange={e => setNotes(e.target.value)}
                   placeholder="Any thoughts or reflections..."
                   rows={3}
+                  className="text-sm"
                 />
               </div>
             </div>
@@ -331,13 +474,20 @@ export default function UserChallengeProgressClient({
         </Card>
       ) : (
         <Card className="border-2 border-emerald-500 bg-emerald-50 dark:bg-emerald-950">
-          <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-            <CheckCircle2 className="mb-4 h-16 w-16 text-emerald-500" />
-            <h3 className="mb-2 text-2xl font-bold">Day {progress.current_day} Completed!</h3>
-            <p className="mb-4 text-muted-foreground">
+          <CardContent className="flex flex-col items-center justify-center py-8 text-center sm:py-12">
+            <CheckCircle2 className="mb-3 h-12 w-12 text-emerald-500 sm:mb-4 sm:h-16 sm:w-16" />
+            <h3 className="mb-2 text-xl font-bold sm:text-2xl">
+              Day {progress.current_day} Completed!
+            </h3>
+            <p className="mb-3 text-sm text-muted-foreground sm:mb-4 sm:text-base">
               You completed {todayLog.count_completed} repetitions today
             </p>
-            <Badge variant="secondary" className="text-base">
+            {todayLog.mood && (
+              <Badge variant="outline" className="mb-2">
+                Mood: {todayLog.mood}
+              </Badge>
+            )}
+            <Badge variant="secondary" className="text-sm sm:text-base">
               Come back tomorrow for Day {progress.current_day + 1}
             </Badge>
           </CardContent>
@@ -346,11 +496,11 @@ export default function UserChallengeProgressClient({
 
       {/* Calendar/History */}
       <Card>
-        <CardHeader>
-          <CardTitle>Progress Calendar</CardTitle>
+        <CardHeader className="pb-3 sm:pb-6">
+          <CardTitle className="text-base sm:text-lg">Progress Calendar</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-7 gap-2">
+          <div className="grid grid-cols-7 gap-1.5 sm:gap-2">
             {Array.from({ length: challenge.total_days }, (_, i) => {
               const dayNum = i + 1
               const log = progress.daily_logs?.find((l: any) => l.day_number === dayNum)
@@ -361,7 +511,7 @@ export default function UserChallengeProgressClient({
                 <div
                   key={dayNum}
                   className={`
-                    flex aspect-square flex-col items-center justify-center rounded-lg border-2 p-2 text-sm font-medium
+                    flex aspect-square flex-col items-center justify-center rounded-lg border-2 p-1 text-xs font-medium sm:p-2 sm:text-sm
                     ${
                       isCompleted
                         ? 'border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-950'
@@ -380,29 +530,29 @@ export default function UserChallengeProgressClient({
                   `}
                 >
                   {isCompleted ? (
-                    <CheckCircle2 className="mb-1 h-5 w-5" />
+                    <CheckCircle2 className="mb-0.5 h-3 w-3 sm:mb-1 sm:h-5 sm:w-5" />
                   ) : isCurrent ? (
-                    <Circle className="mb-1 h-5 w-5" />
+                    <Circle className="mb-0.5 h-3 w-3 sm:mb-1 sm:h-5 sm:w-5" />
                   ) : (
-                    <Circle className="mb-1 h-5 w-5 opacity-30" />
+                    <Circle className="mb-0.5 h-3 w-3 opacity-30 sm:mb-1 sm:h-5 sm:w-5" />
                   )}
-                  <span className="text-xs">{dayNum}</span>
+                  <span className="text-[10px] sm:text-xs">{dayNum}</span>
                 </div>
               )
             })}
           </div>
 
-          <div className="mt-4 flex flex-wrap gap-4 text-sm">
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+          <div className="mt-3 flex flex-wrap gap-3 text-xs sm:mt-4 sm:gap-4 sm:text-sm">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <CheckCircle2 className="h-3 w-3 text-emerald-500 sm:h-4 sm:w-4" />
               <span className="text-muted-foreground">Completed</span>
             </div>
-            <div className="flex items-center gap-2">
-              <Circle className="h-4 w-4 text-blue-500" />
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <Circle className="h-3 w-3 text-blue-500 sm:h-4 sm:w-4" />
               <span className="text-muted-foreground">Today</span>
             </div>
-            <div className="flex items-center gap-2">
-              <Circle className="h-4 w-4 text-muted-foreground opacity-30" />
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <Circle className="h-3 w-3 text-muted-foreground opacity-30 sm:h-4 sm:w-4" />
               <span className="text-muted-foreground">Upcoming</span>
             </div>
           </div>
@@ -413,16 +563,16 @@ export default function UserChallengeProgressClient({
       {showSuccessModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <Card className="w-full max-w-md animate-in fade-in zoom-in duration-300">
-            <CardContent className="space-y-6 pt-6 text-center">
+            <CardContent className="space-y-4 pt-6 text-center sm:space-y-6">
               <div className="flex justify-center">
-                <div className="rounded-full bg-emerald-100 p-6 dark:bg-emerald-900">
-                  <CheckCircle2 className="h-16 w-16 text-emerald-500" />
+                <div className="rounded-full bg-emerald-100 p-4 dark:bg-emerald-900 sm:p-6">
+                  <CheckCircle2 className="h-12 w-12 text-emerald-500 sm:h-16 sm:w-16" />
                 </div>
               </div>
 
               <div>
-                <h2 className="mb-2 text-3xl font-bold">Well Done!</h2>
-                <p className="text-lg text-muted-foreground">
+                <h2 className="mb-2 text-2xl font-bold sm:text-3xl">Well Done!</h2>
+                <p className="text-base text-muted-foreground sm:text-lg">
                   Day {progress.current_day} completed successfully
                 </p>
               </div>

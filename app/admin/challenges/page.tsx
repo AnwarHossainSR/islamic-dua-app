@@ -2,6 +2,8 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { format } from 'date-fns'
+
 import {
   Select,
   SelectContent,
@@ -25,7 +27,6 @@ import {
 } from 'lucide-react'
 import { revalidatePath } from 'next/cache'
 import Link from 'next/link'
-
 export default async function AdminChallengesPage() {
   const challenges = await getChallenges()
 
@@ -45,7 +46,7 @@ export default async function AdminChallengesPage() {
     await deleteChallengeTemplate(id)
     revalidatePath('/admin/challenges')
   }
-
+  console.log('recentLogs', recentLogs)
   return (
     <div className="space-y-6">
       {/* Header with Stats */}
@@ -365,7 +366,8 @@ export default async function AdminChallengesPage() {
                             {log.user_progress?.challenge?.title_bn || 'Unknown Challenge'}
                           </p>
                           <p className="text-xs text-muted-foreground">
-                            Day {log.day_number} • {log.count_completed} repetitions
+                            Day {log.day_number} • {log.count_completed} repetitions •{' '}
+                            {format(new Date(log.completed_at), 'PPpp')}
                           </p>
                         </div>
                       </div>

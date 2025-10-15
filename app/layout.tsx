@@ -56,7 +56,7 @@ export default function RootLayout({
         >
           <Suspense fallback={null}>
             <Header />
-            <main className=" min-h-[calc(100vh-4rem)] px-6 py-6">{children}</main>
+            <main className="min-h-[calc(100vh-113px)] px-6 py-6">{children}</main>
             <Toaster />
           </Suspense>
           <Analytics />

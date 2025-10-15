@@ -46,7 +46,6 @@ export default async function AdminChallengesPage() {
     await deleteChallengeTemplate(id)
     revalidatePath('/admin/challenges')
   }
-  console.log('recentLogs', recentLogs)
   return (
     <div className="space-y-6">
       {/* Header with Stats */}

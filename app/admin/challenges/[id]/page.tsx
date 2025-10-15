@@ -1,3 +1,4 @@
+import JsonImportClient from '@/components/admin/json-import-client'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -64,6 +65,9 @@ export default async function ChallengeFormPage({ params }: Props) {
           </p>
         </div>
       </div>
+
+      {/* JSON Import Section - Client Component */}
+      <JsonImportClient />
 
       <form action={handleSubmit}>
         <div className="space-y-6">

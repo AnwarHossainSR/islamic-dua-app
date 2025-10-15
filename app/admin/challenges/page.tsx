@@ -33,8 +33,9 @@ export default async function AdminChallengesPage() {
   const totalChallenges = challenges.length
   const totalParticipants = challenges.reduce((sum, c) => sum + (c.total_participants || 0), 0)
   const totalCompletions = challenges.reduce((sum, c) => sum + (c.total_completions || 0), 0)
+  const totalDays = challenges.reduce((sum, c) => sum + c.total_days, 0)
   const avgCompletionRate =
-    totalParticipants > 0 ? Math.round((totalCompletions / challenges[0].total_days) * 100) : 0
+    totalParticipants > 0 ? Math.round((totalCompletions / totalDays) * 100) : 0
 
   const recentLogs = await getRecentLogs(10)
 
@@ -117,10 +118,18 @@ export default async function AdminChallengesPage() {
       {/* Main Content Tabs */}
       <Tabs defaultValue="all" className="space-y-6">
         <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="all">All Challenges</TabsTrigger>
-          <TabsTrigger value="active">Active Users</TabsTrigger>
-          <TabsTrigger value="history">History</TabsTrigger>
-          <TabsTrigger value="stats">Analytics</TabsTrigger>
+          <TabsTrigger className="cursor-pointer" value="all">
+            All Challenges
+          </TabsTrigger>
+          <TabsTrigger className="cursor-pointer" value="active">
+            Active Users
+          </TabsTrigger>
+          <TabsTrigger className="cursor-pointer" value="history">
+            History
+          </TabsTrigger>
+          <TabsTrigger className="cursor-pointer" value="stats">
+            Analytics
+          </TabsTrigger>
         </TabsList>
 
         {/* All Challenges Tab */}

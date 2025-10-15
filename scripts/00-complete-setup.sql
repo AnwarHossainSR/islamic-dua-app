@@ -807,24 +807,28 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Updated increment function: Allow any authenticated user (or adjust as needed)
-CREATE OR REPLACE FUNCTION increment(p_row_id UUID, p_table_name TEXT, p_column_name TEXT)
-RETURNS void AS $$  
+
+  -- Create a function to increment the total_participants
+CREATE OR REPLACE FUNCTION increment_participants(p_challenge_id UUID)
+RETURNS void AS $$
 BEGIN
-  -- Optional: Remove or comment out the admin check for user-initiated actions
-  -- IF NOT is_admin() THEN
-  --   RAISE EXCEPTION 'Only admins can increment stats';
-  -- END IF;
-  
-  -- Validate table/column exist (basic safety)
-  IF p_table_name != 'challenge_templates' OR p_column_name != 'total_participants' THEN
-    RAISE EXCEPTION 'Invalid table or column for increment';
-  END IF;
-  
-  -- Execute the update
-  EXECUTE format('UPDATE %I SET %I = COALESCE(%I, 0) + 1 WHERE id = $1', p_table_name, p_column_name, p_column_name) USING p_row_id;
+  UPDATE challenge_templates
+  SET total_participants = total_participants + 1
+  WHERE id = p_challenge_id;
 END;
-  $$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql;
+
+  -- Create a function to increment the total_completions
+
+CREATE OR REPLACE FUNCTION increment_completions(p_challenge_id UUID)
+RETURNS void AS $$
+BEGIN
+  UPDATE challenge_templates
+  SET total_completions = total_completions + 1
+  WHERE id = p_challenge_id;
+END;
+$$ LANGUAGE plpgsql;
+
 
 -- ============================================
 -- SEED DATA (Updated for challenge_templates)

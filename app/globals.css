@@ -1,5 +1,5 @@
-@import "tailwindcss";
-@import "tw-animate-css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -125,9 +125,19 @@
     @apply bg-background text-foreground;
   }
 
+  body::-webkit-scrollbar {
+    display: none; /* Hides the scrollbar */
+  }
+
+  body,
+  html {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+
   /* Arabic text styling */
   .arabic-text {
-    font-family: "Amiri", "Traditional Arabic", serif;
+    font-family: 'Amiri', 'Traditional Arabic', serif;
     font-size: 1.5rem;
     line-height: 2;
     text-align: right;
@@ -136,7 +146,7 @@
 
   /* Bangla text styling */
   .bangla-text {
-    font-family: "Noto Sans Bengali", sans-serif;
+    font-family: 'Noto Sans Bengali', sans-serif;
     line-height: 1.6;
   }
 }

@@ -166,7 +166,6 @@ export default async function AdminChallengesPage() {
                 challenge.total_completions > 0
                   ? Math.round((challenge.total_completions / challenge.total_days) * 100)
                   : 0
-              console.log('challenge', challenge)
               return (
                 <Card key={challenge.id} className="overflow-hidden">
                   <div className="flex flex-col gap-6 p-6 md:flex-row">

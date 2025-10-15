@@ -207,12 +207,17 @@ export async function startChallenge(userId: string, challengeId: string) {
     return { error: error.message }
   }
 
-  // Update challenge participants count
-  await supabase.rpc('increment', {
-    row_id: challengeId,
-    table_name: 'challenge_templates',
-    column_name: 'total_participants',
-  })
+  try {
+    const { error: incrementError } = await supabase.rpc('increment_participants', {
+      p_challenge_id: challengeId,
+    })
+
+    if (incrementError) {
+      throw incrementError
+    }
+  } catch (error) {
+    console.error('Error incrementing participants:', error)
+  }
 
   revalidatePath('/challenges')
   return { data }
@@ -301,12 +306,21 @@ export async function completeDailyChallenge(
 
   // Check and award achievements
   await supabase.rpc('check_and_award_achievements', { p_user_id: userId })
-  // Update challenge participants count
-  await supabase.rpc('increment', {
-    row_id: challengeId,
-    table_name: 'challenge_templates',
-    column_name: 'total_completions',
-  })
+
+  try {
+    const { error: incrementError } = await supabase.rpc('increment_completions', {
+      p_challenge_id: challengeId,
+    })
+
+    if (incrementError) {
+      throw incrementError
+    }
+
+    console.log('Successfully incremented total_completions')
+  } catch (error) {
+    console.error('Error incrementing completions:', error)
+  }
+
   revalidatePath(`/challenges/${progressId}`)
   revalidatePath('/challenges')
 

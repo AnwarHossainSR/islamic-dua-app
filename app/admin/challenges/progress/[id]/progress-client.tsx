@@ -12,6 +12,8 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+import { useDebounce } from '@/hooks/use-debounce'
+import { useLocalStorage } from '@/hooks/use-local-storage'
 import { completeDailyChallenge } from '@/lib/actions/challenges'
 import {
   ArrowLeft,
@@ -27,7 +29,7 @@ import {
   Trophy,
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 interface UserChallengeProgressClientProps {
   progress: any
@@ -41,23 +43,47 @@ export default function UserChallengeProgressClient({
   userId,
 }: UserChallengeProgressClientProps) {
   const router = useRouter()
-  const [count, setCount] = useState(0)
+  const challenge = progress.challenge
+  const target = challenge.daily_target_count
+  const isAlreadyCompleted = todayLog?.is_completed
+
+  // Generate unique localStorage key for this challenge and day
+  const storageKey = useMemo(
+    () => `challenge_${progress.id}_day_${progress.current_day}_count`,
+    [progress.id, progress.current_day]
+  )
+
+  // Use custom localStorage hook with hydration fix
+  const [count, setCount, removeCount, isHydrated] = useLocalStorage(
+    storageKey,
+    isAlreadyCompleted ? todayLog?.count_completed || 0 : 0
+  )
+
   const [isCompleting, setIsCompleting] = useState(false)
   const [showSuccessModal, setShowSuccessModal] = useState(false)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [notes, setNotes] = useState('')
   const [mood, setMood] = useState('')
-  const [startTime] = useState(Date.now())
 
-  const challenge = progress.challenge
-  const target = challenge.daily_target_count
-  const dailyProgress = (count / target) * 100
-  const remaining = Math.max(0, target - count)
-  const overallProgress = ((progress.current_day - 1) / challenge.total_days) * 100
-  const isAlreadyCompleted = todayLog?.is_completed
+  const { debouncedCallback: saveToLocalStorage, cancel: cancelSave } = useDebounce(
+    (value: number) => {
+      setCount(value) // This now receives `value` correctly
+      console.log(`Saved count ${value} to localStorage`)
+    },
+    10000,
+    [] // Optional: empty deps since callback is stable via useCallback below
+  )
 
-  // Format last completed date from progress.last_completed_at
-  const formatLastCompleted = (dateString: string) => {
+  // Memoized calculations
+  const dailyProgress = useMemo(() => (count / target) * 100, [count, target])
+  const remaining = useMemo(() => Math.max(0, target - count), [target, count])
+  const overallProgress = useMemo(
+    () => ((progress.current_day - 1) / challenge.total_days) * 100,
+    [progress.current_day, challenge.total_days]
+  )
+
+  // Format last completed date
+  const formatLastCompleted = useCallback((dateString: string) => {
     if (!dateString) return null
     const date = new Date(dateString)
     const now = new Date()
@@ -73,7 +99,7 @@ export default function UserChallengeProgressClient({
       hour: '2-digit',
       minute: '2-digit',
     })
-  }
+  }, [])
 
   // Vibration feedback
   const vibrate = useCallback(() => {
@@ -84,18 +110,21 @@ export default function UserChallengeProgressClient({
 
   const handleIncrement = useCallback(() => {
     if (count < target && !isAlreadyCompleted) {
-      setCount(prev => prev + 1)
+      const newCount = count + 1
+      setCount(newCount) // Immediate UI update
       vibrate()
+      saveToLocalStorage(newCount) // Debounced save
     }
-  }, [count, target, vibrate, isAlreadyCompleted])
+  }, [count, target, vibrate, isAlreadyCompleted, setCount, saveToLocalStorage])
 
-  const handleReset = () => {
+  const handleReset = useCallback(() => {
     if (confirm('Are you sure you want to reset the counter?')) {
       setCount(0)
+      cancelSave()
     }
-  }
+  }, [setCount, cancelSave])
 
-  const handleComplete = async () => {
+  const handleComplete = useCallback(async () => {
     if (count < target) {
       if (!confirm(`You're at ${count}/${target}. Complete anyway?`)) {
         return
@@ -122,6 +151,10 @@ export default function UserChallengeProgressClient({
         return
       }
 
+      // Clear localStorage on successful completion
+      removeCount()
+      cancelSave()
+
       setShowSuccessModal(true)
 
       setTimeout(() => {
@@ -133,7 +166,19 @@ export default function UserChallengeProgressClient({
       alert('Failed to save progress')
       setIsCompleting(false)
     }
-  }
+  }, [
+    count,
+    target,
+    progress.id,
+    userId,
+    challenge.id,
+    progress.current_day,
+    notes,
+    mood,
+    removeCount,
+    cancelSave,
+    router,
+  ])
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -153,6 +198,23 @@ export default function UserChallengeProgressClient({
     document.addEventListener('keydown', handleKeyPress)
     return () => document.removeEventListener('keydown', handleKeyPress)
   }, [handleIncrement, isAlreadyCompleted])
+
+  // Show loading state during hydration to prevent mismatch
+  if (!isHydrated) {
+    return (
+      <div className="mx-auto max-w-4xl space-y-4 px-4 pb-20 pt-4 sm:space-y-6 sm:px-6">
+        <div className="animate-pulse space-y-4">
+          <div className="h-16 rounded-lg bg-muted" />
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="h-24 rounded-lg bg-muted" />
+            ))}
+          </div>
+          <div className="h-32 rounded-lg bg-muted" />
+        </div>
+      </div>
+    )
+  }
 
   // Fullscreen Counter View
   if (isFullscreen && !isAlreadyCompleted) {

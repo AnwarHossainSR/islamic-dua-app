@@ -42,11 +42,11 @@ export async function getChallenges() {
   })
 
   // Step 4: Sort by last_completed_at (most recent first)
-  mergedData.sort((a, b) => {
+  mergedData.sort((a: any, b: any) => {
     if (!a.last_completed_at && !b.last_completed_at) return 0
     if (!a.last_completed_at) return 1
     if (!b.last_completed_at) return -1
-    return new Date(b.last_completed_at) - new Date(a.last_completed_at)
+    return new Date(b.last_completed_at).getTime() - new Date(a.last_completed_at).getTime()
   })
 
   return mergedData

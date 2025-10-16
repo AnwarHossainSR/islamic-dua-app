@@ -14,6 +14,7 @@ import {
 import { Textarea } from '@/components/ui/textarea'
 import { useDebounce } from '@/hooks/use-debounce'
 import { useLocalStorage } from '@/hooks/use-local-storage'
+import { toast } from '@/hooks/use-toast'
 import { completeDailyChallenge } from '@/lib/actions/challenges'
 import {
   ArrowLeft,
@@ -156,11 +157,11 @@ export default function UserChallengeProgressClient({
       cancelSave()
 
       setShowSuccessModal(true)
-
+      toast({ title: 'Success', description: `Day ${progress.current_day} completed!` })
       setTimeout(() => {
         setShowSuccessModal(false)
         router.refresh()
-      }, 3000)
+      }, 10000)
     } catch (error) {
       console.error('Error:', error)
       alert('Failed to save progress')

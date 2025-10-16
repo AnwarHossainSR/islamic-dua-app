@@ -52,6 +52,10 @@ export default async function AdminChallengesPage() {
     }
 
     const date = new Date(lastCompletedAt)
+
+    // Add 6 hours
+    date.setHours(date.getHours() + 6)
+
     const completedToday = isToday(date)
 
     if (completedToday) {

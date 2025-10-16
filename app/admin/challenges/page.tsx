@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { format, isToday } from 'date-fns'
 
+import { ActionButton } from '@/components/ui/action-button'
 import {
   Select,
   SelectContent,
@@ -22,12 +23,10 @@ import {
   Plus,
   Search,
   Target,
-  Trash2,
   TrendingUp,
   Trophy,
   Users,
 } from 'lucide-react'
-import { revalidatePath } from 'next/cache'
 import Link from 'next/link'
 
 export default async function AdminChallengesPage() {
@@ -42,13 +41,6 @@ export default async function AdminChallengesPage() {
     totalParticipants > 0 ? Math.round((totalCompletions / totalDays) * 100) : 0
 
   const recentLogs = await getRecentLogs(10)
-
-  async function handleDelete(formData: FormData) {
-    'use server'
-    const id = formData.get('id') as string
-    await deleteChallengeTemplate(id)
-    revalidatePath('/admin/challenges')
-  }
 
   function getLastCompletedBadge(lastCompletedAt: string | null) {
     if (!lastCompletedAt) {
@@ -417,17 +409,14 @@ export default async function AdminChallengesPage() {
                             Edit
                           </Link>
                         </Button>
-                        <form action={handleDelete}>
-                          <input type="hidden" name="id" value={challenge.id} />
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            type="submit"
-                            className="text-destructive hover:bg-destructive/10"
-                          >
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
-                        </form>
+                        <ActionButton
+                          action={deleteChallengeTemplate}
+                          actionParams={[challenge.id]}
+                          title="Delete Challenge"
+                          description="Are you sure you want to delete this challenge? This action cannot be undone."
+                          confirmText="Delete"
+                          confirmVariant="destructive"
+                        />
                       </div>
                     </div>
                   </div>

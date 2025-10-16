@@ -16,6 +16,7 @@ import { deleteChallengeTemplate, getChallenges, getRecentLogs } from '@/lib/act
 import {
   Calendar,
   CheckCircle2,
+  ChevronDown,
   Edit,
   Eye,
   Plus,
@@ -95,55 +96,116 @@ export default async function AdminChallengesPage() {
         </Button>
       </div>
 
-      {/* Quick Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Total Challenges</p>
-                <p className="text-3xl font-bold">{totalChallenges}</p>
-              </div>
-              <Target className="h-8 w-8 text-emerald-500" />
-            </div>
-          </CardContent>
-        </Card>
+      {/* Quick Stats Cards - Collapsible on Mobile */}
+      <div>
+        <div className="md:hidden mb-4">
+          <details className="group">
+            <summary className="flex items-center justify-between cursor-pointer p-4 bg-muted/50 rounded-lg hover:bg-muted transition-colors">
+              <span className="font-semibold text-sm">Quick Stats</span>
+              <ChevronDown className="h-4 w-4 group-open:rotate-180 transition-transform" />
+            </summary>
+            <div className="grid gap-4 md:grid-cols-4 mt-4">
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Total Challenges</p>
+                      <p className="text-3xl font-bold">{totalChallenges}</p>
+                    </div>
+                    <Target className="h-8 w-8 text-emerald-500" />
+                  </div>
+                </CardContent>
+              </Card>
 
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Total Participants</p>
-                <p className="text-3xl font-bold">{totalParticipants}</p>
-              </div>
-              <Users className="h-8 w-8 text-blue-500" />
-            </div>
-          </CardContent>
-        </Card>
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Total Participants</p>
+                      <p className="text-3xl font-bold">{totalParticipants}</p>
+                    </div>
+                    <Users className="h-8 w-8 text-blue-500" />
+                  </div>
+                </CardContent>
+              </Card>
 
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Completions</p>
-                <p className="text-3xl font-bold">{totalCompletions}</p>
-              </div>
-              <Trophy className="h-8 w-8 text-amber-500" />
-            </div>
-          </CardContent>
-        </Card>
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Completions</p>
+                      <p className="text-3xl font-bold">{totalCompletions}</p>
+                    </div>
+                    <Trophy className="h-8 w-8 text-amber-500" />
+                  </div>
+                </CardContent>
+              </Card>
 
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Avg Completion</p>
-                <p className="text-3xl font-bold">{avgCompletionRate}%</p>
-              </div>
-              <TrendingUp className="h-8 w-8 text-purple-500" />
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Avg Completion</p>
+                      <p className="text-3xl font-bold">{avgCompletionRate}%</p>
+                    </div>
+                    <TrendingUp className="h-8 w-8 text-purple-500" />
+                  </div>
+                </CardContent>
+              </Card>
             </div>
-          </CardContent>
-        </Card>
+          </details>
+        </div>
+
+        {/* Stats always visible on desktop */}
+        <div className="hidden md:grid gap-4 md:grid-cols-4">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Total Challenges</p>
+                  <p className="text-3xl font-bold">{totalChallenges}</p>
+                </div>
+                <Target className="h-8 w-8 text-emerald-500" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Total Participants</p>
+                  <p className="text-3xl font-bold">{totalParticipants}</p>
+                </div>
+                <Users className="h-8 w-8 text-blue-500" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Completions</p>
+                  <p className="text-3xl font-bold">{totalCompletions}</p>
+                </div>
+                <Trophy className="h-8 w-8 text-amber-500" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Avg Completion</p>
+                  <p className="text-3xl font-bold">{avgCompletionRate}%</p>
+                </div>
+                <TrendingUp className="h-8 w-8 text-purple-500" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
       {/* Main Content Tabs */}

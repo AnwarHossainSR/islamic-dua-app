@@ -26,6 +26,7 @@ export async function getChallenges() {
   const { data: progress, error: progressError } = await supabase
     .from('user_challenge_progress')
     .select('challenge_id, last_completed_at')
+
   if (progressError) {
     console.error('Error fetching user challenge progress:', progressError)
     return challenges
@@ -38,6 +39,14 @@ export async function getChallenges() {
       ...challenge,
       last_completed_at: userProgress ? userProgress.last_completed_at : null,
     }
+  })
+
+  // Step 4: Sort by last_completed_at (most recent first)
+  mergedData.sort((a, b) => {
+    if (!a.last_completed_at && !b.last_completed_at) return 0
+    if (!a.last_completed_at) return 1
+    if (!b.last_completed_at) return -1
+    return new Date(b.last_completed_at) - new Date(a.last_completed_at)
   })
 
   return mergedData

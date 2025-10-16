@@ -10,18 +10,37 @@ import { revalidatePath } from 'next/cache'
 export async function getChallenges() {
   const supabase = await getSupabaseServerClient()
 
-  const { data, error } = await supabase
+  // Step 1: Fetch all active challenges
+  const { data: challenges, error: challengesError } = await supabase
     .from('challenge_templates')
     .select('*')
     .eq('is_active', true)
     .order('display_order', { ascending: true })
 
-  if (error) {
-    console.error('Error fetching challenges:', error)
+  if (challengesError) {
+    console.error('Error fetching challenges:', challengesError)
     return []
   }
 
-  return data
+  // Step 2: Fetch user progress (only last_completed_at field)
+  const { data: progress, error: progressError } = await supabase
+    .from('user_challenge_progress')
+    .select('challenge_id, last_completed_at')
+  if (progressError) {
+    console.error('Error fetching user challenge progress:', progressError)
+    return challenges
+  }
+
+  // Step 3: Merge both datasets
+  const mergedData = challenges.map(challenge => {
+    const userProgress = progress.find(p => p.challenge_id === challenge.id)
+    return {
+      ...challenge,
+      last_completed_at: userProgress ? userProgress.last_completed_at : null,
+    }
+  })
+
+  return mergedData
 }
 
 export async function getFeaturedChallenges() {

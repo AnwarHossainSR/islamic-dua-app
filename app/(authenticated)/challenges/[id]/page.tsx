@@ -45,14 +45,14 @@ export default async function ChallengeFormPage({ params }: Props) {
       await createChallengeTemplate(formData)
     }
 
-    redirect('/admin/challenges')
+    redirect('/challenges')
   }
 
   return (
     <div className="mx-auto max-w-4xl space-y-8 pb-20">
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" asChild>
-          <Link href="/admin/challenges">
+          <Link href="/challenges">
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
@@ -422,7 +422,7 @@ export default async function ChallengeFormPage({ params }: Props) {
               {isEdit ? 'Update Challenge' : 'Create Challenge'}
             </Button>
             <Button type="button" variant="outline" size="lg" asChild>
-              <Link href="/admin/challenges">Cancel</Link>
+              <Link href="/challenges">Cancel</Link>
             </Button>
           </div>
         </div>

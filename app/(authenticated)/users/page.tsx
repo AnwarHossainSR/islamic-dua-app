@@ -1,36 +1,36 @@
-import { getSupabaseServerClient } from "@/lib/supabase/server"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import Link from "next/link"
-import { Plus, Shield, Mail, Calendar } from "lucide-react"
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { getSupabaseServerClient } from '@/lib/supabase/server'
+import { Calendar, Mail, Plus, Shield } from 'lucide-react'
+import Link from 'next/link'
 
 async function getAdminUsers() {
   const supabase = await getSupabaseServerClient()
 
   const { data, error } = await supabase
-    .from("admin_users")
-    .select(`
+    .from('admin_users')
+    .select(
+      `
       *,
       user_email:user_id
-    `)
-    .order("created_at", { ascending: false })
-
-  console.log("[v0] Admin users query result:", { data, error })
+    `
+    )
+    .order('created_at', { ascending: false })
 
   if (error) {
-    console.error("[v0] Error fetching admin users:", error)
+    console.error('[v0] Error fetching admin users:', error)
     return []
   }
 
   const usersWithEmails = await Promise.all(
-    (data || []).map(async (admin) => {
+    (data || []).map(async admin => {
       const { data: userData } = await supabase.auth.admin.getUserById(admin.user_id)
       return {
         ...admin,
         user: userData?.user,
       }
-    }),
+    })
   )
 
   return usersWithEmails
@@ -39,7 +39,7 @@ async function getAdminUsers() {
 export default async function AdminUsersPage() {
   const adminUsers = await getAdminUsers()
 
-  console.log("[v0] Rendering admin users page with:", adminUsers.length, "users")
+  console.log('[v0] Rendering admin users page with:', adminUsers.length, 'users')
 
   return (
     <div className="space-y-8">
@@ -75,7 +75,9 @@ export default async function AdminUsersPage() {
             <Shield className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{adminUsers.filter((u: any) => u.role === "super_admin").length}</div>
+            <div className="text-2xl font-bold">
+              {adminUsers.filter((u: any) => u.role === 'super_admin').length}
+            </div>
             <p className="text-xs text-muted-foreground">Full access users</p>
           </CardContent>
         </Card>
@@ -86,7 +88,9 @@ export default async function AdminUsersPage() {
             <Mail className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{adminUsers.filter((u: any) => u.role === "editor").length}</div>
+            <div className="text-2xl font-bold">
+              {adminUsers.filter((u: any) => u.role === 'editor').length}
+            </div>
             <p className="text-xs text-muted-foreground">Content editors</p>
           </CardContent>
         </Card>
@@ -108,8 +112,8 @@ export default async function AdminUsersPage() {
                 <div className="flex-1">
                   <div className="mb-1 flex items-center gap-2">
                     <h3 className="font-medium">{admin.user?.email || admin.user_id}</h3>
-                    <Badge variant={admin.role === "super_admin" ? "default" : "secondary"}>
-                      {admin.role === "super_admin" ? "Super Admin" : "Editor"}
+                    <Badge variant={admin.role === 'super_admin' ? 'default' : 'secondary'}>
+                      {admin.role === 'super_admin' ? 'Super Admin' : 'Editor'}
                     </Badge>
                     {!admin.is_active && <Badge variant="destructive">Inactive</Badge>}
                   </div>

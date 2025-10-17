@@ -1,4 +1,3 @@
-// /app/admin/challenges/progress/[id]/page.tsx
 import { getUserChallengeProgress } from '@/lib/actions/challenges'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { notFound, redirect } from 'next/navigation'
@@ -17,7 +16,7 @@ export default async function UserChallengeProgressPage({ params }: Props) {
   } = await supabase.auth.getUser()
 
   if (!user) {
-    redirect('/login?redirect=/admin/challenges/progress/' + params.id)
+    redirect('/login?redirect=/challenges/progress/' + params.id)
   }
 
   const progress = await getUserChallengeProgress(params.id)

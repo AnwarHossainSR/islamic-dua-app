@@ -162,7 +162,7 @@ export default async function ActivityDetailsPage({ params }: Props) {
                       {challenge.is_active ? 'Active' : 'Inactive'}
                     </Badge>
                     <Button variant="outline" size="sm" asChild>
-                      <Link href={`/admin/challenges/${challenge.id}`}>Edit</Link>
+                      <Link href={`/challenges/${challenge.id}`}>Edit</Link>
                     </Button>
                   </div>
                 </div>

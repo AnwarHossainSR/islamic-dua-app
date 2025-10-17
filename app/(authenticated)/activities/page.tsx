@@ -6,7 +6,7 @@ import { getAllActivities } from '@/lib/actions/admin'
 import { Activity, ArrowLeft, Search, TrendingUp, Users } from 'lucide-react'
 import Link from 'next/link'
 
-export default async function AdminActivitiesPage() {
+export default async function ActivitiesPage() {
   const activities = await getAllActivities()
 
   // Calculate total stats
@@ -20,7 +20,7 @@ export default async function AdminActivitiesPage() {
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" asChild>
-          <Link href="/admin">
+          <Link href="/">
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>

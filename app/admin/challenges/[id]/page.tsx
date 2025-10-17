@@ -273,6 +273,7 @@ export default async function ChallengeFormPage({ params }: Props) {
                       <SelectItem value="anytime">Anytime</SelectItem>
                       <SelectItem value="morning">Morning</SelectItem>
                       <SelectItem value="evening">Evening</SelectItem>
+                      <SelectItem value="before_fajr">Before Fajr</SelectItem>
                       <SelectItem value="after_fajr">After Fajr</SelectItem>
                       <SelectItem value="after_maghrib">After Maghrib</SelectItem>
                       <SelectItem value="after_isha">After Isha</SelectItem>
@@ -296,6 +297,7 @@ export default async function ChallengeFormPage({ params }: Props) {
                       <SelectItem value="asr">Asr</SelectItem>
                       <SelectItem value="maghrib">Maghrib</SelectItem>
                       <SelectItem value="isha">Isha</SelectItem>
+                      <SelectItem value="tahajjut">Tahajjut</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

@@ -3,6 +3,7 @@
 
 import { Button } from '@/components/ui/button'
 import { ConfirmationModal } from '@/components/ui/confirmation-modal'
+import { toast } from '@/hooks/use-toast'
 import { LucideIcon, Trash2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
@@ -53,6 +54,7 @@ export function ActionButton({
       if (refreshOnSuccess) {
         router.refresh()
       }
+      toast({ title: 'Success', description: 'Action completed successfully.' })
     } catch (error) {
       console.error('Action failed:', error)
     } finally {

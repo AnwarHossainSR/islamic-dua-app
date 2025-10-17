@@ -1,36 +1,16 @@
 'use client'
 
 import { cn } from '@/lib/utils'
-import {
-  BookOpen,
-  Calendar,
-  FolderTree,
-  LayoutDashboard,
-  Menu,
-  Settings,
-  Sparkles,
-  Tags,
-  Target,
-  Upload,
-  Users,
-  X,
-} from 'lucide-react'
+import { LayoutDashboard, Menu, Settings, Target, Users, X } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 const navigation = [
-  { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
-  { name: 'Duas', href: '/admin/duas', icon: BookOpen },
-  { name: 'Categories', href: '/admin/categories', icon: FolderTree },
-  { name: 'Tags', href: '/admin/tags', icon: Tags },
-  { name: 'Fazilat', href: '/admin/fazilat', icon: Sparkles },
-  { name: 'Day-wise Duas', href: '/admin/day-wise', icon: Calendar },
-  { name: 'Dhikr Presets', href: '/admin/dhikr-presets', icon: BookOpen },
-  { name: 'Challenges', href: '/admin/challenges', icon: Target },
-  { name: 'Admin Users', href: '/admin/users', icon: Users },
-  { name: 'Import/Export', href: '/admin/import-export', icon: Upload },
-  { name: 'Settings', href: '/admin/settings', icon: Settings },
+  { name: 'Dashboard', href: '/', icon: LayoutDashboard },
+  { name: 'Challenges', href: '/challenges', icon: Target },
+  { name: 'Users', href: '/users', icon: Users },
+  { name: 'Settings', href: '/settings', icon: Settings },
 ]
 
 export function AdminSidebar() {

@@ -20,7 +20,7 @@ export default function NotFound() {
             </p>
           </div>
           <Button asChild className="w-full">
-            <Link href="/admin/challenges">
+            <Link href="/challenges">
               <Home className="mr-2 h-4 w-4" />
               Back to Challenges
             </Link>

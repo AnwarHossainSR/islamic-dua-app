@@ -49,9 +49,9 @@ export default async function AdminUsersPage() {
           <p className="text-muted-foreground">Manage users with admin access</p>
         </div>
         <Button asChild>
-          <Link href="/admin/users/new">
+          <Link href="/users/new">
             <Plus className="mr-2 h-4 w-4" />
-            Add Admin User
+            Add User
           </Link>
         </Button>
       </div>
@@ -125,7 +125,7 @@ export default async function AdminUsersPage() {
                   </div>
                 </div>
                 <Button size="sm" asChild>
-                  <Link href={`/admin/users/${admin.id}`}>Edit</Link>
+                  <Link href={`/users/${admin.id}`}>Edit</Link>
                 </Button>
               </div>
             ))}
@@ -134,9 +134,9 @@ export default async function AdminUsersPage() {
                 <div className="text-center">
                   <p className="mb-4 text-muted-foreground">No admin users found</p>
                   <Button asChild>
-                    <Link href="/admin/users/new">
+                    <Link href="/users/new">
                       <Plus className="mr-2 h-4 w-4" />
-                      Add Your First Admin User
+                      Add Your First User
                     </Link>
                   </Button>
                 </div>

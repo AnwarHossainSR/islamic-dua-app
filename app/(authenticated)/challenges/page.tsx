@@ -29,7 +29,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 
-export default async function AdminChallengesPage() {
+export default async function ChallengesPage() {
   const challenges = await getChallenges()
 
   // Calculate overall stats
@@ -85,7 +85,7 @@ export default async function AdminChallengesPage() {
           </p>
         </div>
         <Button asChild size="lg">
-          <Link href="/admin/challenges/new">
+          <Link href="/challenges/new">
             <Plus className="mr-2 h-4 w-4" />
             Create Challenge
           </Link>
@@ -397,7 +397,7 @@ export default async function AdminChallengesPage() {
                           asChild
                           className="flex-1 text-xs md:text-sm"
                         >
-                          <Link href={`/admin/challenges/${challenge.id}/preview`}>
+                          <Link href={`/challenges/${challenge.id}/preview`}>
                             <Eye className="mr-1 h-3 w-3" />
                             Preview
                           </Link>
@@ -408,7 +408,7 @@ export default async function AdminChallengesPage() {
                           asChild
                           className="flex-1 text-xs md:text-sm"
                         >
-                          <Link href={`/admin/challenges/${challenge.id}`}>
+                          <Link href={`/challenges/${challenge.id}`}>
                             <Edit className="mr-1 h-3 w-3" />
                             Edit
                           </Link>
@@ -437,7 +437,7 @@ export default async function AdminChallengesPage() {
                     Create your first challenge to get started
                   </p>
                   <Button asChild>
-                    <Link href="/admin/challenges/new">
+                    <Link href="/challenges/new">
                       <Plus className="mr-2 h-4 w-4" />
                       Create Challenge
                     </Link>

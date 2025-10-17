@@ -464,7 +464,7 @@ export async function createChallengeTemplate(formData: FormData) {
     return { error: error.message }
   }
 
-  revalidatePath('/admin/challenges')
+  revalidatePath('/challenges')
   return { data }
 }
 
@@ -513,7 +513,7 @@ export async function updateChallengeTemplate(id: string, formData: FormData) {
     return { error: error.message }
   }
 
-  revalidatePath('/admin/challenges')
+  revalidatePath('/challenges')
   return { success: true }
 }
 
@@ -526,7 +526,7 @@ export async function deleteChallengeTemplate(id: string) {
     return { error: error.message }
   }
 
-  revalidatePath('/admin/challenges')
+  revalidatePath('/challenges')
   return { success: true }
 }
 

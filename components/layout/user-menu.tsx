@@ -54,8 +54,8 @@ export function UserMenu({ user, isAdmin }: { user: User; isAdmin: boolean }) {
           <>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
-              <Link href="/admin" className="text-primary font-medium">
-                Admin Panel
+              <Link href="/" className="text-primary font-medium">
+                User Panel
               </Link>
             </DropdownMenuItem>
           </>

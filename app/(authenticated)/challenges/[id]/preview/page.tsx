@@ -1,4 +1,3 @@
-// /app/admin/challenges/[id]/preview/page.tsx
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { getChallengeById, startChallenge } from '@/lib/actions/challenges'
@@ -58,7 +57,7 @@ export default async function ChallengePreviewPage({ params, searchParams }: Pro
     } = await supabase.auth.getUser()
 
     if (!user) {
-      redirect('/login?redirect=/admin/challenges/' + params.id + '/preview')
+      redirect('/login?redirect=/challenges/' + params.id + '/preview')
     }
 
     // Use the server action
@@ -71,7 +70,7 @@ export default async function ChallengePreviewPage({ params, searchParams }: Pro
 
     if (result.data) {
       // Redirect to the user's progress page
-      redirect(`/admin/challenges/progress/${result.data.id}`)
+      redirect(`/challenges/progress/${result.data.id}`)
     }
   }
 
@@ -96,9 +95,7 @@ export default async function ChallengePreviewPage({ params, searchParams }: Pro
                   </div>
                   {hasActiveChallenge ? (
                     <Button size="lg" asChild>
-                      <a href={`/admin/challenges/progress/${activeProgressId}`}>
-                        Continue Challenge
-                      </a>
+                      <a href={`/challenges/progress/${activeProgressId}`}>Continue Challenge</a>
                     </Button>
                   ) : (
                     <form action={handleStartChallenge}>
@@ -119,7 +116,7 @@ export default async function ChallengePreviewPage({ params, searchParams }: Pro
                     </p>
                   </div>
                   <Button size="lg" asChild>
-                    <a href={`/login?redirect=/admin/challenges/${params.id}/preview`}>Login</a>
+                    <a href={`/login?redirect=/challenges/${params.id}/preview`}>Login</a>
                   </Button>
                 </CardContent>
               </Card>

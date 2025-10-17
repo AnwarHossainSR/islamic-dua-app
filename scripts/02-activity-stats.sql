@@ -271,6 +271,20 @@ CREATE TRIGGER trigger_create_activity_stat_for_challenge
   FOR EACH ROW
   EXECUTE FUNCTION create_activity_stat_for_challenge();
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 -- ============================================
 -- SEED DATA - Create activity stats for existing challenges
 -- ============================================

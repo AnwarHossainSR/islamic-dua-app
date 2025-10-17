@@ -69,7 +69,6 @@ CREATE TRIGGER update_admin_users_updated_at BEFORE UPDATE ON admin_users
 -- ============================================
 
 -- Enable RLS on all tables
-ALTER TABLE user_bookmarks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_preferences ENABLE ROW LEVEL SECURITY;
 ALTER TABLE admin_users ENABLE ROW LEVEL SECURITY;
 

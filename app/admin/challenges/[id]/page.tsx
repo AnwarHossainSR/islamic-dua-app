@@ -12,7 +12,6 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
-import { toast } from '@/hooks/use-toast'
 import {
   createChallengeTemplate,
   getChallengeById,
@@ -45,13 +44,6 @@ export default async function ChallengeFormPage({ params }: Props) {
     } else {
       await createChallengeTemplate(formData)
     }
-
-    toast({
-      title: isEdit ? 'Challenge updated' : 'Challenge created',
-      description: isEdit
-        ? 'The challenge has been successfully updated.'
-        : 'A new challenge has been successfully created.',
-    })
 
     redirect('/admin/challenges')
   }

@@ -1,7 +1,7 @@
 'use client'
 
 import { cn } from '@/lib/utils'
-import { LayoutDashboard, Menu, Settings, Target, Users, X } from 'lucide-react'
+import { Activity, LayoutDashboard, Menu, Settings, Target, Users, X } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react'
 const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
   { name: 'Challenges', href: '/challenges', icon: Target },
+  { name: 'Activities', href: '/activities', icon: Activity },
   { name: 'Users', href: '/users', icon: Users },
   { name: 'Settings', href: '/settings', icon: Settings },
 ]

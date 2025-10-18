@@ -29,6 +29,7 @@ import {
   Target,
   Trophy,
 } from 'lucide-react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
@@ -158,10 +159,10 @@ export default function UserChallengeProgressClient({
 
       setShowSuccessModal(true)
       toast({ title: 'Success', description: `Day ${progress.current_day} completed!` })
-      setTimeout(() => {
-        setShowSuccessModal(false)
-        router.refresh()
-      }, 10000)
+      // setTimeout(() => {
+      //   setShowSuccessModal(false)
+      //   router.refresh()
+      // }, 10000)
     } catch (error) {
       console.error('Error:', error)
       alert('Failed to save progress')
@@ -659,6 +660,13 @@ export default function UserChallengeProgressClient({
               <p className="text-sm font-medium text-muted-foreground">
                 See you tomorrow for Day {progress.current_day + 1}!
               </p>
+
+              {/* Added Button Link */}
+              <div className="pt-4">
+                <Link href="/challenges" passHref>
+                  <Button className="w-full sm:w-auto">Go to Challenges</Button>
+                </Link>
+              </div>
             </CardContent>
           </Card>
         </div>

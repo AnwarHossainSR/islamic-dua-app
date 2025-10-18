@@ -35,9 +35,15 @@ export default async function ChallengesPage() {
 
   // Calculate overall stats
   const totalChallenges = challenges.length
-  const totalParticipants = challenges.reduce((sum, c) => sum + (c.total_participants || 0), 0)
-  const totalCompletions = challenges.reduce((sum, c) => sum + (c.total_completions || 0), 0)
-  const totalDays = challenges.reduce((sum, c) => sum + c.total_days, 0)
+  const totalParticipants = challenges.reduce(
+    (sum: number, c: any) => sum + (c.total_participants || 0),
+    0
+  )
+  const totalCompletions = challenges.reduce(
+    (sum: number, c: any) => sum + (c.total_completions || 0),
+    0
+  )
+  const totalDays = challenges.reduce((sum: number, c: any) => sum + c.total_days, 0)
   const avgCompletionRate =
     totalParticipants > 0 ? Math.round((totalCompletions / totalDays) * 100) : 0
 
@@ -267,7 +273,7 @@ export default async function ChallengesPage() {
 
           {/* Challenges Table/Grid */}
           <div className="space-y-4">
-            {challenges.map(challenge => {
+            {challenges.map((challenge: any) => {
               const completionRate =
                 challenge.total_completions > 0
                   ? Math.round((challenge.total_completions / challenge.total_days) * 100)
@@ -517,14 +523,14 @@ export default async function ChallengesPage() {
               <CardContent>
                 <div className="space-y-3">
                   {challenges
-                    .filter(c => (c.total_participants || 0) > 0)
-                    .sort((a, b) => {
+                    .filter((c: any) => (c.total_participants || 0) > 0)
+                    .sort((a: any, b: any) => {
                       const rateA = ((a.total_completions || 0) / (a.total_participants || 1)) * 100
                       const rateB = ((b.total_completions || 0) / (b.total_participants || 1)) * 100
                       return rateB - rateA
                     })
                     .slice(0, 5)
-                    .map(challenge => {
+                    .map((challenge: any) => {
                       const rate = Math.round(
                         ((challenge.total_completions || 0) / (challenge.total_days || 1)) * 100
                       )
@@ -564,9 +570,11 @@ export default async function ChallengesPage() {
               <CardContent>
                 <div className="space-y-3">
                   {challenges
-                    .sort((a, b) => (b.total_participants || 0) - (a.total_participants || 0))
+                    .sort(
+                      (a: any, b: any) => (b.total_participants || 0) - (a.total_participants || 0)
+                    )
                     .slice(0, 5)
-                    .map(challenge => (
+                    .map((challenge: any) => (
                       <div
                         key={challenge.id}
                         className="flex items-center justify-between gap-2 min-w-0"

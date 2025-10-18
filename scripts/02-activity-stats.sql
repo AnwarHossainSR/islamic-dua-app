@@ -124,6 +124,16 @@ CREATE POLICY "Users can view all user activity stats"
   ON user_activity_stats FOR SELECT
   USING (true);
 
+-- CRITICAL: Allow INSERT and UPDATE for trigger function
+CREATE POLICY "Users can insert their own activity stats"
+  ON user_activity_stats FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update their own activity stats"
+  ON user_activity_stats FOR UPDATE
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
 -- Challenge activity mapping policies
 CREATE POLICY "Challenge activity mapping viewable by everyone"
   ON challenge_activity_mapping FOR SELECT

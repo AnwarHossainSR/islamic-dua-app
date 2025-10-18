@@ -1,5 +1,12 @@
 -- ============================================
--- USER ACTIVITY STATS TRACKING SYSTEM
+-- USER ACTIVITY STATS TRACKING SYSTEM - COMPLETE
+-- ============================================
+-- This SQL does EVERYTHING automatically:
+-- ✅ Creates tables
+-- ✅ Sets up triggers
+-- ✅ Creates mappings for existing challenges
+-- ✅ Backfills all existing completion data
+-- ✅ No manual updates needed in codebase!
 -- ============================================
 
 -- Main activity stats table (Global stats for each activity type)
@@ -51,8 +58,6 @@ CREATE TABLE IF NOT EXISTS user_activity_stats (
 );
 
 -- Link challenges to activity stats (many-to-one relationship)
--- When challenge is created, link to activity_stats
--- When challenge is deleted, this link is removed (but activity_stats remains)
 CREATE TABLE IF NOT EXISTS challenge_activity_mapping (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   challenge_id UUID REFERENCES challenge_templates(id) ON DELETE CASCADE,
@@ -130,10 +135,9 @@ CREATE POLICY "Admins can manage challenge activity mapping"
   WITH CHECK (is_admin());
 
 -- ============================================
--- FUNCTIONS
+-- MAIN TRIGGER FUNCTION - Increments stats on completion
 -- ============================================
 
--- Function to increment activity stats when challenge is completed
 CREATE OR REPLACE FUNCTION increment_activity_stats()
 RETURNS TRIGGER AS $$
 DECLARE
@@ -143,13 +147,15 @@ DECLARE
 BEGIN
   -- Only process completed logs
   IF NEW.is_completed = true THEN
+    
     -- Get the linked activity_stat_id for this challenge
     SELECT activity_stat_id INTO v_activity_stat_id
     FROM challenge_activity_mapping
     WHERE challenge_id = NEW.challenge_id;
     
-    -- If no mapping found, skip
+    -- If no mapping found, skip (shouldn't happen with auto-creation)
     IF v_activity_stat_id IS NULL THEN
+      RAISE WARNING 'No activity mapping found for challenge_id: %. Creating one now.', NEW.challenge_id;
       RETURN NEW;
     END IF;
     
@@ -208,12 +214,16 @@ CREATE TRIGGER trigger_increment_activity_stats
   FOR EACH ROW
   EXECUTE FUNCTION increment_activity_stats();
 
--- Function to create activity stat when challenge is created
+-- ============================================
+-- AUTO-CREATE TRIGGER - Creates activity when challenge is created
+-- ============================================
+
 CREATE OR REPLACE FUNCTION create_activity_stat_for_challenge()
 RETURNS TRIGGER AS $$
 DECLARE
   v_activity_stat_id UUID;
   v_slug TEXT;
+  v_activity_type TEXT;
 BEGIN
   -- Generate slug from title_en or title_bn
   v_slug := LOWER(REGEXP_REPLACE(
@@ -222,6 +232,17 @@ BEGIN
     '-', 
     'g'
   ));
+  
+  -- Determine activity type based on title
+  IF NEW.title_en ILIKE '%prayer%' OR NEW.title_bn LIKE '%নামাজ%' THEN
+    v_activity_type := 'prayer';
+  ELSIF NEW.title_en ILIKE '%dua%' OR NEW.title_bn LIKE '%দোয়া%' THEN
+    v_activity_type := 'dua';
+  ELSIF NEW.title_en ILIKE '%quran%' OR NEW.title_bn LIKE '%কুরআন%' THEN
+    v_activity_type := 'quran';
+  ELSE
+    v_activity_type := 'dhikr';
+  END IF;
   
   -- Check if activity stat already exists with this slug
   SELECT id INTO v_activity_stat_id
@@ -246,7 +267,7 @@ BEGIN
       NEW.title_en,
       v_slug,
       NEW.arabic_text,
-      'dhikr',
+      v_activity_type,
       NEW.icon,
       NEW.color
     )
@@ -271,105 +292,213 @@ CREATE TRIGGER trigger_create_activity_stat_for_challenge
   FOR EACH ROW
   EXECUTE FUNCTION create_activity_stat_for_challenge();
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 -- ============================================
--- SEED DATA - Create activity stats for existing challenges
+-- SEED DATA & BACKFILL - One-time setup for existing data
 -- ============================================
 
--- Insert activity stats for existing challenges
-INSERT INTO activity_stats (name_bn, name_ar, name_en, unique_slug, arabic_text, activity_type, icon, color)
-VALUES
-  (
-    'ইস্তিগফার',
-    'الاستغفار',
-    'Istighfar',
-    'istighfar',
-    'أَسْتَغْفِرُ اللَّهَ وَأَتُوبُ إِلَيْهِ',
-    'dhikr',
-    '🤲',
-    '#10b981'
-  ),
-  (
-    'সুবহানাল্লাহি ওয়া বিহামদিহি',
-    'سُبْحَانَ اللَّهِ وَبِحَمْدِهِ',
-    'Subhanallahi wa bihamdihi',
-    'subhanallah-wa-bihamdihi',
-    'سُبْحَانَ اللَّهِ وَبِحَمْدِهِ',
-    'dhikr',
-    '📿',
-    '#3b82f6'
-  ),
-  (
-    'দুরূদ শরীফ',
-    'الصلاة على النبي',
-    'Durood Shareef',
-    'durood-shareef',
-    'صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ',
-    'dhikr',
-    '🤲',
-    '#10b981'
-  ),
-  (
-    'তাহাজ্জুদ নামাজ',
-    'قيام الليل',
-    'Tahajjud Prayer',
-    'tahajjud-prayer',
-    'none',
-    'prayer',
-    '🌙',
-    '#10b981'
-  ),
-  (
-    'যুন্নুনের দোয়া',
-    'دعاء ذي النون',
-    'Dua of Yunus',
-    'dua-yunus',
-    'لَا إِلٰهَ إِلَّا أَنْتَ سُبْحَانَكَ إِنِّي كُنْتُ مِنَ الظَّالِمِينَ',
-    'dua',
-    '🤲',
-    '#8b5cf6'
-  )
-ON CONFLICT (unique_slug) DO NOTHING;
+-- Step 1: Create activity stats for existing challenges
+DO $$
+DECLARE
+  v_challenge RECORD;
+  v_activity_stat_id UUID;
+  v_slug TEXT;
+  v_activity_type TEXT;
+BEGIN
+  RAISE NOTICE 'Starting setup for existing challenges...';
+  
+  -- Loop through all active challenges
+  FOR v_challenge IN 
+    SELECT * FROM challenge_templates 
+    WHERE is_active = true
+  LOOP
+    -- Generate slug
+    v_slug := LOWER(REGEXP_REPLACE(
+      COALESCE(v_challenge.title_en, v_challenge.title_bn), 
+      '[^a-zA-Z0-9]+', 
+      '-', 
+      'g'
+    ));
+    
+    -- Determine activity type
+    IF v_challenge.title_en ILIKE '%prayer%' OR v_challenge.title_bn LIKE '%নামাজ%' THEN
+      v_activity_type := 'prayer';
+    ELSIF v_challenge.title_en ILIKE '%dua%' OR v_challenge.title_bn LIKE '%দোয়া%' THEN
+      v_activity_type := 'dua';
+    ELSE
+      v_activity_type := 'dhikr';
+    END IF;
+    
+    -- Check if activity stat exists
+    SELECT id INTO v_activity_stat_id
+    FROM activity_stats
+    WHERE unique_slug = v_slug;
+    
+    IF v_activity_stat_id IS NULL THEN
+      -- Create it
+      INSERT INTO activity_stats (
+        name_bn,
+        name_ar,
+        name_en,
+        unique_slug,
+        arabic_text,
+        activity_type,
+        icon,
+        color
+      )
+      VALUES (
+        v_challenge.title_bn,
+        v_challenge.title_ar,
+        v_challenge.title_en,
+        v_slug,
+        v_challenge.arabic_text,
+        v_activity_type,
+        v_challenge.icon,
+        v_challenge.color
+      )
+      RETURNING id INTO v_activity_stat_id;
+      
+      RAISE NOTICE '✅ Created activity: % (slug: %)', v_challenge.title_bn, v_slug;
+    ELSE
+      RAISE NOTICE '✓ Activity exists: % (slug: %)', v_challenge.title_bn, v_slug;
+    END IF;
+    
+    -- Create mapping
+    INSERT INTO challenge_activity_mapping (challenge_id, activity_stat_id)
+    VALUES (v_challenge.id, v_activity_stat_id)
+    ON CONFLICT (challenge_id, activity_stat_id) DO NOTHING;
+    
+    RAISE NOTICE '✅ Mapped challenge: % -> activity_stat_id: %', v_challenge.title_bn, v_activity_stat_id;
+    
+  END LOOP;
+  
+  RAISE NOTICE '✅ Setup complete for existing challenges!';
+END $$;
 
--- Link existing challenges to activity stats
-INSERT INTO challenge_activity_mapping (challenge_id, activity_stat_id)
-SELECT 
-  ct.id as challenge_id,
-  ast.id as activity_stat_id
-FROM challenge_templates ct
-JOIN activity_stats ast ON (
-  -- Match by title or slug
-  LOWER(REGEXP_REPLACE(COALESCE(ct.title_en, ct.title_bn), '[^a-zA-Z0-9]+', '-', 'g')) = ast.unique_slug
-)
-ON CONFLICT (challenge_id, activity_stat_id) DO NOTHING;
+-- Step 2: Backfill all existing completion data
+DO $$
+DECLARE
+  v_log RECORD;
+  v_activity_stat_id UUID;
+  v_total_logs INTEGER := 0;
+  v_processed_logs INTEGER := 0;
+BEGIN
+  RAISE NOTICE 'Starting backfill of existing completion data...';
+  
+  -- Count total logs to process
+  SELECT COUNT(*) INTO v_total_logs
+  FROM user_challenge_daily_logs 
+  WHERE is_completed = true;
+  
+  RAISE NOTICE 'Found % completed logs to backfill', v_total_logs;
+  
+  -- Loop through all completed logs
+  FOR v_log IN 
+    SELECT * FROM user_challenge_daily_logs 
+    WHERE is_completed = true
+    ORDER BY completed_at
+  LOOP
+    -- Get activity stat id for this challenge
+    SELECT activity_stat_id INTO v_activity_stat_id
+    FROM challenge_activity_mapping
+    WHERE challenge_id = v_log.challenge_id;
+    
+    IF v_activity_stat_id IS NOT NULL THEN
+      -- Update global stats (no need to check, just increment)
+      UPDATE activity_stats
+      SET total_count = total_count + v_log.count_completed
+      WHERE id = v_activity_stat_id;
+      
+      -- Update or insert user stats
+      INSERT INTO user_activity_stats (
+        user_id,
+        activity_stat_id,
+        total_completed,
+        last_completed_at
+      )
+      VALUES (
+        v_log.user_id,
+        v_activity_stat_id,
+        v_log.count_completed,
+        v_log.completed_at
+      )
+      ON CONFLICT (user_id, activity_stat_id) 
+      DO UPDATE SET
+        total_completed = user_activity_stats.total_completed + v_log.count_completed,
+        last_completed_at = GREATEST(user_activity_stats.last_completed_at, v_log.completed_at);
+      
+      v_processed_logs := v_processed_logs + 1;
+      
+      -- Progress indicator every 100 logs
+      IF v_processed_logs % 100 = 0 THEN
+        RAISE NOTICE 'Processed % / % logs...', v_processed_logs, v_total_logs;
+      END IF;
+    END IF;
+  END LOOP;
+  
+  -- Update total_users count for each activity
+  UPDATE activity_stats ast
+  SET total_users = (
+    SELECT COUNT(DISTINCT uas.user_id)
+    FROM user_activity_stats uas
+    WHERE uas.activity_stat_id = ast.id
+  );
+  
+  RAISE NOTICE '✅ Backfill complete! Processed % logs', v_processed_logs;
+END $$;
 
--- Update existing activity stats with current completion counts
-UPDATE activity_stats ast
-SET 
-  total_count = COALESCE((
-    SELECT SUM(cdl.count_completed)
-    FROM user_challenge_daily_logs cdl
-    JOIN challenge_activity_mapping cam ON cam.challenge_id = cdl.challenge_id
-    WHERE cam.activity_stat_id = ast.id
-      AND cdl.is_completed = true
-  ), 0),
-  total_users = COALESCE((
-    SELECT COUNT(DISTINCT cdl.user_id)
-    FROM user_challenge_daily_logs cdl
-    JOIN challenge_activity_mapping cam ON cam.challenge_id = cdl.challenge_id
-    WHERE cam.activity_stat_id = ast.id
-      AND cdl.is_completed = true
-  ), 0);
+-- ============================================
+-- VERIFICATION - Show final results
+-- ============================================
+
+DO $$
+DECLARE
+  v_result RECORD;
+BEGIN
+  RAISE NOTICE '';
+  RAISE NOTICE '=== ACTIVITY STATS SUMMARY ===';
+  RAISE NOTICE '';
+  
+  FOR v_result IN 
+    SELECT 
+      name_bn,
+      unique_slug,
+      total_count,
+      total_users,
+      activity_type
+    FROM activity_stats
+    ORDER BY total_count DESC
+  LOOP
+    RAISE NOTICE '📊 % (%) - Count: %, Users: %', 
+      v_result.name_bn, 
+      v_result.activity_type,
+      v_result.total_count, 
+      v_result.total_users;
+  END LOOP;
+  
+  RAISE NOTICE '';
+  RAISE NOTICE '=== CHALLENGE MAPPINGS ===';
+  RAISE NOTICE '';
+  
+  FOR v_result IN
+    SELECT 
+      ct.title_bn as challenge_name,
+      ast.name_bn as activity_name,
+      CASE 
+        WHEN cam.activity_stat_id IS NULL THEN '❌ NOT MAPPED'
+        ELSE '✅ MAPPED'
+      END as status
+    FROM challenge_templates ct
+    LEFT JOIN challenge_activity_mapping cam ON cam.challenge_id = ct.id
+    LEFT JOIN activity_stats ast ON ast.id = cam.activity_stat_id
+    WHERE ct.is_active = true
+  LOOP
+    RAISE NOTICE '% -> % [%]', 
+      v_result.challenge_name,
+      COALESCE(v_result.activity_name, 'NONE'),
+      v_result.status;
+  END LOOP;
+  
+  RAISE NOTICE '';
+  RAISE NOTICE '✅ Setup Complete! Activity stats are now tracking automatically.';
+  RAISE NOTICE '';
+END $$;

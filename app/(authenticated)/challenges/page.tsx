@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { deleteChallengeTemplate, getChallenges, getRecentLogs } from '@/lib/actions/challenges'
+import { toZonedTime } from 'date-fns-tz'
 import {
   Calendar,
   CheckCircle2,
@@ -51,23 +52,18 @@ export default async function ChallengesPage() {
       )
     }
 
-    const date = new Date(lastCompletedAt)
-
-    // Add 6 hours
-    date.setHours(date.getHours() + 6)
+    const timeZone = 'Asia/Dhaka'
+    const utcDate = new Date(lastCompletedAt)
+    const date = toZonedTime(utcDate, timeZone)
 
     const completedToday = isToday(date)
 
-    if (completedToday) {
-      return (
-        <Badge className="bg-emerald-500/10 text-emerald-700 border-emerald-200 flex items-center gap-1 text-xs">
-          <CheckCircle2 className="h-3 w-3" />
-          Today at {format(date, 'h:mm a')}
-        </Badge>
-      )
-    }
-
-    return (
+    return completedToday ? (
+      <Badge className="bg-emerald-500/10 text-emerald-700 border-emerald-200 flex items-center gap-1 text-xs">
+        <CheckCircle2 className="h-3 w-3" />
+        Today at {format(date, 'h:mm a')}
+      </Badge>
+    ) : (
       <Badge variant="secondary" className="text-xs">
         {format(date, 'MMM d, h:mm a')}
       </Badge>

@@ -5,18 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { updateActivityCount } from '@/lib/actions/admin'
 import { format } from 'date-fns'
-import {
-  ArrowLeft,
-  Calendar,
-  Flame,
-  Minus,
-  Plus,
-  RotateCcw,
-  RotateCw,
-  Save,
-  Trophy,
-  Users,
-} from 'lucide-react'
+import { ArrowLeft, Calendar, Flame, RotateCcw, Trophy, Users, X } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
 
@@ -35,6 +24,7 @@ export default function ActivityDetailsPageClient({
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(
     null
   )
+  const [showModal, setShowModal] = useState(false)
 
   const avgPerUser = activity.total_users > 0 ? Math.round(currentCount / activity.total_users) : 0
 
@@ -46,7 +36,8 @@ export default function ActivityDetailsPageClient({
       if (result.success) {
         setCurrentCount(result.newCount)
         setInputValue(result.newCount.toString())
-        setFeedback({ type: 'success', message: `Added ${amount}. New count: ${result.newCount}` })
+        setFeedback({ type: 'success', message: `+${amount}` })
+        setTimeout(() => setFeedback(null), 2000)
       } else {
         setFeedback({ type: 'error', message: result.error || 'Update failed' })
       }
@@ -65,10 +56,8 @@ export default function ActivityDetailsPageClient({
       if (result.success) {
         setCurrentCount(result.newCount)
         setInputValue(result.newCount.toString())
-        setFeedback({
-          type: 'success',
-          message: `Subtracted ${amount}. New count: ${result.newCount}`,
-        })
+        setFeedback({ type: 'success', message: `-${amount}` })
+        setTimeout(() => setFeedback(null), 2000)
       } else {
         setFeedback({ type: 'error', message: result.error || 'Update failed' })
       }
@@ -82,7 +71,7 @@ export default function ActivityDetailsPageClient({
   const handleSetCustomCount = async () => {
     const newCount = parseInt(inputValue, 10)
     if (isNaN(newCount) || newCount < 0) {
-      setFeedback({ type: 'error', message: 'Please enter a valid number' })
+      setFeedback({ type: 'error', message: 'Invalid number' })
       return
     }
 
@@ -92,7 +81,9 @@ export default function ActivityDetailsPageClient({
       const result = await updateActivityCount(activity.id, newCount, 'set')
       if (result.success) {
         setCurrentCount(result.newCount)
-        setFeedback({ type: 'success', message: `Count set to ${result.newCount}` })
+        setFeedback({ type: 'success', message: 'Saved' })
+        setShowModal(false)
+        setTimeout(() => setFeedback(null), 2000)
       } else {
         setFeedback({ type: 'error', message: result.error || 'Update failed' })
       }
@@ -165,134 +156,144 @@ export default function ActivityDetailsPageClient({
         </Card>
       </div>
 
-      {/* Manual Counter Update */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 p-1">
-        <div className="relative rounded-2xl bg-slate-950 p-8 backdrop-blur-xl">
-          {/* Header */}
-          <div className="mb-8 text-center">
-            <h2 className="mb-2 text-3xl font-bold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
-              Manual Count Management
-            </h2>
-            <p className="text-slate-400">Adjust the dhikir count as needed</p>
-          </div>
-
-          {/* Current Count Display */}
-          <div className="mb-8 rounded-xl bg-gradient-to-r from-emerald-500/10 to-teal-500/10 p-6 border border-emerald-500/20">
-            <p className="text-sm font-medium text-slate-300 mb-2">Current Count</p>
-            <p className="text-5xl font-bold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
-              {currentCount.toLocaleString()}
-            </p>
-          </div>
-
-          {/* Quick Action Buttons */}
-          <div className="mb-8">
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4">
-              Quick Actions
-            </p>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <button
-                onClick={() => handleSubtractCount(10)}
-                disabled={isLoading}
-                className="group relative overflow-hidden rounded-lg bg-gradient-to-r from-red-500 to-pink-500 p-0.5 transition-all hover:shadow-lg hover:shadow-red-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <div className="relative rounded-lg bg-slate-950 px-4 py-3 transition-all group-hover:bg-slate-900 flex items-center justify-center gap-2">
-                  <Minus className="h-4 w-4 text-red-400" />
-                  <span className="font-semibold text-red-400">10</span>
-                </div>
-              </button>
-
-              <button
-                onClick={() => handleAddCount(10)}
-                disabled={isLoading}
-                className="group relative overflow-hidden rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 p-0.5 transition-all hover:shadow-lg hover:shadow-emerald-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <div className="relative rounded-lg bg-slate-950 px-4 py-3 transition-all group-hover:bg-slate-900 flex items-center justify-center gap-2">
-                  <Plus className="h-4 w-4 text-emerald-400" />
-                  <span className="font-semibold text-emerald-400">10</span>
-                </div>
-              </button>
-
-              <button
-                onClick={() => handleAddCount(100)}
-                disabled={isLoading}
-                className="group relative overflow-hidden rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 p-0.5 transition-all hover:shadow-lg hover:shadow-emerald-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <div className="relative rounded-lg bg-slate-950 px-4 py-3 transition-all group-hover:bg-slate-900 flex items-center justify-center gap-2">
-                  <Plus className="h-4 w-4 text-emerald-400" />
-                  <span className="font-semibold text-emerald-400">100</span>
-                </div>
-              </button>
-
-              <button
-                onClick={() => handleSubtractCount(100)}
-                disabled={isLoading}
-                className="group relative overflow-hidden rounded-lg bg-gradient-to-r from-red-500 to-pink-500 p-0.5 transition-all hover:shadow-lg hover:shadow-red-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <div className="relative rounded-lg bg-slate-950 px-4 py-3 transition-all group-hover:bg-slate-900 flex items-center justify-center gap-2">
-                  <Minus className="h-4 w-4 text-red-400" />
-                  <span className="font-semibold text-red-400">100</span>
-                </div>
-              </button>
+      {/* Manual Counter Update - Compact */}
+      <div className="rounded-lg bg-slate-900 border border-slate-800 p-4">
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          {/* Count Display */}
+          <div className="flex items-center gap-3">
+            <div>
+              <p className="text-xs text-slate-500">Count</p>
+              <p className="text-2xl font-bold text-emerald-400">{currentCount.toLocaleString()}</p>
             </div>
           </div>
 
-          {/* Custom Input Section */}
-          <div className="mb-8">
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4">
-              Set Custom Count
-            </p>
-            <div className="flex gap-2">
-              <div className="relative flex-1">
-                <input
-                  type="number"
-                  value={inputValue}
-                  onChange={e => setInputValue(e.target.value)}
-                  disabled={isLoading}
-                  className="w-full rounded-lg bg-slate-800 border border-slate-700 px-4 py-3 text-lg font-semibold text-emerald-400 placeholder-slate-500 outline-none transition-all focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 disabled:opacity-50"
-                  placeholder="Enter new count"
-                />
-              </div>
-              <button
-                onClick={handleReset}
-                disabled={isLoading || inputValue === currentCount.toString()}
-                className="rounded-lg bg-slate-800 px-4 py-3 text-slate-400 hover:text-slate-200 transition-colors disabled:opacity-30 disabled:cursor-not-allowed border border-slate-700 hover:border-slate-600"
-              >
-                <RotateCw className="h-5 w-5" />
-              </button>
-              <button
-                onClick={handleSetCustomCount}
-                disabled={isLoading}
-                className="group relative overflow-hidden rounded-lg bg-gradient-to-r from-purple-500 to-indigo-500 p-0.5 transition-all hover:shadow-lg hover:shadow-purple-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <div className="relative rounded-lg bg-slate-950 px-6 py-3 transition-all group-hover:bg-slate-900 flex items-center justify-center gap-2">
-                  <Save className="h-5 w-5 text-purple-400" />
-                  <span className="font-semibold text-purple-400">Save</span>
-                </div>
-              </button>
-            </div>
+          {/* Button */}
+          <div className="flex gap-2">
+            <Button
+              onClick={() => setShowModal(true)}
+              disabled={isLoading}
+              className="px-4 py-2 rounded-md bg-emerald-900 hover:bg-emerald-700 text-white text-sm font-medium transition-colors disabled:opacity-50"
+            >
+              Add Custom Count
+            </Button>
           </div>
 
-          {/* Feedback Message */}
+          {/* Feedback */}
           {feedback && (
             <div
-              className={`mb-6 rounded-lg border px-4 py-3 text-sm font-medium transition-all ${
+              className={`text-xs py-1 px-2 rounded-md ${
                 feedback.type === 'success'
-                  ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300 animate-in fade-in slide-in-from-top-2'
-                  : 'bg-red-500/10 border-red-500/30 text-red-300 animate-in fade-in slide-in-from-top-2'
+                  ? 'text-emerald-400 bg-emerald-900/20'
+                  : 'text-red-400 bg-red-900/20'
               }`}
             >
               {feedback.message}
             </div>
           )}
-
-          {/* Footer Info */}
-          <div className="border-t border-slate-700 pt-4">
-            <p className="text-xs text-slate-500">
-              Last updated just now • All changes are saved automatically
-            </p>
-          </div>
         </div>
       </div>
+
+      {/* Modal for Custom Count */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-lg p-6 w-full max-w-sm">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-white">Adjust Count</h3>
+              <button
+                onClick={() => setShowModal(false)}
+                className="text-slate-400 hover:text-slate-200 transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {/* Current Display */}
+              <div className="bg-slate-800 rounded-lg p-3 text-center">
+                <p className="text-xs text-slate-400 mb-1">Current</p>
+                <p className="text-2xl font-bold text-emerald-400">
+                  {currentCount.toLocaleString()}
+                </p>
+              </div>
+
+              {/* Quick Level Buttons */}
+              <div>
+                <p className="text-xs text-slate-400 mb-2 font-semibold uppercase">Quick Adjust</p>
+                <div className="grid grid-cols-4 gap-2">
+                  <button
+                    onClick={() => setInputValue((parseInt(inputValue) - 10).toString())}
+                    disabled={isLoading}
+                    className="px-2 py-2 rounded-md bg-red-900/30 hover:bg-red-900/50 text-red-400 text-xs font-medium transition-colors disabled:opacity-50"
+                  >
+                    -10
+                  </button>
+                  <button
+                    onClick={() => setInputValue((parseInt(inputValue) - 50).toString())}
+                    disabled={isLoading}
+                    className="px-2 py-2 rounded-md bg-red-900/30 hover:bg-red-900/50 text-red-400 text-xs font-medium transition-colors disabled:opacity-50"
+                  >
+                    -50
+                  </button>
+                  <button
+                    onClick={() => setInputValue((parseInt(inputValue) + 50).toString())}
+                    disabled={isLoading}
+                    className="px-2 py-2 rounded-md bg-emerald-900/30 hover:bg-emerald-900/50 text-emerald-400 text-xs font-medium transition-colors disabled:opacity-50"
+                  >
+                    +50
+                  </button>
+                  <button
+                    onClick={() => setInputValue((parseInt(inputValue) + 10).toString())}
+                    disabled={isLoading}
+                    className="px-2 py-2 rounded-md bg-emerald-900/30 hover:bg-emerald-900/50 text-emerald-400 text-xs font-medium transition-colors disabled:opacity-50"
+                  >
+                    +10
+                  </button>
+                </div>
+              </div>
+
+              {/* Custom Input */}
+              <div>
+                <label className="text-sm text-slate-400 mb-2 block">Custom Value</label>
+                <input
+                  type="number"
+                  value={inputValue}
+                  onChange={e => setInputValue(e.target.value)}
+                  disabled={isLoading}
+                  autoFocus
+                  className="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white font-medium outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:opacity-50"
+                  placeholder="Enter count"
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-2">
+                <button
+                  onClick={handleReset}
+                  disabled={isLoading || inputValue === currentCount.toString()}
+                  className="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium transition-colors disabled:opacity-50 flex-1"
+                >
+                  Reset
+                </button>
+                <button
+                  onClick={() => setShowModal(false)}
+                  disabled={isLoading}
+                  className="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium transition-colors disabled:opacity-50 flex-1"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSetCustomCount}
+                  disabled={isLoading}
+                  className="px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium transition-colors disabled:opacity-50 flex-1"
+                >
+                  {isLoading ? 'Saving...' : 'Save'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Activity Content */}
       <Card>
         <CardHeader>

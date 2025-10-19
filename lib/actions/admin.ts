@@ -238,11 +238,7 @@ export async function getTopUsersForActivity(activityId: string, limit = 10) {
 // MANUAL ACTIVITY COUNT UPDATE
 // ============================================
 
-export async function updateActivityCount(
-  activityId: string,
-  newCount: number,
-  operation: 'set' | 'add' | 'subtract' = 'set'
-) {
+export async function updateActivityCount(activityId: string, newCount: number) {
   // Verify admin access
   await checkAdminAccess()
 
@@ -259,19 +255,13 @@ export async function updateActivityCount(
     return { success: false, error: 'Activity not found' }
   }
 
-  let finalCount = newCount
-
-  if (operation === 'add') {
-    finalCount = activity.total_count + newCount
-  } else if (operation === 'subtract') {
-    finalCount = Math.max(0, activity.total_count - newCount)
-  }
+  const previousCount = activity.total_count
 
   // Update activity stats
   const { error: updateError } = await supabase
     .from('activity_stats')
     .update({
-      total_count: finalCount,
+      total_count: newCount,
       updated_at: new Date().toISOString(),
     })
     .eq('id', activityId)
@@ -281,25 +271,25 @@ export async function updateActivityCount(
     return { success: false, error: updateError.message }
   }
 
-  // Update activity stats
-  const { error: userActivityStatsupdateError } = await supabase
+  // Update user activity stats
+  const { error: userActivityStatsError } = await supabase
     .from('user_activity_stats')
     .update({
-      total_completed: finalCount,
+      total_completed: newCount,
       last_completed_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     })
     .eq('activity_stat_id', activityId)
 
-  if (userActivityStatsupdateError) {
-    console.error('Error updating user activity count:', updateError)
-    return { success: false, error: userActivityStatsupdateError.message }
+  if (userActivityStatsError) {
+    console.error('Error updating user activity count:', userActivityStatsError)
+    return { success: false, error: userActivityStatsError.message }
   }
 
   return {
     success: true,
-    previousCount: activity.total_count,
-    newCount: finalCount,
+    previousCount,
+    newCount,
   }
 }
 

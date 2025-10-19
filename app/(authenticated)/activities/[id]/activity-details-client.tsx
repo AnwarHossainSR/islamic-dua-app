@@ -3,6 +3,7 @@
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { useToast } from '@/hooks/use-toast'
 import { updateActivityCount } from '@/lib/actions/admin'
 import { format } from 'date-fns'
 import { ArrowLeft, Calendar, Flame, RotateCcw, Trophy, Users, X } from 'lucide-react'
@@ -18,77 +19,48 @@ export default function ActivityDetailsPageClient({
   activity,
   topUsers,
 }: ActivityDetailsPageProps) {
+  const { toast } = useToast()
   const [currentCount, setCurrentCount] = useState(activity.total_count)
   const [inputValue, setInputValue] = useState(activity.total_count.toString())
   const [isLoading, setIsLoading] = useState(false)
-  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(
-    null
-  )
   const [showModal, setShowModal] = useState(false)
 
   const avgPerUser = activity.total_users > 0 ? Math.round(currentCount / activity.total_users) : 0
 
-  const handleAddCount = async (amount: number) => {
-    setIsLoading(true)
-    setFeedback(null)
-    try {
-      const result: any = await updateActivityCount(activity.id, amount, 'add')
-      if (result.success) {
-        setCurrentCount(result.newCount)
-        setInputValue(result.newCount.toString())
-        setFeedback({ type: 'success', message: `+${amount}` })
-        setTimeout(() => setFeedback(null), 2000)
-      } else {
-        setFeedback({ type: 'error', message: result.error || 'Update failed' })
-      }
-    } catch (error) {
-      setFeedback({ type: 'error', message: 'Something went wrong' })
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const handleSubtractCount = async (amount: number) => {
-    setIsLoading(true)
-    setFeedback(null)
-    try {
-      const result: any = await updateActivityCount(activity.id, amount, 'subtract')
-      if (result.success) {
-        setCurrentCount(result.newCount)
-        setInputValue(result.newCount.toString())
-        setFeedback({ type: 'success', message: `-${amount}` })
-        setTimeout(() => setFeedback(null), 2000)
-      } else {
-        setFeedback({ type: 'error', message: result.error || 'Update failed' })
-      }
-    } catch (error) {
-      setFeedback({ type: 'error', message: 'Something went wrong' })
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
   const handleSetCustomCount = async () => {
     const newCount = parseInt(inputValue, 10)
     if (isNaN(newCount) || newCount < 0) {
-      setFeedback({ type: 'error', message: 'Invalid number' })
-      return
+      toast({
+        title: 'Invalid Input',
+        description: 'Please enter a valid non-negative number.',
+        variant: 'destructive',
+      })
     }
 
     setIsLoading(true)
-    setFeedback(null)
+
     try {
-      const result = await updateActivityCount(activity.id, newCount, 'set')
+      const result = await updateActivityCount(activity.id, newCount)
       if (result.success) {
         setCurrentCount(result.newCount)
-        setFeedback({ type: 'success', message: 'Saved' })
+        toast({
+          title: 'Success',
+          description: 'Activity count updated successfully.',
+        })
         setShowModal(false)
-        setTimeout(() => setFeedback(null), 2000)
       } else {
-        setFeedback({ type: 'error', message: result.error || 'Update failed' })
+        toast({
+          title: 'Error',
+          description: result.error || 'Update failed',
+          variant: 'destructive',
+        })
       }
     } catch (error) {
-      setFeedback({ type: 'error', message: 'Something went wrong' })
+      toast({
+        title: 'Error',
+        description: 'An error occurred while updating the activity count.',
+        variant: 'destructive',
+      })
     } finally {
       setIsLoading(false)
     }
@@ -96,6 +68,12 @@ export default function ActivityDetailsPageClient({
 
   const handleReset = () => {
     setInputValue(currentCount.toString())
+  }
+
+  const handleQuickAdjust = (amount: number) => {
+    const current = parseInt(inputValue, 10)
+    const newValue = Math.max(0, current + amount)
+    setInputValue(newValue.toString())
   }
 
   return (
@@ -157,39 +135,27 @@ export default function ActivityDetailsPageClient({
       </div>
 
       {/* Manual Counter Update - Compact */}
-      <div className="rounded-lg bg-slate-900 border border-slate-800 p-4">
-        <div className="flex items-center justify-between gap-4 flex-wrap">
-          {/* Count Display */}
-          <div className="flex items-center gap-3">
-            <div>
-              <p className="text-xs text-slate-500">Count</p>
-              <p className="text-2xl font-bold text-emerald-400">{currentCount.toLocaleString()}</p>
+      <div className="space-y-2">
+        <div className="rounded-lg bg-slate-900 border border-slate-800 p-4">
+          <div className="flex items-center justify-between gap-4">
+            {/* Count Display */}
+            <div className="flex items-center gap-3">
+              <div>
+                <p className="text-xs text-slate-500">Count</p>
+                <p className="text-2xl font-bold text-emerald-400">
+                  {currentCount.toLocaleString()}
+                </p>
+              </div>
             </div>
-          </div>
 
-          {/* Button */}
-          <div className="flex gap-2">
             <Button
               onClick={() => setShowModal(true)}
               disabled={isLoading}
-              className="px-4 py-2 rounded-md bg-emerald-900 hover:bg-emerald-700 text-white text-sm font-medium transition-colors disabled:opacity-50"
+              className="px-4 py-2 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium transition-colors disabled:opacity-50"
             >
               Add Custom Count
             </Button>
           </div>
-
-          {/* Feedback */}
-          {feedback && (
-            <div
-              className={`text-xs py-1 px-2 rounded-md ${
-                feedback.type === 'success'
-                  ? 'text-emerald-400 bg-emerald-900/20'
-                  : 'text-red-400 bg-red-900/20'
-              }`}
-            >
-              {feedback.message}
-            </div>
-          )}
         </div>
       </div>
 
@@ -201,7 +167,7 @@ export default function ActivityDetailsPageClient({
               <h3 className="text-lg font-bold text-white">Adjust Count</h3>
               <button
                 onClick={() => setShowModal(false)}
-                className="text-slate-400 hover:text-slate-200 transition-colors"
+                className="text-slate-400 hover:text-slate-200 transition-colors cursor-pointer"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -220,34 +186,34 @@ export default function ActivityDetailsPageClient({
               <div>
                 <p className="text-xs text-slate-400 mb-2 font-semibold uppercase">Quick Adjust</p>
                 <div className="grid grid-cols-4 gap-2">
-                  <button
-                    onClick={() => setInputValue((parseInt(inputValue) - 10).toString())}
+                  <Button
+                    onClick={() => handleQuickAdjust(-10)}
                     disabled={isLoading}
                     className="px-2 py-2 rounded-md bg-red-900/30 hover:bg-red-900/50 text-red-400 text-xs font-medium transition-colors disabled:opacity-50"
                   >
                     -10
-                  </button>
-                  <button
-                    onClick={() => setInputValue((parseInt(inputValue) - 50).toString())}
+                  </Button>
+                  <Button
+                    onClick={() => handleQuickAdjust(-50)}
                     disabled={isLoading}
                     className="px-2 py-2 rounded-md bg-red-900/30 hover:bg-red-900/50 text-red-400 text-xs font-medium transition-colors disabled:opacity-50"
                   >
                     -50
-                  </button>
-                  <button
-                    onClick={() => setInputValue((parseInt(inputValue) + 50).toString())}
+                  </Button>
+                  <Button
+                    onClick={() => handleQuickAdjust(50)}
                     disabled={isLoading}
                     className="px-2 py-2 rounded-md bg-emerald-900/30 hover:bg-emerald-900/50 text-emerald-400 text-xs font-medium transition-colors disabled:opacity-50"
                   >
                     +50
-                  </button>
-                  <button
-                    onClick={() => setInputValue((parseInt(inputValue) + 10).toString())}
+                  </Button>
+                  <Button
+                    onClick={() => handleQuickAdjust(10)}
                     disabled={isLoading}
                     className="px-2 py-2 rounded-md bg-emerald-900/30 hover:bg-emerald-900/50 text-emerald-400 text-xs font-medium transition-colors disabled:opacity-50"
                   >
                     +10
-                  </button>
+                  </Button>
                 </div>
               </div>
 
@@ -267,27 +233,27 @@ export default function ActivityDetailsPageClient({
 
               {/* Action Buttons */}
               <div className="flex gap-2">
-                <button
+                <Button
                   onClick={handleReset}
                   disabled={isLoading || inputValue === currentCount.toString()}
                   className="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium transition-colors disabled:opacity-50 flex-1"
                 >
                   Reset
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={() => setShowModal(false)}
                   disabled={isLoading}
                   className="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium transition-colors disabled:opacity-50 flex-1"
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={handleSetCustomCount}
                   disabled={isLoading}
-                  className="px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium transition-colors disabled:opacity-50 flex-1"
+                  className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium transition-colors disabled:opacity-50 flex-1"
                 >
                   {isLoading ? 'Saving...' : 'Save'}
-                </button>
+                </Button>
               </div>
             </div>
           </div>

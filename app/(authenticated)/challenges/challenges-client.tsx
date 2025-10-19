@@ -73,7 +73,6 @@ export default function ChallengesClient({
   initialChallenges: Challenge[]
   initialRecentLogs: RecentLog[]
 }) {
-  console.log('initialRecentLogs:', initialRecentLogs)
   const [challenges, setChallenges] = useState<Challenge[]>(initialChallenges)
   const [searchQuery, setSearchQuery] = useState('')
   const [difficultyFilter, setDifficultyFilter] = useState('all')

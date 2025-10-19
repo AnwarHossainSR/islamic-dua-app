@@ -234,6 +234,75 @@ export async function getTopUsersForActivity(activityId: string, limit = 10) {
   return data
 }
 
+// ============================================
+// MANUAL ACTIVITY COUNT UPDATE
+// ============================================
+
+export async function updateActivityCount(
+  activityId: string,
+  newCount: number,
+  operation: 'set' | 'add' | 'subtract' = 'set'
+) {
+  // Verify admin access
+  await checkAdminAccess()
+
+  const supabase = await getSupabaseServerClient()
+
+  // Fetch current activity
+  const { data: activity, error: fetchError } = await supabase
+    .from('activity_stats')
+    .select('total_count')
+    .eq('id', activityId)
+    .single()
+
+  if (fetchError || !activity) {
+    return { success: false, error: 'Activity not found' }
+  }
+
+  let finalCount = newCount
+
+  if (operation === 'add') {
+    finalCount = activity.total_count + newCount
+  } else if (operation === 'subtract') {
+    finalCount = Math.max(0, activity.total_count - newCount)
+  }
+
+  // Update activity stats
+  const { error: updateError } = await supabase
+    .from('activity_stats')
+    .update({
+      total_count: finalCount,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', activityId)
+
+  if (updateError) {
+    console.error('Error updating activity count:', updateError)
+    return { success: false, error: updateError.message }
+  }
+
+  // Update activity stats
+  const { error: userActivityStatsupdateError } = await supabase
+    .from('user_activity_stats')
+    .update({
+      total_completed: finalCount,
+      last_completed_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    })
+    .eq('activity_stat_id', activityId)
+
+  if (userActivityStatsupdateError) {
+    console.error('Error updating user activity count:', updateError)
+    return { success: false, error: userActivityStatsupdateError.message }
+  }
+
+  return {
+    success: true,
+    previousCount: activity.total_count,
+    newCount: finalCount,
+  }
+}
+
 // Recalculate all activity stats (useful for maintenance)
 export async function recalculateActivityStats() {
   const supabase = await getSupabaseServerClient()

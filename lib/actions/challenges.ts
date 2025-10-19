@@ -10,7 +10,6 @@ import { revalidatePath } from 'next/cache'
 export async function getChallenges() {
   const supabase = await getSupabaseServerClient()
 
-  // Step 1: Fetch all active challenges
   const { data: challenges, error: challengesError } = await supabase
     .from('challenge_templates')
     .select('*')
@@ -22,7 +21,6 @@ export async function getChallenges() {
     return []
   }
 
-  // Step 2: Fetch user progress (only last_completed_at field)
   const { data: progress, error: progressError } = await supabase
     .from('user_challenge_progress')
     .select('challenge_id, last_completed_at')
@@ -32,7 +30,6 @@ export async function getChallenges() {
     return challenges
   }
 
-  // Step 3: Merge both datasets
   const mergedData = challenges.map(challenge => {
     const userProgress = progress.find(p => p.challenge_id === challenge.id)
     return {
@@ -41,12 +38,70 @@ export async function getChallenges() {
     }
   })
 
-  // Step 4: Sort by last_completed_at (most recent first)
   mergedData.sort((a: any, b: any) => {
     if (!a.last_completed_at && !b.last_completed_at) return 0
     if (!a.last_completed_at) return 1
     if (!b.last_completed_at) return -1
     return new Date(b.last_completed_at).getTime() - new Date(a.last_completed_at).getTime()
+  })
+
+  return mergedData
+}
+
+// NEW: Server action for filtering and searching
+export async function searchAndFilterChallenges({
+  searchQuery = '',
+  difficulty = 'all',
+  status = 'all',
+}: {
+  searchQuery?: string
+  difficulty?: string
+  status?: string
+}) {
+  const supabase = await getSupabaseServerClient()
+
+  let query = supabase.from('challenge_templates').select('*').eq('is_active', true)
+
+  // Apply search filter
+  if (searchQuery.trim()) {
+    query = query.or(
+      `title_bn.ilike.%${searchQuery}%,title_ar.ilike.%${searchQuery}%,description_bn.ilike.%${searchQuery}%`
+    )
+  }
+
+  // Apply difficulty filter
+  if (difficulty !== 'all') {
+    query = query.eq('difficulty_level', difficulty)
+  }
+
+  // Apply status filter
+  if (status === 'featured') {
+    query = query.eq('is_featured', true)
+  } else if (status === 'inactive') {
+    query = query.eq('is_active', false)
+  }
+  // status === 'active' or 'all' already handled by the is_active filter above
+
+  query = query.order('display_order', { ascending: true })
+
+  const { data: challenges, error: challengesError } = await query
+
+  if (challengesError) {
+    console.error('Error searching challenges:', challengesError)
+    return []
+  }
+
+  // Merge with last_completed_at
+  const { data: progress } = await supabase
+    .from('user_challenge_progress')
+    .select('challenge_id, last_completed_at')
+
+  const mergedData = challenges.map((challenge: any) => {
+    const userProgress = progress?.find(p => p.challenge_id === challenge.id)
+    return {
+      ...challenge,
+      last_completed_at: userProgress ? userProgress.last_completed_at : null,
+    }
   })
 
   return mergedData
@@ -523,11 +578,11 @@ export async function deleteChallengeTemplate(id: string) {
   const { error } = await supabase.from('challenge_templates').delete().eq('id', id)
 
   if (error) {
-    return { error: error.message }
+    console.error('Error deleting challenge:', error)
+    throw error
   }
 
   revalidatePath('/challenges')
-  return { success: true }
 }
 
 // ============================================
@@ -594,7 +649,7 @@ export async function getUserBookmarkedChallenges(userId: string) {
   return data
 }
 
-export async function getRecentLogs(limit: number) {
+export async function getRecentLogs(limit: number = 10) {
   const supabase = await getSupabaseServerClient()
   const { data, error } = await supabase
     .from('user_challenge_daily_logs')

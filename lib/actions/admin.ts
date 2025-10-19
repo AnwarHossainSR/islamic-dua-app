@@ -245,20 +245,24 @@ export async function recalculateActivityStats() {
 
   // Update each activity's stats
   for (const activity of activities) {
-    // Calculate total count and users
+    // 1️⃣ First, get all challenge IDs linked to this activity
+    const { data: mappings } = await supabase
+      .from('challenge_activity_mapping')
+      .select('challenge_id')
+      .eq('activity_stat_id', activity.id)
+
+    const challengeIds = mappings?.map(m => m.challenge_id) || []
+
+    if (challengeIds.length === 0) continue
+
+    // 2️⃣ Then, use them in your main query
     const { data: logs } = await supabase
       .from('user_challenge_daily_logs')
       .select('count_completed, user_id, challenge_id')
       .eq('is_completed', true)
-      .in(
-        'challenge_id',
-        supabase
-          .from('challenge_activity_mapping')
-          .select('challenge_id')
-          .eq('activity_stat_id', activity.id)
-      )
+      .in('challenge_id', challengeIds)
 
-    if (logs) {
+    if (logs && logs.length > 0) {
       const totalCount = logs.reduce((sum, log) => sum + log.count_completed, 0)
       const uniqueUsers = new Set(logs.map(log => log.user_id)).size
 

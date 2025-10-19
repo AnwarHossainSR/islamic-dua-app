@@ -2,7 +2,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { format, isToday } from 'date-fns'
+import { format, isSameDay } from 'date-fns'
 
 import { ActionButton } from '@/components/ui/action-button'
 import {
@@ -62,8 +62,8 @@ export default async function ChallengesPage() {
     const utcDate = new Date(lastCompletedAt)
     const date = toZonedTime(utcDate, timeZone)
 
-    const completedToday = isToday(date)
-
+    const nowInDhaka = toZonedTime(new Date(), timeZone)
+    const completedToday = isSameDay(date, nowInDhaka)
     return completedToday ? (
       <Badge className="bg-emerald-500/10 text-emerald-700 border-emerald-200 flex items-center gap-1 text-xs">
         <CheckCircle2 className="h-3 w-3" />

@@ -8,14 +8,15 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
 interface Props {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export default async function ActivityDetailsPage({ params }: Props) {
-  const activity = await getActivityWithChallenges(params.id)
-  const topUsers = await getTopUsersForActivity(params.id, 10)
+  const resolvedParams = await params
+  const activity = await getActivityWithChallenges(resolvedParams.id)
+  const topUsers = await getTopUsersForActivity(resolvedParams.id, 10)
 
   if (!activity) {
     notFound()

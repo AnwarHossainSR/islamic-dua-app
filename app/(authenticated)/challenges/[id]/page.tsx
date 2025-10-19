@@ -22,14 +22,15 @@ import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 
 interface Props {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export default async function ChallengeFormPage({ params }: Props) {
-  const isEdit = params.id && params.id !== 'new'
-  const challenge = isEdit ? await getChallengeById(params.id) : null
+  const { id } = await params
+  const isEdit = id && id !== 'new'
+  const challenge = isEdit ? await getChallengeById(id) : null
 
   // If editing but challenge not found, show 404
   if (isEdit && !challenge) {

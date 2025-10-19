@@ -4,22 +4,24 @@ import { notFound, redirect } from 'next/navigation'
 import UserChallengeProgressClient from './progress-client'
 
 interface Props {
-  params: {
+  params: Promise<{
     id: string // This is the user_challenge_progress.id
-  }
+  }>
 }
 
 export default async function UserChallengeProgressPage({ params }: Props) {
+  const { id } = await params
+
   const supabase = await getSupabaseServerClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
   if (!user) {
-    redirect('/login?redirect=/challenges/progress/' + params.id)
+    redirect('/login?redirect=/challenges/progress/' + id)
   }
 
-  const progress = await getUserChallengeProgress(params.id)
+  const progress = await getUserChallengeProgress(id)
 
   if (!progress) {
     notFound()

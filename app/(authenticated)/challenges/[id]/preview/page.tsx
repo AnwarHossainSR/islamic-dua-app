@@ -6,27 +6,28 @@ import { notFound, redirect } from 'next/navigation'
 import ChallengePreviewClient from './ChallengePreviewClient'
 
 interface Props {
-  params: {
+  params: Promise<{
     id: string
-  }
-  searchParams?: {
+  }>
+  searchParams: Promise<{
     preview?: string
-  }
+  }>
 }
 
 export default async function ChallengePreviewPage({ params, searchParams }: Props) {
+  const { id } = await params
+  const { preview } = await searchParams
+  const isPreviewMode = preview === 'true'
   const supabase = await getSupabaseServerClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
-  const challenge = await getChallengeById(params.id)
+  const challenge = await getChallengeById(id)
 
   if (!challenge) {
     notFound()
   }
-
-  const isPreviewMode = searchParams?.preview === 'true'
 
   // Check if user already has an active challenge (only if logged in and not preview mode)
   let hasActiveChallenge = false
@@ -57,11 +58,11 @@ export default async function ChallengePreviewPage({ params, searchParams }: Pro
     } = await supabase.auth.getUser()
 
     if (!user) {
-      redirect('/login?redirect=/challenges/' + params.id + '/preview')
+      redirect('/login?redirect=/challenges/' + id + '/preview')
     }
 
     // Use the server action
-    const result = await startChallenge(user.id, params.id)
+    const result = await startChallenge(user.id, id)
 
     if (result.error) {
       console.error('Error starting challenge:', result.error)
@@ -116,7 +117,7 @@ export default async function ChallengePreviewPage({ params, searchParams }: Pro
                     </p>
                   </div>
                   <Button size="lg" asChild>
-                    <a href={`/login?redirect=/challenges/${params.id}/preview`}>Login</a>
+                    <a href={`/login?redirect=/challenges/${id}/preview`}>Login</a>
                   </Button>
                 </CardContent>
               </Card>
@@ -129,7 +130,13 @@ export default async function ChallengePreviewPage({ params, searchParams }: Pro
 }
 
 export async function generateMetadata({ params }: Props) {
-  const challenge = await getChallengeById(params.id)
+  const { id } = await params
+  if (!id) {
+    return {
+      title: 'Challenge Not Found',
+    }
+  }
+  const challenge = await getChallengeById(id)
 
   if (!challenge) {
     return {

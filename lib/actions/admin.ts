@@ -234,6 +234,65 @@ export async function getTopUsersForActivity(activityId: string, limit = 10) {
   return data
 }
 
+// ============================================
+// MANUAL ACTIVITY COUNT UPDATE
+// ============================================
+
+export async function updateActivityCount(activityId: string, newCount: number) {
+  // Verify admin access
+  await checkAdminAccess()
+
+  const supabase = await getSupabaseServerClient()
+
+  // Fetch current activity
+  const { data: activity, error: fetchError } = await supabase
+    .from('activity_stats')
+    .select('total_count')
+    .eq('id', activityId)
+    .single()
+
+  if (fetchError || !activity) {
+    return { success: false, error: 'Activity not found' }
+  }
+
+  const previousCount = activity.total_count
+
+  // Update activity stats
+  const { error: updateError } = await supabase
+    .from('activity_stats')
+    .update({
+      total_count: newCount,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', activityId)
+
+  if (updateError) {
+    console.error('Error updating activity count:', updateError)
+    return { success: false, error: updateError.message }
+  }
+
+  // Update user activity stats
+  const { error: userActivityStatsError } = await supabase
+    .from('user_activity_stats')
+    .update({
+      total_completed: newCount,
+      last_completed_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    })
+    .eq('activity_stat_id', activityId)
+
+  if (userActivityStatsError) {
+    console.error('Error updating user activity count:', userActivityStatsError)
+    return { success: false, error: userActivityStatsError.message }
+  }
+
+  return {
+    success: true,
+    previousCount,
+    newCount,
+  }
+}
+
 // Recalculate all activity stats (useful for maintenance)
 export async function recalculateActivityStats() {
   const supabase = await getSupabaseServerClient()

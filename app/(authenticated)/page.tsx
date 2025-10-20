@@ -84,12 +84,15 @@ export default async function AdminDashboard() {
                 className="flex items-center justify-between border-b border-border pb-4 last:border-0"
               >
                 <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <div
+                  <Badge variant="outline" className="text-xs font-bold">
+                    #{index + 1}
+                  </Badge>
+                  {/* <div
                     className="flex h-10 w-10 items-center justify-center rounded-lg text-xl shrink-0"
                     style={{ backgroundColor: activity.color + '20' || '#10b98120' }}
                   >
                     {activity.icon || '📿'}
-                  </div>
+                  </div> */}
                   <div className="min-w-0 flex-1">
                     <h3 className="font-medium truncate">{activity.name_bn}</h3>
                     <p className="text-sm text-muted-foreground truncate">
@@ -99,7 +102,9 @@ export default async function AdminDashboard() {
                 </div>
                 <div className="flex items-center gap-4 shrink-0 ml-3">
                   <div className="text-right">
-                    <p className="text-2xl font-bold">{activity.total_count.toLocaleString()}</p>
+                    <p className="text-x md:text-2xl font-bold">
+                      {activity.total_count.toLocaleString()}
+                    </p>
                     <p className="text-xs text-muted-foreground">completions</p>
                   </div>
                   <div className="text-right">
@@ -108,9 +113,6 @@ export default async function AdminDashboard() {
                       {activity.total_users}
                     </Badge>
                   </div>
-                  <Badge variant="outline" className="text-xs font-bold">
-                    #{index + 1}
-                  </Badge>
                 </div>
               </div>
             ))}

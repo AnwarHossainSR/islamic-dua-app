@@ -128,9 +128,11 @@ export default function UserChallengeProgressClient({
 
   const handleComplete = useCallback(async () => {
     if (count < target) {
-      if (!confirm(`You're at ${count}/${target}. Complete anyway?`)) {
-        return
-      }
+      toast({
+        title: 'Incomplete',
+        description: `You haven't reached the target count of ${target} yet.`,
+      })
+      return
     }
 
     setIsCompleting(true)
@@ -279,7 +281,7 @@ export default function UserChallengeProgressClient({
             <Button
               variant="default"
               onClick={handleComplete}
-              disabled={isCompleting || count === 0}
+              disabled={isCompleting || count >= target}
               className="h-12"
             >
               <Check className="mr-2 h-5 w-5" />
@@ -496,7 +498,7 @@ export default function UserChallengeProgressClient({
               <Button
                 variant="default"
                 onClick={handleComplete}
-                disabled={isCompleting || count === 0}
+                disabled={isCompleting || count >= target}
                 className="text-sm sm:text-base"
               >
                 <Check className="mr-2 h-4 w-4" />
@@ -644,7 +646,7 @@ export default function UserChallengeProgressClient({
               <div className="space-y-2">
                 <div className="flex items-center justify-between rounded-lg bg-muted p-3">
                   <span className="text-sm">Count</span>
-                  <span className="font-bold">{count}</span>
+                  <span className="font-bold">{target}</span>
                 </div>
                 {progress.current_streak >= 0 && (
                   <div className="flex items-center justify-between rounded-lg bg-muted p-3">

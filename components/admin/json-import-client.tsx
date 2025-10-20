@@ -5,48 +5,45 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import duaJsonFormat from '@/data/json-format.json'
+import { useToast } from '@/hooks/use-toast'
 import { FileJson, Upload } from 'lucide-react'
 import { useRef, useState } from 'react'
 
 export default function JsonImportClient() {
-  const [jsonInput, setJsonInput] = useState('')
+  const [jsonInput, setJsonInput] = useState(JSON.stringify(duaJsonFormat, null, 2))
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const { toast } = useToast()
+  const [loading, setLoading] = useState(false)
 
   const handleJsonPaste = () => {
     try {
+      if (!jsonInput) return
+      setLoading(true)
       const parsed = JSON.parse(jsonInput)
 
-      // Map JSON data to form fields
       Object.keys(parsed).forEach(key => {
         const element = document.getElementById(key) as HTMLInputElement | HTMLTextAreaElement
         if (element) {
-          // For regular inputs and textareas
           if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
             element.value = String(parsed[key] || '')
-
-            // Trigger change event for React state updates
             const event = new Event('input', { bubbles: true })
             element.dispatchEvent(event)
           }
         }
 
-        // Handle Select components (shadcn/ui)
         const selectTrigger = document.querySelector(`[name="${key}"]`)
         if (selectTrigger && parsed[key]) {
-          // For select elements, we need to click and select the option
           const selectButton = selectTrigger.closest('button')
           if (selectButton) {
             selectButton.click()
             setTimeout(() => {
               const option = document.querySelector(`[data-value="${parsed[key]}"]`) as HTMLElement
-              if (option) {
-                option.click()
-              }
+              if (option) option.click()
             }, 100)
           }
         }
 
-        // Handle Checkbox components
         if (key === 'is_featured' || key === 'is_active') {
           const checkbox = document.getElementById(key) as HTMLInputElement
           if (checkbox) {
@@ -57,14 +54,18 @@ export default function JsonImportClient() {
         }
       })
 
-      setJsonInput('')
-      alert('JSON data loaded successfully! ✅')
+      toast({ title: 'Success', description: 'JSON data loaded successfully! ✅' })
+      setLoading(false)
     } catch (error) {
-      alert('Invalid JSON format. Please check and try again. ❌')
+      console.log(error)
+      toast({ title: 'Error', description: 'Invalid JSON format. Please check and try again. ❌' })
+      setLoading(false)
     }
   }
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    event.preventDefault()
+    setLoading(true)
     const file = event.target.files?.[0]
     if (file) {
       const reader = new FileReader()
@@ -73,7 +74,6 @@ export default function JsonImportClient() {
           const content = e.target?.result as string
           setJsonInput(content)
 
-          // Auto-load after file upload
           setTimeout(() => {
             const parsed = JSON.parse(content)
             Object.keys(parsed).forEach(key => {
@@ -86,7 +86,6 @@ export default function JsonImportClient() {
                 }
               }
 
-              // Handle checkboxes
               if (key === 'is_featured' || key === 'is_active') {
                 const checkbox = document.getElementById(key) as HTMLInputElement
                 if (checkbox) {
@@ -97,7 +96,6 @@ export default function JsonImportClient() {
               }
             })
 
-            setJsonInput('')
             alert('JSON file loaded successfully! ✅')
           }, 100)
         } catch (error) {
@@ -106,6 +104,7 @@ export default function JsonImportClient() {
       }
       reader.readAsText(file)
     }
+    setLoading(false)
   }
 
   return (
@@ -116,15 +115,15 @@ export default function JsonImportClient() {
           Import from JSON
         </CardTitle>
       </CardHeader>
+
       <CardContent className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="jsonInput">Paste JSON Data</Label>
+          <Label htmlFor="jsonInput">Paste or Edit JSON Data</Label>
           <Textarea
             id="jsonInput"
             value={jsonInput}
             onChange={e => setJsonInput(e.target.value)}
-            placeholder='{"title_bn": "চ্যালেঞ্জের নাম", "daily_target_count": 1000, ...}'
-            rows={6}
+            rows={10}
             className="font-mono text-sm"
           />
           <Button type="button" onClick={handleJsonPaste} disabled={!jsonInput} className="w-full">

@@ -80,7 +80,7 @@ export function BiometricLogin({ onError, onSuccess }: BiometricLoginProps) {
       disabled={isLoading}
     >
       <Fingerprint className="mr-2 h-4 w-4" />
-      {isLoading ? 'Authenticating...' : 'Sign in with Biometrics'}
+      {isLoading ? 'Authenticating...' : 'Sign in with Fingerprint'}
     </Button>
   )
 }

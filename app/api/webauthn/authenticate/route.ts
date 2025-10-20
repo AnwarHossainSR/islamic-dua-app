@@ -8,8 +8,15 @@ export async function POST(request: NextRequest) {
     const { credential } = await request.json()
     console.log('credential', credential)
 
+    if (!credential?.id) {
+      return NextResponse.json(
+        { error: 'Credential not found, please provide credential' },
+        { status: 404 }
+      )
+    }
+
     // Find the credential in database
-    const storedCredential = await getCredential(credential.challenge)
+    const storedCredential = await getCredential(credential.id)
 
     if (!storedCredential) {
       return NextResponse.json({ error: 'Credential not found' }, { status: 404 })

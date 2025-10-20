@@ -4,6 +4,7 @@ import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
+import { apiLogger } from '@/lib/logger'
 
 export async function signUp(email: string, password: string) {
   const supabase = await getSupabaseServerClient()
@@ -19,9 +20,11 @@ export async function signUp(email: string, password: string) {
   })
 
   if (error) {
+    apiLogger.error('Sign up failed', { email, error: error.message })
     return { error: error.message }
   }
 
+  apiLogger.info('User signed up successfully', { email, userId: data.user?.id })
   return { data, message: 'Check your email to confirm your account' }
 }
 
@@ -38,12 +41,14 @@ export async function signIn(email: string, password: string) {
       error.message.includes('Email not confirmed') ||
       error.message.includes('email_not_confirmed')
     ) {
+      apiLogger.warn('Sign in failed: Email not confirmed', { email })
       return {
         error:
           'Please confirm your email address before signing in. Check your inbox for the confirmation link.',
         code: 'email_not_confirmed',
       }
     }
+    apiLogger.error('Sign in failed', { email, error: error.message })
     return { error: error.message }
   }
 
@@ -63,6 +68,7 @@ export async function signIn(email: string, password: string) {
     })
   }
 
+  apiLogger.info('User signed in successfully', { email, userId: data.user?.id })
   revalidatePath('/', 'layout')
   redirect('/')
 }
@@ -84,12 +90,15 @@ export async function resendConfirmationEmail(email: string) {
 
 export async function signOut() {
   const supabase = await getSupabaseServerClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  
   await supabase.auth.signOut()
 
   const cookieStore = await cookies()
   cookieStore.delete('sb-access-token')
   cookieStore.delete('sb-refresh-token')
 
+  apiLogger.info('User signed out', { userId: user?.id })
   revalidatePath('/', 'layout')
   redirect('/login')
 }

@@ -2,13 +2,15 @@ import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { getCredential } from '@/lib/webauthn/server'
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
+import { apiLogger } from '@/lib/logger'
 
 export async function POST(request: NextRequest) {
   try {
     const { credential } = await request.json()
-    console.log('credential', credential)
+    apiLogger.info('WebAuthn authentication attempt', { credentialId: credential?.id })
 
     if (!credential?.id) {
+      apiLogger.warn('WebAuthn authentication failed: No credential ID provided')
       return NextResponse.json(
         { error: 'Credential not found, please provide credential' },
         { status: 404 }
@@ -19,6 +21,7 @@ export async function POST(request: NextRequest) {
     const storedCredential = await getCredential(credential.id)
 
     if (!storedCredential) {
+      apiLogger.warn('WebAuthn authentication failed: Credential not found in database', { credentialId: credential.id })
       return NextResponse.json({ error: 'Credential not found' }, { status: 404 })
     }
 
@@ -27,6 +30,7 @@ export async function POST(request: NextRequest) {
     const { data: user, error } = await supabase.auth.admin.getUserById(storedCredential.user_id)
 
     if (error || !user) {
+      apiLogger.error('WebAuthn authentication failed: User not found', { userId: storedCredential.user_id, error: error?.message })
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
@@ -37,6 +41,7 @@ export async function POST(request: NextRequest) {
     })
 
     if (sessionError) {
+      apiLogger.error('WebAuthn authentication failed: Session creation failed', { userId: user.user.id, error: sessionError.message })
       return NextResponse.json({ error: 'Failed to create session' }, { status: 500 })
     }
 
@@ -55,9 +60,10 @@ export async function POST(request: NextRequest) {
       maxAge: 60 * 60 * 24 * 7, // 7 days
     })
 
+    apiLogger.info('WebAuthn authentication successful', { userId: user.user.id, email: user.user.email })
     return NextResponse.json({ success: true, user: user.user })
   } catch (error) {
-    console.error('WebAuthn authentication error:', error)
+    apiLogger.error('WebAuthn authentication error', { error: error instanceof Error ? error.message : 'Unknown error' })
     return NextResponse.json({ error: 'Authentication failed' }, { status: 500 })
   }
 }

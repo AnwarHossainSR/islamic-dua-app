@@ -266,7 +266,7 @@ export default function UserChallengeProgressClient({
             className="h-32 w-32 rounded-full text-2xl font-bold sm:h-40 sm:w-40 sm:text-3xl"
             style={{ backgroundColor: challenge.color || '#10b981' }}
             onClick={handleIncrement}
-            disabled={count >= target}
+            disabled={count < target}
           >
             {count >= target ? <Check className="h-12 w-12" /> : '+1'}
           </Button>
@@ -468,7 +468,7 @@ export default function UserChallengeProgressClient({
               className="h-24 w-full text-xl font-bold sm:h-32 sm:text-2xl"
               style={{ backgroundColor: challenge.color || '#10b981' }}
               onClick={handleIncrement}
-              disabled={count >= target}
+              disabled={count < target}
             >
               {count >= target ? (
                 <>

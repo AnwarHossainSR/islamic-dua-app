@@ -1,10 +1,10 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { isWebAuthnSupported, authenticateCredential } from '@/lib/webauthn/client'
+import { authenticateCredential, isWebAuthnSupported } from '@/lib/webauthn/client'
 import { Fingerprint } from 'lucide-react'
-import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
 interface BiometricLoginProps {
   onError: (error: string) => void
@@ -27,35 +27,37 @@ export function BiometricLogin({ onError, onSuccess }: BiometricLoginProps) {
     }
 
     setIsLoading(true)
-    
+
     try {
       // Get authentication options
       const optionsResponse = await fetch('/api/webauthn/authenticate/options', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       })
-      
+
       if (!optionsResponse.ok) {
         throw new Error('Failed to get authentication options')
       }
-      
+
       const options = await optionsResponse.json()
-      
+      console.log('options', options)
+
       // Authenticate with biometric
       const credential = await authenticateCredential(options)
-      
+      console.log('Obtained credential:', credential)
+
       // Send credential to server
       const authResponse = await fetch('/api/webauthn/authenticate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ credential })
+        body: JSON.stringify({ credential }),
       })
-      
+
       if (!authResponse.ok) {
         const error = await authResponse.json()
         throw new Error(error.error || 'Authentication failed')
       }
-      
+
       onSuccess()
       router.push('/')
       router.refresh()

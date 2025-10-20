@@ -6,9 +6,10 @@ import { NextRequest, NextResponse } from 'next/server'
 export async function POST(request: NextRequest) {
   try {
     const { credential } = await request.json()
+    console.log('credential', credential)
 
     // Find the credential in database
-    const storedCredential = await getCredential(credential.id)
+    const storedCredential = await getCredential(credential.challenge)
 
     if (!storedCredential) {
       return NextResponse.json({ error: 'Credential not found' }, { status: 404 })

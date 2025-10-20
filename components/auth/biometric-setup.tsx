@@ -112,7 +112,7 @@ export function BiometricSetup() {
             className="w-full"
           >
             <Fingerprint className="mr-2 h-4 w-4" />
-            {isLoading ? 'Setting up...' : 'Set up Biometric Login'}
+            {isLoading ? 'Setting up...' : 'Set up Fingerprint Login'}
           </Button>
         )}
         {isRegistered && (

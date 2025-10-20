@@ -31,7 +31,7 @@ export async function POST() {
       authenticatorSelection: {
         authenticatorAttachment: 'platform',
         userVerification: 'required',
-        requireResidentKey: false
+        requireResidentKey: true
       },
       timeout: 60000,
       attestation: 'none'

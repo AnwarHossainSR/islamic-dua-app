@@ -15,6 +15,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDebounce } from '@/hooks/use-debounce'
 import { deleteChallengeTemplate, searchAndFilterChallenges } from '@/lib/actions/challenges'
+import { cn, isCurrentDay } from '@/lib/utils'
 import { format, isSameDay } from 'date-fns'
 import { toZonedTime } from 'date-fns-tz'
 import {
@@ -477,8 +478,18 @@ export default function ChallengesClient({
                           variant="outline"
                           asChild
                           className="flex-1 text-xs md:text-sm"
+                          disabled={
+                            !challenge.is_active || isCurrentDay(challenge.last_completed_at || '')
+                          }
                         >
-                          <Link href={`/challenges/${challenge.id}/preview`}>
+                          <Link
+                            href={`/challenges/${challenge.id}/preview`}
+                            className={cn(
+                              isCurrentDay(challenge.last_completed_at || '')
+                                ? 'pointer-events-none bg-gray-300 dark:bg-gray-600'
+                                : ''
+                            )}
+                          >
                             <Eye className="mr-1 h-3 w-3" />
                             Preview
                           </Link>

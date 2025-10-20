@@ -1,6 +1,7 @@
 'use server'
 
 import { getSupabaseServerClient } from '@/lib/supabase/server'
+import { isCurrentDay } from '@/lib/utils'
 import { revalidatePath } from 'next/cache'
 
 // ============================================
@@ -30,6 +31,7 @@ export async function getChallenges() {
     return challenges
   }
 
+  // Merge challenges with progress
   const mergedData = challenges.map(challenge => {
     const userProgress = progress.find(p => p.challenge_id === challenge.id)
     return {
@@ -38,7 +40,15 @@ export async function getChallenges() {
     }
   })
 
+  // Sort based on whether the challenge was completed today or not
   mergedData.sort((a: any, b: any) => {
+    const aIsCurrentDay = isCurrentDay(a.last_completed_at)
+    const bIsCurrentDay = isCurrentDay(b.last_completed_at)
+
+    if (!aIsCurrentDay && bIsCurrentDay) return -1 // Show non-completed first
+    if (aIsCurrentDay && !bIsCurrentDay) return 1 // Show completed after non-completed
+
+    // If both or neither are completed today, sort by last completed date
     if (!a.last_completed_at && !b.last_completed_at) return 0
     if (!a.last_completed_at) return 1
     if (!b.last_completed_at) return -1

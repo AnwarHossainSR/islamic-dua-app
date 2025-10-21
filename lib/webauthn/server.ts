@@ -1,6 +1,7 @@
 'use server'
 
 import { getSupabaseServerClient } from '@/lib/supabase/server'
+import { apiLogger } from '../logger'
 
 export interface WebAuthnCredential {
   id: string
@@ -18,14 +19,14 @@ export async function storeCredential(
   counter: number
 ) {
   const supabase = await getSupabaseServerClient()
-  
+
   const { data, error } = await supabase
     .from('webauthn_credentials')
     .insert({
       user_id: userId,
       credential_id: credentialId,
       public_key: publicKey,
-      counter: counter
+      counter: counter,
     })
     .select()
     .single()
@@ -36,20 +37,23 @@ export async function storeCredential(
 
 export async function getCredential(credentialId: string): Promise<WebAuthnCredential | null> {
   const supabase = await getSupabaseServerClient()
-  
+
   const { data, error } = await supabase
     .from('webauthn_credentials')
     .select('*')
     .eq('credential_id', credentialId)
     .single()
 
-  if (error) return null
+  if (error) {
+    apiLogger.error('Supabase error while fetching credential', { error: error.message })
+    return null
+  }
   return data
 }
 
 export async function getUserCredentials(userId: string): Promise<WebAuthnCredential[]> {
   const supabase = await getSupabaseServerClient()
-  
+
   const { data, error } = await supabase
     .from('webauthn_credentials')
     .select('*')
@@ -61,7 +65,7 @@ export async function getUserCredentials(userId: string): Promise<WebAuthnCreden
 
 export async function updateCredentialCounter(credentialId: string, counter: number) {
   const supabase = await getSupabaseServerClient()
-  
+
   const { error } = await supabase
     .from('webauthn_credentials')
     .update({ counter })

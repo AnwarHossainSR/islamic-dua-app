@@ -1,4 +1,4 @@
--- Create WebAuthn credentials table
+-- Create WebAuthn credentials table (if not already created)
 CREATE TABLE IF NOT EXISTS webauthn_credentials (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -9,6 +9,12 @@ CREATE TABLE IF NOT EXISTS webauthn_credentials (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Drop the trigger if it exists
+DROP TRIGGER IF EXISTS update_webauthn_credentials_updated_at ON webauthn_credentials;
+
+-- Drop the function if it exists
+DROP FUNCTION IF EXISTS update_webauthn_credentials_updated_at;
+
 -- Create index for faster lookups
 CREATE INDEX IF NOT EXISTS idx_webauthn_credentials_user_id ON webauthn_credentials(user_id);
 CREATE INDEX IF NOT EXISTS idx_webauthn_credentials_credential_id ON webauthn_credentials(credential_id);
@@ -17,8 +23,8 @@ CREATE INDEX IF NOT EXISTS idx_webauthn_credentials_credential_id ON webauthn_cr
 ALTER TABLE webauthn_credentials ENABLE ROW LEVEL SECURITY;
 
 -- Create policies
-CREATE POLICY "Users can view their own credentials" ON webauthn_credentials
-  FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Anyone can view credentials" ON webauthn_credentials
+  FOR SELECT USING (true);
 
 CREATE POLICY "Users can insert their own credentials" ON webauthn_credentials
   FOR INSERT WITH CHECK (auth.uid() = user_id);
@@ -31,7 +37,7 @@ CREATE POLICY "Users can delete their own credentials" ON webauthn_credentials
 
 -- Create function to update updated_at timestamp
 CREATE OR REPLACE FUNCTION update_webauthn_credentials_updated_at()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER AS $$ 
 BEGIN
   NEW.updated_at = NOW();
   RETURN NEW;

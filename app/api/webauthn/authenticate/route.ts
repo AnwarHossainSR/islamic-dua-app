@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
         userId: storedCredential.user_id,
         error: error?.message,
       })
-      return NextResponse.json({ error: 'User not found' }, { status: 404 })
+      return NextResponse.json({ error: error?.message || 'User not found' }, { status: 404 })
     }
 
     // Now the user is authenticated, create session (magic link or other)

@@ -10,40 +10,46 @@ export async function POST(request: NextRequest) {
     // Get admin client
     const supabaseAdmin = getSupabaseAdminServerClient()
 
-    // Generate magic link session
-    const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
-      type: 'magiclink',
-      email,
+    // Create session by updating user and generating new session
+    const { data: userData, error: updateError } = await supabaseAdmin.auth.admin.updateUserById(userId, {
+      email_confirm: true
     })
 
-    if (linkError) {
-      apiLogger.error('Biometric session creation failed', { userId, error: linkError.message })
+    if (updateError) {
+      apiLogger.error('Biometric session creation failed', { userId, error: updateError.message })
       return NextResponse.json({ error: 'Failed to create session' }, { status: 500 })
     }
 
-    apiLogger.info('Biometric session created', { linkData })
+    // Generate a recovery link which contains session tokens
+    const { data: recoveryData, error: recoveryError } = await supabaseAdmin.auth.admin.generateLink({
+      type: 'recovery',
+      email
+    })
 
-    // Extract tokens from the magic link
-    const url = new URL(linkData.properties.action_link)
-    const accessToken = url.searchParams.get('access_token')
-    const refreshToken = url.searchParams.get('refresh_token')
+    if (recoveryError) {
+      apiLogger.error('Recovery link generation failed', { userId, error: recoveryError.message })
+      return NextResponse.json({ error: 'Failed to generate recovery link' }, { status: 500 })
+    }
 
-    apiLogger.info('Biometric session tokens extracted', { accessToken, refreshToken })
+    // Extract tokens from recovery link
+    const recoveryUrl = new URL(recoveryData.properties.action_link)
+    const accessToken = recoveryUrl.hash.match(/access_token=([^&]+)/)?.[1]
+    const refreshToken = recoveryUrl.hash.match(/refresh_token=([^&]+)/)?.[1]
 
     if (!accessToken || !refreshToken) {
-      apiLogger.error('Biometric session tokens not found', { userId })
-      return NextResponse.json({ error: 'Invalid session tokens' }, { status: 500 })
+      apiLogger.error('Tokens not found in recovery link', { userId })
+      return NextResponse.json({ error: 'Failed to extract session tokens' }, { status: 500 })
     }
 
     // Set cookies
     const cookieStore = await cookies()
-    cookieStore.set('sb-access-token', accessToken, {
+    cookieStore.set('sb-access-token', decodeURIComponent(accessToken), {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 7,
     })
-    cookieStore.set('sb-refresh-token', refreshToken, {
+    cookieStore.set('sb-refresh-token', decodeURIComponent(refreshToken), {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',

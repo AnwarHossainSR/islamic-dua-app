@@ -27,41 +27,33 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Credential not found' }, { status: 404 })
     }
 
-    // Get user from database
+    // Get user email from database using service role
     const supabase = await getSupabaseServerClient()
-    const { data: user, error } = await supabase.auth.admin.getUserById(storedCredential.user_id)
+    const { data: userData, error: userError } = await supabase
+      .from('auth.users')
+      .select('email')
+      .eq('id', storedCredential.user_id)
+      .single()
 
-    if (error || !user) {
+    if (userError || !userData) {
       apiLogger.error('WebAuthn authentication failed: User not found', {
         userId: storedCredential.user_id,
-        error: error?.message,
+        error: userError?.message,
       })
-      return NextResponse.json({ error: error?.message || 'User not found' }, { status: 404 })
+      return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
-    // Now the user is authenticated, create session (magic link or other)
-    const { data: sessionData, error: sessionError }: any = await supabase.auth.admin.generateLink({
-      type: 'magiclink',
-      email: user.user.email!,
-    })
+    // Create a simple session token for biometric auth
+    const sessionToken = Buffer.from(JSON.stringify({
+      user_id: storedCredential.user_id,
+      email: userData.email,
+      authenticated_at: new Date().toISOString(),
+      method: 'biometric'
+    })).toString('base64')
 
-    if (sessionError) {
-      apiLogger.error('WebAuthn authentication failed: Session creation failed', {
-        userId: user.user.id,
-        error: sessionError.message,
-      })
-      return NextResponse.json({ error: 'Failed to create session' }, { status: 500 })
-    }
-
-    // Set session cookies
+    // Set session cookie
     const cookieStore = await cookies()
-    cookieStore.set('sb-access-token', sessionData.properties.access_token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 7, // 7 days
-    })
-    cookieStore.set('sb-refresh-token', sessionData.properties.refresh_token, {
+    cookieStore.set('biometric-session', sessionToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
@@ -69,10 +61,14 @@ export async function POST(request: NextRequest) {
     })
 
     apiLogger.info('WebAuthn authentication successful', {
-      userId: user.user.id,
-      email: user.user.email,
+      userId: storedCredential.user_id,
+      email: userData.email,
     })
-    return NextResponse.json({ success: true, user: user.user })
+    return NextResponse.json({ 
+      success: true, 
+      user: { id: storedCredential.user_id, email: userData.email },
+      redirect: '/' 
+    })
   } catch (error) {
     apiLogger.error('WebAuthn authentication error', {
       error: error instanceof Error ? error.message : 'Unknown error',

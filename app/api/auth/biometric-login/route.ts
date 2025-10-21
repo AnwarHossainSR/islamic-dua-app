@@ -35,27 +35,37 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to generate recovery link' }, { status: 500 })
     }
 
-    // Extract tokens from recovery link
+    // Extract token from recovery URL
     const recoveryUrl = new URL(recoveryData.properties.action_link)
-    apiLogger.info('Recovery link generated', { recoveryUrl })
-    const accessToken = recoveryUrl.hash.match(/access_token=([^&]+)/)?.[1]
-    const refreshToken = recoveryUrl.hash.match(/refresh_token=([^&]+)/)?.[1]
-    apiLogger.info('Tokens extracted from recovery link', { accessToken, refreshToken })
+    const token = recoveryUrl.searchParams.get('token')
 
-    if (!accessToken || !refreshToken) {
-      apiLogger.error('Tokens not found in recovery link', { userId })
-      return NextResponse.json({ error: 'Failed to extract session tokens' }, { status: 500 })
+    if (!token) {
+      apiLogger.error('Token not found in recovery link', { userId })
+      return NextResponse.json({ error: 'Failed to extract token' }, { status: 500 })
     }
 
-    // Set cookies
+    // Verify the token to create session
+    const { data: verifyData, error: verifyError } = await supabaseAdmin.auth.verifyOtp({
+      token_hash: token,
+      type: 'recovery',
+    })
+
+    apiLogger.info('Token verified', { verifyData })
+
+    if (verifyError || !verifyData.session) {
+      apiLogger.error('Token verification failed', { userId, error: verifyError?.message })
+      return NextResponse.json({ error: 'Failed to verify token' }, { status: 500 })
+    }
+
+    // Set session cookies
     const cookieStore = await cookies()
-    cookieStore.set('sb-access-token', decodeURIComponent(accessToken), {
+    cookieStore.set('sb-access-token', verifyData.session.access_token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 7,
     })
-    cookieStore.set('sb-refresh-token', decodeURIComponent(refreshToken), {
+    cookieStore.set('sb-refresh-token', verifyData.session.refresh_token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',

@@ -28,7 +28,7 @@ export async function storeCredential(
       credential_id: credentialId,
       public_key: publicKey,
       counter: counter,
-      device_name: deviceName || 'Unknown Device'
+      device_name: deviceName || 'Unknown Device',
     })
     .select()
     .single()
@@ -44,13 +44,14 @@ export async function getCredential(credentialId: string): Promise<WebAuthnCrede
     .from('webauthn_credentials')
     .select('*')
     .eq('credential_id', credentialId)
-    .single()
+    .limit(1)
 
   if (error) {
     apiLogger.error('Supabase error while fetching credential', { error: error.message })
     return null
   }
-  return data
+  apiLogger.info('Supabase credential fetched', { data })
+  return data?.[0] || null
 }
 
 export async function getUserCredentials(userId: string): Promise<WebAuthnCredential[]> {
@@ -70,9 +71,9 @@ export async function updateCredentialCounter(credentialId: string, counter: num
 
   const { error } = await supabase
     .from('webauthn_credentials')
-    .update({ 
+    .update({
       counter,
-      last_used_at: new Date().toISOString()
+      last_used_at: new Date().toISOString(),
     })
     .eq('credential_id', credentialId)
 

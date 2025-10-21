@@ -9,7 +9,8 @@ export async function POST() {
       challenge,
       timeout: 60000,
       userVerification: 'required',
-      rpId: process.env.NEXT_PUBLIC_WEBAUTHN_RP_ID || 'localhost'
+      rpId: process.env.NEXT_PUBLIC_WEBAUTHN_RP_ID || 'localhost',
+      allowCredentials: []
     }
 
     return NextResponse.json(options)

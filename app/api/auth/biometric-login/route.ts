@@ -1,19 +1,19 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
-import { getSupabaseAdminServerClient } from '@/lib/supabase/server'
 import { apiLogger } from '@/lib/logger'
+import { getSupabaseAdminServerClient } from '@/lib/supabase/server'
+import { cookies } from 'next/headers'
+import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(request: NextRequest) {
   try {
     const { userId, email } = await request.json()
-    
+
     // Get admin client
     const supabaseAdmin = getSupabaseAdminServerClient()
-    
+
     // Generate magic link session
     const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
       type: 'magiclink',
-      email
+      email,
     })
 
     if (linkError) {
@@ -27,6 +27,7 @@ export async function POST(request: NextRequest) {
     const refreshToken = url.searchParams.get('refresh_token')
 
     if (!accessToken || !refreshToken) {
+      apiLogger.error('Biometric session tokens not found', { userId })
       return NextResponse.json({ error: 'Invalid session tokens' }, { status: 500 })
     }
 
@@ -36,19 +37,21 @@ export async function POST(request: NextRequest) {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 7
+      maxAge: 60 * 60 * 24 * 7,
     })
     cookieStore.set('sb-refresh-token', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 7
+      maxAge: 60 * 60 * 24 * 7,
     })
 
     apiLogger.info('Biometric login successful', { userId, email })
     return NextResponse.json({ success: true })
   } catch (error) {
-    apiLogger.error('Biometric login error', { error: error instanceof Error ? error.message : 'Unknown error' })
+    apiLogger.error('Biometric login error', {
+      error: error || 'Unknown error',
+    })
     return NextResponse.json({ error: 'Authentication failed' }, { status: 500 })
   }
 }

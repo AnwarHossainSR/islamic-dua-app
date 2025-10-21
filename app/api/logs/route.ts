@@ -47,17 +47,16 @@ export async function DELETE() {
     }
 
     const supabase = await getSupabaseServerClient()
-    const { error } = await supabase
+    const { error, data } = await supabase
       .from('api_logs')
       .delete()
       .neq('id', '00000000-0000-0000-0000-000000000000')
 
     if (error) throw error
-
     return NextResponse.json({ success: true })
   } catch (error) {
     apiLogger.error('Failed to clear logs', {
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: error,
     })
     return NextResponse.json({ error: 'Failed to clear logs' }, { status: 500 })
   }

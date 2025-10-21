@@ -27,3 +27,12 @@ CREATE POLICY "Admin users can view logs" ON api_logs
 
 CREATE POLICY "System can insert logs" ON api_logs
   FOR INSERT WITH CHECK (true);
+
+-- Create delete policy (only admins can delete logs)
+CREATE POLICY "Admin users can delete logs" ON api_logs
+  FOR DELETE USING (
+    EXISTS (
+      SELECT 1 FROM admin_users 
+      WHERE user_id = auth.uid() AND is_active = true
+    )
+  );

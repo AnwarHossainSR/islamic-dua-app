@@ -12,16 +12,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { credential } = await request.json()
+    const { credential, deviceName } = await request.json()
 
-    apiLogger.info('WebAuthn credential registration attempt', { userId: user.id, credentialId: credential.id })
+    apiLogger.info('WebAuthn credential registration attempt', { userId: user.id, credentialId: credential.id, deviceName })
 
     // Store the credential in the database
     await storeCredential(
       user.id,
       credential.id,
       credential.response.attestationObject,
-      0
+      0,
+      deviceName
     )
 
     apiLogger.info('WebAuthn credential registered successfully', { userId: user.id, credentialId: credential.id })

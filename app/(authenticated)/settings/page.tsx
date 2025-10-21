@@ -9,7 +9,7 @@ import { Switch } from "@/components/ui/switch"
 import { Settings, Globe, Bell, Shield, Database, Palette, Trash2 } from "lucide-react"
 import { useState } from "react"
 import { useToast } from "@/hooks/use-toast"
-import { BiometricSetup } from "@/components/auth/biometric-setup"
+import { BiometricManager } from "@/components/auth/biometric-manager"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -193,7 +193,7 @@ export default function AdminSettingsPage() {
       </Card>
 
       {/* Biometric Authentication */}
-      <BiometricSetup />
+      <BiometricManager />
 
       {/* Database Management */}
       <Card className="border-destructive/50">

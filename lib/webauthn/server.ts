@@ -16,7 +16,8 @@ export async function storeCredential(
   userId: string,
   credentialId: string,
   publicKey: string,
-  counter: number
+  counter: number,
+  deviceName?: string
 ) {
   const supabase = await getSupabaseServerClient()
 
@@ -27,6 +28,7 @@ export async function storeCredential(
       credential_id: credentialId,
       public_key: publicKey,
       counter: counter,
+      device_name: deviceName || 'Unknown Device'
     })
     .select()
     .single()
@@ -68,8 +70,23 @@ export async function updateCredentialCounter(credentialId: string, counter: num
 
   const { error } = await supabase
     .from('webauthn_credentials')
-    .update({ counter })
+    .update({ 
+      counter,
+      last_used_at: new Date().toISOString()
+    })
     .eq('credential_id', credentialId)
+
+  if (error) throw error
+}
+
+export async function deleteCredential(credentialId: string, userId: string) {
+  const supabase = await getSupabaseServerClient()
+
+  const { error } = await supabase
+    .from('webauthn_credentials')
+    .delete()
+    .eq('credential_id', credentialId)
+    .eq('user_id', userId)
 
   if (error) throw error
 }

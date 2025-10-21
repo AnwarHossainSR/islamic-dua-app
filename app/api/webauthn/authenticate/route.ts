@@ -1,8 +1,7 @@
 import { apiLogger } from '@/lib/logger'
-import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { getCredential } from '@/lib/webauthn/server'
-import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
+import { getSupabaseAdminServerClient } from '@/lib/supabase/server'
 
 export async function POST(request: NextRequest) {
   try {
@@ -27,15 +26,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Credential not found' }, { status: 404 })
     }
 
-    // Get user email from database using service role
-    const supabase = await getSupabaseServerClient()
-    const { data: userData, error: userError } = await supabase
-      .from('auth.users')
-      .select('email')
-      .eq('id', storedCredential.user_id)
-      .single()
+    // Get admin client
+    const supabaseAdmin = getSupabaseAdminServerClient()
 
-    if (userError || !userData) {
+    // Get user using admin API
+    const { data: user, error: userError } = await supabaseAdmin.auth.admin.getUserById(storedCredential.user_id)
+
+    if (userError || !user) {
       apiLogger.error('WebAuthn authentication failed: User not found', {
         userId: storedCredential.user_id,
         error: userError?.message,
@@ -43,32 +40,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
-    // Create a simple session token for biometric auth
-    const sessionToken = Buffer.from(JSON.stringify({
-      user_id: storedCredential.user_id,
-      email: userData.email,
-      authenticated_at: new Date().toISOString(),
-      method: 'biometric'
-    })).toString('base64')
-
-    // Set session cookie
-    const cookieStore = await cookies()
-    cookieStore.set('biometric-session', sessionToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 7, // 7 days
-    })
+    // Return user data for session creation
 
     apiLogger.info('WebAuthn authentication successful', {
-      userId: storedCredential.user_id,
-      email: userData.email,
+      userId: user.user.id,
+      email: user.user.email,
     })
-    return NextResponse.json({ 
-      success: true, 
-      user: { id: storedCredential.user_id, email: userData.email },
-      redirect: '/' 
-    })
+    return NextResponse.json({ success: true, user: user.user })
   } catch (error) {
     apiLogger.error('WebAuthn authentication error', {
       error: error instanceof Error ? error.message : 'Unknown error',

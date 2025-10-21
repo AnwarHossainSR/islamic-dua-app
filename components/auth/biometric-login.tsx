@@ -57,6 +57,19 @@ export function BiometricLogin({ onError, onSuccess }: BiometricLoginProps) {
         const error = await authResponse.json()
         throw new Error(error.error || 'Authentication failed')
       }
+      
+      const result = await authResponse.json()
+      
+      // Create session using the authenticated user
+      const sessionResponse = await fetch('/api/auth/biometric-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: result.user.id, email: result.user.email })
+      })
+      
+      if (!sessionResponse.ok) {
+        throw new Error('Failed to create session')
+      }
 
       onSuccess()
       router.push('/')

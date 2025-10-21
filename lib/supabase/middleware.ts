@@ -17,7 +17,6 @@ export async function updateSession(request: NextRequest) {
   // Get auth tokens from cookies
   const accessToken = request.cookies.get("sb-access-token")?.value
   const refreshToken = request.cookies.get("sb-refresh-token")?.value
-  const biometricSession = request.cookies.get("biometric-session")?.value
 
   const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     auth: {
@@ -31,20 +30,6 @@ export async function updateSession(request: NextRequest) {
         : {},
     },
   })
-
-  // Handle biometric session
-  if (biometricSession && !accessToken) {
-    try {
-      const sessionData = JSON.parse(Buffer.from(biometricSession, 'base64').toString())
-      // Validate session is not expired (7 days)
-      const sessionAge = Date.now() - new Date(sessionData.authenticated_at).getTime()
-      if (sessionAge > 7 * 24 * 60 * 60 * 1000) {
-        supabaseResponse.cookies.delete('biometric-session')
-      }
-    } catch (error) {
-      supabaseResponse.cookies.delete('biometric-session')
-    }
-  }
 
   // If we have tokens, set the session and refresh if needed
   if (accessToken && refreshToken) {

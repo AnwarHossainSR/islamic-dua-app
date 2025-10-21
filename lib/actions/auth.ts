@@ -108,28 +108,6 @@ export async function getUser() {
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  
-  // If no regular user, check for biometric session
-  if (!user) {
-    const cookieStore = await cookies()
-    const biometricSession = cookieStore.get('biometric-session')?.value
-    
-    if (biometricSession) {
-      try {
-        const sessionData = JSON.parse(Buffer.from(biometricSession, 'base64').toString())
-        // Return user-like object for biometric sessions
-        return {
-          id: sessionData.user_id,
-          email: sessionData.email,
-          biometric: true
-        } as any
-      } catch (error) {
-        // Invalid session, remove it
-        cookieStore.delete('biometric-session')
-      }
-    }
-  }
-  
   return user
 }
 

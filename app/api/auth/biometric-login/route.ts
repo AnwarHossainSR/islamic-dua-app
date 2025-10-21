@@ -21,10 +21,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to create session' }, { status: 500 })
     }
 
+    apiLogger.info('Biometric session created', { linkData })
+
     // Extract tokens from the magic link
     const url = new URL(linkData.properties.action_link)
     const accessToken = url.searchParams.get('access_token')
     const refreshToken = url.searchParams.get('refresh_token')
+
+    apiLogger.info('Biometric session tokens extracted', { accessToken, refreshToken })
 
     if (!accessToken || !refreshToken) {
       apiLogger.error('Biometric session tokens not found', { userId })

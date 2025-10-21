@@ -11,9 +11,12 @@ export async function POST(request: NextRequest) {
     const supabaseAdmin = getSupabaseAdminServerClient()
 
     // Create session by updating user and generating new session
-    const { data: userData, error: updateError } = await supabaseAdmin.auth.admin.updateUserById(userId, {
-      email_confirm: true
-    })
+    const { data: userData, error: updateError } = await supabaseAdmin.auth.admin.updateUserById(
+      userId,
+      {
+        email_confirm: true,
+      }
+    )
 
     if (updateError) {
       apiLogger.error('Biometric session creation failed', { userId, error: updateError.message })
@@ -21,10 +24,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate a recovery link which contains session tokens
-    const { data: recoveryData, error: recoveryError } = await supabaseAdmin.auth.admin.generateLink({
-      type: 'recovery',
-      email
-    })
+    const { data: recoveryData, error: recoveryError } =
+      await supabaseAdmin.auth.admin.generateLink({
+        type: 'recovery',
+        email,
+      })
 
     if (recoveryError) {
       apiLogger.error('Recovery link generation failed', { userId, error: recoveryError.message })
@@ -33,8 +37,10 @@ export async function POST(request: NextRequest) {
 
     // Extract tokens from recovery link
     const recoveryUrl = new URL(recoveryData.properties.action_link)
+    apiLogger.info('Recovery link generated', { recoveryUrl })
     const accessToken = recoveryUrl.hash.match(/access_token=([^&]+)/)?.[1]
     const refreshToken = recoveryUrl.hash.match(/refresh_token=([^&]+)/)?.[1]
+    apiLogger.info('Tokens extracted from recovery link', { accessToken, refreshToken })
 
     if (!accessToken || !refreshToken) {
       apiLogger.error('Tokens not found in recovery link', { userId })

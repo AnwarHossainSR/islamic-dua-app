@@ -254,7 +254,7 @@ export default function UserChallengeProgressClient({
           </div>
 
           <div className="w-full max-w-md space-y-4 px-4">
-            <Progress value={dailyProgress} className="h-4" />
+            <Progress value={dailyProgress} color={challenge.color || '#10b981'} className="h-4" />
             <p className="text-center text-sm text-muted-foreground sm:text-base">
               {remaining > 0 ? `${remaining} more to go!` : 'Target reached! 🎉'}
             </p>
@@ -373,7 +373,11 @@ export default function UserChallengeProgressClient({
                 {progress.current_day - 1}/{challenge.total_days} days
               </span>
             </div>
-            <Progress value={overallProgress} className="h-2" />
+            <Progress
+              value={overallProgress}
+              color={challenge.color || '#10b981'}
+              className="h-2"
+            />
           </div>
         </CardContent>
       </Card>

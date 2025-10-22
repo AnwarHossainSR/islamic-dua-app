@@ -62,7 +62,10 @@ export async function getUserCredentials(userId: string): Promise<WebAuthnCreden
     .select('*')
     .eq('user_id', userId)
 
-  if (error) return []
+  if (error) {
+    apiLogger.error('Supabase error while fetching user credentials', { error: error })
+    return []
+  }
   return data || []
 }
 
@@ -77,7 +80,10 @@ export async function updateCredentialCounter(credentialId: string, counter: num
     })
     .eq('credential_id', credentialId)
 
-  if (error) throw error
+  if (error) {
+    apiLogger.error('Supabase error while updating credential counter', { error: error })
+    throw error
+  }
 }
 
 export async function deleteCredential(credentialId: string, userId: string) {
@@ -89,5 +95,8 @@ export async function deleteCredential(credentialId: string, userId: string) {
     .eq('credential_id', credentialId)
     .eq('user_id', userId)
 
-  if (error) throw error
+  if (error) {
+    apiLogger.error('Supabase error while deleting credential', { error: error })
+    throw error
+  }
 }

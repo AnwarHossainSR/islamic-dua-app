@@ -1,6 +1,6 @@
 'use server'
 
-import { getSupabaseServerClient } from '@/lib/supabase/server'
+import { getSupabaseServerClient, getSupabaseAdminServerClient } from '@/lib/supabase/server'
 import { apiLogger } from '../logger'
 
 export interface WebAuthnCredential {
@@ -70,7 +70,7 @@ export async function getUserCredentials(userId: string): Promise<WebAuthnCreden
 }
 
 export async function updateCredentialCounter(credentialId: string, counter: number) {
-  const supabase = await getSupabaseServerClient()
+  const supabase = getSupabaseAdminServerClient()
 
   const { error } = await supabase
     .from('webauthn_credentials')
@@ -81,9 +81,11 @@ export async function updateCredentialCounter(credentialId: string, counter: num
     .eq('credential_id', credentialId)
 
   if (error) {
-    apiLogger.error('Supabase error while updating credential counter', { error: error })
+    apiLogger.error('Failed to update credential counter', { credentialId, error: error.message })
     throw error
   }
+  
+  apiLogger.info('Credential counter updated', { credentialId, counter })
 }
 
 export async function deleteCredential(credentialId: string, userId: string) {

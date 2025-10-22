@@ -2,11 +2,16 @@ import { LoginForm } from '@/components/auth/login-form'
 import { getUser } from '@/lib/actions/auth'
 import { redirect } from 'next/navigation'
 
-export default async function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: { returnUrl?: string }
+}) {
   const user = await getUser()
 
   if (user) {
-    redirect('/')
+    // If already logged in, redirect to return URL or home
+    redirect(searchParams.returnUrl || '/')
   }
 
   return (
@@ -16,7 +21,7 @@ export default async function LoginPage() {
           <h1 className="mb-2 text-3xl font-bold text-foreground">Heaven Rose Islamic</h1>
           <p className="text-muted-foreground">Sign in to access your duas and dhikr</p>
         </div>
-        <LoginForm />
+        <LoginForm returnUrl={searchParams.returnUrl} />
       </div>
     </div>
   )

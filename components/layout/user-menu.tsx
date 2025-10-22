@@ -13,11 +13,13 @@ import {
 import { signOut } from '@/lib/actions/auth'
 import type { User } from '@supabase/supabase-js'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 
 export function UserMenu({ user, isAdmin }: { user: User; isAdmin: boolean }) {
   const initials = user.email?.substring(0, 2).toUpperCase() || 'U'
   const [open, setOpen] = useState(false)
+  const pathname = usePathname()
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
@@ -65,7 +67,7 @@ export function UserMenu({ user, isAdmin }: { user: User; isAdmin: boolean }) {
           className="text-destructive focus:text-destructive"
           onClick={() => {
             console.log('[v0] Sign out clicked')
-            signOut()
+            signOut(pathname)
           }}
         >
           Sign Out

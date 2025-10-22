@@ -1,13 +1,14 @@
 'use client'
 
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { formatDateTime } from '@/lib/utils'
 import { isWebAuthnSupported, registerCredential } from '@/lib/webauthn/client'
-import { Fingerprint, Trash2, Plus, Smartphone, Monitor } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { Fingerprint, Monitor, Plus, Trash2 } from 'lucide-react'
+import { useEffect, useState } from 'react'
 
 interface Credential {
   id: string
@@ -52,35 +53,35 @@ export function BiometricManager() {
     setIsLoading(true)
     setError('')
     setSuccess('')
-    
+
     try {
       // Get registration options
       const optionsResponse = await fetch('/api/webauthn/register/options', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       })
-      
+
       if (!optionsResponse.ok) {
         throw new Error('Failed to get registration options')
       }
-      
+
       const options = await optionsResponse.json()
-      
+
       // Register biometric credential
       const credential = await registerCredential(options)
-      
+
       // Send credential to server with device name
       const registerResponse = await fetch('/api/webauthn/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ credential, deviceName })
+        body: JSON.stringify({ credential, deviceName }),
       })
-      
+
       if (!registerResponse.ok) {
         const error = await registerResponse.json()
         throw new Error(error.error || 'Registration failed')
       }
-      
+
       setSuccess(`${deviceName} added successfully!`)
       setDeviceName('')
       setIsAdding(false)
@@ -98,9 +99,9 @@ export function BiometricManager() {
       const response = await fetch('/api/webauthn/credentials', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ credentialId })
+        body: JSON.stringify({ credentialId }),
       })
-      
+
       if (response.ok) {
         setSuccess('Device removed successfully')
         fetchCredentials()
@@ -160,7 +161,7 @@ export function BiometricManager() {
                 id="deviceName"
                 placeholder="e.g., iPhone, MacBook, Windows PC"
                 value={deviceName}
-                onChange={(e) => setDeviceName(e.target.value)}
+                onChange={e => setDeviceName(e.target.value)}
               />
             </div>
             <div className="flex gap-2">
@@ -184,16 +185,23 @@ export function BiometricManager() {
         {credentials.length > 0 && (
           <div className="space-y-2">
             <h4 className="font-medium">Registered Devices</h4>
-            {credentials.map((credential) => (
-              <div key={credential.id} className="flex items-center justify-between p-3 border rounded-lg">
+            {credentials.map(credential => (
+              <div
+                key={credential.id}
+                className="flex items-center justify-between p-3 border rounded-lg"
+              >
                 <div className="flex items-center gap-3">
                   <Monitor className="h-4 w-4 text-muted-foreground" />
                   <div>
                     <div className="font-medium">{credential.device_name}</div>
                     <div className="text-sm text-muted-foreground">
-                      Added {new Date(credential.created_at).toLocaleDateString()}
+                      Added {formatDateTime(credential.created_at, { formatType: 'date' })}
                       {credential.last_used_at && (
-                        <span> • Last used {new Date(credential.last_used_at).toLocaleDateString()}</span>
+                        <span>
+                          {' '}
+                          • Last used{' '}
+                          {formatDateTime(credential.last_used_at, { formatType: 'full' })}
+                        </span>
                       )}
                     </div>
                   </div>

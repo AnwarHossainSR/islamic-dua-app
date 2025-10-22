@@ -69,11 +69,11 @@ export default function UserChallengeProgressClient({
 
   const { debouncedCallback: saveToLocalStorage, cancel: cancelSave } = useDebounce(
     (value: number) => {
-      setCount(value) // This now receives `value` correctly
+      setCount(value)
       console.log(`Saved count ${value} to localStorage`)
     },
     10000,
-    [] // Optional: empty deps since callback is stable via useCallback below
+    []
   )
 
   // Memoized calculations
@@ -113,9 +113,9 @@ export default function UserChallengeProgressClient({
   const handleIncrement = useCallback(() => {
     if (count < target && !isAlreadyCompleted) {
       const newCount = count + 1
-      setCount(newCount) // Immediate UI update
+      setCount(newCount)
       vibrate()
-      saveToLocalStorage(newCount) // Debounced save
+      saveToLocalStorage(newCount)
     }
   }, [count, target, vibrate, isAlreadyCompleted, setCount, saveToLocalStorage])
 
@@ -155,16 +155,11 @@ export default function UserChallengeProgressClient({
         return
       }
 
-      // Clear localStorage on successful completion
       removeCount()
       cancelSave()
 
       setShowSuccessModal(true)
       toast({ title: 'Success', description: `Day ${progress.current_day} completed!` })
-      // setTimeout(() => {
-      //   setShowSuccessModal(false)
-      //   router.refresh()
-      // }, 10000)
     } catch (error) {
       console.error('Error:', error)
       alert('Failed to save progress')
@@ -223,7 +218,12 @@ export default function UserChallengeProgressClient({
   // Fullscreen Counter View
   if (isFullscreen && !isAlreadyCompleted) {
     return (
-      <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-950 dark:to-slate-950">
+      <div
+        className="fixed inset-0 z-50 flex flex-col items-center justify-center"
+        style={{
+          background: `linear-gradient(to bottom right, ${challenge.color}20, ${challenge.color}10)`,
+        }}
+      >
         <Button
           variant="ghost"
           size="icon"
@@ -309,7 +309,7 @@ export default function UserChallengeProgressClient({
                 Day {progress.current_day} of {challenge.total_days}
               </p>
               {progress.last_completed_at && (
-                <p className="text-xs text-emerald-600 dark:text-emerald-400">
+                <p className="text-xs" style={{ color: challenge.color || '#10b981' }}>
                   Last completed: {formatLastCompleted(progress.last_completed_at)}
                 </p>
               )}
@@ -381,7 +381,13 @@ export default function UserChallengeProgressClient({
       {/* Dhikr Content */}
       <Card>
         <CardContent className="space-y-3 pt-4 sm:space-y-4 sm:pt-6">
-          <div className="rounded-lg border-2 border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-900 dark:bg-emerald-950 sm:p-6">
+          <div
+            className="rounded-lg border-2 p-4 sm:p-6"
+            style={{
+              borderColor: `${challenge.color}33`,
+              backgroundColor: `${challenge.color}0D`,
+            }}
+          >
             <p className="arabic-text text-center text-2xl leading-loose sm:text-3xl">
               {challenge.arabic_text}
             </p>
@@ -414,7 +420,7 @@ export default function UserChallengeProgressClient({
 
       {/* Counter Section */}
       {!isAlreadyCompleted ? (
-        <Card className="border-2 border-emerald-500">
+        <Card className="border-2" style={{ borderColor: challenge.color || '#10b981' }}>
           <CardHeader className="pb-3 sm:pb-6">
             <CardTitle className="flex items-center justify-between text-base sm:text-lg">
               <span>Today's Count</span>
@@ -539,9 +545,18 @@ export default function UserChallengeProgressClient({
           </CardContent>
         </Card>
       ) : (
-        <Card className="border-2 border-emerald-500 bg-emerald-50 dark:bg-emerald-950">
+        <Card
+          className="border-2"
+          style={{
+            borderColor: challenge.color || '#10b981',
+            backgroundColor: `${challenge.color}0D`,
+          }}
+        >
           <CardContent className="flex flex-col items-center justify-center py-8 text-center sm:py-12">
-            <CheckCircle2 className="mb-3 h-12 w-12 text-emerald-500 sm:mb-4 sm:h-16 sm:w-16" />
+            <CheckCircle2
+              className="mb-3 h-12 w-12 sm:mb-4 sm:h-16 sm:w-16"
+              style={{ color: challenge.color || '#10b981' }}
+            />
             <h3 className="mb-2 text-xl font-bold sm:text-2xl">
               Day {progress.current_day} Completed!
             </h3>
@@ -579,11 +594,6 @@ export default function UserChallengeProgressClient({
                   className={`
                     flex aspect-square flex-col items-center justify-center rounded-lg border-2 p-1 text-xs font-medium sm:p-2 sm:text-sm
                     ${
-                      isCompleted
-                        ? 'border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-950'
-                        : ''
-                    }
-                    ${
                       isCurrent && !isCompleted
                         ? 'border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-950'
                         : ''
@@ -594,6 +604,15 @@ export default function UserChallengeProgressClient({
                         : ''
                     }
                   `}
+                  style={
+                    isCompleted
+                      ? {
+                          borderColor: challenge.color || '#10b981',
+                          backgroundColor: `${challenge.color}0D`,
+                          color: challenge.color || '#10b981',
+                        }
+                      : undefined
+                  }
                 >
                   {isCompleted ? (
                     <CheckCircle2 className="mb-0.5 h-3 w-3 sm:mb-1 sm:h-5 sm:w-5" />
@@ -610,7 +629,10 @@ export default function UserChallengeProgressClient({
 
           <div className="mt-3 flex flex-wrap gap-3 text-xs sm:mt-4 sm:gap-4 sm:text-sm">
             <div className="flex items-center gap-1.5 sm:gap-2">
-              <CheckCircle2 className="h-3 w-3 text-emerald-500 sm:h-4 sm:w-4" />
+              <CheckCircle2
+                className="h-3 w-3 sm:h-4 sm:w-4"
+                style={{ color: challenge.color || '#10b981' }}
+              />
               <span className="text-muted-foreground">Completed</span>
             </div>
             <div className="flex items-center gap-1.5 sm:gap-2">
@@ -631,8 +653,14 @@ export default function UserChallengeProgressClient({
           <Card className="w-full max-w-md animate-in fade-in zoom-in duration-300">
             <CardContent className="space-y-4 pt-6 text-center sm:space-y-6">
               <div className="flex justify-center">
-                <div className="rounded-full bg-emerald-100 p-4 dark:bg-emerald-900 sm:p-6">
-                  <CheckCircle2 className="h-12 w-12 text-emerald-500 sm:h-16 sm:w-16" />
+                <div
+                  className="rounded-full p-4 sm:p-6"
+                  style={{ backgroundColor: `${challenge.color}20` }}
+                >
+                  <CheckCircle2
+                    className="h-12 w-12 sm:h-16 sm:w-16"
+                    style={{ color: challenge.color || '#10b981' }}
+                  />
                 </div>
               </div>
 
@@ -663,7 +691,6 @@ export default function UserChallengeProgressClient({
                 See you tomorrow for Day {progress.current_day + 1}!
               </p>
 
-              {/* Added Button Link */}
               <div className="pt-4">
                 <Link href="/challenges" passHref>
                   <Button className="w-full sm:w-auto">Go to Challenges</Button>

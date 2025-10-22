@@ -28,7 +28,7 @@ export async function signUp(email: string, password: string) {
   return { data, message: 'Check your email to confirm your account' }
 }
 
-export async function signIn(email: string, password: string, returnUrl?: string) {
+export async function signIn(email: string, password: string) {
   const supabase = await getSupabaseServerClient()
 
   const { data, error } = await supabase.auth.signInWithPassword({
@@ -58,19 +58,21 @@ export async function signIn(email: string, password: string, returnUrl?: string
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 7, // 7 days
+      maxAge: 60 * 60 * 24 * 7,
     })
     cookieStore.set('sb-refresh-token', data.session.refresh_token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 7, // 7 days
+      maxAge: 60 * 60 * 24 * 7,
     })
   }
 
   apiLogger.info('User signed in successfully', { email, userId: data.user?.id })
   revalidatePath('/', 'layout')
-  redirect(returnUrl || '/')
+
+  // Return success instead of redirecting
+  return { success: true }
 }
 
 export async function resendConfirmationEmail(email: string) {

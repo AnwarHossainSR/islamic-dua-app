@@ -466,8 +466,11 @@ export default function ChallengesClient({
                         </div>
                         <div className="h-2 overflow-hidden rounded-full bg-muted">
                           <div
-                            className="h-full bg-emerald-500 transition-all"
-                            style={{ width: `${completionRate}%` }}
+                            className="h-full transition-all"
+                            style={{
+                              width: `${completionRate}%`,
+                              background: challenge.color || '#10b981',
+                            }}
                           />
                         </div>
                       </div>
@@ -613,8 +616,11 @@ export default function ChallengesClient({
                             <p className="text-sm font-medium truncate">{challenge.title_bn}</p>
                             <div className="mt-1 h-2 overflow-hidden rounded-full bg-muted">
                               <div
-                                className="h-full bg-emerald-500"
-                                style={{ width: `${rate}%` }}
+                                className="h-full"
+                                style={{
+                                  width: `${rate}%`,
+                                  background: challenge.color || '#10b981',
+                                }}
                               />
                             </div>
                           </div>

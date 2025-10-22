@@ -1,5 +1,5 @@
 import { apiLogger } from '@/lib/logger'
-import { getCredential } from '@/lib/webauthn/server'
+import { getCredential, updateCredentialCounter } from '@/lib/webauthn/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdminServerClient } from '@/lib/supabase/server'
 
@@ -28,6 +28,9 @@ export async function POST(request: NextRequest) {
 
     // Get admin client
     const supabaseAdmin = getSupabaseAdminServerClient()
+
+    // Update credential usage
+    await updateCredentialCounter(credential.id, storedCredential.counter + 1)
 
     // Get user using admin API
     const { data: user, error: userError } = await supabaseAdmin.auth.admin.getUserById(storedCredential.user_id)

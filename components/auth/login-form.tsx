@@ -15,9 +15,9 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { resendConfirmationEmail, signIn } from '@/lib/actions/auth'
-import { BiometricLogin } from './biometric-login'
 import Link from 'next/link'
 import { useState } from 'react'
+import { BiometricLogin } from './biometric-login'
 
 export function LoginForm() {
   const [email, setEmail] = useState('')
@@ -44,6 +44,7 @@ export function LoginForm() {
         }
       }
     } catch (err) {
+      console.log('error during sign in', err)
       setError('An unexpected error occurred')
     } finally {
       setLoading(false)
@@ -129,9 +130,9 @@ export function LoginForm() {
               <span className="bg-background px-2 text-muted-foreground">Or</span>
             </div>
           </div>
-          <BiometricLogin 
-            onError={setError} 
-            onSuccess={() => setSuccess('Signed in successfully!')} 
+          <BiometricLogin
+            onError={setError}
+            onSuccess={() => setSuccess('Signed in successfully!')}
           />
           {needsEmailConfirmation && (
             <Button

@@ -1,10 +1,10 @@
 'use server'
 
+import { apiLogger } from '@/lib/logger'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
-import { apiLogger } from '@/lib/logger'
 
 export async function signUp(email: string, password: string) {
   const supabase = await getSupabaseServerClient()
@@ -28,7 +28,7 @@ export async function signUp(email: string, password: string) {
   return { data, message: 'Check your email to confirm your account' }
 }
 
-export async function signIn(email: string, password: string) {
+export async function signIn(email: string, password: string, returnUrl?: string) {
   const supabase = await getSupabaseServerClient()
 
   const { data, error } = await supabase.auth.signInWithPassword({
@@ -70,7 +70,7 @@ export async function signIn(email: string, password: string) {
 
   apiLogger.info('User signed in successfully', { email, userId: data.user?.id })
   revalidatePath('/', 'layout')
-  redirect('/')
+  redirect(returnUrl || '/')
 }
 
 export async function resendConfirmationEmail(email: string) {
@@ -88,10 +88,12 @@ export async function resendConfirmationEmail(email: string) {
   return { success: true, message: 'Confirmation email sent! Please check your inbox.' }
 }
 
-export async function signOut() {
+export async function signOut(currentPath?: string) {
   const supabase = await getSupabaseServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
   await supabase.auth.signOut()
 
   const cookieStore = await cookies()
@@ -100,7 +102,10 @@ export async function signOut() {
 
   apiLogger.info('User signed out', { userId: user?.id })
   revalidatePath('/', 'layout')
-  redirect('/login')
+
+  // Redirect to login with return URL if provided
+  const redirectUrl = currentPath ? `/login?returnUrl=${encodeURIComponent(currentPath)}` : '/login'
+  redirect(redirectUrl)
 }
 
 export async function getUser() {

@@ -16,10 +16,12 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { resendConfirmationEmail, signIn } from '@/lib/actions/auth'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { BiometricLogin } from './biometric-login'
 
-export function LoginForm() {
+export function LoginForm({ returnUrl }: { returnUrl?: string }) {
+  const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -42,6 +44,10 @@ export function LoginForm() {
         if (result.code === 'email_not_confirmed') {
           setNeedsEmailConfirmation(true)
         }
+      } else {
+        // Success - redirect to return URL or home
+        router.push(returnUrl || '/')
+        router.refresh()
       }
     } catch (err) {
       console.log('error during sign in', err)

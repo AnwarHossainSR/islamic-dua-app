@@ -698,7 +698,14 @@ export default function UserChallengeProgressClient({
 
               <div className="pt-4">
                 <Link href="/challenges" passHref>
-                  <Button className="w-full sm:w-auto">Go to Challenges</Button>
+                  <Button
+                    className="w-full sm:w-auto"
+                    style={{
+                      backgroundColor: challenge.color || '#10b981',
+                    }}
+                  >
+                    Go to Challenges
+                  </Button>
                 </Link>
               </div>
             </CardContent>

@@ -446,7 +446,11 @@ export default function UserChallengeProgressClient({
           <CardContent className="space-y-4 sm:space-y-6">
             {/* Progress Bar */}
             <div className="space-y-2">
-              <Progress value={dailyProgress} className="h-2 sm:h-3" />
+              <Progress
+                value={dailyProgress}
+                color={challenge.color || '#10b981'}
+                className={`h-2 sm:h-3`}
+              />
               <p className="text-center text-xs text-muted-foreground sm:text-sm">
                 {remaining > 0 ? `${remaining} more to go!` : 'Target reached! 🎉'}
               </p>
@@ -506,6 +510,7 @@ export default function UserChallengeProgressClient({
                 onClick={handleComplete}
                 disabled={isCompleting || count < target}
                 className="text-sm sm:text-base"
+                style={{ backgroundColor: challenge.color || '#10b981' }}
               >
                 <Check className="mr-2 h-4 w-4" />
                 {isCompleting ? 'Saving...' : 'Complete Today'}

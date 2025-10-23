@@ -15,8 +15,8 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDebounce } from '@/hooks/use-debounce'
 import { deleteChallengeTemplate, searchAndFilterChallenges } from '@/lib/actions/challenges'
-import { cn, isCurrentDay } from '@/lib/utils'
-import { format, isSameDay } from 'date-fns'
+import { cn, isCurrentDay, sortChallengesByCompletion } from '@/lib/utils'
+import { format } from 'date-fns'
 import { toZonedTime } from 'date-fns-tz'
 import {
   Calendar,
@@ -88,7 +88,10 @@ export default function ChallengesClient({
         difficulty,
         status,
       })
-      setChallenges(results)
+
+      // Sort results to keep incomplete challenges at top
+      const sortedResults = sortChallengesByCompletion(results)
+      setChallenges(sortedResults)
     })
   }, [])
 
@@ -138,11 +141,10 @@ export default function ChallengesClient({
       )
     }
 
+    const completedToday = isCurrentDay(lastCompletedAt)
     const timeZone = 'Asia/Dhaka'
     const utcDate = new Date(lastCompletedAt)
     const date = toZonedTime(utcDate, timeZone)
-    const nowInDhaka = toZonedTime(new Date(), timeZone)
-    const completedToday = isSameDay(date, nowInDhaka)
 
     return completedToday ? (
       <Badge className="bg-emerald-500/10 text-emerald-700 border-emerald-200 flex items-center gap-1 text-xs">
@@ -356,7 +358,8 @@ export default function ChallengesClient({
 
           {/* Challenges List */}
           <div className="space-y-4">
-            {challenges.map((challenge: Challenge) => {
+            {challenges.map((challenge: Challenge, index) => {
+              console.log(`challenge ${index}`, challenge)
               const completionRate =
                 challenge.total_completions > 0
                   ? Math.round((challenge.total_completions / challenge.total_days) * 100)

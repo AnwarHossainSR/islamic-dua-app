@@ -9,11 +9,15 @@ export function cn(...inputs: ClassValue[]) {
 
 export const isCurrentDay = (lastCompletedAt: string | null) => {
   if (!lastCompletedAt) return false
+
   const timeZone = 'Asia/Dhaka'
   const utcDate = new Date(lastCompletedAt)
-  const date = toZonedTime(utcDate, timeZone)
+  const completedDateInDhaka = toZonedTime(utcDate, timeZone)
   const nowInDhaka = toZonedTime(new Date(), timeZone)
-  const completedToday = isSameDay(date, nowInDhaka)
+
+  // Compare only the date part (year, month, day)
+  const completedToday = isSameDay(completedDateInDhaka, nowInDhaka)
+
   return completedToday
 }
 
@@ -61,4 +65,24 @@ export const formatDateTime = (
   }
 
   return format(dateInZone, pattern)
+}
+
+/**
+ * Sort challenges to prioritize incomplete ones (not completed today) at the top
+ */
+export function sortChallengesByCompletion<T extends { last_completed_at?: string | null }>(
+  challenges: T[]
+): T[] {
+  return challenges.sort((a, b) => {
+    const aCompletedToday = isCurrentDay(a.last_completed_at || null)
+    const bCompletedToday = isCurrentDay(b.last_completed_at || null)
+
+    // Not completed today should come first (return -1 means 'a' comes before 'b')
+    if (!aCompletedToday && bCompletedToday) return -1
+    // Completed today should come last (return 1 means 'a' comes after 'b')
+    if (aCompletedToday && !bCompletedToday) return 1
+
+    // If both have same completion status, maintain original order
+    return 0
+  })
 }

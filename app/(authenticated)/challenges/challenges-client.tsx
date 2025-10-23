@@ -359,7 +359,6 @@ export default function ChallengesClient({
           {/* Challenges List */}
           <div className="space-y-4">
             {challenges.map((challenge: Challenge, index) => {
-              console.log(`challenge ${index}`, challenge)
               const completionRate =
                 challenge.total_completions > 0
                   ? Math.round((challenge.total_completions / challenge.total_days) * 100)

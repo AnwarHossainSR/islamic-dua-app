@@ -42,8 +42,6 @@ export default function ChallengePreviewClient({
         return prev + 1
       })
       vibrate()
-    } else {
-      console.log('Count already at target, not incrementing')
     }
   }, [count, target, vibrate])
 
@@ -51,7 +49,6 @@ export default function ChallengePreviewClient({
     if (confirm('Are you sure you want to reset the counter?')) {
       setCount(0)
       setStartTime(null)
-      console.log('Counter reset')
     }
   }
 
@@ -73,7 +70,6 @@ export default function ChallengePreviewClient({
     const handleKeyPress = (e: KeyboardEvent) => {
       if (e.code === 'Space' && e.target === document.body) {
         e.preventDefault()
-        console.log('Space key pressed')
         handleIncrement()
       }
     }

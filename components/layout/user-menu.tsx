@@ -24,13 +24,7 @@ export function UserMenu({ user, isAdmin }: { user: User; isAdmin: boolean }) {
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          className="relative h-10 w-10 rounded-full"
-          onClick={() => {
-            console.log('[v0] UserMenu trigger clicked')
-          }}
-        >
+        <Button variant="ghost" className="relative h-10 w-10 rounded-full">
           <Avatar>
             <AvatarFallback className="bg-primary text-primary-foreground">
               {initials}
@@ -66,7 +60,6 @@ export function UserMenu({ user, isAdmin }: { user: User; isAdmin: boolean }) {
         <DropdownMenuItem
           className="text-destructive focus:text-destructive"
           onClick={() => {
-            console.log('[v0] Sign out clicked')
             signOut(pathname)
           }}
         >

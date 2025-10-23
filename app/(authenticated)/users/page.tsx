@@ -39,8 +39,6 @@ async function getAdminUsers() {
 export default async function AdminUsersPage() {
   const adminUsers = await getAdminUsers()
 
-  console.log('[v0] Rendering admin users page with:', adminUsers.length, 'users')
-
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">

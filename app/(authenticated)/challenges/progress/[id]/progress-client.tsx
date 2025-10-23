@@ -70,7 +70,6 @@ export default function UserChallengeProgressClient({
   const { debouncedCallback: saveToLocalStorage, cancel: cancelSave } = useDebounce(
     (value: number) => {
       setCount(value)
-      console.log(`Saved count ${value} to localStorage`)
     },
     10000,
     []

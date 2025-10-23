@@ -40,11 +40,9 @@ export function BiometricLogin({ onError, onSuccess }: BiometricLoginProps) {
       }
 
       const options = await optionsResponse.json()
-      console.log('options', options)
 
       // Authenticate with biometric
       const credential = await authenticateCredential(options)
-      console.log('Obtained credential:', credential)
 
       // Send credential to server
       const authResponse = await fetch('/api/webauthn/authenticate', {

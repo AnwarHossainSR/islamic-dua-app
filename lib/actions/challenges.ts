@@ -408,8 +408,6 @@ export async function completeDailyChallenge(
     if (incrementError) {
       throw incrementError
     }
-
-    console.log('Successfully incremented total_completions')
   } catch (error) {
     console.error('Error incrementing completions:', error)
   }

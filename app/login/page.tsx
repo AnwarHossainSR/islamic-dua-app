@@ -5,13 +5,14 @@ import { redirect } from 'next/navigation'
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: { returnUrl?: string }
+  searchParams: Promise<{ returnUrl?: string }>
 }) {
   const user = await getUser()
+  const params = await searchParams
 
   if (user) {
     // If already logged in, redirect to return URL or home
-    redirect(searchParams.returnUrl || '/')
+    redirect(params.returnUrl || '/')
   }
 
   return (
@@ -21,7 +22,7 @@ export default async function LoginPage({
           <h1 className="mb-2 text-3xl font-bold text-foreground">Heaven Rose Islamic</h1>
           <p className="text-muted-foreground">Sign in to access your duas and dhikr</p>
         </div>
-        <LoginForm returnUrl={searchParams.returnUrl} />
+        <LoginForm returnUrl={params.returnUrl} />
       </div>
     </div>
   )

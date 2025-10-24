@@ -2,6 +2,7 @@
 
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { toZonedTime, format } from 'date-fns-tz'
 
 export async function checkAdminAccess() {
   const supabase = await getSupabaseServerClient()
@@ -75,28 +76,46 @@ export async function getAdminActivityStats() {
     .select('id', { count: 'exact', head: true })
     .eq('is_active', true)
 
-  // Get today's completions
-  const today = new Date().toISOString().split('T')[0]
+  // Get dates in Bangladesh timezone
+  const timeZone = 'Asia/Dhaka'
+  const nowInDhaka = toZonedTime(new Date(), timeZone)
+  const today = format(nowInDhaka, 'yyyy-MM-dd', { timeZone })
+  
+  const yesterdayInDhaka = toZonedTime(new Date(Date.now() - 86400000), timeZone)
+  const yesterday = format(yesterdayInDhaka, 'yyyy-MM-dd', { timeZone })
+  
+  const weekAgoInDhaka = toZonedTime(new Date(Date.now() - 7 * 86400000), timeZone)
+  const weekAgo = format(weekAgoInDhaka, 'yyyy-MM-dd', { timeZone })
+
+  // Get today's completions using completed_at timestamp
+  const todayStart = `${today}T00:00:00+06:00`
+  const todayEnd = `${today}T23:59:59+06:00`
+  
   const { count: todayCompletions } = await supabase
     .from('user_challenge_daily_logs')
     .select('id', { count: 'exact', head: true })
-    .eq('completion_date', today)
+    .gte('completed_at', todayStart)
+    .lte('completed_at', todayEnd)
     .eq('is_completed', true)
 
   // Get yesterday's completions
-  const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0]
+  const yesterdayStart = `${yesterday}T00:00:00+06:00`
+  const yesterdayEnd = `${yesterday}T23:59:59+06:00`
+  
   const { count: yesterdayCompletions } = await supabase
     .from('user_challenge_daily_logs')
     .select('id', { count: 'exact', head: true })
-    .eq('completion_date', yesterday)
+    .gte('completed_at', yesterdayStart)
+    .lte('completed_at', yesterdayEnd)
     .eq('is_completed', true)
 
   // Get this week's completions
-  const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString().split('T')[0]
+  const weekStart = `${weekAgo}T00:00:00+06:00`
+  
   const { count: weekCompletions } = await supabase
     .from('user_challenge_daily_logs')
     .select('id', { count: 'exact', head: true })
-    .gte('completion_date', weekAgo)
+    .gte('completed_at', weekStart)
     .eq('is_completed', true)
 
   return {

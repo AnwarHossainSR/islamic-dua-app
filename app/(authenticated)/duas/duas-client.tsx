@@ -1,0 +1,378 @@
+'use client'
+
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Badge } from '@/components/ui/badge'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { ActionButton } from '@/components/ui/action-button'
+import { deleteDua } from '@/lib/actions/duas'
+import { Plus, Search, Star, BookOpen, BarChart3, Edit, Trash2, Eye } from 'lucide-react'
+import Link from 'next/link'
+import { useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
+
+interface Dua {
+  id: string
+  title_bn: string
+  title_ar?: string
+  title_en?: string
+  dua_text_ar: string
+  translation_bn?: string
+  translation_en?: string
+  category: string
+  is_important: boolean
+  tags?: string[]
+  created_at: string
+}
+
+interface DuaCategory {
+  id: string
+  name_bn: string
+  name_en?: string
+  icon?: string
+  color: string
+}
+
+interface DuaStats {
+  total: number
+  important: number
+  byCategory: Record<string, number>
+}
+
+interface DuasClientProps {
+  initialDuas: Dua[]
+  categories: DuaCategory[]
+  stats: DuaStats
+  currentPage: number
+  searchParams: {
+    category?: string
+    search?: string
+    important?: string
+  }
+}
+
+export default function DuasClient({ 
+  initialDuas, 
+  categories, 
+  stats, 
+  currentPage,
+  searchParams 
+}: DuasClientProps) {
+  const [searchQuery, setSearchQuery] = useState(searchParams.search || '')
+  const [categoryFilter, setCategoryFilter] = useState(searchParams.category || 'all')
+  const [importantFilter, setImportantFilter] = useState(searchParams.important === 'true')
+  const [isPending, startTransition] = useTransition()
+  const router = useRouter()
+
+  const handleSearch = () => {
+    const params = new URLSearchParams()
+    if (searchQuery) params.set('search', searchQuery)
+    if (categoryFilter !== 'all') params.set('category', categoryFilter)
+    if (importantFilter) params.set('important', 'true')
+    
+    startTransition(() => {
+      router.push(`/duas?${params.toString()}`)
+    })
+  }
+
+  const handleFilterChange = (key: string, value: string | boolean) => {
+    const params = new URLSearchParams()
+    if (searchQuery) params.set('search', searchQuery)
+    
+    if (key === 'category') {
+      setCategoryFilter(value as string)
+      if (value !== 'all') params.set('category', value as string)
+    } else if (key === 'important') {
+      setImportantFilter(value as boolean)
+      if (value) params.set('important', 'true')
+    }
+    
+    if (categoryFilter !== 'all' && key !== 'category') params.set('category', categoryFilter)
+    if (importantFilter && key !== 'important') params.set('important', 'true')
+    
+    startTransition(() => {
+      router.push(`/duas?${params.toString()}`)
+    })
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Duas Management</h1>
+          <p className="text-muted-foreground">Manage Islamic duas and supplications</p>
+        </div>
+        <Button asChild>
+          <Link href="/duas/new">
+            <Plus className="mr-2 h-4 w-4" />
+            Add New Dua
+          </Link>
+        </Button>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid gap-4 md:grid-cols-3">
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Total Duas</p>
+                <p className="text-2xl font-bold">{stats.total}</p>
+              </div>
+              <BookOpen className="h-8 w-8 text-blue-500" />
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Important Duas</p>
+                <p className="text-2xl font-bold">{stats.important}</p>
+              </div>
+              <Star className="h-8 w-8 text-amber-500" />
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Categories</p>
+                <p className="text-2xl font-bold">{Object.keys(stats.byCategory).length}</p>
+              </div>
+              <BarChart3 className="h-8 w-8 text-green-500" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Main Content */}
+      <Tabs defaultValue="all" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="all">All Duas</TabsTrigger>
+          <TabsTrigger value="categories">Categories</TabsTrigger>
+          <TabsTrigger value="stats">Statistics</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="all" className="space-y-4">
+          {/* Filters */}
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex flex-col md:flex-row gap-4">
+                <div className="flex-1 relative">
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    placeholder="Search duas..."
+                    className="pl-10"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                  />
+                </div>
+                <Select value={categoryFilter} onValueChange={(value) => handleFilterChange('category', value)}>
+                  <SelectTrigger className="w-48">
+                    <SelectValue placeholder="Category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Categories</SelectItem>
+                    {categories.map((category) => (
+                      <SelectItem key={category.id} value={category.id}>
+                        {category.icon} {category.name_bn}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button 
+                  variant={importantFilter ? "default" : "outline"}
+                  onClick={() => handleFilterChange('important', !importantFilter)}
+                >
+                  <Star className="mr-2 h-4 w-4" />
+                  Important Only
+                </Button>
+                <Button onClick={handleSearch} disabled={isPending}>
+                  Search
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Duas List */}
+          <div className="space-y-4">
+            {initialDuas.map((dua) => (
+              <Card key={dua.id}>
+                <CardContent className="pt-6">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 space-y-3">
+                      <div className="flex items-start gap-3">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className="font-semibold text-lg">{dua.title_bn}</h3>
+                            {dua.is_important && (
+                              <Badge variant="secondary">
+                                <Star className="mr-1 h-3 w-3" />
+                                Important
+                              </Badge>
+                            )}
+                          </div>
+                          {dua.title_en && (
+                            <p className="text-sm text-muted-foreground mb-2">{dua.title_en}</p>
+                          )}
+                          {dua.title_ar && (
+                            <p className="text-right arabic-text text-lg mb-3">{dua.title_ar}</p>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div className="bg-muted/50 p-4 rounded-lg">
+                        <p className="text-right arabic-text text-xl leading-relaxed">{dua.dua_text_ar}</p>
+                      </div>
+                      
+                      {dua.translation_bn && (
+                        <div className="space-y-1">
+                          <p className="text-sm font-medium">বাংলা অনুবাদ:</p>
+                          <p className="text-sm">{dua.translation_bn}</p>
+                        </div>
+                      )}
+                      
+                      {dua.translation_en && (
+                        <div className="space-y-1">
+                          <p className="text-sm font-medium">English Translation:</p>
+                          <p className="text-sm">{dua.translation_en}</p>
+                        </div>
+                      )}
+                      
+                      {dua.tags && dua.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1">
+                          {dua.tags.map((tag, index) => (
+                            <Badge key={index} variant="outline" className="text-xs">
+                              {tag}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="flex flex-col gap-2">
+                      <Button variant="outline" size="sm" asChild>
+                        <Link href={`/duas/${dua.id}`}>
+                          <Eye className="h-4 w-4" />
+                        </Link>
+                      </Button>
+                      <Button variant="outline" size="sm" asChild>
+                        <Link href={`/duas/${dua.id}/edit`}>
+                          <Edit className="h-4 w-4" />
+                        </Link>
+                      </Button>
+                      <ActionButton
+                        action={deleteDua}
+                        actionParams={[dua.id]}
+                        title="Delete Dua"
+                        description="Are you sure you want to delete this dua?"
+                        confirmText="Delete"
+                        confirmVariant="destructive"
+                        size="sm"
+                        variant="outline"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </ActionButton>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+            
+            {initialDuas.length === 0 && (
+              <Card>
+                <CardContent className="flex flex-col items-center justify-center py-16">
+                  <BookOpen className="mb-4 h-16 w-16 text-muted-foreground" />
+                  <p className="mb-2 text-lg font-semibold">No duas found</p>
+                  <p className="mb-4 text-sm text-muted-foreground">
+                    Try adjusting your filters or add a new dua
+                  </p>
+                  <Button asChild>
+                    <Link href="/duas/new">
+                      <Plus className="mr-2 h-4 w-4" />
+                      Add First Dua
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="categories">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {categories.map((category) => (
+              <Card key={category.id}>
+                <CardContent className="pt-6">
+                  <div className="flex items-center gap-3">
+                    <div 
+                      className="flex h-12 w-12 items-center justify-center rounded-lg text-2xl"
+                      style={{ backgroundColor: category.color + '20' }}
+                    >
+                      {category.icon || '📿'}
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-semibold">{category.name_bn}</h3>
+                      {category.name_en && (
+                        <p className="text-sm text-muted-foreground">{category.name_en}</p>
+                      )}
+                      <p className="text-sm text-muted-foreground">
+                        {stats.byCategory[category.id] || 0} duas
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="stats">
+          <div className="grid gap-6 md:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>Category Distribution</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {Object.entries(stats.byCategory).map(([categoryId, count]) => {
+                    const category = categories.find(c => c.id === categoryId)
+                    const percentage = Math.round((count / stats.total) * 100)
+                    return (
+                      <div key={categoryId} className="flex items-center gap-3">
+                        <span className="text-lg">{category?.icon || '📿'}</span>
+                        <div className="flex-1">
+                          <div className="flex justify-between text-sm">
+                            <span>{category?.name_bn || categoryId}</span>
+                            <span>{count} ({percentage}%)</span>
+                          </div>
+                          <div className="mt-1 h-2 bg-muted rounded-full overflow-hidden">
+                            <div 
+                              className="h-full rounded-full"
+                              style={{ 
+                                width: `${percentage}%`,
+                                backgroundColor: category?.color || '#10b981'
+                              }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+      </Tabs>
+    </div>
+  )
+}

@@ -1,9 +1,9 @@
 'use server'
 
-import { getSupabaseServerClient, getSupabaseAdminServerClient } from '@/lib/supabase/server'
-import { checkAdminStatus, getUser } from './auth'
-import { revalidatePath } from 'next/cache'
 import { apiLogger } from '@/lib/logger'
+import { getSupabaseAdminServerClient, getSupabaseServerClient } from '@/lib/supabase/server'
+import { revalidatePath } from 'next/cache'
+import { checkAdminStatus, getUser } from './auth'
 
 export interface Dua {
   id: string
@@ -46,7 +46,7 @@ export async function getDuas(filters?: {
   offset?: number
 }) {
   const supabase = await getSupabaseServerClient()
-  
+
   let query = supabase
     .from('duas')
     .select('*')
@@ -58,7 +58,9 @@ export async function getDuas(filters?: {
   }
 
   if (filters?.search) {
-    query = query.or(`title_bn.ilike.%${filters.search}%,title_en.ilike.%${filters.search}%,dua_text_ar.ilike.%${filters.search}%`)
+    query = query.or(
+      `title_bn.ilike.%${filters.search}%,title_en.ilike.%${filters.search}%,dua_text_ar.ilike.%${filters.search}%`
+    )
   }
 
   if (filters?.isImportant) {
@@ -85,7 +87,7 @@ export async function getDuas(filters?: {
 
 export async function getDuaById(id: string) {
   const supabase = await getSupabaseServerClient()
-  
+
   const { data, error } = await supabase
     .from('duas')
     .select('*')
@@ -101,7 +103,9 @@ export async function getDuaById(id: string) {
   return data
 }
 
-export async function createDua(duaData: Omit<Dua, 'id' | 'created_at' | 'updated_at' | 'created_by'>) {
+export async function createDua(
+  duaData: Omit<Dua, 'id' | 'created_at' | 'updated_at' | 'created_by'>
+) {
   const admin = await checkAdminStatus()
   if (!admin) {
     throw new Error('Unauthorized: Admin access required')
@@ -114,7 +118,7 @@ export async function createDua(duaData: Omit<Dua, 'id' | 'created_at' | 'update
     .from('duas')
     .insert({
       ...duaData,
-      created_by: user?.id
+      created_by: user?.id,
     })
     .select()
     .single()
@@ -124,12 +128,14 @@ export async function createDua(duaData: Omit<Dua, 'id' | 'created_at' | 'update
     throw error
   }
 
-  apiLogger.info('Dua created successfully', { duaId: data.id, adminId: admin.user_id })
   revalidatePath('/duas')
   return data
 }
 
-export async function updateDua(id: string, duaData: Partial<Omit<Dua, 'id' | 'created_at' | 'updated_at' | 'created_by'>>) {
+export async function updateDua(
+  id: string,
+  duaData: Partial<Omit<Dua, 'id' | 'created_at' | 'updated_at' | 'created_by'>>
+) {
   const admin = await checkAdminStatus()
   if (!admin) {
     throw new Error('Unauthorized: Admin access required')
@@ -137,12 +143,7 @@ export async function updateDua(id: string, duaData: Partial<Omit<Dua, 'id' | 'c
 
   const supabase = getSupabaseAdminServerClient()
 
-  const { data, error } = await supabase
-    .from('duas')
-    .update(duaData)
-    .eq('id', id)
-    .select()
-    .single()
+  const { data, error } = await supabase.from('duas').update(duaData).eq('id', id).select().single()
 
   if (error) {
     apiLogger.error('Failed to update dua', { error: error.message, id, duaData })
@@ -162,10 +163,7 @@ export async function deleteDua(id: string) {
 
   const supabase = getSupabaseAdminServerClient()
 
-  const { error } = await supabase
-    .from('duas')
-    .update({ is_active: false })
-    .eq('id', id)
+  const { error } = await supabase.from('duas').update({ is_active: false }).eq('id', id)
 
   if (error) {
     apiLogger.error('Failed to delete dua', { error: error.message, id })
@@ -178,7 +176,7 @@ export async function deleteDua(id: string) {
 
 export async function getDuaCategories() {
   const supabase = await getSupabaseServerClient()
-  
+
   const { data, error } = await supabase
     .from('dua_categories')
     .select('*')
@@ -195,25 +193,27 @@ export async function getDuaCategories() {
 
 export async function getDuaStats() {
   const supabase = await getSupabaseServerClient()
-  
-  const [
-    { count: totalDuas },
-    { count: importantDuas },
-    { data: categoryCounts }
-  ] = await Promise.all([
-    supabase.from('duas').select('*', { count: 'exact', head: true }).eq('is_active', true),
-    supabase.from('duas').select('*', { count: 'exact', head: true }).eq('is_active', true).eq('is_important', true),
-    supabase.from('duas').select('category').eq('is_active', true)
-  ])
 
-  const categoryStats = categoryCounts?.reduce((acc: Record<string, number>, dua) => {
-    acc[dua.category] = (acc[dua.category] || 0) + 1
-    return acc
-  }, {}) || {}
+  const [{ count: totalDuas }, { count: importantDuas }, { data: categoryCounts }] =
+    await Promise.all([
+      supabase.from('duas').select('*', { count: 'exact', head: true }).eq('is_active', true),
+      supabase
+        .from('duas')
+        .select('*', { count: 'exact', head: true })
+        .eq('is_active', true)
+        .eq('is_important', true),
+      supabase.from('duas').select('category').eq('is_active', true),
+    ])
+
+  const categoryStats =
+    categoryCounts?.reduce((acc: Record<string, number>, dua) => {
+      acc[dua.category] = (acc[dua.category] || 0) + 1
+      return acc
+    }, {}) || {}
 
   return {
     total: totalDuas || 0,
     important: importantDuas || 0,
-    byCategory: categoryStats
+    byCategory: categoryStats,
   }
 }

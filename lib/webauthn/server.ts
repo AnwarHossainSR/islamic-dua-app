@@ -1,6 +1,6 @@
 'use server'
 
-import { getSupabaseServerClient, getSupabaseAdminServerClient } from '@/lib/supabase/server'
+import { getSupabaseAdminServerClient, getSupabaseServerClient } from '@/lib/supabase/server'
 import { apiLogger } from '../logger'
 
 export interface WebAuthnCredential {
@@ -50,7 +50,6 @@ export async function getCredential(credentialId: string): Promise<WebAuthnCrede
     apiLogger.error('Supabase error while fetching credential', { error: error.message })
     return null
   }
-  apiLogger.info('Supabase credential fetched', { data })
   return data?.[0] || null
 }
 
@@ -84,8 +83,6 @@ export async function updateCredentialCounter(credentialId: string, counter: num
     apiLogger.error('Failed to update credential counter', { credentialId, error: error.message })
     throw error
   }
-  
-  apiLogger.info('Credential counter updated', { credentialId, counter })
 }
 
 export async function deleteCredential(credentialId: string, userId: string) {

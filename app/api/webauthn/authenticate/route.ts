@@ -1,7 +1,7 @@
 import { apiLogger } from '@/lib/logger'
+import { getSupabaseAdminServerClient } from '@/lib/supabase/server'
 import { getCredential, updateCredentialCounter } from '@/lib/webauthn/server'
 import { NextRequest, NextResponse } from 'next/server'
-import { getSupabaseAdminServerClient } from '@/lib/supabase/server'
 
 export async function POST(request: NextRequest) {
   try {
@@ -33,7 +33,9 @@ export async function POST(request: NextRequest) {
     await updateCredentialCounter(credential.id, storedCredential.counter + 1)
 
     // Get user using admin API
-    const { data: user, error: userError } = await supabaseAdmin.auth.admin.getUserById(storedCredential.user_id)
+    const { data: user, error: userError } = await supabaseAdmin.auth.admin.getUserById(
+      storedCredential.user_id
+    )
 
     if (userError || !user) {
       apiLogger.error('WebAuthn authentication failed: User not found', {
@@ -43,12 +45,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
-    // Return user data for session creation
-
-    apiLogger.info('WebAuthn authentication successful', {
-      userId: user.user.id,
-      email: user.user.email,
-    })
     return NextResponse.json({ success: true, user: user.user })
   } catch (error) {
     apiLogger.error('WebAuthn authentication error', {

@@ -112,7 +112,7 @@ export default function DuasClient({
           <p className="text-muted-foreground">Manage Islamic duas and supplications</p>
         </div>
         <Button asChild>
-          <Link href="/duas/new">
+          <Link href="/duas/add">
             <Plus className="mr-2 h-4 w-4" />
             Add New Dua
           </Link>
@@ -307,7 +307,7 @@ export default function DuasClient({
                     Try adjusting your filters or add a new dua
                   </p>
                   <Button asChild>
-                    <Link href="/duas/new">
+                    <Link href="/duas/add">
                       <Plus className="mr-2 h-4 w-4" />
                       Add First Dua
                     </Link>

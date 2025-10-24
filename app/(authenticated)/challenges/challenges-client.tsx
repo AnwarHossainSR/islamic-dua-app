@@ -20,6 +20,7 @@ import { format } from 'date-fns'
 import { toZonedTime } from 'date-fns-tz'
 import {
   Calendar,
+  Check,
   CheckCircle2,
   ChevronDown,
   Edit,
@@ -125,11 +126,12 @@ export default function ChallengesClient({
   const stats = useMemo(() => {
     const total = challenges.length
     const participants = challenges.reduce((sum, c) => sum + (c.total_participants || 0), 0)
+    const todayCompleted = challenges.filter(c => isCurrentDay(c.last_completed_at || '')).length
     const completions = challenges.reduce((sum, c) => sum + (c.total_completions || 0), 0)
     const days = challenges.reduce((sum, c) => sum + c.total_days, 0)
     const avgRate = participants > 0 ? Math.round((completions / days) * 100) : 0
-
-    return { total, participants, completions, days, avgRate }
+    console.log('todayCompleted', todayCompleted)
+    return { total, participants, completions, days, avgRate, todayCompleted }
   }, [challenges])
 
   function getLastCompletedBadge(lastCompletedAt: string | null) {
@@ -201,10 +203,10 @@ export default function ChallengesClient({
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-muted-foreground">Total Participants</p>
-                      <p className="text-3xl font-bold">{stats.participants}</p>
+                      <p className="text-sm text-muted-foreground">Today Completed</p>
+                      <p className="text-3xl font-bold">{stats.todayCompleted}</p>
                     </div>
-                    <Users className="h-8 w-8 text-blue-500" />
+                    <Check className="h-8 w-8 text-emerald-500" />
                   </div>
                 </CardContent>
               </Card>
@@ -253,10 +255,10 @@ export default function ChallengesClient({
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Total Participants</p>
-                  <p className="text-3xl font-bold">{stats.participants}</p>
+                  <p className="text-sm text-muted-foreground">Today Completed</p>
+                  <p className="text-3xl font-bold">{stats.todayCompleted}</p>
                 </div>
-                <Users className="h-8 w-8 text-blue-500" />
+                <Check className="h-8 w-8 text-emerald-500" />
               </div>
             </CardContent>
           </Card>

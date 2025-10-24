@@ -2,6 +2,7 @@
 
 import { BiometricManager } from '@/components/auth/biometric-manager'
 import { DynamicSettings } from '@/components/settings/dynamic-settings'
+import { SettingsProvider } from '@/components/settings/settings-provider'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -66,7 +67,8 @@ export default function AdminSettingsPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <SettingsProvider>
+      <div className="space-y-8">
       <div>
         <h1 className="mb-2 text-4xl font-bold">Settings</h1>
         <p className="text-muted-foreground">Configure your app settings and preferences</p>
@@ -220,6 +222,7 @@ export default function AdminSettingsPage() {
           Reset to Defaults
         </Button>
       </div>
-    </div>
+      </div>
+    </SettingsProvider>
   )
 }

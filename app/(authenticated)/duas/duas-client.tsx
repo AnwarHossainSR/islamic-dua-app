@@ -211,71 +211,59 @@ export default function DuasClient({
             </CardContent>
           </Card>
 
-          {/* Duas List */}
-          <div className="space-y-4">
+          {/* Duas Grid */}
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {initialDuas.map(dua => (
-              <Card key={dua.id}>
-                <CardContent className="pt-6">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1 space-y-3">
-                      <div className="flex items-start gap-3">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h3 className="font-semibold text-lg">{dua.title_bn}</h3>
-                            {dua.is_important && (
-                              <Badge variant="secondary">
-                                <Star className="mr-1 h-3 w-3" />
-                                Important
-                              </Badge>
-                            )}
-                          </div>
-                          {dua.title_en && (
-                            <p className="text-sm text-muted-foreground mb-2">{dua.title_en}</p>
-                          )}
-                          {dua.title_ar && (
-                            <p className="text-right arabic-text text-lg mb-3">{dua.title_ar}</p>
-                          )}
-                        </div>
+              <Card key={dua.id} className="group hover:shadow-lg transition-shadow">
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <h3 className="font-semibold text-lg line-clamp-1">{dua.title_bn}</h3>
+                        {dua.is_important && (
+                          <Badge variant="secondary" className="shrink-0">
+                            <Star className="h-3 w-3" />
+                          </Badge>
+                        )}
                       </div>
-
-                      <div className="bg-muted/50 p-4 rounded-lg">
-                        <p className="text-right arabic-text text-xl leading-relaxed">
-                          {dua.dua_text_ar}
-                        </p>
-                      </div>
-
-                      {dua.translation_bn && (
-                        <div className="space-y-1">
-                          <p className="text-sm font-medium">বাংলা অনুবাদ:</p>
-                          <p className="text-sm">{dua.translation_bn}</p>
-                        </div>
-                      )}
-
-                      {dua.translation_en && (
-                        <div className="space-y-1">
-                          <p className="text-sm font-medium">English Translation:</p>
-                          <p className="text-sm">{dua.translation_en}</p>
-                        </div>
-                      )}
-
-                      {dua.tags && dua.tags.length > 0 && (
-                        <div className="flex flex-wrap gap-1">
-                          {dua.tags.map((tag, index) => (
-                            <Badge key={index} variant="outline" className="text-xs">
-                              {tag}
-                            </Badge>
-                          ))}
-                        </div>
+                      {dua.title_en && (
+                        <p className="text-sm text-muted-foreground line-clamp-1">{dua.title_en}</p>
                       )}
                     </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20 p-4 rounded-lg border">
+                    <p className="text-right arabic-text text-lg leading-relaxed line-clamp-3">
+                      {dua.dua_text_ar}
+                    </p>
+                  </div>
 
-                    <div className="flex flex-col gap-2">
-                      <Button variant="outline" size="sm" asChild>
+                  {dua.translation_bn && (
+                    <div className="space-y-1">
+                      <p className="text-xs font-medium text-muted-foreground">বাংলা অনুবাদ</p>
+                      <p className="text-sm line-clamp-2">{dua.translation_bn}</p>
+                    </div>
+                  )}
+
+                  <div className="flex items-center justify-between pt-2 border-t">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="text-xs">
+                        {dua.category}
+                      </Badge>
+                      {dua.tags && dua.tags.length > 0 && (
+                        <span className="text-xs text-muted-foreground">
+                          +{dua.tags.length} tags
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex gap-1">
+                      <Button variant="ghost" size="sm" asChild>
                         <Link href={`/duas/${dua.id}`}>
                           <Eye className="h-4 w-4" />
                         </Link>
                       </Button>
-                      <Button variant="outline" size="sm" asChild>
+                      <Button variant="ghost" size="sm" asChild>
                         <Link href={`/duas/${dua.id}/edit`}>
                           <Edit className="h-4 w-4" />
                         </Link>
@@ -288,7 +276,7 @@ export default function DuasClient({
                         confirmText="Delete"
                         confirmVariant="destructive"
                         size="sm"
-                        variant="outline"
+                        variant="ghost"
                       >
                         <Trash2 className="h-4 w-4" />
                       </ActionButton>
@@ -297,25 +285,25 @@ export default function DuasClient({
                 </CardContent>
               </Card>
             ))}
-
-            {initialDuas.length === 0 && (
-              <Card>
-                <CardContent className="flex flex-col items-center justify-center py-16">
-                  <BookOpen className="mb-4 h-16 w-16 text-muted-foreground" />
-                  <p className="mb-2 text-lg font-semibold">No duas found</p>
-                  <p className="mb-4 text-sm text-muted-foreground">
-                    Try adjusting your filters or add a new dua
-                  </p>
-                  <Button asChild>
-                    <Link href="/duas/add">
-                      <Plus className="mr-2 h-4 w-4" />
-                      Add First Dua
-                    </Link>
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
           </div>
+
+          {initialDuas.length === 0 && (
+            <Card>
+              <CardContent className="flex flex-col items-center justify-center py-16">
+                <BookOpen className="mb-4 h-16 w-16 text-muted-foreground" />
+                <p className="mb-2 text-lg font-semibold">No duas found</p>
+                <p className="mb-4 text-sm text-muted-foreground">
+                  Try adjusting your filters or add a new dua
+                </p>
+                <Button asChild>
+                  <Link href="/duas/add">
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add First Dua
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
         <TabsContent value="categories">

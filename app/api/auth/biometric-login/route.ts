@@ -50,8 +50,6 @@ export async function POST(request: NextRequest) {
       type: 'recovery',
     })
 
-    apiLogger.info('Token verified', { verifyData })
-
     if (verifyError || !verifyData.session) {
       apiLogger.error('Token verification failed', { userId, error: verifyError?.message })
       return NextResponse.json({ error: 'Failed to verify token' }, { status: 500 })

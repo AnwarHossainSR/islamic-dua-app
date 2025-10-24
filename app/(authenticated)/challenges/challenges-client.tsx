@@ -29,6 +29,7 @@ import {
   Plus,
   Search,
   Target,
+  Trash2,
   TrendingUp,
   Trophy,
   Users,
@@ -519,7 +520,9 @@ export default function ChallengesClient({
                           description="Are you sure you want to delete this challenge?"
                           confirmText="Delete"
                           confirmVariant="destructive"
-                        />
+                        >
+                          <Trash2 className="mr-1 h-3 w-3" />
+                        </ActionButton>
                       </div>
                     </div>
                   </div>

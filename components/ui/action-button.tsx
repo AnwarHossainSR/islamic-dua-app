@@ -4,7 +4,7 @@
 import { Button } from '@/components/ui/button'
 import { ConfirmationModal } from '@/components/ui/confirmation-modal'
 import { toast } from '@/hooks/use-toast'
-import { LucideIcon, Trash2 } from 'lucide-react'
+import { LucideIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
@@ -24,10 +24,11 @@ interface ActionButtonProps {
   action: any //(...args: any[]) => Promise<void>
   actionParams?: any[] // Parameters to pass to the action
   refreshOnSuccess?: boolean // Whether to refresh the page after success
+  children?: React.ReactNode
 }
 
 export function ActionButton({
-  icon: Icon = Trash2,
+  children,
   label,
   title,
   description,
@@ -71,7 +72,7 @@ export function ActionButton({
         className={className}
         title={label}
       >
-        <Icon className="h-3 w-3" />
+        {children}
         {label && <span className="ml-1">{label}</span>}
       </Button>
 

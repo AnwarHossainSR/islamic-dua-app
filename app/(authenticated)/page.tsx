@@ -7,6 +7,7 @@ import Link from 'next/link'
 
 export default async function AdminDashboard() {
   const stats = await getAdminActivityStats()
+  console.log('stats:', stats)
   const topActivities = await getTopActivities(5)
 
   return (

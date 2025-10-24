@@ -1,17 +1,23 @@
 'use client'
 
+import { ActionButton } from '@/components/ui/action-button'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { ActionButton } from '@/components/ui/action-button'
 import { deleteDua } from '@/lib/actions/duas'
-import { Plus, Search, Star, BookOpen, BarChart3, Edit, Trash2, Eye } from 'lucide-react'
+import { BarChart3, BookOpen, Edit, Eye, Plus, Search, Star, Trash2 } from 'lucide-react'
 import Link from 'next/link'
-import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import { useState, useTransition } from 'react'
 
 interface Dua {
   id: string
@@ -53,12 +59,12 @@ interface DuasClientProps {
   }
 }
 
-export default function DuasClient({ 
-  initialDuas, 
-  categories, 
-  stats, 
+export default function DuasClient({
+  initialDuas,
+  categories,
+  stats,
   currentPage,
-  searchParams 
+  searchParams,
 }: DuasClientProps) {
   const [searchQuery, setSearchQuery] = useState(searchParams.search || '')
   const [categoryFilter, setCategoryFilter] = useState(searchParams.category || 'all')
@@ -71,7 +77,7 @@ export default function DuasClient({
     if (searchQuery) params.set('search', searchQuery)
     if (categoryFilter !== 'all') params.set('category', categoryFilter)
     if (importantFilter) params.set('important', 'true')
-    
+
     startTransition(() => {
       router.push(`/duas?${params.toString()}`)
     })
@@ -80,7 +86,7 @@ export default function DuasClient({
   const handleFilterChange = (key: string, value: string | boolean) => {
     const params = new URLSearchParams()
     if (searchQuery) params.set('search', searchQuery)
-    
+
     if (key === 'category') {
       setCategoryFilter(value as string)
       if (value !== 'all') params.set('category', value as string)
@@ -88,10 +94,10 @@ export default function DuasClient({
       setImportantFilter(value as boolean)
       if (value) params.set('important', 'true')
     }
-    
+
     if (categoryFilter !== 'all' && key !== 'category') params.set('category', categoryFilter)
     if (importantFilter && key !== 'important') params.set('important', 'true')
-    
+
     startTransition(() => {
       router.push(`/duas?${params.toString()}`)
     })
@@ -126,7 +132,7 @@ export default function DuasClient({
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
@@ -138,7 +144,7 @@ export default function DuasClient({
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
@@ -171,25 +177,28 @@ export default function DuasClient({
                     placeholder="Search duas..."
                     className="pl-10"
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && handleSearch()}
                   />
                 </div>
-                <Select value={categoryFilter} onValueChange={(value) => handleFilterChange('category', value)}>
+                <Select
+                  value={categoryFilter}
+                  onValueChange={value => handleFilterChange('category', value)}
+                >
                   <SelectTrigger className="w-48">
                     <SelectValue placeholder="Category" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Categories</SelectItem>
-                    {categories.map((category) => (
+                    {categories.map(category => (
                       <SelectItem key={category.id} value={category.id}>
                         {category.icon} {category.name_bn}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                <Button 
-                  variant={importantFilter ? "default" : "outline"}
+                <Button
+                  variant={importantFilter ? 'default' : 'outline'}
                   onClick={() => handleFilterChange('important', !importantFilter)}
                 >
                   <Star className="mr-2 h-4 w-4" />
@@ -204,7 +213,7 @@ export default function DuasClient({
 
           {/* Duas List */}
           <div className="space-y-4">
-            {initialDuas.map((dua) => (
+            {initialDuas.map(dua => (
               <Card key={dua.id}>
                 <CardContent className="pt-6">
                   <div className="flex items-start justify-between gap-4">
@@ -228,25 +237,27 @@ export default function DuasClient({
                           )}
                         </div>
                       </div>
-                      
+
                       <div className="bg-muted/50 p-4 rounded-lg">
-                        <p className="text-right arabic-text text-xl leading-relaxed">{dua.dua_text_ar}</p>
+                        <p className="text-right arabic-text text-xl leading-relaxed">
+                          {dua.dua_text_ar}
+                        </p>
                       </div>
-                      
+
                       {dua.translation_bn && (
                         <div className="space-y-1">
                           <p className="text-sm font-medium">বাংলা অনুবাদ:</p>
                           <p className="text-sm">{dua.translation_bn}</p>
                         </div>
                       )}
-                      
+
                       {dua.translation_en && (
                         <div className="space-y-1">
                           <p className="text-sm font-medium">English Translation:</p>
                           <p className="text-sm">{dua.translation_en}</p>
                         </div>
                       )}
-                      
+
                       {dua.tags && dua.tags.length > 0 && (
                         <div className="flex flex-wrap gap-1">
                           {dua.tags.map((tag, index) => (
@@ -257,7 +268,7 @@ export default function DuasClient({
                         </div>
                       )}
                     </div>
-                    
+
                     <div className="flex flex-col gap-2">
                       <Button variant="outline" size="sm" asChild>
                         <Link href={`/duas/${dua.id}`}>
@@ -286,7 +297,7 @@ export default function DuasClient({
                 </CardContent>
               </Card>
             ))}
-            
+
             {initialDuas.length === 0 && (
               <Card>
                 <CardContent className="flex flex-col items-center justify-center py-16">
@@ -309,11 +320,11 @@ export default function DuasClient({
 
         <TabsContent value="categories">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {categories.map((category) => (
+            {categories.map(category => (
               <Card key={category.id}>
                 <CardContent className="pt-6">
                   <div className="flex items-center gap-3">
-                    <div 
+                    <div
                       className="flex h-12 w-12 items-center justify-center rounded-lg text-2xl"
                       style={{ backgroundColor: category.color + '20' }}
                     >
@@ -352,14 +363,16 @@ export default function DuasClient({
                         <div className="flex-1">
                           <div className="flex justify-between text-sm">
                             <span>{category?.name_bn || categoryId}</span>
-                            <span>{count} ({percentage}%)</span>
+                            <span>
+                              {count} ({percentage}%)
+                            </span>
                           </div>
                           <div className="mt-1 h-2 bg-muted rounded-full overflow-hidden">
-                            <div 
+                            <div
                               className="h-full rounded-full"
-                              style={{ 
+                              style={{
                                 width: `${percentage}%`,
-                                backgroundColor: category?.color || '#10b981'
+                                backgroundColor: category?.color || '#10b981',
                               }}
                             />
                           </div>

@@ -1,148 +1,129 @@
+import { SuperAdminOnly } from '@/components/auth/permission-guard'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { getSupabaseServerClient } from '@/lib/supabase/server'
-import { Calendar, Mail, Plus, Shield } from 'lucide-react'
-import Link from 'next/link'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { getSupabaseAdminServerClient } from '@/lib/supabase/server'
+import { Users, Shield, Edit } from 'lucide-react'
 
-async function getAdminUsers() {
-  const supabase = await getSupabaseServerClient()
-
-  const { data, error } = await supabase
+async function getUsers() {
+  const supabase = getSupabaseAdminServerClient()
+  
+  // Get admin users
+  const { data: adminUsers } = await supabase
     .from('admin_users')
-    .select(
-      `
-      *,
-      user_email:user_id
-    `
-    )
+    .select('*')
     .order('created_at', { ascending: false })
-
-  if (error) {
-    console.error('[v0] Error fetching admin users:', error)
-    return []
-  }
-
-  const usersWithEmails = await Promise.all(
-    (data || []).map(async admin => {
-      const { data: userData } = await supabase.auth.admin.getUserById(admin.user_id)
-      return {
-        ...admin,
-        user: userData?.user,
-      }
-    })
-  )
-
-  return usersWithEmails
+  
+  if (!adminUsers) return []
+  
+  // Get user emails from auth.users
+  const userIds = adminUsers.map(u => u.user_id)
+  const { data: authUsers } = await supabase.auth.admin.listUsers()
+  
+  // Combine data
+  return adminUsers.map(adminUser => {
+    const authUser = authUsers.users.find(u => u.id === adminUser.user_id)
+    return {
+      ...adminUser,
+      email: authUser?.email || 'Unknown'
+    }
+  })
 }
 
-export default async function AdminUsersPage() {
-  const adminUsers = await getAdminUsers()
+export default async function UsersPage() {
+  const users = await getUsers()
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
+    <SuperAdminOnly>
+      <div className="space-y-6">
         <div>
-          <h1 className="mb-2 text-4xl font-bold">Admin Users</h1>
-          <p className="text-muted-foreground">Manage users with admin access</p>
+          <h1 className="text-3xl font-bold">User Management</h1>
+          <p className="text-muted-foreground">Manage user roles and permissions</p>
         </div>
-        <Button asChild>
-          <Link href="/users/new">
-            <Plus className="mr-2 h-4 w-4" />
-            Add User
-          </Link>
-        </Button>
-      </div>
 
-      {/* Stats */}
-      <div className="grid gap-6 sm:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-3">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Total Users</p>
+                  <p className="text-2xl font-bold">{users.length}</p>
+                </div>
+                <Users className="h-8 w-8 text-blue-500" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Super Admins</p>
+                  <p className="text-2xl font-bold">
+                    {users.filter(u => u.role === 'super_admin').length}
+                  </p>
+                </div>
+                <Shield className="h-8 w-8 text-red-500" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Editors</p>
+                  <p className="text-2xl font-bold">
+                    {users.filter(u => u.role === 'editor').length}
+                  </p>
+                </div>
+                <Edit className="h-8 w-8 text-green-500" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Admins</CardTitle>
-            <Shield className="h-4 w-4 text-muted-foreground" />
+          <CardHeader>
+            <CardTitle>Users & Roles</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{adminUsers.length}</div>
-            <p className="text-xs text-muted-foreground">Active admin accounts</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Super Admins</CardTitle>
-            <Shield className="h-4 w-4 text-primary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {adminUsers.filter((u: any) => u.role === 'super_admin').length}
-            </div>
-            <p className="text-xs text-muted-foreground">Full access users</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Editors</CardTitle>
-            <Mail className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {adminUsers.filter((u: any) => u.role === 'editor').length}
-            </div>
-            <p className="text-xs text-muted-foreground">Content editors</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Admin Users List */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Admin Users</CardTitle>
-          <CardDescription>All users with administrative privileges</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {adminUsers.map((admin: any) => (
-              <div
-                key={admin.id}
-                className="flex items-center justify-between gap-4 border-b border-border pb-4 last:border-0"
-              >
-                <div className="flex-1">
-                  <div className="mb-1 flex items-center gap-2">
-                    <h3 className="font-medium">{admin.user?.email || admin.user_id}</h3>
-                    <Badge variant={admin.role === 'super_admin' ? 'default' : 'secondary'}>
-                      {admin.role === 'super_admin' ? 'Super Admin' : 'Editor'}
+            <div className="space-y-4">
+              {users.map((user) => (
+                <div key={user.id} className="flex items-center justify-between p-4 border rounded-lg">
+                  <div className="space-y-1">
+                    <p className="font-medium">{user.email}</p>
+                    <p className="text-sm text-muted-foreground">
+                      Created: {new Date(user.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Badge 
+                      variant={
+                        user.role === 'super_admin' ? 'destructive' : 
+                        user.role === 'editor' ? 'default' : 'secondary'
+                      }
+                    >
+                      {user.role === 'super_admin' ? 'Super Admin' : 
+                       user.role === 'editor' ? 'Editor' : 'User'}
                     </Badge>
-                    {!admin.is_active && <Badge variant="destructive">Inactive</Badge>}
-                  </div>
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                    <div className="flex items-center gap-1">
-                      <Calendar className="h-3 w-3" />
-                      <span>Added {new Date(admin.created_at).toLocaleDateString()}</span>
-                    </div>
+                    <Badge variant={user.is_active ? 'default' : 'outline'}>
+                      {user.is_active ? 'Active' : 'Inactive'}
+                    </Badge>
                   </div>
                 </div>
-                <Button size="sm" asChild>
-                  <Link href={`/users/${admin.id}`}>Edit</Link>
-                </Button>
-              </div>
-            ))}
-            {adminUsers.length === 0 && (
-              <div className="flex min-h-[200px] items-center justify-center">
-                <div className="text-center">
-                  <p className="mb-4 text-muted-foreground">No admin users found</p>
-                  <Button asChild>
-                    <Link href="/users/new">
-                      <Plus className="mr-2 h-4 w-4" />
-                      Add Your First User
-                    </Link>
-                  </Button>
+              ))}
+              
+              {users.length === 0 && (
+                <div className="text-center py-8 text-muted-foreground">
+                  No users found
                 </div>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </SuperAdminOnly>
   )
 }

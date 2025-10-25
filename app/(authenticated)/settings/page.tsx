@@ -3,6 +3,7 @@
 import { BiometricManager } from '@/components/auth/biometric-manager'
 import { DynamicSettings } from '@/components/settings/dynamic-settings'
 import { SettingsProvider } from '@/components/settings/settings-provider'
+import { NotificationSettings } from '@/components/notifications/notification-settings'
 import { Confirm } from '@/components/ui/confirm'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -81,12 +82,7 @@ export default function AdminSettingsPage() {
       />
 
       {/* Notifications */}
-      <DynamicSettings
-        category="notifications"
-        title="Notifications"
-        description="Configure notification preferences"
-        icon={<Bell className="h-5 w-5 text-primary" />}
-      />
+      <NotificationSettings />
 
       {/* Security */}
       <DynamicSettings
@@ -175,6 +171,55 @@ export default function AdminSettingsPage() {
         description="Customize the look and feel"
         icon={<Palette className="h-5 w-5 text-primary" />}
       />
+
+      {/* Data Management */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Database className="h-5 w-5 text-primary" />
+            <CardTitle>Data Management</CardTitle>
+          </div>
+          <CardDescription>Export and backup your data</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Button variant="outline" onClick={() => {
+              // Export challenges data
+              fetch('/api/challenges').then(res => res.json()).then(data => {
+                const jsonString = JSON.stringify(data, null, 2)
+                const blob = new Blob([jsonString], { type: 'application/json' })
+                const url = URL.createObjectURL(blob)
+                const link = document.createElement('a')
+                link.href = url
+                link.download = `challenges-backup-${new Date().toISOString().split('T')[0]}.json`
+                document.body.appendChild(link)
+                link.click()
+                document.body.removeChild(link)
+                URL.revokeObjectURL(url)
+              })
+            }}>
+              Export Challenges
+            </Button>
+            <Button variant="outline" onClick={() => {
+              // Export duas data
+              fetch('/api/duas').then(res => res.json()).then(data => {
+                const jsonString = JSON.stringify(data, null, 2)
+                const blob = new Blob([jsonString], { type: 'application/json' })
+                const url = URL.createObjectURL(blob)
+                const link = document.createElement('a')
+                link.href = url
+                link.download = `duas-backup-${new Date().toISOString().split('T')[0]}.json`
+                document.body.appendChild(link)
+                link.click()
+                document.body.removeChild(link)
+                URL.revokeObjectURL(url)
+              })
+            }}>
+              Export Duas
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Save Button */}
       <div className="flex gap-4">

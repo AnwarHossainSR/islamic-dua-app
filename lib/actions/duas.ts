@@ -3,7 +3,8 @@
 import { apiLogger } from '@/lib/logger'
 import { getSupabaseAdminServerClient, getSupabaseServerClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
-import { checkAdminStatus, getUser } from './auth'
+import { checkAdminStatus, getUser, checkPermission } from './auth'
+import { PERMISSIONS } from '@/lib/permissions'
 
 export interface Dua {
   id: string
@@ -106,11 +107,7 @@ export async function getDuaById(id: string) {
 export async function createDua(
   duaData: Omit<Dua, 'id' | 'created_at' | 'updated_at' | 'created_by'>
 ) {
-  const admin = await checkAdminStatus()
-  if (!admin) {
-    throw new Error('Unauthorized: Admin access required')
-  }
-
+  await checkPermission(PERMISSIONS.DUAS_CREATE)
   const user = await getUser()
   const supabase = getSupabaseAdminServerClient()
 
@@ -136,11 +133,7 @@ export async function updateDua(
   id: string,
   duaData: Partial<Omit<Dua, 'id' | 'created_at' | 'updated_at' | 'created_by'>>
 ) {
-  const admin = await checkAdminStatus()
-  if (!admin) {
-    throw new Error('Unauthorized: Admin access required')
-  }
-
+  await checkPermission(PERMISSIONS.DUAS_UPDATE)
   const supabase = getSupabaseAdminServerClient()
 
   const { data, error } = await supabase.from('duas').update(duaData).eq('id', id).select().single()
@@ -150,17 +143,13 @@ export async function updateDua(
     throw error
   }
 
-  apiLogger.info('Dua updated successfully', { duaId: id, adminId: admin.user_id })
+  apiLogger.info('Dua updated successfully', { duaId: id })
   revalidatePath('/duas')
   return data
 }
 
 export async function deleteDua(id: string) {
-  const admin = await checkAdminStatus()
-  if (!admin) {
-    throw new Error('Unauthorized: Admin access required')
-  }
-
+  await checkPermission(PERMISSIONS.DUAS_DELETE)
   const supabase = getSupabaseAdminServerClient()
 
   const { error } = await supabase.from('duas').update({ is_active: false }).eq('id', id)
@@ -170,7 +159,7 @@ export async function deleteDua(id: string) {
     throw error
   }
 
-  apiLogger.info('Dua deleted successfully', { duaId: id, adminId: admin.user_id })
+  apiLogger.info('Dua deleted successfully', { duaId: id })
   revalidatePath('/duas')
 }
 

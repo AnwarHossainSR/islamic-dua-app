@@ -3,6 +3,8 @@
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { isCurrentDay } from '@/lib/utils'
 import { revalidatePath } from 'next/cache'
+import { checkPermission } from './auth'
+import { PERMISSIONS } from '@/lib/permissions'
 
 // ============================================
 // CHALLENGE QUERIES
@@ -479,6 +481,7 @@ export async function deleteChallenge(progressId: string) {
 // ============================================
 
 export async function createChallengeTemplate(formData: FormData) {
+  await checkPermission(PERMISSIONS.CHALLENGES_CREATE)
   const supabase = await getSupabaseServerClient()
 
   const challengeData = {
@@ -532,6 +535,7 @@ export async function createChallengeTemplate(formData: FormData) {
 }
 
 export async function updateChallengeTemplate(id: string, formData: FormData) {
+  await checkPermission(PERMISSIONS.CHALLENGES_UPDATE)
   const supabase = await getSupabaseServerClient()
 
   const challengeData = {
@@ -581,6 +585,7 @@ export async function updateChallengeTemplate(id: string, formData: FormData) {
 }
 
 export async function deleteChallengeTemplate(id: string) {
+  await checkPermission(PERMISSIONS.CHALLENGES_DELETE)
   const supabase = await getSupabaseServerClient()
 
   const { error } = await supabase.from('challenge_templates').delete().eq('id', id)

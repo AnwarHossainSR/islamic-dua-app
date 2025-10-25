@@ -331,7 +331,7 @@ export default function UserChallengeProgressClient({
                 {count} / {target}
               </Badge>
               <div className="relative h-3 w-full overflow-hidden rounded-full bg-emerald-500/20">
-                <div 
+                <div
                   className="h-full bg-emerald-500 transition-all duration-300 ease-out"
                   style={{ width: `${Math.min(dailyProgress, 100)}%` }}
                 />
@@ -544,7 +544,7 @@ export default function UserChallengeProgressClient({
             {/* Progress Bar */}
             <div className="space-y-2">
               <div className="relative h-3 w-full overflow-hidden rounded-full bg-emerald-500/20">
-                <div 
+                <div
                   className="h-full bg-emerald-500 transition-all duration-300 ease-out"
                   style={{ width: `${Math.min(dailyProgress, 100)}%` }}
                 />
@@ -682,7 +682,9 @@ export default function UserChallengeProgressClient({
                   key={dayNum}
                   className={cn(
                     'flex aspect-square flex-col items-center justify-center rounded-lg border-2 p-1 text-xs font-medium sm:p-2 sm:text-sm',
-                    isCurrent && !isCompleted && 'border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-950',
+                    isCurrent &&
+                      !isCompleted &&
+                      'border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-950',
                     !isCompleted && !isCurrent && 'border-muted bg-muted/50 text-muted-foreground',
                     isCompleted && 'border-emerald-500 bg-emerald-500/5 text-emerald-500'
                   )}

@@ -1,28 +1,35 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Switch } from '@/components/ui/switch'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Switch } from '@/components/ui/switch'
 import { useNotifications } from '@/hooks/use-notifications'
-import { Bell, BellOff, Clock, Target, BookOpen } from 'lucide-react'
+import { Bell, BellOff, BookOpen, Clock, Target } from 'lucide-react'
+import { useEffect, useState } from 'react'
 
 export function NotificationSettings() {
-  const { 
-    permission, 
-    requestPermission, 
-    setupDuaReminders, 
+  const {
+    permission,
+    requestPermission,
+    setupDuaReminders,
     setupChallengeReminders,
-    scheduledNotifications 
+    scheduledNotifications,
+    showNotification,
   } = useNotifications()
-  
+
   const [settings, setSettings] = useState({
     duaReminders: true,
     challengeReminders: true,
     prayerReminders: false,
-    reminderFrequency: 'normal' // low, normal, high
+    reminderFrequency: 'normal', // low, normal, high
   })
 
   useEffect(() => {
@@ -47,6 +54,16 @@ export function NotificationSettings() {
       if (settings.challengeReminders) {
         await setupChallengeReminders()
       }
+    }
+  }
+
+  const handleTestNotification = () => {
+    if (permission === 'granted') {
+      showNotification({
+        title: 'Test Notification',
+        body: 'This is a test notification to verify everything is working!',
+        tag: 'test',
+      })
     }
   }
 
@@ -99,7 +116,7 @@ export function NotificationSettings() {
               <Switch
                 id="dua-reminders"
                 checked={settings.duaReminders}
-                onCheckedChange={(checked) => updateSettings('duaReminders', checked)}
+                onCheckedChange={checked => updateSettings('duaReminders', checked)}
                 disabled={permission !== 'granted'}
               />
             </div>
@@ -117,7 +134,7 @@ export function NotificationSettings() {
               <Switch
                 id="challenge-reminders"
                 checked={settings.challengeReminders}
-                onCheckedChange={(checked) => updateSettings('challengeReminders', checked)}
+                onCheckedChange={checked => updateSettings('challengeReminders', checked)}
                 disabled={permission !== 'granted'}
               />
             </div>
@@ -134,7 +151,7 @@ export function NotificationSettings() {
               </div>
               <Select
                 value={settings.reminderFrequency}
-                onValueChange={(value) => updateSettings('reminderFrequency', value)}
+                onValueChange={value => updateSettings('reminderFrequency', value)}
                 disabled={permission !== 'granted'}
               >
                 <SelectTrigger className="w-32">
@@ -150,14 +167,15 @@ export function NotificationSettings() {
           </div>
 
           {permission === 'granted' && (
-            <div className="pt-4 border-t">
-              <Button 
-                onClick={handleEnableNotifications}
-                variant="outline"
-                size="sm"
-              >
-                Update Reminders
-              </Button>
+            <div className="pt-4 border-t space-y-2">
+              <div className="flex gap-2">
+                <Button onClick={handleEnableNotifications} variant="outline" size="sm">
+                  Update Reminders
+                </Button>
+                <Button onClick={handleTestNotification} variant="secondary" size="sm">
+                  Test Notification
+                </Button>
+              </div>
             </div>
           )}
         </CardContent>
@@ -170,23 +188,30 @@ export function NotificationSettings() {
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              {scheduledNotifications.slice(0, 5).map((notification) => (
-                <div key={notification.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+              {scheduledNotifications.slice(0, 5).map(notification => (
+                <div
+                  key={notification.id}
+                  className="flex items-center justify-between p-2 bg-gray-50 rounded"
+                >
                   <div>
                     <p className="font-medium text-sm">{notification.title}</p>
                     <p className="text-xs text-muted-foreground">
-                      {notification.scheduledTime.toLocaleTimeString([], { 
-                        hour: '2-digit', 
-                        minute: '2-digit' 
+                      {notification.scheduledTime.toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit',
                       })}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className={`px-2 py-1 text-xs rounded ${
-                      notification.type === 'dua' ? 'bg-blue-100 text-blue-800' :
-                      notification.type === 'challenge' ? 'bg-green-100 text-green-800' :
-                      'bg-purple-100 text-purple-800'
-                    }`}>
+                    <span
+                      className={`px-2 py-1 text-xs rounded ${
+                        notification.type === 'dua'
+                          ? 'bg-blue-100 text-blue-800'
+                          : notification.type === 'challenge'
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-purple-100 text-purple-800'
+                      }`}
+                    >
                       {notification.type}
                     </span>
                   </div>

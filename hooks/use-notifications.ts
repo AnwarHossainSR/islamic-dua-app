@@ -86,6 +86,13 @@ export function useNotifications() {
   const setupDuaReminders = useCallback(async () => {
     if (permission !== 'granted') return
 
+    // Show immediate test notification
+    showNotification({
+      title: 'Dua Reminders Enabled!',
+      body: 'You will receive daily dua reminders. This is a test notification.',
+      tag: 'test'
+    })
+
     const duaReminders = [
       { time: '06:00', title: 'Morning Dua', body: 'Start your day with morning duas' },
       { time: '12:00', title: 'Midday Reminder', body: 'Take a moment for dhikr and dua' },
@@ -111,10 +118,17 @@ export function useNotifications() {
         enabled: true
       })
     })
-  }, [permission, scheduleNotification])
+  }, [permission, scheduleNotification, showNotification])
 
   const setupChallengeReminders = useCallback(async () => {
     if (permission !== 'granted') return
+
+    // Show immediate test notification
+    showNotification({
+      title: 'Challenge Reminders Enabled!',
+      body: 'You will receive daily challenge reminders. This is a test notification.',
+      tag: 'test'
+    })
 
     const challengeReminders = [
       { time: '09:00', title: 'Daily Challenge', body: 'Complete your daily Islamic challenge' },
@@ -140,7 +154,7 @@ export function useNotifications() {
         enabled: true
       })
     })
-  }, [permission, scheduleNotification])
+  }, [permission, scheduleNotification, showNotification])
 
   // Load scheduled notifications from localStorage
   useEffect(() => {
@@ -156,11 +170,15 @@ export function useNotifications() {
 
   // Check and trigger notifications
   useEffect(() => {
+    if (scheduledNotifications.length === 0) return
+
     const interval = setInterval(() => {
       const now = new Date()
       
       scheduledNotifications.forEach(notification => {
         if (notification.enabled && notification.scheduledTime <= now) {
+          console.log('Triggering notification:', notification.title)
+          
           showNotification({
             title: notification.title,
             body: notification.body,
@@ -172,20 +190,21 @@ export function useNotifications() {
             const nextTime = new Date(notification.scheduledTime)
             nextTime.setDate(nextTime.getDate() + 1)
             
-            setScheduledNotifications(prev => 
-              prev.map(n => 
-                n.id === notification.id 
-                  ? { ...n, scheduledTime: nextTime }
-                  : n
-              )
+            const updatedNotifications = scheduledNotifications.map(n => 
+              n.id === notification.id 
+                ? { ...n, scheduledTime: nextTime }
+                : n
             )
+            
+            setScheduledNotifications(updatedNotifications)
+            localStorage.setItem('scheduledNotifications', JSON.stringify(updatedNotifications))
           } else {
             // Remove one-time notifications
             cancelNotification(notification.id)
           }
         }
       })
-    }, 60000) // Check every minute
+    }, 30000) // Check every 30 seconds
 
     return () => clearInterval(interval)
   }, [scheduledNotifications, showNotification, cancelNotification])

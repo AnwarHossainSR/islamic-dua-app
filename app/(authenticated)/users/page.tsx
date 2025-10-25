@@ -3,10 +3,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { getSupabaseAdminServerClient } from '@/lib/supabase/server'
+import { getSupabaseAdminServerClient, getSupabaseServerClient } from '@/lib/supabase/server'
 import { Users, Shield, Edit } from 'lucide-react'
+import { cookies } from 'next/headers'
 
 async function getUsers() {
+  // Access cookies to make this dynamic
+  await cookies()
+  
   const supabase = getSupabaseAdminServerClient()
   
   // Get admin users

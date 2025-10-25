@@ -20,12 +20,15 @@ export function usePermissions(): UsePermissionsReturn {
     const fetchPermissions = async () => {
       try {
         const response = await fetch('/api/auth/permissions')
+        if (!response.ok) {
+          throw new Error('Failed to fetch')
+        }
         const data = await response.json()
         
         setRole(data.role || 'user')
         setPermissions(data.permissions || [])
       } catch (error) {
-        console.error('Failed to fetch permissions:', error)
+        // Silently handle prerendering errors during build
         setRole('user')
         setPermissions([])
       } finally {
@@ -33,7 +36,12 @@ export function usePermissions(): UsePermissionsReturn {
       }
     }
 
-    fetchPermissions()
+    // Only fetch on client side
+    if (typeof window !== 'undefined') {
+      fetchPermissions()
+    } else {
+      setLoading(false)
+    }
   }, [])
 
   const hasPermission = (permission: string): boolean => {

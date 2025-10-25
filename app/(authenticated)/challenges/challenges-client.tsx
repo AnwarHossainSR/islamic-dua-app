@@ -374,7 +374,7 @@ export default function ChallengesClient({
                         <div className="flex items-start gap-3 flex-1 min-w-0">
                           <div
                             className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg text-2xl"
-                            style={{ backgroundColor: challenge.color + '20' || '#10b98120' }}
+                            className="bg-emerald-500/10"
                           >
                             {challenge.icon || '📿'}
                           </div>
@@ -473,7 +473,7 @@ export default function ChallengesClient({
                             className="h-full transition-all"
                             style={{
                               width: `${completionRate}%`,
-                              background: challenge.color || '#10b981',
+                              backgroundColor: "rgb(16 185 129)",
                             }}
                           />
                         </div>
@@ -625,7 +625,7 @@ export default function ChallengesClient({
                                 className="h-full"
                                 style={{
                                   width: `${rate}%`,
-                                  background: challenge.color || '#10b981',
+                                  backgroundColor: "rgb(16 185 129)",
                                 }}
                               />
                             </div>

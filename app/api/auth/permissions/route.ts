@@ -1,11 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getUserRole, getUserPermissions } from '@/lib/permissions'
-import { getSupabaseServerClient } from '@/lib/supabase/server'
+import { getSupabaseServerClient, getSupabaseAdminServerClient } from '@/lib/supabase/server'
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await getSupabaseServerClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    // Try server client first, fallback to admin for prerendering
+    let supabase
+    let user = null
+    
+    try {
+      supabase = await getSupabaseServerClient()
+      const { data } = await supabase.auth.getUser()
+      user = data.user
+    } catch (prerenderError) {
+      // During prerendering, return default values
+      return NextResponse.json({ 
+        role: 'user', 
+        permissions: [] 
+      })
+    }
     
     if (!user) {
       return NextResponse.json({ 
@@ -24,7 +37,14 @@ export async function GET(request: NextRequest) {
       permissions
     })
   } catch (error) {
-    console.error('Error fetching permissions:', error)
+    // Handle prerendering errors gracefully
+    if (error instanceof Error && error.message.includes('prerender')) {
+      return NextResponse.json({ 
+        role: 'user', 
+        permissions: [] 
+      })
+    }
+    
     return NextResponse.json(
       { error: 'Failed to fetch permissions' },
       { status: 500 }

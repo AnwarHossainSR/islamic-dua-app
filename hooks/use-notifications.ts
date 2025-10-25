@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
 interface NotificationOptions {
   title: string
@@ -10,62 +10,194 @@ interface NotificationOptions {
   requireInteraction?: boolean
 }
 
+interface ScheduledNotification {
+  id: string
+  type: 'dua' | 'challenge' | 'prayer'
+  title: string
+  body: string
+  scheduledTime: Date
+  recurring?: 'daily' | 'weekly' | 'custom'
+  enabled: boolean
+}
+
 export function useNotifications() {
   const [permission, setPermission] = useState<NotificationPermission>('default')
-  const [supported, setSupported] = useState(false)
+  const [scheduledNotifications, setScheduledNotifications] = useState<ScheduledNotification[]>([])
 
   useEffect(() => {
-    setSupported('Notification' in window)
     if ('Notification' in window) {
       setPermission(Notification.permission)
     }
   }, [])
 
-  const requestPermission = async () => {
-    if (!supported) return false
-    
-    try {
+  const requestPermission = useCallback(async () => {
+    if ('Notification' in window) {
       const result = await Notification.requestPermission()
       setPermission(result)
       return result === 'granted'
-    } catch (error) {
-      console.error('Failed to request notification permission:', error)
-      return false
     }
-  }
+    return false
+  }, [])
 
-  const showNotification = (options: NotificationOptions) => {
-    if (!supported || permission !== 'granted') return null
-
-    try {
+  const showNotification = useCallback((options: NotificationOptions) => {
+    if (permission === 'granted' && 'Notification' in window) {
       const notification = new Notification(options.title, {
         body: options.body,
-        icon: options.icon || '/icon-192.jpg',
+        icon: options.icon || '/icon-192x192.png',
         tag: options.tag,
-        requireInteraction: options.requireInteraction,
+        requireInteraction: options.requireInteraction || false,
       })
 
+      notification.onclick = () => {
+        window.focus()
+        notification.close()
+      }
+
       return notification
-    } catch (error) {
-      console.error('Failed to show notification:', error)
-      return null
     }
-  }
+  }, [permission])
 
-  const scheduleReminder = (options: NotificationOptions, delayMs: number) => {
-    if (!supported || permission !== 'granted') return
+  const scheduleNotification = useCallback((notification: Omit<ScheduledNotification, 'id'>) => {
+    const id = crypto.randomUUID()
+    const newNotification = { ...notification, id }
+    
+    setScheduledNotifications(prev => [...prev, newNotification])
+    
+    // Store in localStorage
+    const stored = localStorage.getItem('scheduledNotifications')
+    const existing = stored ? JSON.parse(stored) : []
+    localStorage.setItem('scheduledNotifications', JSON.stringify([...existing, newNotification]))
+    
+    return id
+  }, [])
 
-    setTimeout(() => {
-      showNotification(options)
-    }, delayMs)
-  }
+  const cancelNotification = useCallback((id: string) => {
+    setScheduledNotifications(prev => prev.filter(n => n.id !== id))
+    
+    // Update localStorage
+    const stored = localStorage.getItem('scheduledNotifications')
+    if (stored) {
+      const existing = JSON.parse(stored)
+      const updated = existing.filter((n: ScheduledNotification) => n.id !== id)
+      localStorage.setItem('scheduledNotifications', JSON.stringify(updated))
+    }
+  }, [])
+
+  const setupDuaReminders = useCallback(async () => {
+    if (permission !== 'granted') return
+
+    const duaReminders = [
+      { time: '06:00', title: 'Morning Dua', body: 'Start your day with morning duas' },
+      { time: '12:00', title: 'Midday Reminder', body: 'Take a moment for dhikr and dua' },
+      { time: '18:00', title: 'Evening Dua', body: 'Recite evening duas and seek forgiveness' },
+      { time: '21:00', title: 'Night Dua', body: 'End your day with gratitude and night duas' }
+    ]
+
+    duaReminders.forEach(reminder => {
+      const [hours, minutes] = reminder.time.split(':').map(Number)
+      const scheduledTime = new Date()
+      scheduledTime.setHours(hours, minutes, 0, 0)
+      
+      if (scheduledTime < new Date()) {
+        scheduledTime.setDate(scheduledTime.getDate() + 1)
+      }
+
+      scheduleNotification({
+        type: 'dua',
+        title: reminder.title,
+        body: reminder.body,
+        scheduledTime,
+        recurring: 'daily',
+        enabled: true
+      })
+    })
+  }, [permission, scheduleNotification])
+
+  const setupChallengeReminders = useCallback(async () => {
+    if (permission !== 'granted') return
+
+    const challengeReminders = [
+      { time: '09:00', title: 'Daily Challenge', body: 'Complete your daily Islamic challenge' },
+      { time: '15:00', title: 'Challenge Check', body: 'How are you doing with today\'s challenge?' },
+      { time: '20:00', title: 'Challenge Reflection', body: 'Reflect on today\'s spiritual progress' }
+    ]
+
+    challengeReminders.forEach(reminder => {
+      const [hours, minutes] = reminder.time.split(':').map(Number)
+      const scheduledTime = new Date()
+      scheduledTime.setHours(hours, minutes, 0, 0)
+      
+      if (scheduledTime < new Date()) {
+        scheduledTime.setDate(scheduledTime.getDate() + 1)
+      }
+
+      scheduleNotification({
+        type: 'challenge',
+        title: reminder.title,
+        body: reminder.body,
+        scheduledTime,
+        recurring: 'daily',
+        enabled: true
+      })
+    })
+  }, [permission, scheduleNotification])
+
+  // Load scheduled notifications from localStorage
+  useEffect(() => {
+    const stored = localStorage.getItem('scheduledNotifications')
+    if (stored) {
+      const notifications = JSON.parse(stored).map((n: any) => ({
+        ...n,
+        scheduledTime: new Date(n.scheduledTime)
+      }))
+      setScheduledNotifications(notifications)
+    }
+  }, [])
+
+  // Check and trigger notifications
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const now = new Date()
+      
+      scheduledNotifications.forEach(notification => {
+        if (notification.enabled && notification.scheduledTime <= now) {
+          showNotification({
+            title: notification.title,
+            body: notification.body,
+            tag: notification.type
+          })
+
+          // Reschedule if recurring
+          if (notification.recurring === 'daily') {
+            const nextTime = new Date(notification.scheduledTime)
+            nextTime.setDate(nextTime.getDate() + 1)
+            
+            setScheduledNotifications(prev => 
+              prev.map(n => 
+                n.id === notification.id 
+                  ? { ...n, scheduledTime: nextTime }
+                  : n
+              )
+            )
+          } else {
+            // Remove one-time notifications
+            cancelNotification(notification.id)
+          }
+        }
+      })
+    }, 60000) // Check every minute
+
+    return () => clearInterval(interval)
+  }, [scheduledNotifications, showNotification, cancelNotification])
 
   return {
-    supported,
     permission,
     requestPermission,
     showNotification,
-    scheduleReminder,
-    canNotify: supported && permission === 'granted'
+    scheduleNotification,
+    cancelNotification,
+    setupDuaReminders,
+    setupChallengeReminders,
+    scheduledNotifications
   }
 }

@@ -3,6 +3,7 @@
 import { BiometricManager } from '@/components/auth/biometric-manager'
 import { DynamicSettings } from '@/components/settings/dynamic-settings'
 import { SettingsProvider } from '@/components/settings/settings-provider'
+import { NotificationSettings } from '@/components/notifications/notification-settings'
 import { Confirm } from '@/components/ui/confirm'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -81,12 +82,7 @@ export default function AdminSettingsPage() {
       />
 
       {/* Notifications */}
-      <DynamicSettings
-        category="notifications"
-        title="Notifications"
-        description="Configure notification preferences"
-        icon={<Bell className="h-5 w-5 text-primary" />}
-      />
+      <NotificationSettings />
 
       {/* Security */}
       <DynamicSettings

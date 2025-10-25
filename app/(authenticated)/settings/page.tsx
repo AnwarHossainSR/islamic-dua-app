@@ -3,17 +3,7 @@
 import { BiometricManager } from '@/components/auth/biometric-manager'
 import { DynamicSettings } from '@/components/settings/dynamic-settings'
 import { SettingsProvider } from '@/components/settings/settings-provider'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
+import { Confirm } from '@/components/ui/confirm'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
@@ -137,65 +127,36 @@ export default function AdminSettingsPage() {
           </div>
 
           <div className="flex gap-2">
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="destructive" disabled={clearing}>
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Clear Selected Table
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete all data from the
-                    selected table.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={() => {
-                      const select = document.getElementById('table_select') as HTMLSelectElement
-                      handleClearTable(select?.value || 'duas')
-                    }}
-                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                  >
-                    Yes, Clear Data
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+            <Confirm
+              title="Are you absolutely sure?"
+              description="This action cannot be undone. This will permanently delete all data from the selected table."
+              confirmText="Yes, Clear Data"
+              confirmVariant="destructive"
+              variant="destructive"
+              disabled={clearing}
+              onConfirm={async () => {
+                const select = document.getElementById('table_select') as HTMLSelectElement
+                await handleClearTable(select?.value || 'duas')
+              }}
+              successMessage="Table cleared successfully"
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Clear Selected Table
+            </Confirm>
 
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="border-destructive text-destructive hover:bg-destructive/10 bg-transparent"
-                >
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Clear All Tables
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Clear ALL Database Tables?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This will permanently delete ALL data from ALL tables. This action cannot be
-                    undone. Are you absolutely sure?
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={() => handleClearTable('all')}
-                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                  >
-                    Yes, Clear Everything
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+            <Confirm
+              title="Clear ALL Database Tables?"
+              description="This will permanently delete ALL data from ALL tables. This action cannot be undone. Are you absolutely sure?"
+              confirmText="Yes, Clear Everything"
+              confirmVariant="destructive"
+              variant="outline"
+              className="border-destructive text-destructive hover:bg-destructive/10 bg-transparent"
+              onConfirm={async () => await handleClearTable('all')}
+              successMessage="All tables cleared successfully"
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Clear All Tables
+            </Confirm>
           </div>
 
           <div className="rounded-lg bg-destructive/10 p-4">

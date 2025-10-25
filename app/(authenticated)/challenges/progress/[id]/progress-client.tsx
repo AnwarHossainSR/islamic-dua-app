@@ -17,6 +17,7 @@ import { useDebounce } from '@/hooks/use-debounce'
 import { useLocalStorage } from '@/hooks/use-local-storage'
 import { toast } from '@/hooks/use-toast'
 import { completeDailyChallenge } from '@/lib/actions/challenges'
+import { cn } from '@/lib/utils'
 import {
   ArrowLeft,
   Calendar,
@@ -259,12 +260,7 @@ export default function UserChallengeProgressClient({
 
   // Fullscreen Counter View
   const fullscreenContent = isFullscreen && !isAlreadyCompleted && (
-    <div
-      className="fixed inset-0 z-[9999] overflow-y-auto bg-background/95 backdrop-blur-sm"
-      style={{
-        background: `linear-gradient(135deg, ${challenge.color}30, ${challenge.color}20, rgba(255,255,255,0.95))`,
-      }}
-    >
+    <div className="fixed inset-0 z-[9999] overflow-y-auto bg-gradient-to-br from-emerald-500/20 via-emerald-500/10 to-white/95 backdrop-blur-sm">
       {/* Header */}
       <div className="flex items-center justify-between p-4">
         <div className="flex items-center gap-3">
@@ -288,13 +284,7 @@ export default function UserChallengeProgressClient({
         {/* Dua Content Section */}
         <div className="flex-1 space-y-6 px-4 pb-6">
           {/* Arabic Text */}
-          <div
-            className="rounded-xl border-2 p-6 text-center"
-            style={{
-              borderColor: `${challenge.color}40`,
-              backgroundColor: `${challenge.color}08`,
-            }}
-          >
+          <div className="rounded-xl border-2 border-emerald-500/25 bg-emerald-500/5 p-6 text-center">
             <p className="arabic-text text-3xl leading-loose md:text-4xl">
               {challenge.arabic_text}
             </p>
@@ -336,20 +326,16 @@ export default function UserChallengeProgressClient({
             <div className="text-center">
               <Badge
                 variant={count >= target ? 'default' : 'secondary'}
-                className="mb-2 text-lg"
-                style={count >= target ? { backgroundColor: challenge.color } : {}}
+                className={cn('mb-2 text-lg', count >= target && 'bg-emerald-500')}
               >
                 {count} / {target}
               </Badge>
-              <Progress
-                value={dailyProgress}
-                className="h-3"
-                style={
-                  {
-                    '--progress-background': challenge.color || '#10b981',
-                  } as React.CSSProperties
-                }
-              />
+              <div className="relative h-3 w-full overflow-hidden rounded-full bg-emerald-500/20">
+                <div 
+                  className="h-full bg-emerald-500 transition-all duration-300 ease-out"
+                  style={{ width: `${Math.min(dailyProgress, 100)}%` }}
+                />
+              </div>
               <p className="mt-2 text-sm text-muted-foreground">
                 {remaining > 0 ? `${remaining} আরো বাকি` : 'লক্ষ্য পূরণ হয়েছে! 🎉'}
               </p>
@@ -357,10 +343,7 @@ export default function UserChallengeProgressClient({
 
             {/* Large Counter Display */}
             <div className="text-center">
-              <div
-                className="text-8xl font-bold tabular-nums md:text-9xl"
-                style={{ color: challenge.color || '#10b981' }}
-              >
+              <div className="text-8xl font-bold tabular-nums md:text-9xl text-emerald-500">
                 {count}
               </div>
             </div>
@@ -369,8 +352,7 @@ export default function UserChallengeProgressClient({
             <Button
               type="button"
               size="lg"
-              className="h-20 w-full text-xl font-bold"
-              style={{ backgroundColor: challenge.color || '#10b981' }}
+              className="h-20 w-full text-xl font-bold bg-emerald-500 hover:bg-emerald-600"
               onClick={handleIncrement}
               disabled={count >= target}
             >
@@ -401,8 +383,7 @@ export default function UserChallengeProgressClient({
                 <Button
                   onClick={handleComplete}
                   disabled={isCompleting}
-                  className="flex-1"
-                  style={{ backgroundColor: challenge.color || '#10b981' }}
+                  className="flex-1 bg-emerald-500 hover:bg-emerald-600"
                 >
                   <Check className="mr-2 h-4 w-4" />
                   {isCompleting ? 'সেভ হচ্ছে...' : 'সম্পন্ন করুন'}
@@ -431,7 +412,7 @@ export default function UserChallengeProgressClient({
                 Day {progress.current_day} of {challenge.total_days}
               </p>
               {progress.last_completed_at && (
-                <p className="text-xs" style={{ color: challenge.color || '#10b981' }}>
+                <p className="text-xs text-emerald-500">
                   Last completed: {formatLastCompleted(progress.last_completed_at)}
                 </p>
               )}
@@ -495,11 +476,7 @@ export default function UserChallengeProgressClient({
                 {progress.current_day - 1}/{challenge.total_days} days
               </span>
             </div>
-            <Progress
-              value={overallProgress}
-              color={challenge.color || '#10b981'}
-              className="h-2"
-            />
+            <Progress value={overallProgress} color={'#10b981'} className="h-2" />
           </div>
         </CardContent>
       </Card>
@@ -507,13 +484,7 @@ export default function UserChallengeProgressClient({
       {/* Dhikr Content */}
       <Card>
         <CardContent className="space-y-3 pt-4 sm:space-y-4 sm:pt-6">
-          <div
-            className="rounded-lg border-2 p-4 sm:p-6"
-            style={{
-              borderColor: `${challenge.color}33`,
-              backgroundColor: `${challenge.color}0D`,
-            }}
-          >
+          <div className="rounded-lg border-2 border-emerald-500/20 bg-emerald-500/5 p-4 sm:p-6">
             <p className="arabic-text text-center text-2xl leading-loose sm:text-3xl">
               {challenge.arabic_text}
             </p>
@@ -546,7 +517,7 @@ export default function UserChallengeProgressClient({
 
       {/* Counter Section */}
       {!isAlreadyCompleted ? (
-        <Card className="border-2" style={{ borderColor: challenge.color || '#10b981' }}>
+        <Card className="border-2 border-emerald-500">
           <CardHeader className="pb-3 sm:pb-6">
             <CardTitle className="flex items-center justify-between text-base sm:text-lg">
               <span>Today's Count</span>
@@ -572,11 +543,12 @@ export default function UserChallengeProgressClient({
           <CardContent className="space-y-4 sm:space-y-6">
             {/* Progress Bar */}
             <div className="space-y-2">
-              <Progress
-                value={dailyProgress}
-                color={challenge.color || '#10b981'}
-                className={`h-2 sm:h-3`}
-              />
+              <div className="relative h-3 w-full overflow-hidden rounded-full bg-emerald-500/20">
+                <div 
+                  className="h-full bg-emerald-500 transition-all duration-300 ease-out"
+                  style={{ width: `${Math.min(dailyProgress, 100)}%` }}
+                />
+              </div>
               <p className="text-center text-xs text-muted-foreground sm:text-sm">
                 {remaining > 0 ? `${remaining} more to go!` : 'Target reached! 🎉'}
               </p>
@@ -585,10 +557,7 @@ export default function UserChallengeProgressClient({
             {/* Counter Display */}
             <div className="flex items-center justify-center">
               <div className="text-center">
-                <div
-                  className="mb-2 text-6xl font-bold tabular-nums sm:mb-4 sm:text-8xl"
-                  style={{ color: challenge.color || '#10b981' }}
-                >
+                <div className="mb-2 text-6xl font-bold tabular-nums sm:mb-4 sm:text-8xl text-emerald-500">
                   {count}
                 </div>
                 <p className="text-xs text-muted-foreground sm:text-sm">
@@ -601,8 +570,7 @@ export default function UserChallengeProgressClient({
             <Button
               type="button"
               size="lg"
-              className="h-24 w-full text-xl font-bold sm:h-32 sm:text-2xl"
-              style={{ backgroundColor: challenge.color || '#10b981' }}
+              className="h-24 w-full text-xl font-bold sm:h-32 sm:text-2xl bg-emerald-500 hover:bg-emerald-600"
               onClick={handleIncrement}
               disabled={count >= target}
             >
@@ -635,8 +603,7 @@ export default function UserChallengeProgressClient({
                 variant="default"
                 onClick={handleComplete}
                 disabled={isCompleting || count < target}
-                className="text-sm sm:text-base"
-                style={{ backgroundColor: challenge.color || '#10b981' }}
+                className="text-sm sm:text-base bg-emerald-500 hover:bg-emerald-600"
               >
                 <Check className="mr-2 h-4 w-4" />
                 {isCompleting ? 'Saving...' : 'Complete Today'}
@@ -676,18 +643,9 @@ export default function UserChallengeProgressClient({
           </CardContent>
         </Card>
       ) : (
-        <Card
-          className="border-2"
-          style={{
-            borderColor: challenge.color || '#10b981',
-            backgroundColor: `${challenge.color}0D`,
-          }}
-        >
+        <Card className="border-2 border-emerald-500 bg-emerald-500/5">
           <CardContent className="flex flex-col items-center justify-center py-8 text-center sm:py-12">
-            <CheckCircle2
-              className="mb-3 h-12 w-12 sm:mb-4 sm:h-16 sm:w-16"
-              style={{ color: challenge.color || '#10b981' }}
-            />
+            <CheckCircle2 className="mb-3 h-12 w-12 sm:mb-4 sm:h-16 sm:w-16 text-emerald-500" />
             <h3 className="mb-2 text-xl font-bold sm:text-2xl">
               Day {progress.current_day} Completed!
             </h3>
@@ -722,28 +680,12 @@ export default function UserChallengeProgressClient({
               return (
                 <div
                   key={dayNum}
-                  className={`
-                    flex aspect-square flex-col items-center justify-center rounded-lg border-2 p-1 text-xs font-medium sm:p-2 sm:text-sm
-                    ${
-                      isCurrent && !isCompleted
-                        ? 'border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-950'
-                        : ''
-                    }
-                    ${
-                      !isCompleted && !isCurrent
-                        ? 'border-muted bg-muted/50 text-muted-foreground'
-                        : ''
-                    }
-                  `}
-                  style={
-                    isCompleted
-                      ? {
-                          borderColor: challenge.color || '#10b981',
-                          backgroundColor: `${challenge.color}0D`,
-                          color: challenge.color || '#10b981',
-                        }
-                      : undefined
-                  }
+                  className={cn(
+                    'flex aspect-square flex-col items-center justify-center rounded-lg border-2 p-1 text-xs font-medium sm:p-2 sm:text-sm',
+                    isCurrent && !isCompleted && 'border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-950',
+                    !isCompleted && !isCurrent && 'border-muted bg-muted/50 text-muted-foreground',
+                    isCompleted && 'border-emerald-500 bg-emerald-500/5 text-emerald-500'
+                  )}
                 >
                   {isCompleted ? (
                     <CheckCircle2 className="mb-0.5 h-3 w-3 sm:mb-1 sm:h-5 sm:w-5" />
@@ -760,10 +702,7 @@ export default function UserChallengeProgressClient({
 
           <div className="mt-3 flex flex-wrap gap-3 text-xs sm:mt-4 sm:gap-4 sm:text-sm">
             <div className="flex items-center gap-1.5 sm:gap-2">
-              <CheckCircle2
-                className="h-3 w-3 sm:h-4 sm:w-4"
-                style={{ color: challenge.color || '#10b981' }}
-              />
+              <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4 text-emerald-500" />
               <span className="text-muted-foreground">Completed</span>
             </div>
             <div className="flex items-center gap-1.5 sm:gap-2">
@@ -784,14 +723,8 @@ export default function UserChallengeProgressClient({
           <Card className="w-full max-w-md animate-in fade-in zoom-in duration-300">
             <CardContent className="space-y-4 pt-6 text-center sm:space-y-6">
               <div className="flex justify-center">
-                <div
-                  className="rounded-full p-4 sm:p-6"
-                  style={{ backgroundColor: `${challenge.color}20` }}
-                >
-                  <CheckCircle2
-                    className="h-12 w-12 sm:h-16 sm:w-16"
-                    style={{ color: challenge.color || '#10b981' }}
-                  />
+                <div className="rounded-full p-4 sm:p-6 bg-emerald-500/10">
+                  <CheckCircle2 className="h-12 w-12 sm:h-16 sm:w-16 text-emerald-500" />
                 </div>
               </div>
 
@@ -824,12 +757,7 @@ export default function UserChallengeProgressClient({
 
               <div className="pt-4">
                 <Link href="/challenges" passHref>
-                  <Button
-                    className="w-full sm:w-auto"
-                    style={{
-                      backgroundColor: challenge.color || '#10b981',
-                    }}
-                  >
+                  <Button className="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-600">
                     Go to Challenges
                   </Button>
                 </Link>

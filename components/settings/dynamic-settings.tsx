@@ -6,7 +6,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { useToast } from '@/hooks/use-toast'
-import { useEffect, useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSettings } from './settings-provider'
 
 interface Setting {
   id: string
@@ -26,47 +27,27 @@ interface DynamicSettingsProps {
 }
 
 export function DynamicSettings({ category, title, description, icon }: DynamicSettingsProps) {
-  const [settings, setSettings] = useState<Setting[]>([])
+  const { settings, loading, updateSetting } = useSettings()
+  const categorySettings = settings[category] || []
   const [values, setValues] = useState<Record<string, any>>({})
-  const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const { toast } = useToast()
 
+  // Update values when settings are loaded
   useEffect(() => {
-    fetchSettings()
-  }, [category])
-
-  const fetchSettings = async () => {
-    try {
-      const response = await fetch(`/api/settings?category=${category}`)
-      const data = await response.json()
-
-      if (data.settings) {
-        setSettings(data.settings)
-        const initialValues: Record<string, any> = {}
-        data.settings.forEach((setting: Setting) => {
-          initialValues[setting.key] = setting.value
-        })
-        setValues(initialValues)
-      }
-    } catch (error) {
-      toast({ title: 'Error', description: 'Failed to load settings', variant: 'destructive' })
-    } finally {
-      setLoading(false)
+    if (categorySettings.length > 0) {
+      const initialValues: Record<string, any> = {}
+      categorySettings.forEach((setting: Setting) => {
+        initialValues[setting.key] = setting.value
+      })
+      setValues(initialValues)
     }
-  }
+  }, [categorySettings])
 
   const handleSave = async () => {
     setSaving(true)
     try {
-      const promises = Object.entries(values).map(([key, value]) =>
-        fetch('/api/settings', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ key, value }),
-        })
-      )
-
+      const promises = Object.entries(values).map(([key, value]) => updateSetting(key, value))
       await Promise.all(promises)
       toast({ title: 'Success', description: 'Settings saved successfully' })
     } catch (error) {
@@ -133,7 +114,7 @@ export function DynamicSettings({ category, title, description, icon }: DynamicS
         <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {settings.map(setting => (
+        {categorySettings.map(setting => (
           <div key={setting.id} className="space-y-2">
             {setting.type === 'boolean' ? (
               <div className="flex items-center justify-between">
@@ -157,7 +138,7 @@ export function DynamicSettings({ category, title, description, icon }: DynamicS
           </div>
         ))}
 
-        {settings.length > 0 && (
+        {categorySettings.length > 0 && (
           <Button onClick={handleSave} disabled={saving} className="w-full">
             {saving ? 'Saving...' : 'Save Settings'}
           </Button>

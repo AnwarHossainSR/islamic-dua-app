@@ -3,8 +3,10 @@
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useConfirm } from '@/components/ui/confirm'
 import { ArrowLeft, BookOpen, Calendar, Clock, Star, Target, Trophy, Users } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
+import { toast } from '@/hooks/use-toast'
 
 interface ChallengePreviewClientProps {
   challenge: any
@@ -18,6 +20,7 @@ export default function ChallengePreviewClient({
   const [count, setCount] = useState(0)
   const [isCounterActive, setIsCounterActive] = useState(false)
   const [startTime, setStartTime] = useState<number | null>(null)
+  const { confirm, ConfirmDialog } = useConfirm()
   const target = challenge.repetitions_per_day
   const dailyProgress = (count / target) * 100
   const remaining = Math.max(0, target - count)
@@ -45,8 +48,14 @@ export default function ChallengePreviewClient({
     }
   }, [count, target, vibrate])
 
-  const handleReset = () => {
-    if (confirm('Are you sure you want to reset the counter?')) {
+  const handleReset = async () => {
+    const confirmed = await confirm({
+      title: 'Reset Counter?',
+      description: 'Are you sure you want to reset the counter? This action cannot be undone.',
+      confirmText: 'Reset',
+      confirmVariant: 'destructive'
+    })
+    if (confirmed) {
       setCount(0)
       setStartTime(null)
     }
@@ -58,7 +67,10 @@ export default function ChallengePreviewClient({
   }
 
   const handleComplete = () => {
-    alert(`Preview Mode: You completed ${count}/${target} repetitions!`)
+    toast({
+      title: 'Preview Complete!',
+      description: `You completed ${count}/${target} repetitions in preview mode.`
+    })
     setCount(0)
     setIsCounterActive(false)
     setStartTime(null)
@@ -291,6 +303,7 @@ export default function ChallengePreviewClient({
           </CardContent>
         </Card>
       )}
+      <ConfirmDialog />
     </div>
   )
 }

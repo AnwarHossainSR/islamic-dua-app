@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
+import { Confirm } from '@/components/ui/confirm'
 import { FileText, Trash2, RefreshCw } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useToast } from '@/hooks/use-toast'
@@ -91,28 +91,20 @@ export default function LogsPage() {
             <RefreshCw className="mr-2 h-4 w-4" />
             Refresh
           </Button>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="destructive" size="sm" disabled={clearing}>
-                <Trash2 className="mr-2 h-4 w-4" />
-                Clear All
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Clear All Logs?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This will permanently delete all log entries. This action cannot be undone.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={clearAllLogs} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                  Clear All Logs
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+          <Confirm
+            title="Clear All Logs?"
+            description="This will permanently delete all log entries. This action cannot be undone."
+            confirmText="Clear All Logs"
+            confirmVariant="destructive"
+            variant="destructive"
+            size="sm"
+            disabled={clearing}
+            onConfirm={clearAllLogs}
+            successMessage="All logs cleared successfully"
+          >
+            <Trash2 className="mr-2 h-4 w-4" />
+            Clear All
+          </Confirm>
         </div>
       </div>
 

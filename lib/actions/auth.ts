@@ -68,7 +68,6 @@ export async function signIn(email: string, password: string) {
     })
   }
 
-  apiLogger.info('User signed in successfully', { email, userId: data.user?.id })
   revalidatePath('/', 'layout')
 
   // Return success instead of redirecting
@@ -102,7 +101,6 @@ export async function signOut(currentPath?: string) {
   cookieStore.delete('sb-access-token')
   cookieStore.delete('sb-refresh-token')
 
-  apiLogger.info('User signed out', { userId: user?.id })
   revalidatePath('/', 'layout')
 
   // Redirect to login with return URL if provided

@@ -15,6 +15,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { useDebounce } from '@/hooks/use-debounce'
 import { useLocalStorage } from '@/hooks/use-local-storage'
 import { toast } from '@/hooks/use-toast'
+import { useConfirm } from '@/components/ui/confirm'
 import { completeDailyChallenge } from '@/lib/actions/challenges'
 import {
   ArrowLeft,
@@ -45,6 +46,7 @@ export default function UserChallengeProgressClient({
   userId,
 }: UserChallengeProgressClientProps) {
   const router = useRouter()
+  const { confirm, ConfirmDialog } = useConfirm()
   const challenge = progress.challenge
   const target = challenge.daily_target_count
   const isAlreadyCompleted = todayLog?.is_completed
@@ -118,12 +120,18 @@ export default function UserChallengeProgressClient({
     }
   }, [count, target, vibrate, isAlreadyCompleted, setCount, saveToLocalStorage])
 
-  const handleReset = useCallback(() => {
-    if (confirm('Are you sure you want to reset the counter?')) {
+  const handleReset = useCallback(async () => {
+    const confirmed = await confirm({
+      title: 'Reset Counter?',
+      description: 'Are you sure you want to reset the counter? This will clear your current progress.',
+      confirmText: 'Reset',
+      confirmVariant: 'destructive'
+    })
+    if (confirmed) {
       setCount(0)
       cancelSave()
     }
-  }, [setCount, cancelSave])
+  }, [setCount, cancelSave, confirm])
 
   const handleComplete = useCallback(async () => {
     if (count < target) {
@@ -149,7 +157,11 @@ export default function UserChallengeProgressClient({
       )
 
       if (result.error) {
-        alert('Error completing challenge: ' + result.error)
+        toast({
+          title: 'Error',
+          description: 'Error completing challenge: ' + result.error,
+          variant: 'destructive'
+        })
         setIsCompleting(false)
         return
       }
@@ -161,7 +173,11 @@ export default function UserChallengeProgressClient({
       toast({ title: 'Success', description: `Day ${progress.current_day} completed!` })
     } catch (error) {
       console.error('Error:', error)
-      alert('Failed to save progress')
+      toast({
+        title: 'Error',
+        description: 'Failed to save progress',
+        variant: 'destructive'
+      })
       setIsCompleting(false)
     }
   }, [
@@ -715,6 +731,7 @@ export default function UserChallengeProgressClient({
           </Card>
         </div>
       )}
+      <ConfirmDialog />
     </div>
   )
 }

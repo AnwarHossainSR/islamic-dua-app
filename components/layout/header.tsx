@@ -1,3 +1,4 @@
+import { NotificationDropdown } from '@/components/notifications/notification-dropdown'
 import { Button } from '@/components/ui/button'
 import { isUserAdmin } from '@/lib/actions/admin'
 import { getUser } from '@/lib/actions/auth'
@@ -22,7 +23,10 @@ export async function Header() {
         <nav className="flex items-center gap-2">
           <ThemeToggle />
           {user ? (
-            <UserMenu user={user} isAdmin={isAdmin} />
+            <>
+              <NotificationDropdown />
+              <UserMenu user={user} isAdmin={isAdmin} />
+            </>
           ) : (
             <Button asChild>
               <Link href="/login">Sign In</Link>

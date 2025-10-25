@@ -1,5 +1,6 @@
 import { Header } from '@/components/layout/header'
 import { ThemeProvider } from '@/components/providers/theme-provider'
+import { NotificationProvider } from '@/components/notifications/notification-provider'
 import { Toaster } from '@/components/ui/toaster'
 import { Analytics } from '@vercel/analytics/next'
 import { GeistMono } from 'geist/font/mono'
@@ -54,12 +55,14 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Suspense fallback={null}>
-            <Header />
-            <main className="min-h-[calc(100vh-113px)] px-6 py-6">{children}</main>
-            <Toaster />
-          </Suspense>
-          <Analytics />
+          <NotificationProvider>
+            <Suspense fallback={null}>
+              <Header />
+              <main className="min-h-[calc(100vh-113px)] px-6 py-6">{children}</main>
+              <Toaster />
+            </Suspense>
+            <Analytics />
+          </NotificationProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -3,6 +3,7 @@
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useConfirm } from '@/components/ui/confirm'
 import { Progress } from '@/components/ui/progress'
 import {
   Select,
@@ -15,7 +16,6 @@ import { Textarea } from '@/components/ui/textarea'
 import { useDebounce } from '@/hooks/use-debounce'
 import { useLocalStorage } from '@/hooks/use-local-storage'
 import { toast } from '@/hooks/use-toast'
-import { useConfirm } from '@/components/ui/confirm'
 import { completeDailyChallenge } from '@/lib/actions/challenges'
 import {
   ArrowLeft,
@@ -124,9 +124,10 @@ export default function UserChallengeProgressClient({
   const handleReset = useCallback(async () => {
     const confirmed = await confirm({
       title: 'Reset Counter?',
-      description: 'Are you sure you want to reset the counter? This will clear your current progress.',
+      description:
+        'Are you sure you want to reset the counter? This will clear your current progress.',
       confirmText: 'Reset',
-      confirmVariant: 'destructive'
+      confirmVariant: 'destructive',
     })
     if (confirmed) {
       setCount(0)
@@ -161,7 +162,7 @@ export default function UserChallengeProgressClient({
         toast({
           title: 'Error',
           description: 'Error completing challenge: ' + result.error,
-          variant: 'destructive'
+          variant: 'destructive',
         })
         setIsCompleting(false)
         return
@@ -177,7 +178,7 @@ export default function UserChallengeProgressClient({
       toast({
         title: 'Error',
         description: 'Failed to save progress',
-        variant: 'destructive'
+        variant: 'destructive',
       })
       setIsCompleting(false)
     }
@@ -205,7 +206,7 @@ export default function UserChallengeProgressClient({
           description: 'Fullscreen mode automatically closed. You can now complete the challenge.',
         })
       }, 2000) // 2 second delay to show celebration
-      
+
       return () => clearTimeout(timer)
     }
   }, [isFullscreen, count, target])
@@ -264,159 +265,155 @@ export default function UserChallengeProgressClient({
         background: `linear-gradient(135deg, ${challenge.color}30, ${challenge.color}20, rgba(255,255,255,0.95))`,
       }}
     >
-        {/* Header */}
-        <div className="flex items-center justify-between p-4">
-          <div className="flex items-center gap-3">
-            <span className="text-2xl">{challenge.icon || '📿'}</span>
-            <div>
-              <h1 className="text-lg font-bold">{challenge.title_bn}</h1>
-              <p className="text-sm text-muted-foreground">Day {progress.current_day}</p>
-            </div>
+      {/* Header */}
+      <div className="flex items-center justify-between p-4">
+        <div className="flex items-center gap-3">
+          <span className="text-2xl">{challenge.icon || '📿'}</span>
+          <div>
+            <h1 className="text-lg font-bold">{challenge.title_bn}</h1>
+            <p className="text-sm text-muted-foreground">Day {progress.current_day}</p>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-10 w-10"
-            onClick={() => setIsFullscreen(false)}
-          >
-            <Minimize2 className="h-5 w-5" />
-          </Button>
         </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-10 w-10"
+          onClick={() => setIsFullscreen(false)}
+        >
+          <Minimize2 className="h-5 w-5" />
+        </Button>
+      </div>
 
-        <div className="flex min-h-[calc(100vh-80px)] flex-col">
-          {/* Dua Content Section */}
-          <div className="flex-1 space-y-6 px-4 pb-6">
-            {/* Arabic Text */}
-            <div
-              className="rounded-xl border-2 p-6 text-center"
-              style={{
-                borderColor: `${challenge.color}40`,
-                backgroundColor: `${challenge.color}08`,
-              }}
-            >
-              <p className="arabic-text text-3xl leading-loose md:text-4xl">
-                {challenge.arabic_text}
-              </p>
-            </div>
-
-            {/* Transliteration */}
-            {challenge.transliteration_bn && (
-              <div className="rounded-lg bg-muted/90 p-4 text-center border">
-                <p className="text-lg font-medium text-muted-foreground md:text-xl">
-                  {challenge.transliteration_bn}
-                </p>
-              </div>
-            )}
-
-            {/* Bengali Translation */}
-            <div className="rounded-lg bg-background/95 p-4 text-center shadow-sm border">
-              <p className="text-lg leading-relaxed md:text-xl">
-                {challenge.translation_bn}
-              </p>
-            </div>
-
-            {/* Fazilat */}
-            {challenge.fazilat_bn && (
-              <div className="rounded-lg bg-amber-50/95 p-4 dark:bg-amber-950/80 border border-amber-200 dark:border-amber-800">
-                <p className="text-sm leading-relaxed text-amber-900 dark:text-amber-100 md:text-base">
-                  <strong>ফযীলত:</strong> {challenge.fazilat_bn}
-                </p>
-                {challenge.reference && (
-                  <p className="mt-2 text-xs text-amber-700 dark:text-amber-300 md:text-sm">
-                    সূত্র: {challenge.reference}
-                  </p>
-                )}
-              </div>
-            )}
+      <div className="flex min-h-[calc(100vh-80px)] flex-col">
+        {/* Dua Content Section */}
+        <div className="flex-1 space-y-6 px-4 pb-6">
+          {/* Arabic Text */}
+          <div
+            className="rounded-xl border-2 p-6 text-center"
+            style={{
+              borderColor: `${challenge.color}40`,
+              backgroundColor: `${challenge.color}08`,
+            }}
+          >
+            <p className="arabic-text text-3xl leading-loose md:text-4xl">
+              {challenge.arabic_text}
+            </p>
           </div>
 
-          {/* Counter Section */}
-          <div className="sticky bottom-0 bg-background/98 backdrop-blur-md border-t shadow-lg p-4">
-            <div className="mx-auto max-w-md space-y-4">
-              {/* Progress */}
-              <div className="text-center">
-                <Badge
-                  variant={count >= target ? 'default' : 'secondary'}
-                  className="mb-2 text-lg"
-                  style={count >= target ? { backgroundColor: challenge.color } : {}}
-                >
-                  {count} / {target}
-                </Badge>
-                <Progress 
-                  value={dailyProgress} 
-                  className="h-3" 
-                  style={{ 
-                    '--progress-background': challenge.color || '#10b981' 
-                  } as React.CSSProperties}
-                />
-                <p className="mt-2 text-sm text-muted-foreground">
-                  {remaining > 0 ? `${remaining} আরো বাকি` : 'লক্ষ্য পূরণ হয়েছে! 🎉'}
-                </p>
-              </div>
-
-              {/* Large Counter Display */}
-              <div className="text-center">
-                <div
-                  className="text-8xl font-bold tabular-nums md:text-9xl"
-                  style={{ color: challenge.color || '#10b981' }}
-                >
-                  {count}
-                </div>
-              </div>
-
-              {/* Counter Button */}
-              <Button
-                type="button"
-                size="lg"
-                className="h-20 w-full text-xl font-bold"
-                style={{ backgroundColor: challenge.color || '#10b981' }}
-                onClick={handleIncrement}
-                disabled={count >= target}
-              >
-                {count >= target ? (
-                  <>
-                    <Check className="mr-2 h-6 w-6" />
-                    সম্পন্ন!
-                  </>
-                ) : (
-                  <>
-                    <Target className="mr-2 h-6 w-6" />
-                    গণনা করুন (+১)
-                  </>
-                )}
-              </Button>
-
-              <p className="text-center text-sm text-muted-foreground">
-                বাটনে ট্যাপ করুন অথবা স্পেস চাপুন • Ctrl+F দিয়ে ফুলস্ক্রিন বন্ধ
+          {/* Transliteration */}
+          {challenge.transliteration_bn && (
+            <div className="rounded-lg bg-muted/90 p-4 text-center border">
+              <p className="text-lg font-medium text-muted-foreground md:text-xl">
+                {challenge.transliteration_bn}
               </p>
+            </div>
+          )}
 
-              {/* Action Buttons */}
-              {count >= target && (
-                <div className="flex gap-2">
-                  <Button 
-                    variant="outline" 
-                    onClick={() => setIsFullscreen(false)}
-                    className="flex-1"
-                  >
-                    <Minimize2 className="mr-2 h-4 w-4" />
-                    ফুলস্ক্রিন বন্ধ
-                  </Button>
-                  <Button
-                    onClick={handleComplete}
-                    disabled={isCompleting}
-                    className="flex-1"
-                    style={{ backgroundColor: challenge.color || '#10b981' }}
-                  >
-                    <Check className="mr-2 h-4 w-4" />
-                    {isCompleting ? 'সেভ হচ্ছে...' : 'সম্পন্ন করুন'}
-                  </Button>
-                </div>
+          {/* Bengali Translation */}
+          <div className="rounded-lg bg-background/95 p-4 text-center shadow-sm border">
+            <p className="text-lg leading-relaxed md:text-xl">{challenge.translation_bn}</p>
+          </div>
+
+          {/* Fazilat */}
+          {challenge.fazilat_bn && (
+            <div className="rounded-lg bg-amber-50/95 p-4 dark:bg-amber-950/80 border border-amber-200 dark:border-amber-800">
+              <p className="text-sm leading-relaxed text-amber-900 dark:text-amber-100 md:text-base">
+                <strong>ফযীলত:</strong> {challenge.fazilat_bn}
+              </p>
+              {challenge.reference && (
+                <p className="mt-2 text-xs text-amber-700 dark:text-amber-300 md:text-sm">
+                  সূত্র: {challenge.reference}
+                </p>
               )}
             </div>
+          )}
+        </div>
+
+        {/* Counter Section */}
+        <div className="sticky bottom-0 bg-background/98 backdrop-blur-md border-t shadow-lg p-4">
+          <div className="mx-auto max-w-md space-y-4">
+            {/* Progress */}
+            <div className="text-center">
+              <Badge
+                variant={count >= target ? 'default' : 'secondary'}
+                className="mb-2 text-lg"
+                style={count >= target ? { backgroundColor: challenge.color } : {}}
+              >
+                {count} / {target}
+              </Badge>
+              <Progress
+                value={dailyProgress}
+                className="h-3"
+                style={
+                  {
+                    '--progress-background': challenge.color || '#10b981',
+                  } as React.CSSProperties
+                }
+              />
+              <p className="mt-2 text-sm text-muted-foreground">
+                {remaining > 0 ? `${remaining} আরো বাকি` : 'লক্ষ্য পূরণ হয়েছে! 🎉'}
+              </p>
+            </div>
+
+            {/* Large Counter Display */}
+            <div className="text-center">
+              <div
+                className="text-8xl font-bold tabular-nums md:text-9xl"
+                style={{ color: challenge.color || '#10b981' }}
+              >
+                {count}
+              </div>
+            </div>
+
+            {/* Counter Button */}
+            <Button
+              type="button"
+              size="lg"
+              className="h-20 w-full text-xl font-bold"
+              style={{ backgroundColor: challenge.color || '#10b981' }}
+              onClick={handleIncrement}
+              disabled={count >= target}
+            >
+              {count >= target ? (
+                <>
+                  <Check className="mr-2 h-6 w-6" />
+                  সম্পন্ন!
+                </>
+              ) : (
+                <>
+                  <Target className="mr-2 h-6 w-6" />
+                  গণনা করুন (+১)
+                </>
+              )}
+            </Button>
+
+            <p className="text-center text-sm text-muted-foreground">
+              বাটনে ট্যাপ করুন অথবা স্পেস চাপুন • Ctrl+F দিয়ে ফুলস্ক্রিন বন্ধ
+            </p>
+
+            {/* Action Buttons */}
+            {count >= target && (
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={() => setIsFullscreen(false)} className="flex-1">
+                  <Minimize2 className="mr-2 h-4 w-4" />
+                  ফুলস্ক্রিন বন্ধ
+                </Button>
+                <Button
+                  onClick={handleComplete}
+                  disabled={isCompleting}
+                  className="flex-1"
+                  style={{ backgroundColor: challenge.color || '#10b981' }}
+                >
+                  <Check className="mr-2 h-4 w-4" />
+                  {isCompleting ? 'সেভ হচ্ছে...' : 'সম্পন্ন করুন'}
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </div>
-    )
+    </div>
+  )
 
   return (
     <div className="mx-auto max-w-4xl space-y-4 px-4 pb-20 pt-4 sm:space-y-6 sm:px-6">
@@ -842,9 +839,11 @@ export default function UserChallengeProgressClient({
         </div>
       )}
       <ConfirmDialog />
-      
+
       {/* Render fullscreen mode via portal */}
-      {typeof window !== 'undefined' && fullscreenContent && createPortal(fullscreenContent, document.body)}
+      {typeof window !== 'undefined' &&
+        fullscreenContent &&
+        createPortal(fullscreenContent, document.body)}
     </div>
   )
 }

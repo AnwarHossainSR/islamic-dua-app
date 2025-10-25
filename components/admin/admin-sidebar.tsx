@@ -1,24 +1,30 @@
 'use client'
 
+import { Badge } from '@/components/ui/badge'
+import { usePermissions } from '@/hooks/use-permissions'
+import { PERMISSIONS } from '@/lib/permissions/constants'
 import { cn } from '@/lib/utils'
 import { Activity, LayoutDashboard, Logs, Menu, Settings, Target, Users, X, BookOpen } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
-const navigation = [
-  { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-  { name: 'Challenges', href: '/challenges', icon: Target },
-  { name: 'Duas', href: '/duas', icon: BookOpen },
-  { name: 'Activities', href: '/activities', icon: Activity },
-  { name: 'Users', href: '/users', icon: Users },
-  { name: 'Logs', href: '/logs', icon: Logs },
-  { name: 'Settings', href: '/settings', icon: Settings },
+const allNavigation = [
+  { name: 'Dashboard', href: '/', icon: LayoutDashboard, permission: PERMISSIONS.DASHBOARD_READ },
+  { name: 'Challenges', href: '/challenges', icon: Target, permission: PERMISSIONS.CHALLENGES_READ },
+  { name: 'Duas', href: '/duas', icon: BookOpen, permission: PERMISSIONS.DUAS_READ },
+  { name: 'Activities', href: '/activities', icon: Activity, permission: PERMISSIONS.ACTIVITIES_READ },
+  { name: 'Users', href: '/users', icon: Users, permission: PERMISSIONS.USERS_READ },
+  { name: 'Logs', href: '/logs', icon: Logs, permission: PERMISSIONS.LOGS_READ },
+  { name: 'Settings', href: '/settings', icon: Settings, permission: PERMISSIONS.SETTINGS_READ },
 ]
 
 export function AdminSidebar() {
   const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
+  const { hasPermission, role } = usePermissions()
+  
+  const navigation = allNavigation.filter(item => hasPermission(item.permission))
 
   // Close sidebar when route changes on mobile
   useEffect(() => {
@@ -88,6 +94,16 @@ export function AdminSidebar() {
               )
             })}
           </nav>
+          
+          {/* Role Badge */}
+          <div className="mt-4 pt-4 border-t">
+            <Badge 
+              variant={role === 'super_admin' ? 'default' : role === 'editor' ? 'secondary' : 'outline'}
+              className="w-full justify-center"
+            >
+              {role === 'super_admin' ? 'Super Admin' : role === 'editor' ? 'Editor' : 'User'}
+            </Badge>
+          </div>
         </div>
       </aside>
     </>

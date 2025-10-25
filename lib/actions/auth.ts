@@ -126,10 +126,50 @@ export async function checkAdminStatus() {
 
   const { data: adminUser } = await supabase
     .from('admin_users')
-    .select('*')
+    .select('*, role')
     .eq('user_id', user.id)
     .eq('is_active', true)
     .single()
 
   return adminUser
+}
+
+export async function checkPermission(permission: string) {
+  const supabase = await getSupabaseServerClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  
+  if (!user) {
+    throw new Error('Not authenticated')
+  }
+
+  const { data: hasAccess } = await supabase
+    .rpc('user_has_permission', { 
+      user_id: user.id, 
+      permission_name: permission 
+    })
+
+  if (!hasAccess) {
+    throw new Error(`Access denied: Missing permission ${permission}`)
+  }
+
+  return true
+}
+
+export async function getUserRoleAndPermissions() {
+  const supabase = await getSupabaseServerClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  
+  if (!user) {
+    return { role: 'user', permissions: [] }
+  }
+
+  const [roleResult, permissionsResult] = await Promise.all([
+    supabase.rpc('get_user_role', { user_id: user.id }),
+    supabase.from('user_permissions').select('*').eq('user_id', user.id)
+  ])
+
+  return {
+    role: roleResult.data || 'user',
+    permissions: permissionsResult.data || []
+  }
 }

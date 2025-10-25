@@ -1,5 +1,7 @@
 import { getDuas, getDuaCategories, getDuaStats } from '@/lib/actions/duas'
 import { checkAdminStatus } from '@/lib/actions/auth'
+import { RequirePermission } from '@/components/auth/permission-guard'
+import { PERMISSIONS } from '@/lib/permissions'
 import { redirect } from 'next/navigation'
 import DuasClient from './duas-client'
 

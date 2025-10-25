@@ -16,7 +16,7 @@ export async function checkAdminAccess() {
 
   const { data: adminUser } = await supabase
     .from('admin_users')
-    .select('*')
+    .select('*, role')
     .eq('user_id', user.id)
     .eq('is_active', true)
     .single()

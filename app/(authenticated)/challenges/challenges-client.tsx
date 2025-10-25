@@ -131,7 +131,6 @@ export default function ChallengesClient({
     const completions = challenges.reduce((sum, c) => sum + (c.total_completions || 0), 0)
     const days = challenges.reduce((sum, c) => sum + c.total_days, 0)
     const avgRate = participants > 0 ? Math.round((completions / days) * 100) : 0
-    console.log('todayCompleted', todayCompleted)
     return { total, participants, completions, days, avgRate, todayCompleted }
   }, [challenges])
 

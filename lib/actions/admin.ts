@@ -2,7 +2,6 @@
 
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { format, toZonedTime } from 'date-fns-tz'
-import { unstable_cache } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { cache } from 'react'
 
@@ -133,7 +132,7 @@ export async function getAdminActivityStats() {
   }
 }
 
-const getTopActivitiesUncached = async (limit = 10) => {
+export async function getTopActivities(limit = 10) {
   const supabase = await getSupabaseServerClient()
 
   const { data, error } = await supabase
@@ -150,12 +149,7 @@ const getTopActivitiesUncached = async (limit = 10) => {
   return data
 }
 
-export const getTopActivities = unstable_cache(getTopActivitiesUncached, ['top-activities'], {
-  tags: ['activities'],
-  revalidate: 1800,
-})
-
-const getAllActivitiesUncached = async () => {
+export async function getAllActivities() {
   const supabase = await getSupabaseServerClient()
 
   const { data, error } = await supabase
@@ -170,11 +164,6 @@ const getAllActivitiesUncached = async () => {
 
   return data
 }
-
-export const getAllActivities = unstable_cache(getAllActivitiesUncached, ['all-activities'], {
-  tags: ['activities'],
-  revalidate: 1800,
-})
 
 export async function getUserActivityStats(userId: string) {
   const supabase = await getSupabaseServerClient()

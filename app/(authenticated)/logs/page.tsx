@@ -1,13 +1,19 @@
 'use client'
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Confirm } from '@/components/ui/confirm'
-import { FileText, Trash2, RefreshCw } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { useToast } from '@/hooks/use-toast'
+import { FileText, RefreshCw, Trash2 } from 'lucide-react'
+import { useEffect, useState } from 'react'
 
 interface LogEntry {
   id: string
@@ -31,12 +37,12 @@ export default function LogsPage() {
     try {
       const response = await fetch(`/api/logs?page=${page}&level=${level}&limit=50`)
       const data = await response.json()
-      
+
       if (data.error) {
         toast({ title: 'Error', description: data.error, variant: 'destructive' })
         return
       }
-      
+
       setLogs(data.logs || [])
       setTotal(data.total || 0)
     } catch (error) {
@@ -51,7 +57,7 @@ export default function LogsPage() {
     try {
       const response = await fetch('/api/logs', { method: 'DELETE' })
       const data = await response.json()
-      
+
       if (data.error) {
         toast({ title: 'Error', description: data.error, variant: 'destructive' })
       } else {
@@ -71,11 +77,16 @@ export default function LogsPage() {
 
   const getLevelColor = (level: string) => {
     switch (level) {
-      case 'error': return 'destructive'
-      case 'warn': return 'secondary'
-      case 'info': return 'default'
-      case 'debug': return 'outline'
-      default: return 'default'
+      case 'error':
+        return 'destructive'
+      case 'warn':
+        return 'secondary'
+      case 'info':
+        return 'default'
+      case 'debug':
+        return 'outline'
+      default:
+        return 'default'
     }
   }
 
@@ -137,7 +148,7 @@ export default function LogsPage() {
             <div className="text-center py-8 text-muted-foreground">No logs found</div>
           ) : (
             <div className="space-y-2">
-              {logs.map((log) => (
+              {logs.map(log => (
                 <div key={log.id} className="border rounded-lg p-4 space-y-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -150,7 +161,9 @@ export default function LogsPage() {
                   <div className="text-sm">{log.message}</div>
                   {log.meta && (
                     <details className="text-xs">
-                      <summary className="cursor-pointer text-muted-foreground">Show metadata</summary>
+                      <summary className="cursor-pointer text-muted-foreground">
+                        Show metadata
+                      </summary>
                       <pre className="mt-2 p-2 bg-muted rounded text-xs overflow-auto">
                         {JSON.stringify(JSON.parse(log.meta), null, 2)}
                       </pre>
@@ -160,21 +173,21 @@ export default function LogsPage() {
               ))}
             </div>
           )}
-          
+
           {total > 50 && (
             <div className="flex justify-center gap-2 mt-4">
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => setPage(p => Math.max(1, p - 1))}
                 disabled={page === 1}
               >
                 Previous
               </Button>
               <span className="px-4 py-2 text-sm">Page {page}</span>
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => setPage(p => p + 1)}
                 disabled={page * 50 >= total}
               >

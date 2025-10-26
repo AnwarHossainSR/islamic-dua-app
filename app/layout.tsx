@@ -10,6 +10,8 @@ import type React from 'react'
 import { Suspense } from 'react'
 import './globals.css'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: 'Heaven Rose Islamic - Dua & Dhikr App',
   description: 'Your companion for Islamic duas and dhikr with Bangla translations',

@@ -1,6 +1,8 @@
 import { getDuaCategories, getDuas, getDuaStats } from '@/lib/actions/duas'
 import DuasClient from './duas-client'
 
+export const dynamic = 'force-dynamic'
+
 export default async function DuasPage({
   searchParams,
 }: {

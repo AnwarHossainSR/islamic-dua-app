@@ -39,13 +39,13 @@ export interface DuaCategory {
   is_active: boolean
 }
 
-const getDuasUncached = async (filters?: {
+export async function getDuas(filters?: {
   category?: string
   search?: string
   isImportant?: boolean
   limit?: number
   offset?: number
-}) => {
+}) {
   const supabase = await getSupabaseServerClient()
 
   let query = supabase
@@ -86,17 +86,7 @@ const getDuasUncached = async (filters?: {
   return data || []
 }
 
-export async function getDuas(filters?: {
-  category?: string
-  search?: string
-  isImportant?: boolean
-  limit?: number
-  offset?: number
-}) {
-  return getDuasUncached(filters)
-}
-
-const getDuaByIdUncached = async (id: string) => {
+export async function getDuaById(id: string) {
   const supabase = await getSupabaseServerClient()
 
   const { data, error } = await supabase
@@ -112,10 +102,6 @@ const getDuaByIdUncached = async (id: string) => {
   }
 
   return data
-}
-
-export async function getDuaById(id: string) {
-  return getDuaByIdUncached(id)
 }
 
 export async function createDua(
@@ -177,7 +163,7 @@ export async function deleteDua(id: string) {
   revalidatePath('/duas')
 }
 
-const getDuaCategoriesUncached = async () => {
+export async function getDuaCategories() {
   const supabase = await getSupabaseServerClient()
 
   const { data, error } = await supabase
@@ -194,11 +180,7 @@ const getDuaCategoriesUncached = async () => {
   return data || []
 }
 
-export async function getDuaCategories() {
-  return getDuaCategoriesUncached()
-}
-
-const getDuaStatsUncached = async () => {
+export async function getDuaStats() {
   const supabase = await getSupabaseServerClient()
 
   const [{ count: totalDuas }, { count: importantDuas }, { data: categoryCounts }] =
@@ -223,8 +205,4 @@ const getDuaStatsUncached = async () => {
     important: importantDuas || 0,
     byCategory: categoryStats,
   }
-}
-
-export async function getDuaStats() {
-  return getDuaStatsUncached()
 }

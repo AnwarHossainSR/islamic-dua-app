@@ -5,7 +5,6 @@ import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
-import { cache } from 'react'
 
 export async function signUp(email: string, password: string) {
   const supabase = await getSupabaseServerClient()
@@ -109,7 +108,7 @@ export async function signOut(currentPath?: string) {
   redirect(redirectUrl)
 }
 
-const getUserUncached = async () => {
+export async function getUser() {
   const supabase = await getSupabaseServerClient()
   const {
     data: { user },
@@ -117,9 +116,7 @@ const getUserUncached = async () => {
   return user
 }
 
-export const getUser = cache(getUserUncached)
-
-const checkAdminStatusUncached = async () => {
+export async function checkAdminStatus() {
   const supabase = await getSupabaseServerClient()
   const {
     data: { user },
@@ -137,21 +134,20 @@ const checkAdminStatusUncached = async () => {
   return adminUser
 }
 
-export const checkAdminStatus = cache(checkAdminStatusUncached)
-
 export async function checkPermission(permission: string) {
   const supabase = await getSupabaseServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
   if (!user) {
     throw new Error('Not authenticated')
   }
 
-  const { data: hasAccess } = await supabase
-    .rpc('user_has_permission', { 
-      user_id: user.id, 
-      permission_name: permission 
-    })
+  const { data: hasAccess } = await supabase.rpc('user_has_permission', {
+    user_id: user.id,
+    permission_name: permission,
+  })
 
   if (!hasAccess) {
     throw new Error(`Access denied: Missing permission ${permission}`)
@@ -162,19 +158,21 @@ export async function checkPermission(permission: string) {
 
 export async function getUserRoleAndPermissions() {
   const supabase = await getSupabaseServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
   if (!user) {
     return { role: 'user', permissions: [] }
   }
 
   const [roleResult, permissionsResult] = await Promise.all([
     supabase.rpc('get_user_role', { user_id: user.id }),
-    supabase.from('user_permissions').select('*').eq('user_id', user.id)
+    supabase.from('user_permissions').select('*').eq('user_id', user.id),
   ])
 
   return {
     role: roleResult.data || 'user',
-    permissions: permissionsResult.data || []
+    permissions: permissionsResult.data || [],
   }
 }

@@ -1,6 +1,6 @@
 import { AdminSidebar } from '@/components/admin/admin-sidebar'
-import { checkAdminAccess } from '@/lib/actions/admin'
 import { PermissionGuard } from '@/components/auth/permission-guard'
+import { checkAdminAccess } from '@/lib/actions/admin'
 import { PERMISSIONS } from '@/lib/permissions'
 import type React from 'react'
 import { Suspense } from 'react'

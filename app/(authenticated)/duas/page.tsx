@@ -1,8 +1,4 @@
-import { getDuas, getDuaCategories, getDuaStats } from '@/lib/actions/duas'
-import { checkAdminStatus } from '@/lib/actions/auth'
-import { RequirePermission } from '@/components/auth/permission-guard'
-import { PERMISSIONS } from '@/lib/permissions'
-import { redirect } from 'next/navigation'
+import { getDuaCategories, getDuas, getDuaStats } from '@/lib/actions/duas'
 import DuasClient from './duas-client'
 
 export default async function DuasPage({
@@ -15,11 +11,6 @@ export default async function DuasPage({
     page?: string
   }>
 }) {
-  const admin = await checkAdminStatus()
-  if (!admin) {
-    redirect('/login')
-  }
-
   const params = await searchParams
   const page = parseInt(params.page || '1')
   const limit = 20
@@ -31,10 +22,10 @@ export default async function DuasPage({
       search: params.search,
       isImportant: params.important === 'true',
       limit,
-      offset
+      offset,
     }),
     getDuaCategories(),
-    getDuaStats()
+    getDuaStats(),
   ])
 
   return (

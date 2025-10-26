@@ -1,10 +1,11 @@
 'use server'
 
-import { getSupabaseServerClient } from '@/lib/supabase/server'
-import { isCurrentDay } from '@/lib/utils'
-import { revalidatePath } from 'next/cache'
-import { checkPermission } from './auth'
 import { PERMISSIONS } from '@/lib/permissions'
+import { getSupabaseServerClient } from '@/lib/supabase/server'
+import { revalidatePath, unstable_cache } from 'next/cache'
+import { cache } from 'react'
+import { isCurrentDay } from '../utils'
+import { checkPermission } from './auth'
 
 // ============================================
 // CHALLENGE QUERIES
@@ -12,6 +13,9 @@ import { PERMISSIONS } from '@/lib/permissions'
 
 export async function getChallenges() {
   const supabase = await getSupabaseServerClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
   const { data: challenges, error: challengesError } = await supabase
     .from('challenge_templates')
@@ -30,7 +34,12 @@ export async function getChallenges() {
 
   if (progressError) {
     console.error('Error fetching user challenge progress:', progressError)
-    return challenges
+    return challenges.map(challenge => ({
+      ...challenge,
+      user_status: 'not_started',
+      last_completed_at: null,
+      progress_id: null,
+    }))
   }
 
   // Merge challenges with progress
@@ -119,7 +128,7 @@ export async function searchAndFilterChallenges({
   return mergedData
 }
 
-export async function getFeaturedChallenges() {
+const getFeaturedChallengesUncached = async () => {
   const supabase = await getSupabaseServerClient()
 
   const { data, error } = await supabase
@@ -137,7 +146,13 @@ export async function getFeaturedChallenges() {
   return data
 }
 
-export async function getChallengeById(id: string) {
+export const getFeaturedChallenges = unstable_cache(
+  getFeaturedChallengesUncached,
+  ['featured-challenges'],
+  { tags: ['challenges'], revalidate: 3600 }
+)
+
+const getChallengeByIdUncached = async (id: string) => {
   const supabase = await getSupabaseServerClient()
 
   const { data, error } = await supabase
@@ -153,6 +168,8 @@ export async function getChallengeById(id: string) {
 
   return data
 }
+
+export const getChallengeById = cache(getChallengeByIdUncached)
 
 // ============================================
 // USER PROGRESS QUERIES
@@ -316,6 +333,38 @@ export async function startChallenge(userId: string, challengeId: string) {
 
   revalidatePath('/challenges')
   return { data }
+}
+
+export async function restartChallenge(progressId: string) {
+  const supabase = await getSupabaseServerClient()
+
+  // Reset the existing progress record instead of creating a new one
+  const { error } = await supabase
+    .from('user_challenge_progress')
+    .update({
+      current_day: 1,
+      status: 'active',
+      current_streak: 0,
+      longest_streak: 0,
+      total_completed_days: 0,
+      missed_days: 0,
+      started_at: new Date().toISOString(),
+      completed_at: null,
+      paused_at: null,
+      last_completed_at: null,
+    })
+    .eq('id', progressId)
+
+  if (error) {
+    console.error('Error restarting challenge:', error)
+    return { error: error.message }
+  }
+
+  // Clear existing daily logs for this progress
+  await supabase.from('user_challenge_daily_logs').delete().eq('user_progress_id', progressId)
+
+  revalidatePath('/challenges')
+  return { success: true }
 }
 
 export async function completeDailyChallenge(

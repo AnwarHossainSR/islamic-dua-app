@@ -1,10 +1,10 @@
 'use server'
 
 import { apiLogger } from '@/lib/logger'
+import { PERMISSIONS } from '@/lib/permissions'
 import { getSupabaseAdminServerClient, getSupabaseServerClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
-import { checkAdminStatus, getUser, checkPermission } from './auth'
-import { PERMISSIONS } from '@/lib/permissions'
+import { checkPermission, getUser } from './auth'
 
 export interface Dua {
   id: string
@@ -39,13 +39,13 @@ export interface DuaCategory {
   is_active: boolean
 }
 
-export async function getDuas(filters?: {
+const getDuasUncached = async (filters?: {
   category?: string
   search?: string
   isImportant?: boolean
   limit?: number
   offset?: number
-}) {
+}) => {
   const supabase = await getSupabaseServerClient()
 
   let query = supabase
@@ -86,7 +86,17 @@ export async function getDuas(filters?: {
   return data || []
 }
 
-export async function getDuaById(id: string) {
+export async function getDuas(filters?: {
+  category?: string
+  search?: string
+  isImportant?: boolean
+  limit?: number
+  offset?: number
+}) {
+  return getDuasUncached(filters)
+}
+
+const getDuaByIdUncached = async (id: string) => {
   const supabase = await getSupabaseServerClient()
 
   const { data, error } = await supabase
@@ -102,6 +112,10 @@ export async function getDuaById(id: string) {
   }
 
   return data
+}
+
+export async function getDuaById(id: string) {
+  return getDuaByIdUncached(id)
 }
 
 export async function createDua(
@@ -163,7 +177,7 @@ export async function deleteDua(id: string) {
   revalidatePath('/duas')
 }
 
-export async function getDuaCategories() {
+const getDuaCategoriesUncached = async () => {
   const supabase = await getSupabaseServerClient()
 
   const { data, error } = await supabase
@@ -180,7 +194,11 @@ export async function getDuaCategories() {
   return data || []
 }
 
-export async function getDuaStats() {
+export async function getDuaCategories() {
+  return getDuaCategoriesUncached()
+}
+
+const getDuaStatsUncached = async () => {
   const supabase = await getSupabaseServerClient()
 
   const [{ count: totalDuas }, { count: importantDuas }, { data: categoryCounts }] =
@@ -205,4 +223,8 @@ export async function getDuaStats() {
     important: importantDuas || 0,
     byCategory: categoryStats,
   }
+}
+
+export async function getDuaStats() {
+  return getDuaStatsUncached()
 }

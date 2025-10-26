@@ -14,8 +14,14 @@ import {
 } from '@/components/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDebounce } from '@/hooks/use-debounce'
-import { deleteChallengeTemplate, searchAndFilterChallenges } from '@/lib/actions/challenges'
-import { cn, isCurrentDay, sortChallengesByCompletion } from '@/lib/utils'
+import { getUser } from '@/lib/actions/auth'
+import {
+  deleteChallengeTemplate,
+  restartChallenge,
+  searchAndFilterChallenges,
+  startChallenge,
+} from '@/lib/actions/challenges'
+import { isCurrentDay, sortChallengesByCompletion } from '@/lib/utils'
 import { format } from 'date-fns'
 import { toZonedTime } from 'date-fns-tz'
 import {
@@ -26,7 +32,9 @@ import {
   Edit,
   Eye,
   Loader2,
+  Play,
   Plus,
+  RotateCcw,
   Search,
   Target,
   Trash2,
@@ -35,7 +43,7 @@ import {
   Users,
 } from 'lucide-react'
 import Link from 'next/link'
-import { useCallback, useMemo, useState, useTransition } from 'react'
+import React, { useCallback, useMemo, useState, useTransition } from 'react'
 
 interface Challenge {
   id: string
@@ -53,6 +61,11 @@ interface Challenge {
   daily_target_count: number
   recommended_prayer?: string
   last_completed_at?: string
+  user_status: 'not_started' | 'active' | 'paused' | 'completed'
+  progress_id?: string
+  completed_at?: string
+  total_completed_days: number
+  current_day: number
 }
 
 interface RecentLog {
@@ -81,6 +94,13 @@ export default function ChallengesClient({
   const [difficultyFilter, setDifficultyFilter] = useState('all')
   const [statusFilter, setStatusFilter] = useState('all')
   const [isPending, startTransition] = useTransition()
+  const [user, setUser] = useState<any>(null)
+  const [actionLoading, setActionLoading] = useState<string | null>(null)
+
+  // Get user on mount
+  React.useEffect(() => {
+    getUser().then(setUser)
+  }, [])
 
   // Server search action with debounce
   const performSearch = useCallback(async (query: string, difficulty: string, status: string) => {
@@ -121,6 +141,42 @@ export default function ChallengesClient({
   const handleStatusChange = (value: string) => {
     setStatusFilter(value)
     performSearch(searchQuery, difficultyFilter, value)
+  }
+
+  const handleStartChallenge = async (challengeId: string) => {
+    if (!user) return
+
+    setActionLoading(challengeId)
+    try {
+      const result = await startChallenge(user.id, challengeId)
+      if (result.error) {
+        console.error('Error starting challenge:', result.error)
+      } else {
+        // Refresh challenges
+        performSearch(searchQuery, difficultyFilter, statusFilter)
+      }
+    } catch (error) {
+      console.error('Error starting challenge:', error)
+    } finally {
+      setActionLoading(null)
+    }
+  }
+
+  const handleRestartChallenge = async (progressId: string) => {
+    setActionLoading(progressId)
+    try {
+      const result = await restartChallenge(progressId)
+      if (result.error) {
+        console.error('Error restarting challenge:', result.error)
+      } else {
+        // Refresh challenges
+        performSearch(searchQuery, difficultyFilter, statusFilter)
+      }
+    } catch (error) {
+      console.error('Error restarting challenge:', error)
+    } finally {
+      setActionLoading(null)
+    }
   }
 
   // Calculate stats
@@ -477,33 +533,52 @@ export default function ChallengesClient({
                       </div>
 
                       <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          asChild
-                          className="flex-1 text-xs md:text-sm"
-                          disabled={
-                            !challenge.is_active || isCurrentDay(challenge.last_completed_at || '')
-                          }
-                        >
-                          <Link
-                            href={`/challenges/${challenge.id}/preview`}
-                            className={cn(
-                              isCurrentDay(challenge.last_completed_at || '')
-                                ? 'pointer-events-none bg-gray-300 dark:bg-gray-600'
-                                : ''
-                            )}
+                        {/* Start/Continue/Restart Button */}
+                        {challenge.user_status === 'not_started' && (
+                          <Button
+                            size="sm"
+                            className="flex-1 text-xs md:text-sm"
+                            onClick={() => handleStartChallenge(challenge.id)}
+                            disabled={!challenge.is_active || actionLoading === challenge.id}
                           >
+                            {actionLoading === challenge.id ? (
+                              <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                            ) : (
+                              <Play className="mr-1 h-3 w-3" />
+                            )}
+                            Start
+                          </Button>
+                        )}
+
+                        {challenge.user_status === 'completed' && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="flex-1 text-xs md:text-sm"
+                            onClick={() =>
+                              challenge.progress_id && handleRestartChallenge(challenge.progress_id)
+                            }
+                            disabled={actionLoading === challenge.progress_id}
+                          >
+                            {actionLoading === challenge.progress_id ? (
+                              <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                            ) : (
+                              <RotateCcw className="mr-1 h-3 w-3" />
+                            )}
+                            Restart
+                          </Button>
+                        )}
+
+                        {/* Preview Button */}
+                        <Button size="sm" variant="outline" asChild className="text-xs md:text-sm">
+                          <Link href={`/challenges/${challenge.id}/preview`}>
                             <Eye className="mr-1 h-3 w-3" />
                             Preview
                           </Link>
                         </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          asChild
-                          className="flex-1 text-xs md:text-sm"
-                        >
+
+                        {/* Admin Actions */}
+                        <Button size="sm" variant="outline" asChild className="text-xs md:text-sm">
                           <Link href={`/challenges/${challenge.id}`}>
                             <Edit className="mr-1 h-3 w-3" />
                             Edit

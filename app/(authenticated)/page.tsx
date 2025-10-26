@@ -6,8 +6,9 @@ import { Activity, Flame, Target, TrendingUp, Trophy, Users } from 'lucide-react
 import Link from 'next/link'
 
 export default async function AdminDashboard() {
-  const stats = await getAdminActivityStats()
-  const topActivities = await getTopActivities(5)
+  try {
+    const stats = await getAdminActivityStats()
+    const topActivities = await getTopActivities(5)
 
   return (
     <div className="space-y-8">
@@ -204,4 +205,13 @@ export default async function AdminDashboard() {
       </Card>
     </div>
   )
+  } catch (error) {
+    console.error('Dashboard error:', error)
+    return (
+      <div className="p-4">
+        <h1 className="text-2xl font-bold text-red-600">Error Loading Dashboard</h1>
+        <p className="text-gray-600">Please check the console for details.</p>
+      </div>
+    )
+  }
 }

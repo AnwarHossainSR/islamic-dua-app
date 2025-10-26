@@ -5,6 +5,7 @@ import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
+import { cache } from 'react'
 
 export async function signUp(email: string, password: string) {
   const supabase = await getSupabaseServerClient()
@@ -108,7 +109,7 @@ export async function signOut(currentPath?: string) {
   redirect(redirectUrl)
 }
 
-export async function getUser() {
+const getUserUncached = async () => {
   const supabase = await getSupabaseServerClient()
   const {
     data: { user },
@@ -116,7 +117,9 @@ export async function getUser() {
   return user
 }
 
-export async function checkAdminStatus() {
+export const getUser = cache(getUserUncached)
+
+const checkAdminStatusUncached = async () => {
   const supabase = await getSupabaseServerClient()
   const {
     data: { user },
@@ -133,6 +136,8 @@ export async function checkAdminStatus() {
 
   return adminUser
 }
+
+export const checkAdminStatus = cache(checkAdminStatusUncached)
 
 export async function checkPermission(permission: string) {
   const supabase = await getSupabaseServerClient()

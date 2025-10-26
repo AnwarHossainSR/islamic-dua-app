@@ -2,7 +2,8 @@
 
 import { PERMISSIONS } from '@/lib/permissions'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, unstable_cache } from 'next/cache'
+import { cache } from 'react'
 import { isCurrentDay } from '../utils'
 import { checkPermission } from './auth'
 
@@ -127,7 +128,7 @@ export async function searchAndFilterChallenges({
   return mergedData
 }
 
-export async function getFeaturedChallenges() {
+const getFeaturedChallengesUncached = async () => {
   const supabase = await getSupabaseServerClient()
 
   const { data, error } = await supabase
@@ -145,7 +146,13 @@ export async function getFeaturedChallenges() {
   return data
 }
 
-export async function getChallengeById(id: string) {
+export const getFeaturedChallenges = unstable_cache(
+  getFeaturedChallengesUncached,
+  ['featured-challenges'],
+  { tags: ['challenges'], revalidate: 3600 }
+)
+
+const getChallengeByIdUncached = async (id: string) => {
   const supabase = await getSupabaseServerClient()
 
   const { data, error } = await supabase
@@ -161,6 +168,8 @@ export async function getChallengeById(id: string) {
 
   return data
 }
+
+export const getChallengeById = cache(getChallengeByIdUncached)
 
 // ============================================
 // USER PROGRESS QUERIES

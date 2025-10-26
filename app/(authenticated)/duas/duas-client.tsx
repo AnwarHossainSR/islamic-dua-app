@@ -161,9 +161,15 @@ export default function DuasClient({
       {/* Main Content */}
       <Tabs defaultValue="all" className="space-y-6">
         <TabsList>
-          <TabsTrigger value="all">All Duas</TabsTrigger>
-          <TabsTrigger value="categories">Categories</TabsTrigger>
-          <TabsTrigger value="stats">Statistics</TabsTrigger>
+          <TabsTrigger className="cursor-pointer" value="all">
+            All Duas
+          </TabsTrigger>
+          <TabsTrigger className="cursor-pointer" value="categories">
+            Categories
+          </TabsTrigger>
+          <TabsTrigger className="cursor-pointer" value="stats">
+            Statistics
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="all" className="space-y-4">

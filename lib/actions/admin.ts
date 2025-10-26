@@ -3,6 +3,7 @@
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { format, toZonedTime } from 'date-fns-tz'
 import { redirect } from 'next/navigation'
+import { cache } from 'react'
 
 export async function checkAdminAccess() {
   const supabase = await getSupabaseServerClient()
@@ -28,7 +29,7 @@ export async function checkAdminAccess() {
   return adminUser
 }
 
-export async function isUserAdmin() {
+const isUserAdminUncached = async () => {
   const supabase = await getSupabaseServerClient()
   const {
     data: { user },
@@ -47,6 +48,8 @@ export async function isUserAdmin() {
 
   return !!adminUser
 }
+
+export const isUserAdmin = cache(isUserAdminUncached)
 
 // ============================================
 // ACTIVITY STATS FUNCTIONS

@@ -4,6 +4,7 @@ import { apiLogger } from '@/lib/logger'
 import { PERMISSIONS } from '@/lib/permissions'
 import { getSupabaseAdminServerClient, getSupabaseServerClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { cache } from 'react'
 import { checkPermission, getUser } from './auth'
 
 export interface Dua {
@@ -86,7 +87,7 @@ export async function getDuas(filters?: {
   return data || []
 }
 
-export async function getDuaById(id: string) {
+const getDuaByIdUncached = async (id: string) => {
   const supabase = await getSupabaseServerClient()
 
   const { data, error } = await supabase
@@ -103,6 +104,8 @@ export async function getDuaById(id: string) {
 
   return data
 }
+
+export const getDuaById = cache(getDuaByIdUncached)
 
 export async function createDua(
   duaData: Omit<Dua, 'id' | 'created_at' | 'updated_at' | 'created_by'>

@@ -1,9 +1,9 @@
 'use server'
 
 import { getSupabaseServerClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
-import { toZonedTime, format } from 'date-fns-tz'
+import { format, toZonedTime } from 'date-fns-tz'
 import { unstable_cache } from 'next/cache'
+import { redirect } from 'next/navigation'
 import { cache } from 'react'
 
 export async function checkAdminAccess() {
@@ -84,17 +84,17 @@ export async function getAdminActivityStats() {
   const timeZone = 'Asia/Dhaka'
   const nowInDhaka = toZonedTime(new Date(), timeZone)
   const today = format(nowInDhaka, 'yyyy-MM-dd', { timeZone })
-  
+
   const yesterdayInDhaka = toZonedTime(new Date(Date.now() - 86400000), timeZone)
   const yesterday = format(yesterdayInDhaka, 'yyyy-MM-dd', { timeZone })
-  
+
   const weekAgoInDhaka = toZonedTime(new Date(Date.now() - 7 * 86400000), timeZone)
   const weekAgo = format(weekAgoInDhaka, 'yyyy-MM-dd', { timeZone })
 
   // Get today's completions using completed_at timestamp
   const todayStart = `${today}T00:00:00+06:00`
   const todayEnd = `${today}T23:59:59+06:00`
-  
+
   const { count: todayCompletions } = await supabase
     .from('user_challenge_daily_logs')
     .select('id', { count: 'exact', head: true })
@@ -105,7 +105,7 @@ export async function getAdminActivityStats() {
   // Get yesterday's completions
   const yesterdayStart = `${yesterday}T00:00:00+06:00`
   const yesterdayEnd = `${yesterday}T23:59:59+06:00`
-  
+
   const { count: yesterdayCompletions } = await supabase
     .from('user_challenge_daily_logs')
     .select('id', { count: 'exact', head: true })
@@ -115,7 +115,7 @@ export async function getAdminActivityStats() {
 
   // Get this week's completions
   const weekStart = `${weekAgo}T00:00:00+06:00`
-  
+
   const { count: weekCompletions } = await supabase
     .from('user_challenge_daily_logs')
     .select('id', { count: 'exact', head: true })
@@ -150,11 +150,10 @@ const getTopActivitiesUncached = async (limit = 10) => {
   return data
 }
 
-export const getTopActivities = unstable_cache(
-  getTopActivitiesUncached,
-  ['top-activities'],
-  { tags: ['activities'], revalidate: 1800 }
-)
+export const getTopActivities = unstable_cache(getTopActivitiesUncached, ['top-activities'], {
+  tags: ['activities'],
+  revalidate: 1800,
+})
 
 const getAllActivitiesUncached = async () => {
   const supabase = await getSupabaseServerClient()
@@ -172,11 +171,10 @@ const getAllActivitiesUncached = async () => {
   return data
 }
 
-export const getAllActivities = unstable_cache(
-  getAllActivitiesUncached,
-  ['all-activities'],
-  { tags: ['activities'], revalidate: 1800 }
-)
+export const getAllActivities = unstable_cache(getAllActivitiesUncached, ['all-activities'], {
+  tags: ['activities'],
+  revalidate: 1800,
+})
 
 export async function getUserActivityStats(userId: string) {
   const supabase = await getSupabaseServerClient()

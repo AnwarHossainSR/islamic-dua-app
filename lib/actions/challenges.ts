@@ -30,7 +30,7 @@ export async function getChallenges() {
 
   const { data: progress, error: progressError } = await supabase
     .from('user_challenge_progress')
-    .select('challenge_id, last_completed_at')
+    .select('id, challenge_id, status, current_day, total_completed_days, last_completed_at')
 
   if (progressError) {
     console.error('Error fetching user challenge progress:', progressError)
@@ -39,15 +39,38 @@ export async function getChallenges() {
       user_status: 'not_started',
       last_completed_at: null,
       progress_id: null,
+      completion_percentage: 0,
     }))
   }
 
   // Merge challenges with progress
   const mergedData = challenges.map(challenge => {
     const userProgress = progress.find(p => p.challenge_id === challenge.id)
+    
+    if (!userProgress) {
+      return {
+        ...challenge,
+        user_status: 'not_started',
+        last_completed_at: null,
+        progress_id: null,
+        completion_percentage: 0,
+      }
+    }
+
+    // Calculate completion percentage based on completed days vs total days
+    const completionPercentage = Math.min(
+      Math.round((userProgress.total_completed_days / challenge.total_days) * 100),
+      100
+    )
+
     return {
       ...challenge,
-      last_completed_at: userProgress ? userProgress.last_completed_at : null,
+      user_status: userProgress.status,
+      last_completed_at: userProgress.last_completed_at,
+      progress_id: userProgress.id,
+      completion_percentage: completionPercentage,
+      current_day: userProgress.current_day,
+      total_completed_days: userProgress.total_completed_days,
     }
   })
 

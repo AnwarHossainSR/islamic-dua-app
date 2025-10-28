@@ -45,7 +45,7 @@ import {
 import Link from 'next/link'
 import React, { useCallback, useMemo, useState, useTransition } from 'react'
 
-interface Challenge {
+export interface Challenge {
   id: string
   title_bn: string
   title_ar?: string
@@ -163,10 +163,10 @@ export default function ChallengesClient({
     }
   }
 
-  const handleRestartChallenge = async (progressId: string) => {
-    setActionLoading(progressId)
+  const handleRestartChallenge = async (challenge: Challenge) => {
+    setActionLoading(challenge.progress_id || '')
     try {
-      const result = await restartChallenge(progressId)
+      const result = await restartChallenge(challenge)
       if (result.error) {
         console.error('Error restarting challenge:', result.error)
       } else {
@@ -194,7 +194,8 @@ export default function ChallengesClient({
   // Helper functions to clean up JSX
   const getCardClassName = (userStatus: string) => {
     const baseClass = 'overflow-hidden'
-    const completedClass = 'bg-emerald-100/80 border-emerald-300 dark:bg-emerald-900/40 dark:border-emerald-600'
+    const completedClass =
+      'bg-emerald-100/80 border-emerald-300 dark:bg-emerald-900/40 dark:border-emerald-600'
     return userStatus === 'completed' ? `${baseClass} ${completedClass}` : baseClass
   }
 
@@ -203,7 +204,7 @@ export default function ChallengesClient({
       completed: { variant: 'default' as const, text: 'Completed' },
       active: { variant: 'secondary' as const, text: 'Active' },
       paused: { variant: 'destructive' as const, text: 'Paused' },
-      not_started: { variant: 'outline' as const, text: 'Not Started' }
+      not_started: { variant: 'outline' as const, text: 'Not Started' },
     }
     return configs[userStatus as keyof typeof configs] || configs.not_started
   }
@@ -212,7 +213,7 @@ export default function ChallengesClient({
     const variants = {
       easy: 'secondary' as const,
       hard: 'destructive' as const,
-      medium: 'default' as const
+      medium: 'default' as const,
     }
     return variants[difficulty as keyof typeof variants] || 'default'
   }
@@ -223,7 +224,7 @@ export default function ChallengesClient({
       label: isCompleted ? 'Completed' : 'Progress',
       percentage: isCompleted ? '100%' : `${completionRate}%`,
       width: isCompleted ? 100 : completionRate,
-      color: isCompleted ? 'rgb(34 197 94)' : 'rgb(16 185 129)'
+      color: isCompleted ? 'rgb(34 197 94)' : 'rgb(16 185 129)',
     }
   }
 
@@ -458,7 +459,7 @@ export default function ChallengesClient({
               const statusBadge = getStatusBadgeConfig(challenge.user_status)
               const difficultyVariant = getDifficultyBadgeVariant(challenge.difficulty_level)
               const progressConfig = getProgressConfig(challenge.user_status, completionRate)
-              
+
               return (
                 <Card key={challenge.id} className={getCardClassName(challenge.user_status)}>
                   <div className="flex flex-col gap-6 p-4 md:p-6 md:flex-row">
@@ -588,7 +589,7 @@ export default function ChallengesClient({
                             variant="outline"
                             className="flex-1 text-xs md:text-sm"
                             onClick={() =>
-                              challenge.progress_id && handleRestartChallenge(challenge.progress_id)
+                              challenge.progress_id && handleRestartChallenge(challenge)
                             }
                             disabled={actionLoading === challenge.progress_id}
                           >
@@ -603,7 +604,12 @@ export default function ChallengesClient({
 
                         {/* Preview Button - only show for non-completed challenges */}
                         {challenge.user_status !== 'completed' && (
-                          <Button size="sm" variant="outline" asChild className="text-xs md:text-sm">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            asChild
+                            className="text-xs md:text-sm"
+                          >
                             <Link href={`/challenges/${challenge.id}/preview`}>
                               <Eye className="mr-1 h-3 w-3" />
                               Preview

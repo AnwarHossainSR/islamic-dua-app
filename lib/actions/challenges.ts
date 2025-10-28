@@ -1,5 +1,6 @@
 'use server'
 
+import { Challenge } from '@/app/(authenticated)/challenges/challenges-client'
 import { PERMISSIONS } from '@/lib/permissions'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
@@ -46,7 +47,7 @@ export async function getChallenges() {
   // Merge challenges with progress
   const mergedData = challenges.map(challenge => {
     const userProgress = progress.find(p => p.challenge_id === challenge.id)
-    
+
     if (!userProgress) {
       return {
         ...challenge,
@@ -352,7 +353,7 @@ export async function startChallenge(userId: string, challengeId: string) {
   return { data }
 }
 
-export async function restartChallenge(progressId: string) {
+export async function restartChallenge(challenge: Challenge) {
   const supabase = await getSupabaseServerClient()
 
   // Reset the existing progress record instead of creating a new one
@@ -370,7 +371,7 @@ export async function restartChallenge(progressId: string) {
       paused_at: null,
       last_completed_at: null,
     })
-    .eq('id', progressId)
+    .eq('id', challenge.progress_id)
 
   if (error) {
     console.error('Error restarting challenge:', error)
@@ -378,7 +379,20 @@ export async function restartChallenge(progressId: string) {
   }
 
   // Clear existing daily logs for this progress
-  await supabase.from('user_challenge_daily_logs').delete().eq('user_progress_id', progressId)
+  await supabase
+    .from('user_challenge_daily_logs')
+    .delete()
+    .eq('user_progress_id', challenge.progress_id)
+
+  const { error: updateError } = await supabase
+    .from('challenge_templates')
+    .update({ total_completions: 0 })
+    .eq('id', challenge.id)
+
+  if (updateError) {
+    console.error('Error updating challenge template:', updateError)
+    return { error: updateError.message }
+  }
 
   revalidatePath('/challenges')
   return { success: true }

@@ -66,8 +66,8 @@ export interface Challenge {
   completed_at?: string
   total_completed_days: number
   current_day: number
+  completion_count: number
   completion_percentage?: number
-  completion_count?: number
 }
 
 interface RecentLog {

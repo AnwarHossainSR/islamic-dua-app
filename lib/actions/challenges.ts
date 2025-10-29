@@ -31,7 +31,9 @@ export async function getChallenges() {
 
   const { data: progress, error: progressError } = await supabase
     .from('user_challenge_progress')
-    .select('id, challenge_id, status, current_day, total_completed_days, last_completed_at, completion_count')
+    .select(
+      'id, challenge_id, status, current_day, total_completed_days, last_completed_at, completion_count'
+    )
 
   if (progressError) {
     console.error('Error fetching user challenge progress:', progressError)
@@ -387,7 +389,7 @@ export async function restartChallenge(challenge: Challenge) {
 
   const { error: updateError } = await supabase
     .from('challenge_templates')
-    .update({ total_completions: 0 })
+    .update({ total_completions: 0, completion_count: challenge.completion_count + 1 })
     .eq('id', challenge.id)
 
   if (updateError) {

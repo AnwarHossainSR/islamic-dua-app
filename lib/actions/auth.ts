@@ -151,6 +151,7 @@ export async function checkPermission(permission: string) {
   })
 
   if (!hasAccess) {
+    apiLogger.error(`Access denied: Missing permission ${permission}`)
     throw new Error(`Access denied: Missing permission ${permission}`)
   }
 

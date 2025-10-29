@@ -67,6 +67,7 @@ export interface Challenge {
   total_completed_days: number
   current_day: number
   completion_percentage?: number
+  completion_count?: number
 }
 
 interface RecentLog {
@@ -185,7 +186,8 @@ export default function ChallengesClient({
     const total = challenges.length
     const participants = challenges.reduce((sum, c) => sum + (c.total_participants || 0), 0)
     const todayCompleted = challenges.filter(c => isCurrentDay(c.last_completed_at || '')).length
-    const completions = challenges.reduce((sum, c) => sum + (c.total_completions || 0), 0)
+    console.log('challenges for stats calculation:', challenges)
+    const completions = challenges.reduce((sum, c) => sum + (c.completion_count || 0), 0)
     const days = challenges.reduce((sum, c) => sum + c.total_days, 0)
     const avgRate = participants > 0 ? Math.round((completions / days) * 100) : 0
     return { total, participants, completions, days, avgRate, todayCompleted }
@@ -309,7 +311,7 @@ export default function ChallengesClient({
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-muted-foreground">Completions</p>
+                      <p className="text-sm text-muted-foreground">Challenge Completed</p>
                       <p className="text-3xl font-bold">{stats.completions}</p>
                     </div>
                     <Trophy className="h-8 w-8 text-amber-500" />
@@ -361,7 +363,7 @@ export default function ChallengesClient({
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Completions</p>
+                  <p className="text-sm text-muted-foreground">Challenges Completed</p>
                   <p className="text-3xl font-bold">{stats.completions}</p>
                 </div>
                 <Trophy className="h-8 w-8 text-amber-500" />

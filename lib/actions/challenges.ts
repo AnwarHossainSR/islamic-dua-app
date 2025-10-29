@@ -31,7 +31,7 @@ export async function getChallenges() {
 
   const { data: progress, error: progressError } = await supabase
     .from('user_challenge_progress')
-    .select('id, challenge_id, status, current_day, total_completed_days, last_completed_at')
+    .select('id, challenge_id, status, current_day, total_completed_days, last_completed_at, completion_count')
 
   if (progressError) {
     console.error('Error fetching user challenge progress:', progressError)
@@ -72,6 +72,7 @@ export async function getChallenges() {
       completion_percentage: completionPercentage,
       current_day: userProgress.current_day,
       total_completed_days: userProgress.total_completed_days,
+      completion_count: userProgress.completion_count,
     }
   })
 

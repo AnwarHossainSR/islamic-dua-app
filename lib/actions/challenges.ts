@@ -5,6 +5,7 @@ import { PERMISSIONS } from '@/lib/permissions'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { cache } from 'react'
+import { apiLogger } from '../logger'
 import { isCurrentDay } from '../utils'
 import { checkPermission } from './auth'
 
@@ -433,6 +434,7 @@ export async function completeDailyChallenge(
 
   if (logError) {
     console.error('Error logging daily completion:', logError)
+    apiLogger.error('Error logging daily completion', { error: logError.message })
     return { error: logError.message }
   }
 
@@ -444,6 +446,7 @@ export async function completeDailyChallenge(
     .single()
 
   if (!progress) {
+    apiLogger.error('Progress not found')
     return { error: 'Progress not found' }
   }
 
@@ -479,6 +482,7 @@ export async function completeDailyChallenge(
 
   if (updateError) {
     console.error('Error updating progress:', updateError)
+    apiLogger.error('Error updating progress', { error: updateError.message })
     return { error: updateError.message }
   }
 

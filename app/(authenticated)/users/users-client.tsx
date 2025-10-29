@@ -43,9 +43,11 @@ export function UsersClient({ users }: UsersClientProps) {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
   const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [role, setRole] = useState('editor')
   const [isActive, setIsActive] = useState(true)
   const [loading, setLoading] = useState(false)
+  const [generatedPassword, setGeneratedPassword] = useState('')
   const { toast } = useToast()
 
   const handleAddAdmin = async () => {
@@ -60,7 +62,7 @@ export function UsersClient({ users }: UsersClientProps) {
 
     setLoading(true)
     try {
-      const result = await addAdminUser(email, role)
+      const result = await addAdminUser(email, role, password || undefined)
       if (result.error) {
         toast({
           title: 'Error adding admin',
@@ -68,13 +70,22 @@ export function UsersClient({ users }: UsersClientProps) {
           variant: 'destructive',
         })
       } else {
-        toast({
-          title: 'Admin added successfully',
-          description: `Admin user ${email} has been added as ${role}`,
-        })
-        setIsAddDialogOpen(false)
-        setEmail('')
-        setRole('editor')
+        if (result.generatedPassword) {
+          setGeneratedPassword(result.generatedPassword)
+          toast({
+            title: 'Admin user created!',
+            description: `Password: ${result.generatedPassword}`,
+          })
+        } else {
+          toast({
+            title: 'Admin added successfully',
+            description: `Admin user ${email} has been added as ${role}`,
+          })
+          setIsAddDialogOpen(false)
+          setEmail('')
+          setPassword('')
+          setRole('editor')
+        }
       }
     } catch (error) {
       toast({
@@ -181,6 +192,16 @@ export function UsersClient({ users }: UsersClientProps) {
                 />
               </div>
               <div>
+                <Label htmlFor="password">Password (optional)</Label>
+                <Input
+                  id="password"
+                  type="text"
+                  placeholder="Leave empty to auto-generate"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                />
+              </div>
+              <div>
                 <Label htmlFor="role">Role</Label>
                 <Select value={role} onValueChange={setRole}>
                   <SelectTrigger>
@@ -193,14 +214,33 @@ export function UsersClient({ users }: UsersClientProps) {
                   </SelectContent>
                 </Select>
               </div>
+              {generatedPassword && (
+                <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                  <Label className="text-green-800 font-medium">Generated Password:</Label>
+                  <div className="mt-1 p-2 bg-white border rounded font-mono text-sm">
+                    {generatedPassword}
+                  </div>
+                  <p className="text-xs text-green-600 mt-1">
+                    Please save this password - it won't be shown again!
+                  </p>
+                </div>
+              )}
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                Cancel
+              <Button variant="outline" onClick={() => {
+                setIsAddDialogOpen(false)
+                setEmail('')
+                setPassword('')
+                setRole('editor')
+                setGeneratedPassword('')
+              }}>
+                {generatedPassword ? 'Close' : 'Cancel'}
               </Button>
-              <Button onClick={handleAddAdmin} disabled={loading}>
-                {loading ? 'Adding...' : 'Add Admin'}
-              </Button>
+              {!generatedPassword && (
+                <Button onClick={handleAddAdmin} disabled={loading}>
+                  {loading ? 'Adding...' : 'Add Admin'}
+                </Button>
+              )}
             </DialogFooter>
           </DialogContent>
         </Dialog>

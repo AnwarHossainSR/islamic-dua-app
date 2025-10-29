@@ -5,6 +5,7 @@ import { PERMISSIONS } from '@/lib/permissions'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { cache } from 'react'
+import { apiLogger } from '../logger'
 import { isCurrentDay } from '../utils'
 import { checkPermission } from './auth'
 
@@ -416,23 +417,50 @@ export async function completeDailyChallenge(
   const isCompleted = countCompleted >= targetCount
   const now = new Date().toISOString()
 
-  // Insert daily log
-  const { error: logError } = await supabase.from('user_challenge_daily_logs').insert({
-    user_progress_id: progressId,
-    user_id: userId,
-    challenge_id: challengeId,
-    day_number: dayNumber,
-    completion_date: new Date().toISOString().split('T')[0],
-    count_completed: countCompleted,
-    target_count: targetCount,
-    is_completed: isCompleted,
-    completed_at: now,
-    notes,
-    mood,
-  })
+  // Check if daily log already exists for this day
+  const { data: existingLog } = await supabase
+    .from('user_challenge_daily_logs')
+    .select('id')
+    .eq('user_progress_id', progressId)
+    .eq('day_number', dayNumber)
+    .single()
+
+  let logError
+  if (existingLog) {
+    // Update existing log
+    const { error } = await supabase
+      .from('user_challenge_daily_logs')
+      .update({
+        count_completed: countCompleted,
+        target_count: targetCount,
+        is_completed: isCompleted,
+        completed_at: now,
+        notes,
+        mood,
+      })
+      .eq('id', existingLog.id)
+    logError = error
+  } else {
+    // Insert new daily log
+    const { error } = await supabase.from('user_challenge_daily_logs').insert({
+      user_progress_id: progressId,
+      user_id: userId,
+      challenge_id: challengeId,
+      day_number: dayNumber,
+      completion_date: new Date().toISOString().split('T')[0],
+      count_completed: countCompleted,
+      target_count: targetCount,
+      is_completed: isCompleted,
+      completed_at: now,
+      notes,
+      mood,
+    })
+    logError = error
+  }
 
   if (logError) {
     console.error('Error logging daily completion:', logError)
+    apiLogger.error('Error logging daily completion', { error: logError.message })
     return { error: logError.message }
   }
 
@@ -444,6 +472,7 @@ export async function completeDailyChallenge(
     .single()
 
   if (!progress) {
+    apiLogger.error('Progress not found')
     return { error: 'Progress not found' }
   }
 
@@ -479,6 +508,7 @@ export async function completeDailyChallenge(
 
   if (updateError) {
     console.error('Error updating progress:', updateError)
+    apiLogger.error('Error updating progress', { error: updateError.message })
     return { error: updateError.message }
   }
 

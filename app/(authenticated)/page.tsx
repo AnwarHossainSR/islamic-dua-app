@@ -182,7 +182,7 @@ export default async function AdminDashboard() {
           <CardDescription>Common administrative tasks</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <Button asChild className="h-auto flex-col gap-2 py-4">
               <Link href="/challenges/new">
                 <Target className="h-6 w-6" />
@@ -199,6 +199,12 @@ export default async function AdminDashboard() {
               <Link href="/activities">
                 <TrendingUp className="h-6 w-6" />
                 <span>View Activities</span>
+              </Link>
+            </Button>
+            <Button asChild variant="outline" className="h-auto flex-col gap-2 py-4 bg-transparent">
+              <Link href="/users">
+                <Users className="h-6 w-6" />
+                <span>Manage Admins</span>
               </Link>
             </Button>
           </div>

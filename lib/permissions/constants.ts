@@ -1,4 +1,4 @@
-export type UserRole = 'user' | 'editor' | 'super_admin'
+export type UserRole = 'user' | 'editor' | 'admin' | 'super_admin'
 
 export interface Permission {
   name: string
@@ -28,6 +28,13 @@ export const PERMISSIONS = {
   USERS_DELETE: 'users.delete',
   USERS_MANAGE: 'users.manage',
   
+  // Admin Users
+  ADMIN_USERS_CREATE: 'admin_users.create',
+  ADMIN_USERS_READ: 'admin_users.read',
+  ADMIN_USERS_UPDATE: 'admin_users.update',
+  ADMIN_USERS_DELETE: 'admin_users.delete',
+  ADMIN_USERS_MANAGE: 'admin_users.manage',
+  
   // Settings
   SETTINGS_READ: 'settings.read',
   SETTINGS_UPDATE: 'settings.update',
@@ -50,8 +57,9 @@ export const PERMISSIONS = {
 export function canAccess(userRole: UserRole, requiredRole: UserRole): boolean {
   const roleHierarchy = {
     'user': 0,
-    'editor': 1, 
-    'super_admin': 2
+    'editor': 1,
+    'admin': 2,
+    'super_admin': 3
   }
   
   return roleHierarchy[userRole] >= roleHierarchy[requiredRole]

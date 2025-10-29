@@ -80,7 +80,7 @@ export async function getDuas(filters?: {
   const { data, error } = await query
 
   if (error) {
-    apiLogger.error('Failed to fetch duas', { error: error.message, filters })
+    apiLogger.error('Failed to fetch duas', { error, filters })
     throw error
   }
 
@@ -98,7 +98,7 @@ const getDuaByIdUncached = async (id: string) => {
     .single()
 
   if (error) {
-    apiLogger.error('Failed to fetch dua', { error: error.message, id })
+    apiLogger.error('Failed to fetch dua', { error, id })
     throw error
   }
 
@@ -124,7 +124,7 @@ export async function createDua(
     .single()
 
   if (error) {
-    apiLogger.error('Failed to create dua', { error: error.message, duaData })
+    apiLogger.error('Failed to create dua', { error, duaData })
     throw error
   }
 
@@ -142,7 +142,7 @@ export async function updateDua(
   const { data, error } = await supabase.from('duas').update(duaData).eq('id', id).select().single()
 
   if (error) {
-    apiLogger.error('Failed to update dua', { error: error.message, id, duaData })
+    apiLogger.error('Failed to update dua', { error, id, duaData })
     throw error
   }
 
@@ -158,7 +158,7 @@ export async function deleteDua(id: string) {
   const { error } = await supabase.from('duas').update({ is_active: false }).eq('id', id)
 
   if (error) {
-    apiLogger.error('Failed to delete dua', { error: error.message, id })
+    apiLogger.error('Failed to delete dua', { error, id })
     throw error
   }
 
@@ -176,7 +176,7 @@ export async function getDuaCategories() {
     .order('name_bn')
 
   if (error) {
-    apiLogger.error('Failed to fetch dua categories', { error: error.message })
+    apiLogger.error('Failed to fetch dua categories', { error })
     throw error
   }
 

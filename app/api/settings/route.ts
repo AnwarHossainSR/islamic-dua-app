@@ -12,9 +12,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ settings })
   } catch (error) {
-    apiLogger.error('Failed to get settings', {
-      error: error instanceof Error ? error.message : 'Unknown error',
-    })
+    apiLogger.error('Failed to get settings', { error })
     return NextResponse.json({ error: 'Failed to get settings' }, { status: 500 })
   }
 }
@@ -38,9 +36,7 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    apiLogger.error('Failed to update setting', {
-      error: error instanceof Error ? error.message : 'Unknown error',
-    })
+    apiLogger.error('Failed to update setting', { error })
     return NextResponse.json({ error: 'Failed to update setting' }, { status: 500 })
   }
 }

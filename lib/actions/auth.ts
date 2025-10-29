@@ -20,7 +20,7 @@ export async function signUp(email: string, password: string) {
   })
 
   if (error) {
-    apiLogger.error('Sign up failed', { email, error: error.message })
+    apiLogger.error('Sign up failed', { email, error })
     return { error: error.message }
   }
 
@@ -48,7 +48,7 @@ export async function signIn(email: string, password: string) {
         code: 'email_not_confirmed',
       }
     }
-    apiLogger.error('Sign in failed', { email, error: error.message })
+    apiLogger.error('Sign in failed', { email, error })
     return { error: error.message }
   }
 
@@ -83,6 +83,7 @@ export async function resendConfirmationEmail(email: string) {
   })
 
   if (error) {
+    apiLogger.error('Error resending confirmation email', { error, email })
     return { error: error.message }
   }
 

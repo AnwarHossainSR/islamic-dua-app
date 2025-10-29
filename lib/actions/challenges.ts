@@ -26,7 +26,7 @@ export async function getChallenges() {
     .order('display_order', { ascending: true })
 
   if (challengesError) {
-    console.error('Error fetching challenges:', challengesError)
+    apiLogger.error('Error fetching challenges', { error: challengesError })
     return []
   }
 
@@ -37,7 +37,7 @@ export async function getChallenges() {
     )
 
   if (progressError) {
-    console.error('Error fetching user challenge progress:', progressError)
+    apiLogger.error('Error fetching user challenge progress', { error: progressError })
     return challenges.map(challenge => ({
       ...challenge,
       user_status: 'not_started',
@@ -136,7 +136,7 @@ export async function searchAndFilterChallenges({
   const { data: challenges, error: challengesError } = await query
 
   if (challengesError) {
-    console.error('Error searching challenges:', challengesError)
+    apiLogger.error('Error searching challenges', { error: challengesError })
     return []
   }
 
@@ -167,7 +167,7 @@ export async function getFeaturedChallenges() {
     .order('display_order', { ascending: true })
 
   if (error) {
-    console.error('Error fetching featured challenges:', error)
+    apiLogger.error('Error fetching featured challenges', { error })
     return []
   }
 
@@ -184,7 +184,7 @@ const getChallengeByIdUncached = async (id: string) => {
     .single()
 
   if (error) {
-    console.error('Error fetching challenge:', error)
+    apiLogger.error('Error fetching challenge', { error, id })
     return null
   }
 
@@ -213,7 +213,7 @@ export async function getUserActiveChallenges(userId: string) {
     .order('started_at', { ascending: false })
 
   if (error) {
-    console.error('Error fetching user active challenges:', error)
+    apiLogger.error('Error fetching user active challenges', { error, userId })
     return []
   }
 
@@ -236,7 +236,7 @@ export async function getUserCompletedChallenges(userId: string) {
     .order('completed_at', { ascending: false })
 
   if (error) {
-    console.error('Error fetching user completed challenges:', error)
+    apiLogger.error('Error fetching user completed challenges', { error, userId })
     return []
   }
 
@@ -259,7 +259,7 @@ export async function getUserChallengeProgress(progressId: string) {
     .single()
 
   if (error) {
-    console.error('Error fetching challenge progress:', error)
+    apiLogger.error('Error fetching challenge progress', { error, progressId })
     return null
   }
 
@@ -337,7 +337,7 @@ export async function startChallenge(userId: string, challengeId: string) {
     .single()
 
   if (error) {
-    console.error('Error starting challenge:', error)
+    apiLogger.error('Error starting challenge', { error, userId, challengeId })
     return { error: error.message }
   }
 
@@ -350,7 +350,7 @@ export async function startChallenge(userId: string, challengeId: string) {
       throw incrementError
     }
   } catch (error) {
-    console.error('Error incrementing participants:', error)
+    apiLogger.error('Error incrementing participants', { error, challengeId })
   }
 
   revalidatePath('/challenges')
@@ -378,7 +378,7 @@ export async function restartChallenge(challenge: Challenge) {
     .eq('id', challenge.progress_id)
 
   if (error) {
-    console.error('Error restarting challenge:', error)
+    apiLogger.error('Error restarting challenge', { error, progressId: challenge.progress_id })
     return { error: error.message }
   }
 
@@ -394,7 +394,7 @@ export async function restartChallenge(challenge: Challenge) {
     .eq('id', challenge.id)
 
   if (updateError) {
-    console.error('Error updating challenge template:', updateError)
+    apiLogger.error('Error updating challenge template', { error: updateError, challengeId: challenge.id })
     return { error: updateError.message }
   }
 
@@ -460,7 +460,7 @@ export async function completeDailyChallenge(
 
   if (logError) {
     console.error('Error logging daily completion:', logError)
-    apiLogger.error('Error logging daily completion', { error: logError.message })
+    apiLogger.error('Error logging daily completion', { error: logError })
     return { error: logError.message }
   }
 
@@ -508,7 +508,7 @@ export async function completeDailyChallenge(
 
   if (updateError) {
     console.error('Error updating progress:', updateError)
-    apiLogger.error('Error updating progress', { error: updateError.message })
+    apiLogger.error('Error updating progress', { error: updateError })
     return { error: updateError.message }
   }
 
@@ -524,7 +524,7 @@ export async function completeDailyChallenge(
       throw incrementError
     }
   } catch (error) {
-    console.error('Error incrementing completions:', error)
+    apiLogger.error('Error incrementing completions', { error, challengeId })
   }
 
   revalidatePath(`/challenges/${progressId}`)
@@ -639,7 +639,7 @@ export async function createChallengeTemplate(formData: FormData) {
     .single()
 
   if (error) {
-    console.error('Error creating challenge:', error)
+    apiLogger.error('Error creating challenge', { error, challengeData })
     return { error: error.message }
   }
 
@@ -689,7 +689,7 @@ export async function updateChallengeTemplate(id: string, formData: FormData) {
   const { error } = await supabase.from('challenge_templates').update(challengeData).eq('id', id)
 
   if (error) {
-    console.error('Error updating challenge:', error)
+    apiLogger.error('Error updating challenge', { error, id })
     return { error: error.message }
   }
 
@@ -704,7 +704,7 @@ export async function deleteChallengeTemplate(id: string) {
   const { error } = await supabase.from('challenge_templates').delete().eq('id', id)
 
   if (error) {
-    console.error('Error deleting challenge:', error)
+    apiLogger.error('Error deleting challenge', { error, id })
     throw error
   }
 
@@ -768,7 +768,7 @@ export async function getUserBookmarkedChallenges(userId: string) {
     .order('created_at', { ascending: false })
 
   if (error) {
-    console.error('Error fetching bookmarked challenges:', error)
+    apiLogger.error('Error fetching bookmarked challenges', { error, userId })
     return []
   }
 
@@ -791,7 +791,7 @@ export async function getRecentLogs(limit: number = 10) {
     .limit(limit)
 
   if (error) {
-    console.error('Error fetching recent logs:', error)
+    apiLogger.error('Error fetching recent logs', { error, limit })
     return []
   }
   return data

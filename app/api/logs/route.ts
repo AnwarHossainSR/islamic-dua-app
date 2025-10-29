@@ -32,9 +32,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ logs, total: count, page, limit })
   } catch (error) {
-    apiLogger.error('Failed to retrieve logs', {
-      error: error instanceof Error ? error.message : 'Unknown error',
-    })
+    apiLogger.error('Failed to retrieve logs', { error })
     return NextResponse.json({ error: 'Failed to retrieve logs' }, { status: 500 })
   }
 }
@@ -55,9 +53,7 @@ export async function DELETE() {
     if (error) throw error
     return NextResponse.json({ success: true })
   } catch (error) {
-    apiLogger.error('Failed to clear logs', {
-      error: error,
-    })
+    apiLogger.error('Failed to clear logs', { error })
     return NextResponse.json({ error: 'Failed to clear logs' }, { status: 500 })
   }
 }

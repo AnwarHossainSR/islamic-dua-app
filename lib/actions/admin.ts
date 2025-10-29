@@ -1,5 +1,6 @@
 'use server'
 
+import { apiLogger } from '@/lib/logger'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { format, toZonedTime } from 'date-fns-tz'
 import { redirect } from 'next/navigation'
@@ -142,7 +143,7 @@ export async function getTopActivities(limit = 10) {
     .limit(limit)
 
   if (error) {
-    console.error('Error fetching top activities:', error)
+    apiLogger.error('Error fetching top activities', { error, limit })
     return []
   }
 
@@ -158,7 +159,7 @@ export async function getAllActivities() {
     .order('total_count', { ascending: false })
 
   if (error) {
-    console.error('Error fetching all activities:', error)
+    apiLogger.error('Error fetching all activities', { error })
     return []
   }
 
@@ -180,7 +181,7 @@ export async function getUserActivityStats(userId: string) {
     .order('total_completed', { ascending: false })
 
   if (error) {
-    console.error('Error fetching user activity stats:', error)
+    apiLogger.error('Error fetching user activity stats', { error, userId })
     return []
   }
 
@@ -193,7 +194,7 @@ export async function getActivityById(id: string) {
   const { data, error } = await supabase.from('activity_stats').select('*').eq('id', id).single()
 
   if (error) {
-    console.error('Error fetching activity:', error)
+    apiLogger.error('Error fetching activity', { error, id })
     return null
   }
 
@@ -211,7 +212,7 @@ export async function getActivityWithChallenges(activityId: string) {
     .single()
 
   if (activityError) {
-    console.error('Error fetching activity:', activityError)
+    apiLogger.error('Error fetching activity', { error: activityError, activityId })
     return null
   }
 
@@ -227,7 +228,10 @@ export async function getActivityWithChallenges(activityId: string) {
     .eq('activity_stat_id', activityId)
 
   if (mappingsError) {
-    console.error('Error fetching challenge mappings:', mappingsError)
+    apiLogger.error('Error fetching challenge mappings', {
+      error: mappingsError,
+      activityId,
+    })
     return { ...activity, challenges: [] }
   }
 
@@ -249,7 +253,7 @@ export async function getTopUsersForActivity(activityId: string, limit = 10) {
     .limit(limit)
 
   if (error) {
-    console.error('Error fetching top users:', error)
+    apiLogger.error('Error fetching top users', { error, activityId, limit })
     return []
   }
 
@@ -289,7 +293,11 @@ export async function updateActivityCount(activityId: string, newCount: number) 
     .eq('id', activityId)
 
   if (updateError) {
-    console.error('Error updating activity count:', updateError)
+    apiLogger.error('Error updating activity count', {
+      error: updateError,
+      activityId,
+      newCount,
+    })
     return { success: false, error: updateError.message }
   }
 
@@ -304,7 +312,11 @@ export async function updateActivityCount(activityId: string, newCount: number) 
     .eq('activity_stat_id', activityId)
 
   if (userActivityStatsError) {
-    console.error('Error updating user activity count:', userActivityStatsError)
+    apiLogger.error('Error updating user activity count', {
+      error: userActivityStatsError,
+      activityId,
+      newCount,
+    })
     return { success: false, error: userActivityStatsError.message }
   }
 

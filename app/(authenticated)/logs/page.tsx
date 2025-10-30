@@ -12,6 +12,8 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { useToast } from '@/hooks/use-toast'
+import { usePermissions } from '@/hooks/use-permissions'
+import { PERMISSIONS } from '@/lib/permissions/constants'
 import { FileText, RefreshCw, Trash2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
@@ -31,6 +33,9 @@ export default function LogsPage() {
   const [page, setPage] = useState(1)
   const [total, setTotal] = useState(0)
   const { toast } = useToast()
+  const { hasPermission } = usePermissions()
+  
+  const canDelete = hasPermission(PERMISSIONS.LOGS_DELETE)
 
   const fetchLogs = async () => {
     setLoading(true)
@@ -102,20 +107,22 @@ export default function LogsPage() {
             <RefreshCw className="mr-2 h-4 w-4" />
             Refresh
           </Button>
-          <Confirm
-            title="Clear All Logs?"
-            description="This will permanently delete all log entries. This action cannot be undone."
-            confirmText="Clear All Logs"
-            confirmVariant="destructive"
-            variant="destructive"
-            size="sm"
-            disabled={clearing}
-            onConfirm={clearAllLogs}
-            successMessage="All logs cleared successfully"
-          >
-            <Trash2 className="mr-2 h-4 w-4" />
-            Clear All
-          </Confirm>
+          {canDelete && (
+            <Confirm
+              title="Clear All Logs?"
+              description="This will permanently delete all log entries. This action cannot be undone."
+              confirmText="Clear All Logs"
+              confirmVariant="destructive"
+              variant="destructive"
+              size="sm"
+              disabled={clearing}
+              onConfirm={clearAllLogs}
+              successMessage="All logs cleared successfully"
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Clear All
+            </Confirm>
+          )}
         </div>
       </div>
 

@@ -1,24 +1,15 @@
+import { checkPermission } from '@/lib/actions/auth'
+import { apiLogger } from '@/lib/logger'
+import { PERMISSIONS } from '@/lib/permissions/constants'
 import { getSupabaseServerClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
 
 export async function POST(request: Request) {
   try {
+    await checkPermission(PERMISSIONS.DASHBOARD_MANAGE)
+    
     const { table } = await request.json()
     const supabase = await getSupabaseServerClient()
-
-    // Verify admin access
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
-
-    const { data: adminUser } = await supabase.from("admin_users").select("*").eq("user_id", user.id).single()
-
-    if (!adminUser || !adminUser.is_active) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
 
     // Clear specified table(s)
     if (table === "all") {
@@ -40,6 +31,10 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true })
   } catch (error: any) {
+    if (error.message === 'Access denied') {
+      return NextResponse.json({ error: 'Access denied' }, { status: 403 })
+    }
+    apiLogger.error('Failed to clear data', { error })
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }

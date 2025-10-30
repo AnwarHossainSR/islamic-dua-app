@@ -1,6 +1,7 @@
 'use server'
 
-import { getUser } from '@/lib/actions/auth'
+import { checkPermission, getUser } from '@/lib/actions/auth'
+import { PERMISSIONS } from '@/lib/permissions/constants'
 import { getSupabaseAdminServerClient, getSupabaseServerClient } from '@/lib/supabase/server'
 
 export interface AppSetting {
@@ -30,6 +31,7 @@ export async function getAppSettings(category?: string): Promise<AppSetting[]> {
 }
 
 export async function updateAppSetting(key: string, value: any): Promise<void> {
+  await checkPermission(PERMISSIONS.SETTINGS_UPDATE)
   const supabase = getSupabaseAdminServerClient()
 
   const { error } = await supabase.from('app_settings').update({ value }).eq('key', key)

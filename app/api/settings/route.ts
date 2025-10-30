@@ -1,17 +1,23 @@
-import { checkAdminStatus } from '@/lib/actions/auth'
+import { checkPermission } from '@/lib/actions/auth'
 import { getAppSettings, updateAppSetting } from '@/lib/actions/settings'
 import { apiLogger } from '@/lib/logger'
+import { PERMISSIONS } from '@/lib/permissions/constants'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(request: NextRequest) {
   try {
+    await checkPermission(PERMISSIONS.SETTINGS_READ)
+    
     const { searchParams } = new URL(request.url)
     const category = searchParams.get('category')
 
     const settings = await getAppSettings(category || undefined)
 
     return NextResponse.json({ settings })
-  } catch (error) {
+  } catch (error: any) {
+    if (error.message === 'Access denied') {
+      return NextResponse.json({ error: 'Access denied' }, { status: 403 })
+    }
     apiLogger.error('Failed to get settings', { error })
     return NextResponse.json({ error: 'Failed to get settings' }, { status: 500 })
   }
@@ -19,10 +25,7 @@ export async function GET(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    const admin = await checkAdminStatus()
-    if (!admin) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+    await checkPermission(PERMISSIONS.SETTINGS_UPDATE)
 
     const { key, value } = await request.json()
 
@@ -32,10 +35,13 @@ export async function PUT(request: NextRequest) {
 
     await updateAppSetting(key, value)
 
-    apiLogger.info('App setting updated', { admin_id: admin.user_id, key, value })
+    apiLogger.info('App setting updated', { key, value })
 
     return NextResponse.json({ success: true })
-  } catch (error) {
+  } catch (error: any) {
+    if (error.message === 'Access denied') {
+      return NextResponse.json({ error: 'Access denied' }, { status: 403 })
+    }
     apiLogger.error('Failed to update setting', { error })
     return NextResponse.json({ error: 'Failed to update setting' }, { status: 500 })
   }

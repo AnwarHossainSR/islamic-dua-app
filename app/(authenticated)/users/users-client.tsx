@@ -22,7 +22,8 @@ import {
 } from '@/components/ui/select'
 import { useToast } from '@/hooks/use-toast'
 import { addAdminUser, removeAdminUser, updateAdminUser } from '@/lib/actions/admin-users'
-import { Edit, Trash2, UserPlus } from 'lucide-react'
+import { Edit, Shield, Trash2, UserPlus } from 'lucide-react'
+import Link from 'next/link'
 import { useState } from 'react'
 
 interface User {
@@ -279,6 +280,11 @@ export function UsersClient({ users }: UsersClientProps) {
               <div className="flex gap-2">
                 <Button variant="outline" size="sm" onClick={() => openEditDialog(user)}>
                   <Edit className="h-4 w-4" />
+                </Button>
+                <Button variant="outline" size="sm" asChild>
+                  <Link href={`/users/${user.user_id}/permissions`}>
+                    <Shield className="h-4 w-4" />
+                  </Link>
                 </Button>
                 <Button
                   variant="outline"

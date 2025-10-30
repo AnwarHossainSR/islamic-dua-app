@@ -2,18 +2,20 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { getAllActivities } from '@/lib/actions/admin'
+import { getUserActivities, getUserChallengeStats } from '@/lib/actions/user-activities'
 import { Activity, ArrowLeft, Search, TrendingUp, Users } from 'lucide-react'
 import Link from 'next/link'
 
 export default async function ActivitiesPage() {
-  const activities = await getAllActivities()
+  const [userActivities, challengeStats] = await Promise.all([
+    getUserActivities(),
+    getUserChallengeStats()
+  ])
 
-  // Calculate total stats
-  const totalCompletions = activities.reduce((sum, a) => sum + (a.total_count || 0), 0)
-  const totalUsers = activities.reduce((sum, a) => sum + (a.total_users || 0), 0)
-  const avgPerActivity =
-    activities.length > 0 ? Math.round(totalCompletions / activities.length) : 0
+  // Calculate user's total stats
+  const totalCompletions = userActivities.reduce((sum, a) => sum + (a.total_completed || 0), 0)
+  const totalActivities = userActivities.length
+  const avgPerActivity = totalActivities > 0 ? Math.round(totalCompletions / totalActivities) : 0
 
   return (
     <div className="space-y-6">
@@ -25,9 +27,9 @@ export default async function ActivitiesPage() {
           </Link>
         </Button>
         <div>
-          <h1 className="text-4xl font-bold">Activity Statistics</h1>
+          <h1 className="text-4xl font-bold">My Activities</h1>
           <p className="text-muted-foreground">
-            Track all dhikr, prayers, and activities completed by users
+            Track your personal dhikr, prayers, and activities progress
           </p>
         </div>
       </div>
@@ -38,7 +40,7 @@ export default async function ActivitiesPage() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Total Completions</p>
+                <p className="text-sm text-muted-foreground">My Completions</p>
                 <p className="text-3xl font-bold">{totalCompletions.toLocaleString()}</p>
               </div>
               <TrendingUp className="h-8 w-8 text-emerald-500" />
@@ -50,10 +52,10 @@ export default async function ActivitiesPage() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Active Users</p>
-                <p className="text-3xl font-bold">{totalUsers}</p>
+                <p className="text-sm text-muted-foreground">Days Completed</p>
+                <p className="text-3xl font-bold">{challengeStats.totalDaysCompleted}</p>
               </div>
-              <Users className="h-8 w-8 text-blue-500" />
+              <TrendingUp className="h-8 w-8 text-blue-500" />
             </div>
           </CardContent>
         </Card>
@@ -62,10 +64,10 @@ export default async function ActivitiesPage() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Avg per Activity</p>
-                <p className="text-3xl font-bold">{avgPerActivity.toLocaleString()}</p>
+                <p className="text-sm text-muted-foreground">Longest Streak</p>
+                <p className="text-3xl font-bold">{challengeStats.longestStreak}</p>
               </div>
-              <Activity className="h-8 w-8 text-purple-500" />
+              <Activity className="h-8 w-8 text-orange-500" />
             </div>
           </CardContent>
         </Card>
@@ -85,11 +87,11 @@ export default async function ActivitiesPage() {
         </CardContent>
       </Card>
 
-      {/* Activities List */}
+      {/* My Activities List */}
       <div className="space-y-4">
-        {activities.map((activity, index) => {
-          const completionRate =
-            activity.total_users > 0 ? Math.round(activity.total_count / activity.total_users) : 0
+        {userActivities.map((userActivity, index) => {
+          const activity = userActivity.activity
+          const completionRate = userActivity.total_completed || 0
 
           return (
             <Card key={activity.id} className="overflow-hidden">
@@ -143,26 +145,31 @@ export default async function ActivitiesPage() {
                   <div className="grid grid-cols-2 gap-3">
                     <div className="rounded-lg border bg-muted/50 p-3 text-center">
                       <p className="text-2xl font-bold text-emerald-600">
-                        {activity.total_count.toLocaleString()}
+                        {userActivity.total_completed.toLocaleString()}
                       </p>
-                      <p className="text-xs text-muted-foreground">Total Count</p>
+                      <p className="text-xs text-muted-foreground">My Count</p>
                     </div>
                     <div className="rounded-lg border bg-muted/50 p-3 text-center">
                       <div className="flex items-center justify-center gap-1">
                         <Users className="h-4 w-4 text-blue-500" />
                         <span className="text-2xl font-bold text-blue-600">
-                          {activity.total_users}
+                          {userActivity.longest_streak || 0}
                         </span>
                       </div>
-                      <p className="text-xs text-muted-foreground">Users</p>
+                      <p className="text-xs text-muted-foreground">Best Streak</p>
                     </div>
                   </div>
 
                   {/* Average per user */}
                   <div className="rounded-lg border bg-gradient-to-r from-emerald-50 to-blue-50 dark:from-emerald-950 dark:to-blue-950 p-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-medium">Avg per User</span>
-                      <span className="text-lg font-bold">{completionRate.toLocaleString()}</span>
+                      <span className="text-xs font-medium">Last Completed</span>
+                      <span className="text-sm font-medium">
+                        {userActivity.last_completed_at 
+                          ? new Date(userActivity.last_completed_at).toLocaleDateString()
+                          : 'Never'
+                        }
+                      </span>
                     </div>
                   </div>
 
@@ -176,13 +183,13 @@ export default async function ActivitiesPage() {
           )
         })}
 
-        {activities.length === 0 && (
+        {userActivities.length === 0 && (
           <Card>
             <CardContent className="flex flex-col items-center justify-center py-16">
               <Activity className="mb-4 h-16 w-16 text-muted-foreground" />
               <p className="mb-2 text-lg font-semibold">No activities yet</p>
               <p className="mb-4 text-sm text-muted-foreground">
-                Activities will appear here when users complete challenges
+                Start completing challenges to see your activity stats here
               </p>
             </CardContent>
           </Card>
@@ -199,11 +206,11 @@ export default async function ActivitiesPage() {
         </CardHeader>
         <CardContent className="text-sm text-blue-800 dark:text-blue-200">
           <ul className="list-disc list-inside space-y-1">
-            <li>Activity stats are automatically created when you create a new challenge</li>
-            <li>Stats are updated in real-time when users complete daily challenge logs</li>
-            <li>Multiple challenges can be linked to the same activity</li>
-            <li>Total count shows all-time completions across all users</li>
-            <li>Users count shows unique participants who completed this activity</li>
+            <li>Your personal activity stats are updated when you complete daily challenges</li>
+            <li>Stats show your individual progress and achievements</li>
+            <li>Track your completion counts, streaks, and progress over time</li>
+            <li>My Count shows your total completions for each activity</li>
+            <li>Best Streak shows your longest consecutive completion streak</li>
           </ul>
         </CardContent>
       </Card>

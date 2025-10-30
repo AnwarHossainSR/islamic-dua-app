@@ -47,7 +47,7 @@ export async function getAllPermissions() {
 }
 
 // Get permissions for a specific role
-export async function getRolePermissions(role: string) {
+export async function getRolePermissions(role: string): Promise<Permission[]> {
   const supabase = getSupabaseAdminServerClient()
   
   const { data, error } = await supabase
@@ -62,15 +62,15 @@ export async function getRolePermissions(role: string) {
     return []
   }
 
-  return data.map(item => item.permission).filter(Boolean)
+  return (data.map(item => item.permission).filter(Boolean) as unknown) as Permission[]
 }
 
 // Get all roles with their permissions
-export async function getAllRolesWithPermissions() {
+export async function getAllRolesWithPermissions(): Promise<Role[]> {
   const supabase = getSupabaseAdminServerClient()
   
   const roles = ['user', 'editor', 'admin', 'super_admin']
-  const rolesWithPermissions = []
+  const rolesWithPermissions: Role[] = []
 
   for (const role of roles) {
     const permissions = await getRolePermissions(role)

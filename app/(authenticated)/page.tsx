@@ -2,7 +2,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { getAdminActivityStats, getTopActivities } from '@/lib/actions/admin'
-import { Activity, Flame, Target, TrendingUp, Trophy, Users } from 'lucide-react'
+import { Activity, Flame, Shield, Target, TrendingUp, Trophy, Users } from 'lucide-react'
 import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
@@ -205,6 +205,12 @@ export default async function AdminDashboard() {
               <Link href="/users">
                 <Users className="h-6 w-6" />
                 <span>Manage Admins</span>
+              </Link>
+            </Button>
+            <Button asChild variant="outline" className="h-auto flex-col gap-2 py-4 bg-transparent">
+              <Link href="/users/permissions">
+                <Shield className="h-6 w-6" />
+                <span>Permissions</span>
               </Link>
             </Button>
           </div>

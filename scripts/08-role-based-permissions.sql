@@ -3,7 +3,7 @@
 -- ============================================
 
 -- Create roles enum
-CREATE TYPE user_role AS ENUM ('user', 'editor', 'super_admin');
+CREATE TYPE user_role AS ENUM ('user', 'editor', 'admin', 'super_admin');
 
 -- Update admin_users table to include role
 ALTER TABLE admin_users ADD COLUMN IF NOT EXISTS role user_role DEFAULT 'user';
@@ -52,6 +52,13 @@ INSERT INTO permissions (name, description, resource, action) VALUES
 ('users.delete', 'Delete users', 'users', 'delete'),
 ('users.manage', 'Full user management', 'users', 'manage'),
 
+-- Admin Users
+('admin_users.create', 'Create admin users', 'admin_users', 'create'),
+('admin_users.read', 'View admin users', 'admin_users', 'read'),
+('admin_users.update', 'Update admin users', 'admin_users', 'update'),
+('admin_users.delete', 'Delete admin users', 'admin_users', 'delete'),
+('admin_users.manage', 'Full admin users management', 'admin_users', 'manage'),
+
 -- Settings
 ('settings.read', 'View settings', 'settings', 'read'),
 ('settings.update', 'Edit settings', 'settings', 'update'),
@@ -85,6 +92,18 @@ INSERT INTO role_permissions (role, permission_id)
 SELECT 'editor', id FROM permissions WHERE name IN (
   'challenges.create', 'challenges.read', 'challenges.update', 'challenges.delete',
   'duas.create', 'duas.read', 'duas.update', 'duas.delete',
+  'activities.read',
+  'dashboard.read',
+  'settings.read'
+) ON CONFLICT DO NOTHING;
+
+-- ADMIN role (user management + editor permissions)
+INSERT INTO role_permissions (role, permission_id) 
+SELECT 'admin', id FROM permissions WHERE name IN (
+  'challenges.create', 'challenges.read', 'challenges.update', 'challenges.delete',
+  'duas.create', 'duas.read', 'duas.update', 'duas.delete',
+  'users.read', 'users.update', 'users.delete', 'users.manage',
+  'admin_users.create', 'admin_users.read', 'admin_users.update', 'admin_users.delete', 'admin_users.manage',
   'activities.read',
   'dashboard.read',
   'settings.read'

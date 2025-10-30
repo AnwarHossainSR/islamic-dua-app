@@ -54,7 +54,8 @@ export function usePermissions(): UsePermissionsReturn {
     const roleHierarchy = {
       'user': 0,
       'editor': 1,
-      'super_admin': 2
+      'admin': 2,
+      'super_admin': 3
     }
     
     return roleHierarchy[role] >= roleHierarchy[requiredRole]

@@ -1,14 +1,12 @@
-import { checkAdminStatus } from '@/lib/actions/auth'
+import { checkAdminStatus, checkPermission } from '@/lib/actions/auth'
 import { apiLogger } from '@/lib/logger'
+import { PERMISSIONS } from '@/lib/permissions/constants'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(request: NextRequest) {
   try {
-    const admin = await checkAdminStatus()
-    if (!admin) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+    await checkPermission(PERMISSIONS.LOGS_READ)
 
     const { searchParams } = new URL(request.url)
     const page = parseInt(searchParams.get('page') || '1')
@@ -39,10 +37,7 @@ export async function GET(request: NextRequest) {
 
 export async function DELETE() {
   try {
-    const admin = await checkAdminStatus()
-    if (!admin) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+    await checkPermission(PERMISSIONS.LOGS_DELETE)
 
     const supabase = await getSupabaseServerClient()
     const { error, data } = await supabase

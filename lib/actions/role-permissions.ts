@@ -1,8 +1,10 @@
 'use server'
 
 import { apiLogger } from '@/lib/logger'
-import { getSupabaseAdminServerClient } from '@/lib/supabase/server'
+import { PERMISSIONS } from '@/lib/permissions/constants'
+import { getSupabaseAdminServerClient, getSupabaseServerClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { checkPermission } from './auth'
 
 export interface Permission {
   id: string
@@ -30,6 +32,7 @@ export interface UserWithPermissions {
 
 // Get all permissions
 export async function getAllPermissions() {
+  await checkPermission(PERMISSIONS.ADMIN_USERS_READ)
   const supabase = getSupabaseAdminServerClient()
   
   const { data, error } = await supabase
@@ -48,6 +51,7 @@ export async function getAllPermissions() {
 
 // Get permissions for a specific role
 export async function getRolePermissions(role: string): Promise<Permission[]> {
+  await checkPermission(PERMISSIONS.ADMIN_USERS_READ)
   const supabase = getSupabaseAdminServerClient()
   
   const { data, error } = await supabase
@@ -67,6 +71,7 @@ export async function getRolePermissions(role: string): Promise<Permission[]> {
 
 // Get all roles with their permissions
 export async function getAllRolesWithPermissions(): Promise<Role[]> {
+  await checkPermission(PERMISSIONS.ADMIN_USERS_READ)
   const supabase = getSupabaseAdminServerClient()
   
   const roles = ['user', 'editor', 'admin', 'super_admin']
@@ -82,7 +87,10 @@ export async function getAllRolesWithPermissions(): Promise<Role[]> {
 
 // Add permission to role
 export async function addPermissionToRole(role: string, permissionId: string) {
+  await checkPermission(PERMISSIONS.ADMIN_USERS_MANAGE)
   const supabase = getSupabaseAdminServerClient()
+  const userSupabase = await getSupabaseServerClient()
+  const { data: { user } } = await userSupabase.auth.getUser()
   
   const { data, error } = await supabase
     .from('role_permissions')
@@ -93,11 +101,11 @@ export async function addPermissionToRole(role: string, permissionId: string) {
     .select()
 
   if (error) {
-    apiLogger.error('Error adding permission to role', { error, role, permissionId })
+    apiLogger.error('Error adding permission to role', { error, role, permissionId, userEmail: user?.email })
     return { error: 'Failed to add permission to role' }
   }
 
-  apiLogger.info('Permission added to role', { role, permissionId })
+  apiLogger.info('Permission added to role', { role, permissionId, userEmail: user?.email })
   revalidatePath('/users')
   revalidatePath('/users/permissions')
   revalidatePath('/users/[id]/permissions', 'page')
@@ -106,7 +114,10 @@ export async function addPermissionToRole(role: string, permissionId: string) {
 
 // Remove permission from role
 export async function removePermissionFromRole(role: string, permissionId: string) {
+  await checkPermission(PERMISSIONS.ADMIN_USERS_MANAGE)
   const supabase = getSupabaseAdminServerClient()
+  const userSupabase = await getSupabaseServerClient()
+  const { data: { user } } = await userSupabase.auth.getUser()
   
   const { error } = await supabase
     .from('role_permissions')
@@ -115,11 +126,11 @@ export async function removePermissionFromRole(role: string, permissionId: strin
     .eq('permission_id', permissionId)
 
   if (error) {
-    apiLogger.error('Error removing permission from role', { error, role, permissionId })
+    apiLogger.error('Error removing permission from role', { error, role, permissionId, userEmail: user?.email })
     return { error: 'Failed to remove permission from role' }
   }
 
-  apiLogger.info('Permission removed from role', { role, permissionId })
+  apiLogger.info('Permission removed from role', { role, permissionId, userEmail: user?.email })
   revalidatePath('/users')
   revalidatePath('/users/permissions')
   revalidatePath('/users/[id]/permissions', 'page')
@@ -128,7 +139,10 @@ export async function removePermissionFromRole(role: string, permissionId: strin
 
 // Create new permission
 export async function createPermission(permission: Omit<Permission, 'id' | 'created_at'>) {
+  await checkPermission(PERMISSIONS.ADMIN_USERS_MANAGE)
   const supabase = getSupabaseAdminServerClient()
+  const userSupabase = await getSupabaseServerClient()
+  const { data: { user } } = await userSupabase.auth.getUser()
   
   const { data, error } = await supabase
     .from('permissions')
@@ -137,11 +151,11 @@ export async function createPermission(permission: Omit<Permission, 'id' | 'crea
     .single()
 
   if (error) {
-    apiLogger.error('Error creating permission', { error, permission })
+    apiLogger.error('Error creating permission', { error, permission, userEmail: user?.email })
     return { error: 'Failed to create permission' }
   }
 
-  apiLogger.info('Permission created', { permissionId: data.id, name: data.name })
+  apiLogger.info('Permission created', { permissionId: data.id, name: data.name, userEmail: user?.email })
   revalidatePath('/users')
   revalidatePath('/users/permissions')
   return { data }
@@ -149,7 +163,10 @@ export async function createPermission(permission: Omit<Permission, 'id' | 'crea
 
 // Update permission
 export async function updatePermission(id: string, updates: Partial<Omit<Permission, 'id' | 'created_at'>>) {
+  await checkPermission(PERMISSIONS.ADMIN_USERS_MANAGE)
   const supabase = getSupabaseAdminServerClient()
+  const userSupabase = await getSupabaseServerClient()
+  const { data: { user } } = await userSupabase.auth.getUser()
   
   const { data, error } = await supabase
     .from('permissions')
@@ -159,11 +176,11 @@ export async function updatePermission(id: string, updates: Partial<Omit<Permiss
     .single()
 
   if (error) {
-    apiLogger.error('Error updating permission', { error, id, updates })
+    apiLogger.error('Error updating permission', { error, id, updates, userEmail: user?.email })
     return { error: 'Failed to update permission' }
   }
 
-  apiLogger.info('Permission updated', { permissionId: id })
+  apiLogger.info('Permission updated', { permissionId: id, userEmail: user?.email })
   revalidatePath('/users')
   revalidatePath('/users/permissions')
   return { data }
@@ -171,7 +188,10 @@ export async function updatePermission(id: string, updates: Partial<Omit<Permiss
 
 // Delete permission
 export async function deletePermission(id: string) {
+  await checkPermission(PERMISSIONS.ADMIN_USERS_MANAGE)
   const supabase = getSupabaseAdminServerClient()
+  const userSupabase = await getSupabaseServerClient()
+  const { data: { user } } = await userSupabase.auth.getUser()
   
   const { error } = await supabase
     .from('permissions')
@@ -179,11 +199,11 @@ export async function deletePermission(id: string) {
     .eq('id', id)
 
   if (error) {
-    apiLogger.error('Error deleting permission', { error, id })
+    apiLogger.error('Error deleting permission', { error, id, userEmail: user?.email })
     return { error: 'Failed to delete permission' }
   }
 
-  apiLogger.info('Permission deleted', { permissionId: id })
+  apiLogger.info('Permission deleted', { permissionId: id, userEmail: user?.email })
   revalidatePath('/users')
   revalidatePath('/users/permissions')
   return { success: true }
@@ -191,6 +211,7 @@ export async function deletePermission(id: string) {
 
 // Get user with all permissions (role-based)
 export async function getUserWithAllPermissions(userId: string) {
+  await checkPermission(PERMISSIONS.ADMIN_USERS_READ)
   const supabase = getSupabaseAdminServerClient()
   
   // Get user info

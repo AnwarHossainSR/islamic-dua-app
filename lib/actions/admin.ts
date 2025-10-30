@@ -1,10 +1,12 @@
 'use server'
 
 import { apiLogger } from '@/lib/logger'
+import { PERMISSIONS } from '@/lib/permissions/constants'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { format, toZonedTime } from 'date-fns-tz'
 import { redirect } from 'next/navigation'
 import { cache } from 'react'
+import { checkPermission } from './auth'
 
 export async function checkAdminAccess() {
   const supabase = await getSupabaseServerClient()
@@ -57,6 +59,7 @@ export const isUserAdmin = cache(isUserAdminUncached)
 // ============================================
 
 export async function getAdminActivityStats() {
+  await checkPermission(PERMISSIONS.ACTIVITIES_READ)
   const supabase = await getSupabaseServerClient()
 
   // Get total activities count
@@ -134,6 +137,7 @@ export async function getAdminActivityStats() {
 }
 
 export async function getTopActivities(limit = 10) {
+  await checkPermission(PERMISSIONS.ACTIVITIES_READ)
   const supabase = await getSupabaseServerClient()
 
   const { data, error } = await supabase
@@ -151,6 +155,7 @@ export async function getTopActivities(limit = 10) {
 }
 
 export async function getAllActivities() {
+  await checkPermission(PERMISSIONS.ACTIVITIES_READ)
   const supabase = await getSupabaseServerClient()
 
   const { data, error } = await supabase
@@ -265,8 +270,7 @@ export async function getTopUsersForActivity(activityId: string, limit = 10) {
 // ============================================
 
 export async function updateActivityCount(activityId: string, newCount: number) {
-  // Verify admin access
-  await checkAdminAccess()
+  await checkPermission(PERMISSIONS.ACTIVITIES_MANAGE)
 
   const supabase = await getSupabaseServerClient()
 
@@ -329,6 +333,7 @@ export async function updateActivityCount(activityId: string, newCount: number) 
 
 // Recalculate all activity stats (useful for maintenance)
 export async function recalculateActivityStats() {
+  await checkPermission(PERMISSIONS.ACTIVITIES_MANAGE)
   const supabase = await getSupabaseServerClient()
 
   // Get all activities

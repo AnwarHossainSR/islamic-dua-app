@@ -1,8 +1,10 @@
 'use server'
 
 import { apiLogger } from '@/lib/logger'
+import { PERMISSIONS } from '@/lib/permissions/constants'
 import { getSupabaseAdminServerClient, getSupabaseServerClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { checkPermission } from './auth'
 
 export interface Permission {
   id: string
@@ -22,6 +24,7 @@ export interface UserPermission {
 }
 
 export async function getAllPermissions() {
+  await checkPermission(PERMISSIONS.ADMIN_USERS_READ)
   const supabase = getSupabaseAdminServerClient()
   
   const { data, error } = await supabase
@@ -39,6 +42,7 @@ export async function getAllPermissions() {
 }
 
 export async function getUserPermissions(userId: string) {
+  await checkPermission(PERMISSIONS.ADMIN_USERS_READ)
   const supabase = getSupabaseAdminServerClient()
   
   const { data, error } = await supabase
@@ -55,6 +59,7 @@ export async function getUserPermissions(userId: string) {
 }
 
 export async function getRolePermissions(role: string) {
+  await checkPermission(PERMISSIONS.ADMIN_USERS_READ)
   const supabase = getSupabaseAdminServerClient()
   
   const { data, error } = await supabase
@@ -74,6 +79,7 @@ export async function getRolePermissions(role: string) {
 }
 
 export async function addRolePermission(role: string, permissionId: string) {
+  await checkPermission(PERMISSIONS.ADMIN_USERS_MANAGE)
   const supabase = getSupabaseAdminServerClient()
   
   const { data, error } = await supabase
@@ -96,6 +102,7 @@ export async function addRolePermission(role: string, permissionId: string) {
 }
 
 export async function removeRolePermission(role: string, permissionId: string) {
+  await checkPermission(PERMISSIONS.ADMIN_USERS_MANAGE)
   const supabase = getSupabaseAdminServerClient()
   
   const { error } = await supabase
@@ -115,6 +122,7 @@ export async function removeRolePermission(role: string, permissionId: string) {
 }
 
 export async function getUserWithPermissions(userId: string) {
+  await checkPermission(PERMISSIONS.ADMIN_USERS_READ)
   const supabase = getSupabaseAdminServerClient()
   
   // Get user info
@@ -144,6 +152,7 @@ export async function getUserWithPermissions(userId: string) {
 }
 
 export async function createPermission(permission: Omit<Permission, 'id'>) {
+  await checkPermission(PERMISSIONS.ADMIN_USERS_MANAGE)
   const supabase = getSupabaseAdminServerClient()
   
   const { data, error } = await supabase
@@ -163,6 +172,7 @@ export async function createPermission(permission: Omit<Permission, 'id'>) {
 }
 
 export async function updatePermission(id: string, updates: Partial<Permission>) {
+  await checkPermission(PERMISSIONS.ADMIN_USERS_MANAGE)
   const supabase = getSupabaseAdminServerClient()
   
   const { data, error } = await supabase
@@ -183,6 +193,7 @@ export async function updatePermission(id: string, updates: Partial<Permission>)
 }
 
 export async function deletePermission(id: string) {
+  await checkPermission(PERMISSIONS.ADMIN_USERS_MANAGE)
   const supabase = getSupabaseAdminServerClient()
   
   const { error } = await supabase

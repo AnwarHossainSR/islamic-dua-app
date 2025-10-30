@@ -1,9 +1,10 @@
 'use server'
 
 import { apiLogger } from '@/lib/logger'
+import { PERMISSIONS } from '@/lib/permissions/constants'
 import { getSupabaseAdminServerClient, getSupabaseServerClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
-import { checkAdminAccess } from './admin'
+import { checkPermission } from './auth'
 
 export interface AdminUser {
   id: string
@@ -16,27 +17,8 @@ export interface AdminUser {
 }
 
 export async function getAdminUsers() {
-  // Check if user is at least admin level
+  await checkPermission(PERMISSIONS.ADMIN_USERS_READ)
   const supabase = await getSupabaseServerClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    throw new Error('Not authenticated')
-  }
-
-  // Check if user is admin or super_admin
-  const { data: adminUser } = await supabase
-    .from('admin_users')
-    .select('role')
-    .eq('user_id', user.id)
-    .eq('is_active', true)
-    .single()
-
-  if (!adminUser || (adminUser.role !== 'admin' && adminUser.role !== 'super_admin')) {
-    throw new Error('Access denied: Admin privileges required')
-  }
 
   const { data, error } = await supabase
     .from('admin_users')
@@ -57,13 +39,8 @@ export async function getAdminUsers() {
 }
 
 export async function addAdminUser(email: string, role: string = 'admin', password?: string) {
-  // Check if user is at least admin level
+  await checkPermission(PERMISSIONS.ADMIN_USERS_CREATE)
   const supabase = getSupabaseAdminServerClient()
-  const superAdmin = await checkAdminAccess()
-
-  if (!superAdmin) {
-    throw new Error('Access denied: Super admin privileges required')
-  }
 
   // First, check if user already exists
   const { data: users, error: userError } = await supabase.auth.admin.listUsers()
@@ -123,12 +100,14 @@ export async function addAdminUser(email: string, role: string = 'admin', passwo
     return { error: 'Failed to add admin user' }
   }
 
+  const { data: { user: currentUser } } = await supabase.auth.getUser()
   apiLogger.info('Admin user added', {
     email,
     role,
     adminUserId: data.id,
     userCreated,
     generatedPassword: userCreated ? generatedPassword : 'N/A',
+    actionBy: currentUser?.email
   })
   revalidatePath('/users')
   return {
@@ -139,13 +118,8 @@ export async function addAdminUser(email: string, role: string = 'admin', passwo
 }
 
 export async function updateAdminUser(id: string, updates: { role?: string; is_active?: boolean }) {
-  // Check if user is at least admin level
+  await checkPermission(PERMISSIONS.ADMIN_USERS_UPDATE)
   const supabase = getSupabaseAdminServerClient()
-  const superAdmin = await checkAdminAccess()
-
-  if (!superAdmin) {
-    throw new Error('Access denied: Super admin privileges required')
-  }
 
   const { data, error } = await supabase
     .from('admin_users')
@@ -159,34 +133,15 @@ export async function updateAdminUser(id: string, updates: { role?: string; is_a
     return { error: 'Failed to update admin user' }
   }
 
-  apiLogger.info('Admin user updated', { id, updates })
+  const { data: { user: currentUser } } = await supabase.auth.getUser()
+  apiLogger.info('Admin user updated', { id, updates, actionBy: currentUser?.email })
   revalidatePath('/users')
   return { data }
 }
 
 export async function removeAdminUser(id: string) {
-  // Check if user is at least admin level
+  await checkPermission(PERMISSIONS.ADMIN_USERS_DELETE)
   const supabase = getSupabaseAdminServerClient()
-  const userSupabase = await getSupabaseAdminServerClient()
-  const {
-    data: { user },
-  } = await userSupabase.auth.getUser()
-
-  if (!user) {
-    throw new Error('Not authenticated')
-  }
-
-  // Check if user is admin or super_admin
-  const { data: adminUser } = await supabase
-    .from('admin_users')
-    .select('role')
-    .eq('user_id', user.id)
-    .eq('is_active', true)
-    .single()
-
-  if (!adminUser || (adminUser.role !== 'admin' && adminUser.role !== 'super_admin')) {
-    throw new Error('Access denied: Admin privileges required')
-  }
 
   const { error } = await supabase.from('admin_users').delete().eq('id', id)
 
@@ -195,7 +150,8 @@ export async function removeAdminUser(id: string) {
     return { error: 'Failed to remove admin user' }
   }
 
-  apiLogger.info('Admin user removed', { id })
+  const { data: { user: currentUser } } = await supabase.auth.getUser()
+  apiLogger.info('Admin user removed', { id, actionBy: currentUser?.email })
   revalidatePath('/users')
   return { success: true }
 }

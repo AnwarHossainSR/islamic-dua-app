@@ -35,7 +35,7 @@ interface User {
 
 interface PermissionsClientProps {
   user: User
-  userPermissions: UserPermission[]
+  userPermissions: Permission[]
   allPermissions: Permission[]
 }
 
@@ -53,7 +53,7 @@ export function PermissionsClient({ user, userPermissions, allPermissions }: Per
   }, {} as Record<string, Permission[]>)
 
   // Get user's current permission names
-  const userPermissionNames = new Set(userPermissions.map(p => p.permission_name))
+  const userPermissionNames = new Set(userPermissions.map(p => p.name))
 
   const handlePermissionToggle = async (permission: Permission, isChecked: boolean) => {
     setLoading(true)
@@ -105,8 +105,8 @@ export function PermissionsClient({ user, userPermissions, allPermissions }: Per
         <h3 className="text-lg font-medium">Current Permissions ({userPermissions.length})</h3>
         <div className="flex flex-wrap gap-2">
           {userPermissions.map((permission) => (
-            <Badge key={permission.permission_name} variant="secondary">
-              {permission.permission_name}
+            <Badge key={permission.name} variant="secondary">
+              {permission.name}
             </Badge>
           ))}
         </div>

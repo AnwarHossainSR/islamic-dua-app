@@ -99,6 +99,8 @@ export async function addPermissionToRole(role: string, permissionId: string) {
 
   apiLogger.info('Permission added to role', { role, permissionId })
   revalidatePath('/users')
+  revalidatePath('/users/permissions')
+  revalidatePath('/users/[id]/permissions', 'page')
   return { success: true }
 }
 
@@ -119,6 +121,8 @@ export async function removePermissionFromRole(role: string, permissionId: strin
 
   apiLogger.info('Permission removed from role', { role, permissionId })
   revalidatePath('/users')
+  revalidatePath('/users/permissions')
+  revalidatePath('/users/[id]/permissions', 'page')
   return { success: true }
 }
 
@@ -139,6 +143,7 @@ export async function createPermission(permission: Omit<Permission, 'id' | 'crea
 
   apiLogger.info('Permission created', { permissionId: data.id, name: data.name })
   revalidatePath('/users')
+  revalidatePath('/users/permissions')
   return { data }
 }
 
@@ -160,6 +165,7 @@ export async function updatePermission(id: string, updates: Partial<Omit<Permiss
 
   apiLogger.info('Permission updated', { permissionId: id })
   revalidatePath('/users')
+  revalidatePath('/users/permissions')
   return { data }
 }
 
@@ -179,6 +185,7 @@ export async function deletePermission(id: string) {
 
   apiLogger.info('Permission deleted', { permissionId: id })
   revalidatePath('/users')
+  revalidatePath('/users/permissions')
   return { success: true }
 }
 

@@ -1,5 +1,6 @@
 'use server'
 
+import { getUser } from '@/lib/actions/auth'
 import { getSupabaseServerClient, getSupabaseAdminServerClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
@@ -42,7 +43,7 @@ export async function getUnreadCount() {
 
 export async function markAsRead(notificationId: string) {
   const supabase = await getSupabaseServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getUser()
   
   if (!user) throw new Error('Not authenticated')
   
@@ -57,7 +58,7 @@ export async function markAsRead(notificationId: string) {
 
 export async function markAllAsRead() {
   const supabase = await getSupabaseServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getUser()
   
   if (!user) throw new Error('Not authenticated')
   
@@ -72,7 +73,7 @@ export async function markAllAsRead() {
 
 export async function deleteNotification(notificationId: string) {
   const supabase = await getSupabaseServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getUser()
   
   if (!user) throw new Error('Not authenticated')
   

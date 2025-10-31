@@ -4,7 +4,7 @@ import { apiLogger } from '@/lib/logger'
 import { PERMISSIONS } from '@/lib/permissions/constants'
 import { getSupabaseAdminServerClient, getSupabaseServerClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
-import { checkPermission } from './auth'
+import { checkPermission, getUser } from './auth'
 
 export interface Permission {
   id: string
@@ -89,8 +89,7 @@ export async function getAllRolesWithPermissions(): Promise<Role[]> {
 export async function addPermissionToRole(role: string, permissionId: string) {
   await checkPermission(PERMISSIONS.ADMIN_USERS_MANAGE)
   const supabase = getSupabaseAdminServerClient()
-  const userSupabase = await getSupabaseServerClient()
-  const { data: { user } } = await userSupabase.auth.getUser()
+  const user = await getUser()
   
   const { data, error } = await supabase
     .from('role_permissions')
@@ -116,8 +115,7 @@ export async function addPermissionToRole(role: string, permissionId: string) {
 export async function removePermissionFromRole(role: string, permissionId: string) {
   await checkPermission(PERMISSIONS.ADMIN_USERS_MANAGE)
   const supabase = getSupabaseAdminServerClient()
-  const userSupabase = await getSupabaseServerClient()
-  const { data: { user } } = await userSupabase.auth.getUser()
+  const user = await getUser()
   
   const { error } = await supabase
     .from('role_permissions')
@@ -141,8 +139,7 @@ export async function removePermissionFromRole(role: string, permissionId: strin
 export async function createPermission(permission: Omit<Permission, 'id' | 'created_at'>) {
   await checkPermission(PERMISSIONS.ADMIN_USERS_MANAGE)
   const supabase = getSupabaseAdminServerClient()
-  const userSupabase = await getSupabaseServerClient()
-  const { data: { user } } = await userSupabase.auth.getUser()
+  const user = await getUser()
   
   const { data, error } = await supabase
     .from('permissions')
@@ -165,8 +162,7 @@ export async function createPermission(permission: Omit<Permission, 'id' | 'crea
 export async function updatePermission(id: string, updates: Partial<Omit<Permission, 'id' | 'created_at'>>) {
   await checkPermission(PERMISSIONS.ADMIN_USERS_MANAGE)
   const supabase = getSupabaseAdminServerClient()
-  const userSupabase = await getSupabaseServerClient()
-  const { data: { user } } = await userSupabase.auth.getUser()
+  const user = await getUser()
   
   const { data, error } = await supabase
     .from('permissions')
@@ -190,8 +186,7 @@ export async function updatePermission(id: string, updates: Partial<Omit<Permiss
 export async function deletePermission(id: string) {
   await checkPermission(PERMISSIONS.ADMIN_USERS_MANAGE)
   const supabase = getSupabaseAdminServerClient()
-  const userSupabase = await getSupabaseServerClient()
-  const { data: { user } } = await userSupabase.auth.getUser()
+  const user = await getUser()
   
   const { error } = await supabase
     .from('permissions')

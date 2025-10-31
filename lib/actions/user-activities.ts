@@ -1,11 +1,12 @@
 'use server'
 
+import { getUser } from '@/lib/actions/auth'
 import { apiLogger } from '@/lib/logger'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 
 export async function getUserActivities() {
   const supabase = await getSupabaseServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getUser()
 
   if (!user) {
     return []
@@ -31,7 +32,7 @@ export async function getUserActivities() {
 
 export async function getUserChallengeStats() {
   const supabase = await getSupabaseServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getUser()
 
   if (!user) {
     return {
@@ -65,7 +66,7 @@ export async function getUserChallengeStats() {
 
 export async function getUserRecentLogs(limit: number = 10) {
   const supabase = await getSupabaseServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getUser()
 
   if (!user) {
     return []

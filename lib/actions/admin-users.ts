@@ -4,7 +4,7 @@ import { apiLogger } from '@/lib/logger'
 import { PERMISSIONS } from '@/lib/permissions/constants'
 import { getSupabaseAdminServerClient, getSupabaseServerClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
-import { checkPermission } from './auth'
+import { checkPermission, getUser } from './auth'
 
 export interface AdminUser {
   id: string
@@ -100,7 +100,7 @@ export async function addAdminUser(email: string, role: string = 'admin', passwo
     return { error: 'Failed to add admin user' }
   }
 
-  const { data: { user: currentUser } } = await supabase.auth.getUser()
+  const currentUser = await getUser()
   apiLogger.info('Admin user added', {
     email,
     role,
@@ -133,7 +133,7 @@ export async function updateAdminUser(id: string, updates: { role?: string; is_a
     return { error: 'Failed to update admin user' }
   }
 
-  const { data: { user: currentUser } } = await supabase.auth.getUser()
+  const currentUser = await getUser()
   apiLogger.info('Admin user updated', { id, updates, actionBy: currentUser?.email })
   revalidatePath('/users')
   return { data }
@@ -150,7 +150,7 @@ export async function removeAdminUser(id: string) {
     return { error: 'Failed to remove admin user' }
   }
 
-  const { data: { user: currentUser } } = await supabase.auth.getUser()
+  const currentUser = await getUser()
   apiLogger.info('Admin user removed', { id, actionBy: currentUser?.email })
   revalidatePath('/users')
   return { success: true }

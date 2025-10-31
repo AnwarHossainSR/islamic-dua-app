@@ -7,7 +7,7 @@ import { revalidatePath } from 'next/cache'
 import { cache } from 'react'
 import { apiLogger } from '../logger'
 import { isCurrentDay } from '../utils'
-import { checkPermission } from './auth'
+import { checkPermission, getUser } from './auth'
 
 // ============================================
 // CHALLENGE QUERIES
@@ -15,9 +15,7 @@ import { checkPermission } from './auth'
 
 export async function getChallenges() {
   const supabase = await getSupabaseServerClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getUser()
 
   const { data: challenges, error: challengesError } = await supabase
     .from('challenge_templates')
@@ -35,6 +33,7 @@ export async function getChallenges() {
     .select(
       'id, challenge_id, status, current_day, total_completed_days, last_completed_at, completion_count'
     )
+    .eq('user_id', user?.id)
 
   if (progressError) {
     apiLogger.error('Error fetching user challenge progress', { error: progressError })
@@ -108,6 +107,7 @@ export async function searchAndFilterChallenges({
   status?: string
 }) {
   const supabase = await getSupabaseServerClient()
+  const user = await getUser()
 
   let query = supabase.from('challenge_templates').select('*').eq('is_active', true)
 
@@ -144,6 +144,7 @@ export async function searchAndFilterChallenges({
   const { data: progress } = await supabase
     .from('user_challenge_progress')
     .select('challenge_id, last_completed_at')
+    .eq('user_id', user?.id)
 
   const mergedData = challenges.map((challenge: any) => {
     const userProgress = progress?.find(p => p.challenge_id === challenge.id)
@@ -777,6 +778,10 @@ export async function getUserBookmarkedChallenges(userId: string) {
 
 export async function getRecentLogs(limit: number = 10) {
   const supabase = await getSupabaseServerClient()
+  const user = await getUser()
+  
+  if (!user) return []
+  
   const { data, error } = await supabase
     .from('user_challenge_daily_logs')
     .select(
@@ -787,6 +792,7 @@ export async function getRecentLogs(limit: number = 10) {
       )
     `
     )
+    .eq('user_id', user.id)
     .order('created_at', { ascending: false })
     .limit(limit)
 

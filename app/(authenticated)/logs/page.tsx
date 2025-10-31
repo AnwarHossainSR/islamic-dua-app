@@ -16,7 +16,7 @@ import { usePermissions } from '@/hooks/use-permissions'
 import { useToast } from '@/hooks/use-toast'
 import { PERMISSIONS } from '@/lib/permissions/constants'
 import { FileText, RefreshCw, Trash2 } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 
 interface LogEntry {
   id: string
@@ -36,10 +36,13 @@ export default function LogsPage() {
   const [limit, setLimit] = useState(25)
   const { toast } = useToast()
   const { hasPermission } = usePermissions()
+  const fetchingRef = useRef(false)
 
   const canDelete = hasPermission(PERMISSIONS.LOGS_DELETE)
 
   const fetchLogs = async () => {
+    if (fetchingRef.current) return
+    fetchingRef.current = true
     setLoading(true)
     try {
       const response = await fetch(`/api/logs?page=${page}&level=${level}&limit=${limit}`)
@@ -56,6 +59,7 @@ export default function LogsPage() {
       toast({ title: 'Error', description: 'Failed to fetch logs', variant: 'destructive' })
     } finally {
       setLoading(false)
+      fetchingRef.current = false
     }
   }
 
@@ -79,12 +83,16 @@ export default function LogsPage() {
   }
 
   useEffect(() => {
-    setPage(1) // Reset to first page when limit changes
+    if (page !== 1) {
+      setPage(1) // Reset to first page when limit changes
+    } else {
+      fetchLogs()
+    }
   }, [limit])
 
   useEffect(() => {
     fetchLogs()
-  }, [page, level, limit])
+  }, [page, level])
 
   const getLevelColor = (level: string) => {
     switch (level) {

@@ -11,45 +11,53 @@ interface UsePermissionsReturn {
   loading: boolean
 }
 
+// Global cache
+let cache: {
+  data: { role: UserRole | null; permissions: Permission[] } | null
+  promise: Promise<any> | null
+} = { data: null, promise: null }
+
 export function usePermissions(): UsePermissionsReturn {
-  const [role, setRole] = useState<UserRole | null>(null)
-  const [permissions, setPermissions] = useState<Permission[]>([])
-  const [loading, setLoading] = useState(true)
+  const [data, setData] = useState<{ role: UserRole | null; permissions: Permission[] } | null>(cache.data)
+  const [loading, setLoading] = useState(!cache.data)
 
   useEffect(() => {
-    const fetchPermissions = async () => {
-      try {
-        const response = await fetch('/api/auth/permissions')
-        if (!response.ok) {
-          throw new Error('Failed to fetch')
-        }
-        const data = await response.json()
-        
-        setRole(data.role || 'user')
-        setPermissions(data.permissions || [])
-      } catch (error) {
-        // Silently handle prerendering errors during build
-        setRole('user')
-        setPermissions([])
-      } finally {
-        setLoading(false)
-      }
+    if (cache.data) {
+      setData(cache.data)
+      setLoading(false)
+      return
     }
 
-    // Only fetch on client side
-    if (typeof window !== 'undefined') {
-      fetchPermissions()
+    if (!cache.promise) {
+      cache.promise = fetch('/api/auth/permissions')
+        .then(res => res.json())
+        .then(result => {
+          cache.data = {
+            role: result.role || 'user',
+            permissions: result.permissions || []
+          }
+          setData(cache.data)
+          setLoading(false)
+        })
+        .catch(() => {
+          cache.data = { role: 'user', permissions: [] }
+          setData(cache.data)
+          setLoading(false)
+        })
     } else {
-      setLoading(false)
+      cache.promise.then(() => {
+        setData(cache.data)
+        setLoading(false)
+      })
     }
   }, [])
 
   const hasPermission = (permission: string): boolean => {
-    return permissions.some(p => p.name === permission)
+    return data?.permissions.some(p => p.name === permission) || false
   }
 
   const canAccess = (requiredRole: UserRole): boolean => {
-    if (!role) return false
+    if (!data?.role) return false
     
     const roleHierarchy = {
       'user': 0,
@@ -58,12 +66,12 @@ export function usePermissions(): UsePermissionsReturn {
       'super_admin': 3
     }
     
-    return roleHierarchy[role] >= roleHierarchy[requiredRole]
+    return roleHierarchy[data.role] >= roleHierarchy[requiredRole]
   }
 
   return {
-    role,
-    permissions,
+    role: data?.role || null,
+    permissions: data?.permissions || [],
     hasPermission,
     canAccess,
     loading

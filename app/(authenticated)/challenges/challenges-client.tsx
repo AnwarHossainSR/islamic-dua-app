@@ -101,7 +101,11 @@ export default function ChallengesClient({
 
   // Get user on mount
   React.useEffect(() => {
-    getUser().then(setUser)
+    let mounted = true
+    getUser().then(userData => {
+      if (mounted) setUser(userData)
+    })
+    return () => { mounted = false }
   }, [])
 
   // Server search action with debounce

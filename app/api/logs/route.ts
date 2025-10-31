@@ -9,28 +9,50 @@ export async function GET(request: NextRequest) {
     await checkPermission(PERMISSIONS.LOGS_READ)
 
     const { searchParams } = new URL(request.url)
-    const page = parseInt(searchParams.get('page') || '1')
-    const limit = parseInt(searchParams.get('limit') || '50')
+    const page = Math.max(1, parseInt(searchParams.get('page') || '1'))
+    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') || '50')))
     const level = searchParams.get('level')
 
     const supabase = await getSupabaseServerClient()
+    
+    // Build the query
     let query = supabase
       .from('api_logs')
       .select('*', { count: 'exact' })
       .order('timestamp', { ascending: false })
-      .range((page - 1) * limit, page * limit - 1)
 
+    // Apply level filter before pagination
     if (level && level !== 'all') {
       query = query.eq('level', level)
     }
 
+    // Apply pagination
+    const startRange = (page - 1) * limit
+    const endRange = startRange + limit - 1
+    query = query.range(startRange, endRange)
+
     const { data: logs, error, count } = await query
 
-    if (error) throw error
+    if (error) {
+      apiLogger.error('Database error retrieving logs', { error, page, limit, level })
+      throw error
+    }
 
-    return NextResponse.json({ logs, total: count, page, limit })
-  } catch (error) {
-    apiLogger.error('Failed to retrieve logs', { error })
+    return NextResponse.json({ 
+      logs: logs || [], 
+      total: count || 0, 
+      page, 
+      limit 
+    })
+  } catch (error: any) {
+    apiLogger.error('Failed to retrieve logs', { 
+      error: {
+        message: error?.message || 'Unknown error',
+        code: error?.code,
+        details: error?.details
+      },
+      timestamp: new Date().toISOString()
+    })
     return NextResponse.json({ error: 'Failed to retrieve logs' }, { status: 500 })
   }
 }

@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Confirm } from '@/components/ui/confirm'
+import { Pagination } from '@/components/ui/pagination'
 import {
   Select,
   SelectContent,
@@ -11,11 +12,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { useToast } from '@/hooks/use-toast'
 import { usePermissions } from '@/hooks/use-permissions'
+import { useToast } from '@/hooks/use-toast'
 import { PERMISSIONS } from '@/lib/permissions/constants'
 import { FileText, RefreshCw, Trash2 } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 
 interface LogEntry {
   id: string
@@ -32,15 +33,19 @@ export default function LogsPage() {
   const [level, setLevel] = useState('all')
   const [page, setPage] = useState(1)
   const [total, setTotal] = useState(0)
+  const [limit, setLimit] = useState(25)
   const { toast } = useToast()
   const { hasPermission } = usePermissions()
-  
+  const fetchingRef = useRef(false)
+
   const canDelete = hasPermission(PERMISSIONS.LOGS_DELETE)
 
   const fetchLogs = async () => {
+    if (fetchingRef.current) return
+    fetchingRef.current = true
     setLoading(true)
     try {
-      const response = await fetch(`/api/logs?page=${page}&level=${level}&limit=50`)
+      const response = await fetch(`/api/logs?page=${page}&level=${level}&limit=${limit}`)
       const data = await response.json()
 
       if (data.error) {
@@ -54,6 +59,7 @@ export default function LogsPage() {
       toast({ title: 'Error', description: 'Failed to fetch logs', variant: 'destructive' })
     } finally {
       setLoading(false)
+      fetchingRef.current = false
     }
   }
 
@@ -75,6 +81,14 @@ export default function LogsPage() {
       setClearing(false)
     }
   }
+
+  useEffect(() => {
+    if (page !== 1) {
+      setPage(1) // Reset to first page when limit changes
+    } else {
+      fetchLogs()
+    }
+  }, [limit])
 
   useEffect(() => {
     fetchLogs()
@@ -131,22 +145,40 @@ export default function LogsPage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <FileText className="h-5 w-5" />
-              <CardTitle>Log Entries ({total})</CardTitle>
+              <CardTitle>Log Entries</CardTitle>
             </div>
-            <Select value={level} onValueChange={setLevel}>
-              <SelectTrigger className="w-32">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Levels</SelectItem>
-                <SelectItem value="error">Error</SelectItem>
-                <SelectItem value="warn">Warning</SelectItem>
-                <SelectItem value="info">Info</SelectItem>
-                <SelectItem value="debug">Debug</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="flex gap-2">
+              <Select value={level} onValueChange={setLevel}>
+                <SelectTrigger className="w-32">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Levels</SelectItem>
+                  <SelectItem value="error">Error</SelectItem>
+                  <SelectItem value="warn">Warning</SelectItem>
+                  <SelectItem value="info">Info</SelectItem>
+                  <SelectItem value="debug">Debug</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={limit.toString()} onValueChange={(value) => setLimit(parseInt(value))}>
+                <SelectTrigger className="w-20">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="25">25</SelectItem>
+                  <SelectItem value="50">50</SelectItem>
+                  <SelectItem value="100">100</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-          <CardDescription>Real-time system logs and API activity</CardDescription>
+          <div className="flex items-center justify-between">
+            <CardDescription>Real-time system logs and API activity</CardDescription>
+            <div className="text-sm text-muted-foreground">
+              Total: {total} entries | Showing {(page - 1) * limit + 1} to {Math.min(page * limit, total)} of {total}
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -154,54 +186,78 @@ export default function LogsPage() {
           ) : logs.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">No logs found</div>
           ) : (
-            <div className="space-y-2">
-              {logs.map(log => (
-                <div key={log.id} className="border rounded-lg p-4 space-y-2">
-                  <div className="flex items-center justify-between">
+            <div className="space-y-4">
+              {(() => {
+                const groupedLogs = logs.reduce((groups, log) => {
+                  const date = new Date(log.timestamp)
+                  const today = new Date()
+                  const yesterday = new Date(today)
+                  yesterday.setDate(yesterday.getDate() - 1)
+
+                  let dateKey
+                  if (date.toDateString() === today.toDateString()) {
+                    dateKey = 'Today'
+                  } else if (date.toDateString() === yesterday.toDateString()) {
+                    dateKey = 'Yesterday'
+                  } else {
+                    dateKey = date.toLocaleDateString()
+                  }
+
+                  if (!groups[dateKey]) {
+                    groups[dateKey] = []
+                  }
+                  groups[dateKey].push(log)
+                  return groups
+                }, {} as Record<string, LogEntry[]>)
+
+                return Object.entries(groupedLogs).map(([dateKey, dateLogs]) => (
+                  <div key={dateKey} className="space-y-2">
                     <div className="flex items-center gap-2">
-                      <Badge variant={getLevelColor(log.level)}>{log.level.toUpperCase()}</Badge>
-                      <span className="text-sm text-muted-foreground">
-                        {new Date(log.timestamp).toLocaleString()}
+                      <div className="h-px bg-border flex-1" />
+                      <span className="text-sm font-medium text-muted-foreground px-2">
+                        {dateKey}
                       </span>
+                      <div className="h-px bg-border flex-1" />
+                    </div>
+                    <div className="space-y-2">
+                      {dateLogs.map(log => (
+                        <div key={log.id} className="border rounded-lg p-4 space-y-2">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <Badge variant={getLevelColor(log.level)}>
+                                {log.level.toUpperCase()}
+                              </Badge>
+                              <span className="text-sm text-muted-foreground">
+                                {new Date(log.timestamp).toLocaleTimeString()}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="text-sm">{log.message}</div>
+                          {log.meta && (
+                            <details className="text-xs">
+                              <summary className="cursor-pointer text-muted-foreground">
+                                Show metadata
+                              </summary>
+                              <pre className="mt-2 p-2 bg-muted rounded text-xs overflow-auto">
+                                {JSON.stringify(JSON.parse(log.meta), null, 2)}
+                              </pre>
+                            </details>
+                          )}
+                        </div>
+                      ))}
                     </div>
                   </div>
-                  <div className="text-sm">{log.message}</div>
-                  {log.meta && (
-                    <details className="text-xs">
-                      <summary className="cursor-pointer text-muted-foreground">
-                        Show metadata
-                      </summary>
-                      <pre className="mt-2 p-2 bg-muted rounded text-xs overflow-auto">
-                        {JSON.stringify(JSON.parse(log.meta), null, 2)}
-                      </pre>
-                    </details>
-                  )}
-                </div>
-              ))}
+                ))
+              })()}
             </div>
           )}
 
-          {total > 50 && (
-            <div className="flex justify-center gap-2 mt-4">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-                disabled={page === 1}
-              >
-                Previous
-              </Button>
-              <span className="px-4 py-2 text-sm">Page {page}</span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setPage(p => p + 1)}
-                disabled={page * 50 >= total}
-              >
-                Next
-              </Button>
-            </div>
-          )}
+          <Pagination
+            currentPage={page}
+            totalItems={total}
+            itemsPerPage={limit}
+            onPageChange={setPage}
+          />
         </CardContent>
       </Card>
     </div>

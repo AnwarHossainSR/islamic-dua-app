@@ -101,7 +101,11 @@ export default function ChallengesClient({
 
   // Get user on mount
   React.useEffect(() => {
-    getUser().then(setUser)
+    let mounted = true
+    getUser().then(userData => {
+      if (mounted) setUser(userData)
+    })
+    return () => { mounted = false }
   }, [])
 
   // Server search action with debounce
@@ -187,7 +191,7 @@ export default function ChallengesClient({
     const participants = challenges.reduce((sum, c) => sum + (c.total_participants || 0), 0)
     const todayCompleted = challenges.filter(c => isCurrentDay(c.last_completed_at || '')).length
     console.log('challenges for stats calculation:', challenges)
-    const completions = challenges.reduce((sum, c) => sum + (c.completion_count || 0), 0)
+    const completions = challenges.reduce((sum, c) => sum + (c.total_completed_days || 0), 0)
     const days = challenges.reduce((sum, c) => sum + c.total_days, 0)
     const avgRate = participants > 0 ? Math.round((completions / days) * 100) : 0
     return { total, participants, completions, days, avgRate, todayCompleted }
@@ -311,7 +315,7 @@ export default function ChallengesClient({
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-muted-foreground">Challenge Completed</p>
+                      <p className="text-sm text-muted-foreground">Days Completed</p>
                       <p className="text-3xl font-bold">{stats.completions}</p>
                     </div>
                     <Trophy className="h-8 w-8 text-amber-500" />
@@ -363,7 +367,7 @@ export default function ChallengesClient({
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Challenges Completed</p>
+                  <p className="text-sm text-muted-foreground">Days Completed</p>
                   <p className="text-3xl font-bold">{stats.completions}</p>
                 </div>
                 <Trophy className="h-8 w-8 text-amber-500" />
@@ -544,10 +548,10 @@ export default function ChallengesClient({
                           <div className="flex items-center justify-center gap-1 text-amber-500">
                             <Trophy className="h-4 w-4" />
                             <span className="text-lg md:text-xl font-bold">
-                              {challenge.total_completions || 0}
+                              {challenge.total_completed_days || 0}
                             </span>
                           </div>
-                          <p className="text-xs text-muted-foreground">Completed</p>
+                          <p className="text-xs text-muted-foreground">Days Done</p>
                         </div>
                       </div>
 
@@ -720,14 +724,14 @@ export default function ChallengesClient({
                   {challenges
                     .filter(c => (c.total_participants || 0) > 0)
                     .sort((a, b) => {
-                      const rateA = ((a.total_completions || 0) / (a.total_participants || 1)) * 100
-                      const rateB = ((b.total_completions || 0) / (b.total_participants || 1)) * 100
+                      const rateA = ((a.total_completed_days || 0) / (a.total_days || 1)) * 100
+                      const rateB = ((b.total_completed_days || 0) / (b.total_days || 1)) * 100
                       return rateB - rateA
                     })
                     .slice(0, 5)
                     .map(challenge => {
                       const rate = Math.round(
-                        ((challenge.total_completions || 0) / (challenge.total_days || 1)) * 100
+                        ((challenge.total_completed_days || 0) / (challenge.total_days || 1)) * 100
                       )
                       return (
                         <div key={challenge.id} className="flex items-center gap-2 min-w-0">

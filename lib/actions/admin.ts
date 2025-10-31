@@ -7,6 +7,7 @@ import { format, toZonedTime } from 'date-fns-tz'
 import { redirect } from 'next/navigation'
 import { cache } from 'react'
 import { checkPermission } from './auth'
+import { getSupabaseAdminServerClient } from '@/lib/supabase/server'
 
 export async function checkAdminAccess() {
   const supabase = await getSupabaseServerClient()
@@ -61,6 +62,7 @@ export const isUserAdmin = cache(isUserAdminUncached)
 export async function getAdminActivityStats() {
   await checkPermission(PERMISSIONS.ACTIVITIES_READ)
   const supabase = await getSupabaseServerClient()
+  const adminSupabase = getSupabaseAdminServerClient()
 
   // Get total activities count
   const { count: totalActivities } = await supabase
@@ -74,8 +76,15 @@ export async function getAdminActivityStats() {
 
   const totalCompletions =
     activityStats?.reduce((sum, stat) => sum + (stat.total_count || 0), 0) || 0
-  const totalActiveUsers =
-    activityStats?.reduce((sum, stat) => sum + (stat.total_users || 0), 0) || 0
+
+  // Get unique active users count from user_challenge_progress using admin client
+  const { data: allProgress, error: usersError } = await adminSupabase
+    .from('user_challenge_progress')
+    .select('user_id, status')
+  
+  if (usersError) {
+    apiLogger.error('Error fetching user progress for stats', { error: usersError })
+  }
 
   // Get active challenges count
   const { count: activeChallenges } = await supabase
@@ -125,10 +134,25 @@ export async function getAdminActivityStats() {
     .gte('completed_at', weekStart)
     .eq('is_completed', true)
 
+  // Calculate final totalActiveUsers
+  let finalActiveUsers = 0
+  if (!allProgress || allProgress.length === 0) {
+    const { data: dailyUsers, error: dailyError } = await adminSupabase
+      .from('user_challenge_daily_logs')
+      .select('user_id')
+    if (dailyError) {
+      apiLogger.error('Error fetching daily users for stats', { error: dailyError })
+    }
+    finalActiveUsers = dailyUsers ? new Set(dailyUsers.map(u => u.user_id)).size : 0
+  } else {
+    const activeUsers = allProgress.filter(u => u.status && u.status !== 'not_started')
+    finalActiveUsers = new Set(activeUsers.map(u => u.user_id)).size
+  }
+
   return {
     totalActivities: totalActivities || 0,
     totalCompletions,
-    totalActiveUsers,
+    totalActiveUsers: finalActiveUsers,
     activeChallenges: activeChallenges || 0,
     todayCompletions: todayCompletions || 0,
     yesterdayCompletions: yesterdayCompletions || 0,

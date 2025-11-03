@@ -1,6 +1,6 @@
-import { eq, desc, sql } from 'drizzle-orm'
+import { desc, eq } from 'drizzle-orm'
 import { db } from '../index'
-import { userActivityStats, activityStats, userChallengeProgress, userChallengeDailyLogs, challengeTemplates } from '../schema'
+import { activityStats, challengeTemplates, userActivityStats, userChallengeDailyLogs, userChallengeProgress } from '../schema'
 
 export async function getUserActivityStats(userId: string) {
   return await db
@@ -74,8 +74,8 @@ export async function getUserRecentActivityLogs(userId: string, limit: number = 
     isCompleted: log.isCompleted,
     userProgress: {
       challenge: {
-        titleBn: log.challengeTitleBn,
-        icon: log.challengeIcon,
+        title_bn: log.challengeTitleBn ?? '',
+        icon: log.challengeIcon ?? undefined,
       }
     }
   }))

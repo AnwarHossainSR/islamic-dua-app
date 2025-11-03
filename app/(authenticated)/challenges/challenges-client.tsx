@@ -45,44 +45,7 @@ import {
 import Link from 'next/link'
 import React, { useCallback, useMemo, useState, useTransition } from 'react'
 
-export interface Challenge {
-  id: string
-  title_bn: string
-  title_ar?: string
-  description_bn?: string
-  icon?: string
-  color?: string
-  difficulty_level: 'easy' | 'medium' | 'hard'
-  is_active: boolean
-  is_featured: boolean
-  total_participants: number
-  total_completions: number
-  total_days: number
-  daily_target_count: number
-  recommended_prayer?: string
-  last_completed_at?: string
-  user_status: 'not_started' | 'active' | 'paused' | 'completed'
-  progress_id?: string
-  completed_at?: string
-  total_completed_days: number
-  current_day: number
-  completion_count: number
-  completion_percentage?: number
-}
-
-interface RecentLog {
-  id: string
-  day_number: number
-  count_completed: number
-  completed_at: string
-  is_completed: boolean
-  user_progress?: {
-    challenge?: {
-      icon?: string
-      title_bn: string
-    }
-  }
-}
+import { Challenge, RecentLog } from '@/lib/types/challenges'
 
 export default function ChallengesClient({
   initialChallenges,

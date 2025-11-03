@@ -1,14 +1,14 @@
 'use server'
 
-import { Challenge } from '@/app/(authenticated)/challenges/challenges-client'
+import { getChallengesWithProgress, searchChallenges } from '@/lib/db/queries/challenges'
 import { PERMISSIONS } from '@/lib/permissions'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
+import { Challenge } from '@/lib/types/challenges'
 import { revalidatePath } from 'next/cache'
 import { cache } from 'react'
 import { apiLogger } from '../logger'
 import { isCurrentDay } from '../utils'
 import { checkPermission, getUser } from './auth'
-import { getChallengesWithProgress, searchChallenges } from '@/lib/db/queries/challenges'
 
 // ============================================
 // CHALLENGE QUERIES
@@ -34,13 +34,13 @@ export async function getChallenges() {
         description_bn: challenge.description_bn ?? undefined,
         icon: challenge.icon ?? undefined,
         color: challenge.color ?? undefined,
-        difficulty_level: challenge.difficulty_level ?? 'medium',
-        is_active: challenge.is_active,
-        is_featured: challenge.is_featured,
+        difficulty_level: (challenge.difficulty_level ?? 'medium') as 'easy' | 'medium' | 'hard',
+        is_active: challenge.is_active ?? true,
+        is_featured: challenge.is_featured ?? false,
         total_participants: challenge.total_participants || 0,
         total_completions: challenge.total_completions || 0,
-        total_days: challenge.total_days,
-        daily_target_count: challenge.daily_target_count,
+        total_days: challenge.total_days ?? 21,
+        daily_target_count: challenge.daily_target_count ?? 21,
         recommended_prayer: challenge.recommended_prayer ?? undefined,
         user_status: challenge.user_status || 'not_started',
         progress_id: challenge.progress_id ?? undefined,
@@ -48,8 +48,9 @@ export async function getChallenges() {
         total_completed_days: challenge.total_completed_days || 0,
         current_day: challenge.current_day || 1,
         last_completed_at: challenge.last_completed_at ?? undefined,
+
         completion_percentage: completionPercentage,
-      }
+      } as Challenge
     })
 
     // Sort based on completion status
@@ -93,16 +94,22 @@ export async function searchAndFilterChallenges({
       description_bn: challenge.description_bn ?? undefined,
       icon: challenge.icon ?? undefined,
       color: challenge.color ?? undefined,
-      difficulty_level: challenge.difficulty_level ?? 'medium',
-      is_active: challenge.is_active,
-      is_featured: challenge.is_featured,
+      difficulty_level: (challenge.difficulty_level ?? 'medium') as 'easy' | 'medium' | 'hard',
+      is_active: challenge.is_active ?? true,
+      is_featured: challenge.is_featured ?? false,
       total_participants: challenge.total_participants || 0,
       total_completions: challenge.total_completions || 0,
-      total_days: challenge.total_days,
-      daily_target_count: challenge.daily_target_count,
+      total_days: challenge.total_days ?? 21,
+      daily_target_count: challenge.daily_target_count ?? 21,
       recommended_prayer: challenge.recommended_prayer ?? undefined,
-      last_completed_at: undefined, // Will need to join with progress for this
-    }))
+      last_completed_at: undefined,
+      user_status: 'not_started' as const,
+      progress_id: undefined,
+      completed_at: undefined,
+      total_completed_days: 0,
+      current_day: 1,
+      completion_percentage: 0,
+    } as Challenge))
   } catch (error) {
     apiLogger.error('Error searching challenges with Drizzle', { error })
     return []
@@ -332,10 +339,10 @@ export async function restartChallenge(challenge: Challenge) {
     .delete()
     .eq('user_progress_id', challenge.progress_id)
 
-  const { error: updateError } = await supabase
-    .from('challenge_templates')
-    .update({ total_completions: 0, completion_count: challenge.completion_count + 1 })
-    .eq('id', challenge.id)
+  // Increment total_completions when restarting
+  const { error: updateError } = await supabase.rpc('increment_completions', {
+    p_challenge_id: challenge.id
+  })
 
   if (updateError) {
     apiLogger.error('Error updating challenge template', { error: updateError, challengeId: challenge.id })

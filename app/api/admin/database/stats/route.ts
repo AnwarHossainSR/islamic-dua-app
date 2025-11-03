@@ -8,7 +8,7 @@ import { NextResponse } from 'next/server'
 
 export async function GET() {
   try {
-    await checkPermission(PERMISSIONS.ADMIN_ACCESS)
+    await checkPermission(PERMISSIONS.SETTINGS_MANAGE)
 
     // Get database statistics
     const [duasCount] = await db.select({ count: count() }).from(duas)

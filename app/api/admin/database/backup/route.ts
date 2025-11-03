@@ -1,9 +1,10 @@
-import { checkPermission } from '@/lib/actions/auth'
-import { apiLogger } from '@/lib/logger'
-import { PERMISSIONS } from '@/lib/permissions/constants'
-import { getSupabaseServerClient } from '@/lib/supabase/server'
-import { NextResponse } from 'next/server'
+import { checkPermission } from '@/lib/actions/auth';
+import { PERMISSIONS } from '@/lib/permissions/constants';
+import { exec } from 'child_process';
+import { NextResponse } from 'next/server';
+import { promisify } from 'util';
 
+const execAsync = promisify(exec);
 // Helper function to export table data
 async function exportTableData(supabase: any, tableName: string): Promise<string> {
   try {
@@ -61,61 +62,34 @@ async function exportTableData(supabase: any, tableName: string): Promise<string
 
 export async function POST() {
   try {
-    await checkPermission(PERMISSIONS.SETTINGS_MANAGE)
-    
-    const supabase = await getSupabaseServerClient()
-    
-    // Generate SQL dump header
-    let sqlDump = `-- Islamic Dua App Database Backup
--- Generated on: ${new Date().toISOString()}
--- PostgreSQL Database Dump
+    await checkPermission(PERMISSIONS.SETTINGS_MANAGE);
 
-SET statement_timeout = 0;
-SET lock_timeout = 0;
-SET client_encoding = 'UTF8';
-SET standard_conforming_strings = on;
-SET check_function_bodies = false;
-SET xmloption = content;
-SET client_min_messages = warning;
-SET row_security = off;
+    const dbUrl = process.env.DATABASE_URL; // Your Supabase connection string
+    const timestamp = new Date().toISOString().split('T')[0];
+    const filename = `backup-${timestamp}.sql`;
 
-`
+    // Execute pg_dump
+    const { stdout, stderr } = await execAsync(
+      `pg_dump "${dbUrl}" --clean --if-exists --no-owner --no-acl -f ${filename}`
+    );
 
-    // Export all tables
-    const tables = [
-      'challenge_templates', 'user_challenge_progress', 'user_challenge_daily_logs',
-      'user_challenge_bookmarks', 'activity_stats', 'user_activity_stats',
-      'challenge_activity_mapping', 'user_roles', 'permissions', 'role_permissions',
-      'admin_users', 'duas', 'dua_categories', 'app_settings', 'user_settings',
-      'notifications', 'api_logs', 'user_preferences', 'challenge_achievements', 'user_achievements'
-    ]
-    
-    for (const tableName of tables) {
-      const tableSQL = await exportTableData(supabase, tableName)
-      sqlDump += tableSQL
+    if (stderr) {
+      console.error('pg_dump stderr:', stderr);
     }
 
-    // Add footer
-    sqlDump += `-- Backup completed at ${new Date().toISOString()}\n`
-    sqlDump += `-- Total tables processed: ${tables.length}\n`
+    // Read the file and return it
+    const fs = require('fs').promises;
+    const fileContent = await fs.readFile(filename);
+    await fs.unlink(filename); // Clean up
 
-    const buffer = Buffer.from(sqlDump, 'utf-8')
-
-    apiLogger.info('SQL database backup created successfully', {
-      tablesCount: tables.length
-    })
-
-    return new NextResponse(buffer, {
+    return new NextResponse(fileContent, {
       headers: {
         'Content-Type': 'application/sql',
-        'Content-Disposition': `attachment; filename="islamic-dua-app-backup-${new Date().toISOString().split('T')[0]}.sql"`,
+        'Content-Disposition': `attachment; filename="${filename}"`,
       },
-    })
+    });
   } catch (error: any) {
-    if (error.message === 'Access denied') {
-      return NextResponse.json({ error: 'Access denied' }, { status: 403 })
-    }
-    apiLogger.error('Failed to create backup', { error })
-    return NextResponse.json({ error: 'Failed to create backup' }, { status: 500 })
+    console.error('Backup failed:', error);
+    return NextResponse.json({ error: 'Backup failed' }, { status: 500 });
   }
 }

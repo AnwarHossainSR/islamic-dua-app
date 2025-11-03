@@ -10,6 +10,5 @@ export default async function ChallengesPage() {
     getChallenges(),
     getUserRecentLogs(10)
   ])
-  // @ts-ignore
   return <ChallengesClient initialChallenges={challenges} initialRecentLogs={recentLogs} />
 }

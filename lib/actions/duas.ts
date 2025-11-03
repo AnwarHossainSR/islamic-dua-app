@@ -2,10 +2,10 @@
 
 import { apiLogger } from '@/lib/logger'
 import { PERMISSIONS } from '@/lib/permissions'
-import { getSupabaseAdminServerClient, getSupabaseServerClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { cache } from 'react'
 import { checkPermission, getUser } from './auth'
+import { getDuas as getDuasQuery, getDuaById as getDuaByIdQuery, createDua as createDuaQuery, updateDua as updateDuaQuery, deleteDua as deleteDuaQuery, getDuaCategories as getDuaCategoriesQuery, getDuaStats as getDuaStatsQuery } from '@/lib/db/queries/duas'
 
 export interface Dua {
   id: string
@@ -47,62 +47,65 @@ export async function getDuas(filters?: {
   limit?: number
   offset?: number
 }) {
-  const supabase = await getSupabaseServerClient()
-
-  let query = supabase
-    .from('duas')
-    .select('*')
-    .eq('is_active', true)
-    .order('created_at', { ascending: false })
-
-  if (filters?.category && filters.category !== 'all') {
-    query = query.eq('category', filters.category)
+  try {
+    const data = await getDuasQuery(filters)
+    return data.map(dua => ({
+      id: dua.id,
+      title_bn: dua.titleBn,
+      title_ar: dua.titleAr,
+      title_en: dua.titleEn,
+      dua_text_ar: dua.duaTextAr,
+      translation_bn: dua.translationBn,
+      translation_en: dua.translationEn,
+      transliteration: dua.transliteration,
+      category: dua.category,
+      source: dua.source,
+      reference: dua.reference,
+      benefits: dua.benefits,
+      is_important: dua.isImportant,
+      is_active: dua.isActive,
+      tags: dua.tags ? dua.tags.split(',') : [],
+      audio_url: dua.audioUrl,
+      created_by: dua.createdBy,
+      created_at: dua.createdAt?.toISOString() || '',
+      updated_at: dua.updatedAt?.toISOString() || '',
+    }))
+  } catch (error) {
+    apiLogger.error('Failed to fetch duas with Drizzle', { error, filters })
+    return []
   }
-
-  if (filters?.search) {
-    query = query.or(
-      `title_bn.ilike.%${filters.search}%,title_en.ilike.%${filters.search}%,dua_text_ar.ilike.%${filters.search}%`
-    )
-  }
-
-  if (filters?.isImportant) {
-    query = query.eq('is_important', true)
-  }
-
-  if (filters?.limit) {
-    query = query.limit(filters.limit)
-  }
-
-  if (filters?.offset) {
-    query = query.range(filters.offset, filters.offset + (filters.limit || 10) - 1)
-  }
-
-  const { data, error } = await query
-
-  if (error) {
-    apiLogger.error('Failed to fetch duas', { error, filters })
-    throw error
-  }
-
-  return data || []
 }
 
 const getDuaByIdUncached = async (id: string) => {
-  const supabase = await getSupabaseServerClient()
-
-  const { data, error } = await supabase
-    .from('duas')
-    .select('*')
-    .eq('id', id)
-    .eq('is_active', true)
-    .single()
-
-  if (error) {
-    apiLogger.error('Failed to fetch dua', { error, id })
-    throw error
+  try {
+    const dua = await getDuaByIdQuery(id)
+    if (!dua) return null
+    
+    return {
+      id: dua.id,
+      title_bn: dua.titleBn,
+      title_ar: dua.titleAr,
+      title_en: dua.titleEn,
+      dua_text_ar: dua.duaTextAr,
+      translation_bn: dua.translationBn,
+      translation_en: dua.translationEn,
+      transliteration: dua.transliteration,
+      category: dua.category,
+      source: dua.source,
+      reference: dua.reference,
+      benefits: dua.benefits,
+      is_important: dua.isImportant,
+      is_active: dua.isActive,
+      tags: dua.tags ? dua.tags.split(',') : [],
+      audio_url: dua.audioUrl,
+      created_by: dua.createdBy,
+      created_at: dua.createdAt?.toISOString() || '',
+      updated_at: dua.updatedAt?.toISOString() || '',
+    }
+  } catch (error) {
+    apiLogger.error('Failed to fetch dua with Drizzle', { error, id })
+    return null
   }
-
-  return data
 }
 
 export const getDuaById = cache(getDuaByIdUncached)
@@ -112,24 +115,33 @@ export async function createDua(
 ) {
   await checkPermission(PERMISSIONS.DUAS_CREATE)
   const user = await getUser()
-  const supabase = getSupabaseAdminServerClient()
 
-  const { data, error } = await supabase
-    .from('duas')
-    .insert({
-      ...duaData,
-      created_by: user?.id,
+  try {
+    const result = await createDuaQuery({
+      titleBn: duaData.title_bn,
+      titleAr: duaData.title_ar,
+      titleEn: duaData.title_en,
+      duaTextAr: duaData.dua_text_ar,
+      translationBn: duaData.translation_bn,
+      translationEn: duaData.translation_en,
+      transliteration: duaData.transliteration,
+      category: duaData.category,
+      source: duaData.source,
+      reference: duaData.reference,
+      benefits: duaData.benefits,
+      isImportant: duaData.is_important,
+      isActive: duaData.is_active,
+      tags: duaData.tags?.join(','),
+      audioUrl: duaData.audio_url,
+      createdBy: user?.id,
     })
-    .select()
-    .single()
 
-  if (error) {
-    apiLogger.error('Failed to create dua', { error, duaData })
+    revalidatePath('/duas')
+    return result[0]
+  } catch (error) {
+    apiLogger.error('Failed to create dua with Drizzle', { error, duaData })
     throw error
   }
-
-  revalidatePath('/duas')
-  return data
 }
 
 export async function updateDua(
@@ -137,75 +149,78 @@ export async function updateDua(
   duaData: Partial<Omit<Dua, 'id' | 'created_at' | 'updated_at' | 'created_by'>>
 ) {
   await checkPermission(PERMISSIONS.DUAS_UPDATE)
-  const supabase = getSupabaseAdminServerClient()
 
-  const { data, error } = await supabase.from('duas').update(duaData).eq('id', id).select().single()
+  try {
+    const updateData: any = {}
+    if (duaData.title_bn) updateData.titleBn = duaData.title_bn
+    if (duaData.title_ar) updateData.titleAr = duaData.title_ar
+    if (duaData.title_en) updateData.titleEn = duaData.title_en
+    if (duaData.dua_text_ar) updateData.duaTextAr = duaData.dua_text_ar
+    if (duaData.translation_bn) updateData.translationBn = duaData.translation_bn
+    if (duaData.translation_en) updateData.translationEn = duaData.translation_en
+    if (duaData.transliteration) updateData.transliteration = duaData.transliteration
+    if (duaData.category) updateData.category = duaData.category
+    if (duaData.source) updateData.source = duaData.source
+    if (duaData.reference) updateData.reference = duaData.reference
+    if (duaData.benefits) updateData.benefits = duaData.benefits
+    if (duaData.is_important !== undefined) updateData.isImportant = duaData.is_important
+    if (duaData.is_active !== undefined) updateData.isActive = duaData.is_active
+    if (duaData.tags) updateData.tags = duaData.tags.join(',')
+    if (duaData.audio_url) updateData.audioUrl = duaData.audio_url
 
-  if (error) {
-    apiLogger.error('Failed to update dua', { error, id, duaData })
+    const result = await updateDuaQuery(id, updateData)
+    
+    apiLogger.info('Dua updated successfully', { duaId: id })
+    revalidatePath('/duas')
+    return result[0]
+  } catch (error) {
+    apiLogger.error('Failed to update dua with Drizzle', { error, id, duaData })
     throw error
   }
-
-  apiLogger.info('Dua updated successfully', { duaId: id })
-  revalidatePath('/duas')
-  return data
 }
 
 export async function deleteDua(id: string) {
   await checkPermission(PERMISSIONS.DUAS_DELETE)
-  const supabase = getSupabaseAdminServerClient()
 
-  const { error } = await supabase.from('duas').update({ is_active: false }).eq('id', id)
-
-  if (error) {
-    apiLogger.error('Failed to delete dua', { error, id })
+  try {
+    await deleteDuaQuery(id)
+    
+    apiLogger.info('Dua deleted successfully', { duaId: id })
+    revalidatePath('/duas')
+  } catch (error) {
+    apiLogger.error('Failed to delete dua with Drizzle', { error, id })
     throw error
   }
-
-  apiLogger.info('Dua deleted successfully', { duaId: id })
-  revalidatePath('/duas')
 }
 
 export async function getDuaCategories() {
-  const supabase = await getSupabaseServerClient()
-
-  const { data, error } = await supabase
-    .from('dua_categories')
-    .select('*')
-    .eq('is_active', true)
-    .order('name_bn')
-
-  if (error) {
-    apiLogger.error('Failed to fetch dua categories', { error })
-    throw error
+  try {
+    const data = await getDuaCategoriesQuery()
+    return data.map(cat => ({
+      id: cat.id,
+      name_bn: cat.nameBn,
+      name_ar: cat.nameAr,
+      name_en: cat.nameEn,
+      description: cat.description,
+      icon: cat.icon,
+      color: cat.color,
+      is_active: cat.isActive,
+    }))
+  } catch (error) {
+    apiLogger.error('Failed to fetch dua categories with Drizzle', { error })
+    return []
   }
-
-  return data || []
 }
 
 export async function getDuaStats() {
-  const supabase = await getSupabaseServerClient()
-
-  const [{ count: totalDuas }, { count: importantDuas }, { data: categoryCounts }] =
-    await Promise.all([
-      supabase.from('duas').select('*', { count: 'exact', head: true }).eq('is_active', true),
-      supabase
-        .from('duas')
-        .select('*', { count: 'exact', head: true })
-        .eq('is_active', true)
-        .eq('is_important', true),
-      supabase.from('duas').select('category').eq('is_active', true),
-    ])
-
-  const categoryStats =
-    categoryCounts?.reduce((acc: Record<string, number>, dua) => {
-      acc[dua.category] = (acc[dua.category] || 0) + 1
-      return acc
-    }, {}) || {}
-
-  return {
-    total: totalDuas || 0,
-    important: importantDuas || 0,
-    byCategory: categoryStats,
+  try {
+    return await getDuaStatsQuery()
+  } catch (error) {
+    apiLogger.error('Failed to fetch dua stats with Drizzle', { error })
+    return {
+      total: 0,
+      important: 0,
+      byCategory: {},
+    }
   }
 }

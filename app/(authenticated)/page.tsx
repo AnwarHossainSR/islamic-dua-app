@@ -1,7 +1,7 @@
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { getAdminActivityStats, getTopActivities } from '@/lib/actions/admin'
+import { getAdminActivityStats, getTopActivitiesAction } from '@/lib/actions/admin'
 import { Activity, Flame, Shield, Target, TrendingUp, Trophy, Users } from 'lucide-react'
 import Link from 'next/link'
 
@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic'
 
 export default async function AdminDashboard() {
   const stats = await getAdminActivityStats()
-  const topActivities = await getTopActivities(5)
+  const topActivities = await getTopActivitiesAction(5)
 
   return (
     <div className="space-y-8">
@@ -96,23 +96,23 @@ export default async function AdminDashboard() {
                     {activity.icon || '📿'}
                   </div> */}
                   <div className="min-w-0 flex-1">
-                    <h3 className="font-medium truncate">{activity.name_bn}</h3>
+                    <h3 className="font-medium truncate">{activity.nameBn}</h3>
                     <p className="text-sm text-muted-foreground truncate">
-                      {activity.name_ar || activity.name_en}
+                      {activity.nameAr || activity.nameEn}
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4 shrink-0 ml-3">
                   <div className="text-right">
                     <p className="text-x md:text-2xl font-bold">
-                      {activity.total_count.toLocaleString()}
+                      {activity.totalCount}
                     </p>
                     <p className="text-xs text-muted-foreground">completions</p>
                   </div>
                   <div className="text-right">
                     <Badge variant="secondary" className="text-xs">
                       <Users className="mr-1 h-3 w-3" />
-                      {activity.total_users}
+                      {activity.totalUsers}
                     </Badge>
                   </div>
                 </div>
@@ -141,12 +141,12 @@ export default async function AdminDashboard() {
           <CardContent>
             <div className="text-3xl font-bold">{stats.todayCompletions}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              {stats.todayCompletions > stats.yesterdayCompletions ? (
+              {stats.todayCompletions > (stats.yesterdayCompletions || 0) ? (
                 <span className="text-emerald-600 flex items-center gap-1">
                   <TrendingUp className="h-3 w-3" />
                   {(
-                    ((stats.todayCompletions - stats.yesterdayCompletions) /
-                      Math.max(stats.yesterdayCompletions, 1)) *
+                    ((stats.todayCompletions - (stats.yesterdayCompletions || 0)) /
+                      Math.max(stats.yesterdayCompletions || 1, 1)) *
                     100
                   ).toFixed(0)}
                   % increase from yesterday
@@ -167,9 +167,9 @@ export default async function AdminDashboard() {
             <CardDescription>Completions in the last 7 days</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{stats.weekCompletions}</div>
+            <div className="text-3xl font-bold">{stats.weekCompletions || 0}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              Average {Math.round(stats.weekCompletions / 7)} per day
+              Average {Math.round((stats.weekCompletions || 0) / 7)} per day
             </p>
           </CardContent>
         </Card>

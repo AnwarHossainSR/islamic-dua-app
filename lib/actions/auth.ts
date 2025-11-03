@@ -125,14 +125,13 @@ export async function checkAdminStatus() {
 
   if (!user) return null
 
-  const { data: adminUser } = await supabase
-    .from('admin_users')
-    .select('*, role')
-    .eq('user_id', user.id)
-    .eq('is_active', true)
-    .single()
-
-  return adminUser
+  try {
+    const { checkAdminUser } = await import('@/lib/db/queries/admin')
+    return await checkAdminUser(user.id)
+  } catch (error) {
+    apiLogger.error('Error checking admin status with Drizzle', { error, userId: user.id })
+    return null
+  }
 }
 
 export async function checkPermission(permission: string) {
@@ -145,21 +144,40 @@ export async function checkPermission(permission: string) {
     throw new Error('Not authenticated')
   }
 
-  const { data: hasAccess } = await supabase.rpc('user_has_permission', {
-    user_id: user.id,
-    permission_name: permission,
-  })
+  try {
+    // Check if user is admin first
+    const { checkAdminUser } = await import('@/lib/db/queries/admin')
+    const adminUser = await checkAdminUser(user.id)
+    
+    // If admin, allow all permissions
+    if (adminUser && (adminUser.role === 'admin' || adminUser.role === 'super_admin')) {
+      return true
+    }
 
-  if (!hasAccess) {
-    apiLogger.error(`Access denied: Missing permission ${permission}`, { 
-      userId: user.id, 
-      email: user.email, 
-      permission 
-    })
+    // Otherwise check specific permissions
+    const { getUserPermissions } = await import('@/lib/db/queries/permissions')
+    const permissions = await getUserPermissions(user.id)
+    const hasAccess = permissions.some(p => p.name === permission)
+
+    if (!hasAccess) {
+      apiLogger.error(`Access denied: Missing permission ${permission}`, { 
+        userId: user.id, 
+        email: user.email, 
+        permission 
+      })
+      throw new Error('Access denied')
+    }
+
+    return true
+  } catch (error) {
+    // If it's already an access denied error, re-throw it
+    if (error instanceof Error && error.message === 'Access denied') {
+      throw error
+    }
+    
+    apiLogger.error('Error checking permission with Drizzle', { error, userId: user.id, permission })
     throw new Error('Access denied')
   }
-
-  return true
 }
 
 export async function getUserRoleAndPermissions() {
@@ -172,13 +190,21 @@ export async function getUserRoleAndPermissions() {
     return { role: 'user', permissions: [] }
   }
 
-  const [roleResult, permissionsResult] = await Promise.all([
-    supabase.rpc('get_user_role', { user_id: user.id }),
-    supabase.from('user_permissions').select('*').eq('user_id', user.id),
-  ])
+  try {
+    const { getUserRole } = await import('@/lib/db/queries/users')
+    const { getUserPermissions } = await import('@/lib/db/queries/permissions')
+    
+    const [roleData, permissions] = await Promise.all([
+      getUserRole(user.id),
+      getUserPermissions(user.id)
+    ])
 
-  return {
-    role: roleResult.data || 'user',
-    permissions: permissionsResult.data || [],
+    return {
+      role: roleData?.role || 'user',
+      permissions: permissions || [],
+    }
+  } catch (error) {
+    apiLogger.error('Error fetching user role and permissions with Drizzle', { error, userId: user.id })
+    return { role: 'user', permissions: [] }
   }
 }

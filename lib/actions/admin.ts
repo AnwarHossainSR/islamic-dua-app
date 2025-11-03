@@ -3,11 +3,10 @@
 import { apiLogger } from '@/lib/logger'
 import { PERMISSIONS } from '@/lib/permissions/constants'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
-import { format, toZonedTime } from 'date-fns-tz'
 import { redirect } from 'next/navigation'
 import { cache } from 'react'
 import { checkPermission } from './auth'
-import { getSupabaseAdminServerClient } from '@/lib/supabase/server'
+import { checkAdminUser, getAdminStats, getTopActivities, getAllActivities, getUserActivityStats, getActivityById } from '@/lib/db/queries/admin'
 
 export async function checkAdminAccess() {
   const supabase = await getSupabaseServerClient()
@@ -19,12 +18,7 @@ export async function checkAdminAccess() {
     redirect('/login')
   }
 
-  const { data: adminUser } = await supabase
-    .from('admin_users')
-    .select('*, role')
-    .eq('user_id', user.id)
-    .eq('is_active', true)
-    .single()
+  const adminUser = await checkAdminUser(user.id)
 
   if (!adminUser) {
     redirect('/')
@@ -43,13 +37,7 @@ const isUserAdminUncached = async () => {
     return false
   }
 
-  const { data: adminUser } = await supabase
-    .from('admin_users')
-    .select('*')
-    .eq('user_id', user.id)
-    .eq('is_active', true)
-    .single()
-
+  const adminUser = await checkAdminUser(user.id)
   return !!adminUser
 }
 
@@ -61,173 +49,61 @@ export const isUserAdmin = cache(isUserAdminUncached)
 
 export async function getAdminActivityStats() {
   await checkPermission(PERMISSIONS.ACTIVITIES_READ)
-  const supabase = await getSupabaseServerClient()
-  const adminSupabase = getSupabaseAdminServerClient()
-
-  // Get total activities count
-  const { count: totalActivities } = await supabase
-    .from('activity_stats')
-    .select('id', { count: 'exact', head: true })
-
-  // Get total completions across all activities
-  const { data: activityStats } = await supabase
-    .from('activity_stats')
-    .select('total_count, total_users')
-
-  const totalCompletions =
-    activityStats?.reduce((sum, stat) => sum + (stat.total_count || 0), 0) || 0
-
-  // Get unique active users count from user_challenge_progress using admin client
-  const { data: allProgress, error: usersError } = await adminSupabase
-    .from('user_challenge_progress')
-    .select('user_id, status')
   
-  if (usersError) {
-    apiLogger.error('Error fetching user progress for stats', { error: usersError })
-  }
-
-  // Get active challenges count
-  const { count: activeChallenges } = await supabase
-    .from('challenge_templates')
-    .select('id', { count: 'exact', head: true })
-    .eq('is_active', true)
-
-  // Get dates in Bangladesh timezone
-  const timeZone = 'Asia/Dhaka'
-  const nowInDhaka = toZonedTime(new Date(), timeZone)
-  const today = format(nowInDhaka, 'yyyy-MM-dd', { timeZone })
-
-  const yesterdayInDhaka = toZonedTime(new Date(Date.now() - 86400000), timeZone)
-  const yesterday = format(yesterdayInDhaka, 'yyyy-MM-dd', { timeZone })
-
-  const weekAgoInDhaka = toZonedTime(new Date(Date.now() - 7 * 86400000), timeZone)
-  const weekAgo = format(weekAgoInDhaka, 'yyyy-MM-dd', { timeZone })
-
-  // Get today's completions using completed_at timestamp
-  const todayStart = `${today}T00:00:00+06:00`
-  const todayEnd = `${today}T23:59:59+06:00`
-
-  const { count: todayCompletions } = await supabase
-    .from('user_challenge_daily_logs')
-    .select('id', { count: 'exact', head: true })
-    .gte('completed_at', todayStart)
-    .lte('completed_at', todayEnd)
-    .eq('is_completed', true)
-
-  // Get yesterday's completions
-  const yesterdayStart = `${yesterday}T00:00:00+06:00`
-  const yesterdayEnd = `${yesterday}T23:59:59+06:00`
-
-  const { count: yesterdayCompletions } = await supabase
-    .from('user_challenge_daily_logs')
-    .select('id', { count: 'exact', head: true })
-    .gte('completed_at', yesterdayStart)
-    .lte('completed_at', yesterdayEnd)
-    .eq('is_completed', true)
-
-  // Get this week's completions
-  const weekStart = `${weekAgo}T00:00:00+06:00`
-
-  const { count: weekCompletions } = await supabase
-    .from('user_challenge_daily_logs')
-    .select('id', { count: 'exact', head: true })
-    .gte('completed_at', weekStart)
-    .eq('is_completed', true)
-
-  // Calculate final totalActiveUsers
-  let finalActiveUsers = 0
-  if (!allProgress || allProgress.length === 0) {
-    const { data: dailyUsers, error: dailyError } = await adminSupabase
-      .from('user_challenge_daily_logs')
-      .select('user_id')
-    if (dailyError) {
-      apiLogger.error('Error fetching daily users for stats', { error: dailyError })
+  try {
+    return await getAdminStats()
+  } catch (error) {
+    apiLogger.error('Error fetching admin stats with Drizzle', { error })
+    return {
+      totalActivities: 0,
+      totalCompletions: 0,
+      totalActiveUsers: 0,
+      activeChallenges: 0,
+      todayCompletions: 0,
+      yesterdayCompletions: 0,
+      weekCompletions: 0,
     }
-    finalActiveUsers = dailyUsers ? new Set(dailyUsers.map(u => u.user_id)).size : 0
-  } else {
-    const activeUsers = allProgress.filter(u => u.status && u.status !== 'not_started')
-    finalActiveUsers = new Set(activeUsers.map(u => u.user_id)).size
-  }
-
-  return {
-    totalActivities: totalActivities || 0,
-    totalCompletions,
-    totalActiveUsers: finalActiveUsers,
-    activeChallenges: activeChallenges || 0,
-    todayCompletions: todayCompletions || 0,
-    yesterdayCompletions: yesterdayCompletions || 0,
-    weekCompletions: weekCompletions || 0,
   }
 }
 
-export async function getTopActivities(limit = 10) {
+export async function getTopActivitiesAction(limit = 10) {
   await checkPermission(PERMISSIONS.ACTIVITIES_READ)
-  const supabase = await getSupabaseServerClient()
-
-  const { data, error } = await supabase
-    .from('activity_stats')
-    .select('*')
-    .order('total_count', { ascending: false })
-    .limit(limit)
-
-  if (error) {
-    apiLogger.error('Error fetching top activities', { error, limit })
+  
+  try {
+    return await getTopActivities(limit)
+  } catch (error) {
+    apiLogger.error('Error fetching top activities with Drizzle', { error, limit })
     return []
   }
-
-  return data
 }
 
-export async function getAllActivities() {
+export async function getAllActivitiesAction() {
   await checkPermission(PERMISSIONS.ACTIVITIES_READ)
-  const supabase = await getSupabaseServerClient()
-
-  const { data, error } = await supabase
-    .from('activity_stats')
-    .select('*')
-    .order('total_count', { ascending: false })
-
-  if (error) {
-    apiLogger.error('Error fetching all activities', { error })
+  
+  try {
+    return await getAllActivities()
+  } catch (error) {
+    apiLogger.error('Error fetching all activities with Drizzle', { error })
     return []
   }
-
-  return data
 }
 
-export async function getUserActivityStats(userId: string) {
-  const supabase = await getSupabaseServerClient()
-
-  const { data, error } = await supabase
-    .from('user_activity_stats')
-    .select(
-      `
-      *,
-      activity:activity_stats(*)
-    `
-    )
-    .eq('user_id', userId)
-    .order('total_completed', { ascending: false })
-
-  if (error) {
-    apiLogger.error('Error fetching user activity stats', { error, userId })
+export async function getUserActivityStatsAction(userId: string) {
+  try {
+    return await getUserActivityStats(userId)
+  } catch (error) {
+    apiLogger.error('Error fetching user activity stats with Drizzle', { error, userId })
     return []
   }
-
-  return data
 }
 
-export async function getActivityById(id: string) {
-  const supabase = await getSupabaseServerClient()
-
-  const { data, error } = await supabase.from('activity_stats').select('*').eq('id', id).single()
-
-  if (error) {
-    apiLogger.error('Error fetching activity', { error, id })
+export async function getActivityByIdAction(id: string) {
+  try {
+    return await getActivityById(id)
+  } catch (error) {
+    apiLogger.error('Error fetching activity with Drizzle', { error, id })
     return null
   }
-
-  return data
 }
 
 // Get activity stats with linked challenges

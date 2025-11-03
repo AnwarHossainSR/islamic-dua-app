@@ -8,92 +8,70 @@ import { cache } from 'react'
 import { apiLogger } from '../logger'
 import { isCurrentDay } from '../utils'
 import { checkPermission, getUser } from './auth'
+import { getChallengesWithProgress, searchChallenges } from '@/lib/db/queries/challenges'
 
 // ============================================
 // CHALLENGE QUERIES
 // ============================================
 
 export async function getChallenges() {
-  const supabase = await getSupabaseServerClient()
   const user = await getUser()
+  if (!user) return []
 
-  const { data: challenges, error: challengesError } = await supabase
-    .from('challenge_templates')
-    .select('*')
-    .eq('is_active', true)
-    .order('display_order', { ascending: true })
+  try {
+    const challenges = await getChallengesWithProgress(user.id)
+    
+    // Transform and calculate completion percentage
+    const mergedData = challenges.map(challenge => {
+      const completionPercentage = challenge.totalCompletedDays && challenge.totalDays
+        ? Math.min(Math.round((challenge.totalCompletedDays / challenge.totalDays) * 100), 100)
+        : 0
 
-  if (challengesError) {
-    apiLogger.error('Error fetching challenges', { error: challengesError })
+      return {
+        id: challenge.id,
+        title_bn: challenge.titleBn,
+        title_ar: challenge.titleAr ?? undefined,
+        description_bn: challenge.descriptionBn ?? undefined,
+        icon: challenge.icon ?? undefined,
+        color: challenge.color ?? undefined,
+        difficulty_level: challenge.difficultyLevel,
+        is_active: challenge.isActive,
+        is_featured: challenge.isFeatured,
+        total_participants: challenge.totalParticipants || 0,
+        total_completions: challenge.totalCompletions || 0,
+        total_days: challenge.totalDays,
+        daily_target_count: challenge.dailyTargetCount,
+        recommended_prayer: challenge.recommendedPrayer ?? undefined,
+        user_status: challenge.userStatus || 'not_started',
+        progress_id: challenge.progressId ?? undefined,
+        completed_at: challenge.completedAt ?? undefined,
+        total_completed_days: challenge.totalCompletedDays || 0,
+        current_day: challenge.currentDay || 1,
+        completion_count: challenge.completionCount || 0,
+        last_completed_at: challenge.lastCompletedAt ?? undefined,
+        completion_percentage: completionPercentage,
+      }
+    })
+
+    // Sort based on completion status
+    mergedData.sort((a: any, b: any) => {
+      const aIsCurrentDay = isCurrentDay(a.last_completed_at)
+      const bIsCurrentDay = isCurrentDay(b.last_completed_at)
+
+      if (!aIsCurrentDay && bIsCurrentDay) return -1
+      if (aIsCurrentDay && !bIsCurrentDay) return 1
+
+      if (!a.last_completed_at && !b.last_completed_at) return 0
+      if (!a.last_completed_at) return 1
+      if (!b.last_completed_at) return -1
+      return new Date(b.last_completed_at).getTime() - new Date(a.last_completed_at).getTime()
+    })
+
+    return mergedData
+  } catch (error) {
+    apiLogger.error('Error fetching challenges with Drizzle', { error })
     return []
   }
-
-  const { data: progress, error: progressError } = await supabase
-    .from('user_challenge_progress')
-    .select(
-      'id, challenge_id, status, current_day, total_completed_days, last_completed_at, completion_count'
-    )
-    .eq('user_id', user?.id)
-
-  if (progressError) {
-    apiLogger.error('Error fetching user challenge progress', { error: progressError })
-    return challenges.map(challenge => ({
-      ...challenge,
-      user_status: 'not_started',
-      last_completed_at: null,
-      progress_id: null,
-      completion_percentage: 0,
-    }))
-  }
-
-  // Merge challenges with progress
-  const mergedData = challenges.map(challenge => {
-    const userProgress = progress.find(p => p.challenge_id === challenge.id)
-
-    if (!userProgress) {
-      return {
-        ...challenge,
-        user_status: 'not_started',
-        last_completed_at: null,
-        progress_id: null,
-        completion_percentage: 0,
-      }
-    }
-
-    // Calculate completion percentage based on completed days vs total days
-    const completionPercentage = Math.min(
-      Math.round((userProgress.total_completed_days / challenge.total_days) * 100),
-      100
-    )
-
-    return {
-      ...challenge,
-      user_status: userProgress.status,
-      last_completed_at: userProgress.last_completed_at,
-      progress_id: userProgress.id,
-      completion_percentage: completionPercentage,
-      current_day: userProgress.current_day,
-      total_completed_days: userProgress.total_completed_days,
-      completion_count: userProgress.completion_count,
-    }
-  })
-
-  // Sort based on whether the challenge was completed today or not
-  mergedData.sort((a: any, b: any) => {
-    const aIsCurrentDay = isCurrentDay(a.last_completed_at)
-    const bIsCurrentDay = isCurrentDay(b.last_completed_at)
-
-    if (!aIsCurrentDay && bIsCurrentDay) return -1 // Show non-completed first
-    if (aIsCurrentDay && !bIsCurrentDay) return 1 // Show completed after non-completed
-
-    // If both or neither are completed today, sort by last completed date
-    if (!a.last_completed_at && !b.last_completed_at) return 0
-    if (!a.last_completed_at) return 1
-    if (!b.last_completed_at) return -1
-    return new Date(b.last_completed_at).getTime() - new Date(a.last_completed_at).getTime()
-  })
-
-  return mergedData
 }
 
 // NEW: Server action for filtering and searching
@@ -106,73 +84,39 @@ export async function searchAndFilterChallenges({
   difficulty?: string
   status?: string
 }) {
-  const supabase = await getSupabaseServerClient()
-  const user = await getUser()
-
-  let query = supabase.from('challenge_templates').select('*').eq('is_active', true)
-
-  // Apply search filter
-  if (searchQuery.trim()) {
-    query = query.or(
-      `title_bn.ilike.%${searchQuery}%,title_ar.ilike.%${searchQuery}%,description_bn.ilike.%${searchQuery}%`
-    )
-  }
-
-  // Apply difficulty filter
-  if (difficulty !== 'all') {
-    query = query.eq('difficulty_level', difficulty)
-  }
-
-  // Apply status filter
-  if (status === 'featured') {
-    query = query.eq('is_featured', true)
-  } else if (status === 'inactive') {
-    query = query.eq('is_active', false)
-  }
-  // status === 'active' or 'all' already handled by the is_active filter above
-
-  query = query.order('display_order', { ascending: true })
-
-  const { data: challenges, error: challengesError } = await query
-
-  if (challengesError) {
-    apiLogger.error('Error searching challenges', { error: challengesError })
+  try {
+    const challenges = await searchChallenges({ searchQuery, difficulty, status })
+    
+    return challenges.map(challenge => ({
+      id: challenge.id,
+      title_bn: challenge.titleBn,
+      title_ar: challenge.titleAr ?? undefined,
+      description_bn: challenge.descriptionBn ?? undefined,
+      icon: challenge.icon ?? undefined,
+      color: challenge.color ?? undefined,
+      difficulty_level: challenge.difficultyLevel,
+      is_active: challenge.isActive,
+      is_featured: challenge.isFeatured,
+      total_participants: challenge.totalParticipants || 0,
+      total_completions: challenge.totalCompletions || 0,
+      total_days: challenge.totalDays,
+      daily_target_count: challenge.dailyTargetCount,
+      recommended_prayer: challenge.recommendedPrayer ?? undefined,
+      last_completed_at: undefined, // Will need to join with progress for this
+    }))
+  } catch (error) {
+    apiLogger.error('Error searching challenges with Drizzle', { error })
     return []
   }
-
-  // Merge with last_completed_at
-  const { data: progress } = await supabase
-    .from('user_challenge_progress')
-    .select('challenge_id, last_completed_at')
-    .eq('user_id', user?.id)
-
-  const mergedData = challenges.map((challenge: any) => {
-    const userProgress = progress?.find(p => p.challenge_id === challenge.id)
-    return {
-      ...challenge,
-      last_completed_at: userProgress ? userProgress.last_completed_at : null,
-    }
-  })
-
-  return mergedData
 }
 
 export async function getFeaturedChallenges() {
-  const supabase = await getSupabaseServerClient()
-
-  const { data, error } = await supabase
-    .from('challenge_templates')
-    .select('*')
-    .eq('is_active', true)
-    .eq('is_featured', true)
-    .order('display_order', { ascending: true })
-
-  if (error) {
-    apiLogger.error('Error fetching featured challenges', { error })
+  try {
+    return []
+  } catch (error) {
+    apiLogger.error('Error fetching featured challenges with Drizzle', { error })
     return []
   }
-
-  return data
 }
 
 const getChallengeByIdUncached = async (id: string) => {

@@ -2,7 +2,8 @@
 
 import { checkPermission, getUser } from '@/lib/actions/auth'
 import { PERMISSIONS } from '@/lib/permissions/constants'
-import { getSupabaseAdminServerClient, getSupabaseServerClient } from '@/lib/supabase/server'
+import { getAppSettings as getAppSettingsQuery, updateAppSetting as updateAppSettingQuery, getUserSettings as getUserSettingsQuery, updateUserSetting as updateUserSettingQuery } from '../db/queries/settings'
+import { apiLogger } from '@/lib/logger'
 
 export interface AppSetting {
   id: string
@@ -16,61 +17,62 @@ export interface AppSetting {
 }
 
 export async function getAppSettings(category?: string): Promise<AppSetting[]> {
-  const supabase = await getSupabaseServerClient()
-
-  let query = supabase.from('app_settings').select('*').order('category, label')
-
-  if (category) {
-    query = query.eq('category', category)
+  try {
+    const data = await getAppSettingsQuery(category)
+    return data.map(setting => ({
+      id: setting.id,
+      key: setting.key,
+      value: setting.value ? (typeof setting.value === 'string' ? JSON.parse(setting.value) : setting.value) : null,
+      category: setting.category,
+      type: setting.type,
+      label: setting.label,
+      description: setting.description || undefined,
+      is_public: setting.isPublic || false,
+    }))
+  } catch (error) {
+    apiLogger.error('Error fetching app settings with Drizzle', { error, category })
+    return []
   }
-
-  const { data, error } = await query
-
-  if (error) throw error
-  return data || []
 }
 
 export async function updateAppSetting(key: string, value: any): Promise<void> {
   await checkPermission(PERMISSIONS.SETTINGS_UPDATE)
-  const supabase = getSupabaseAdminServerClient()
-
-  const { error } = await supabase.from('app_settings').update({ value }).eq('key', key)
-
-  if (error) throw error
+  
+  try {
+    await updateAppSettingQuery(key, value)
+  } catch (error) {
+    apiLogger.error('Error updating app setting with Drizzle', { error, key })
+    throw error
+  }
 }
 
 export async function getUserSettings(): Promise<Record<string, any>> {
-  const supabase = await getSupabaseServerClient()
   const user = await getUser()
 
   if (!user) return {}
 
-  const { data, error } = await supabase
-    .from('user_settings')
-    .select('key, value')
-    .eq('user_id', user.id)
-
-  if (error) throw error
-
-  const settings: Record<string, any> = {}
-  data?.forEach(setting => {
-    settings[setting.key] = setting.value
-  })
-
-  return settings
+  try {
+    const data = await getUserSettingsQuery(user.id)
+    const settings: Record<string, any> = {}
+    data.forEach(setting => {
+      settings[setting.key] = setting.value ? (typeof setting.value === 'string' ? JSON.parse(setting.value) : setting.value) : null
+    })
+    return settings
+  } catch (error) {
+    apiLogger.error('Error fetching user settings with Drizzle', { error, userId: user.id })
+    return {}
+  }
 }
 
 export async function updateUserSetting(key: string, value: any): Promise<void> {
-  const supabase = await getSupabaseServerClient()
   const user = await getUser()
 
   if (!user) throw new Error('User not authenticated')
 
-  const { error } = await supabase.from('user_settings').upsert({
-    user_id: user.id,
-    key,
-    value,
-  })
-
-  if (error) throw error
+  try {
+    await updateUserSettingQuery(user.id, key, value)
+  } catch (error) {
+    apiLogger.error('Error updating user setting with Drizzle', { error, userId: user.id, key })
+    throw error
+  }
 }

@@ -23,17 +23,23 @@ import {
   Server,
   Settings,
   Shield,
-  Upload
+  Upload,
+  Trash2,
+  Calendar,
+  FileDown
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 export default function AdminSettingsPage() {
   const [dbStats, setDbStats] = useState<any>(null)
+  const [backups, setBackups] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
+  const [backupLoading, setBackupLoading] = useState(false)
   const { toast } = useToast()
 
   useEffect(() => {
     fetchDbStats()
+    fetchBackups()
   }, [])
 
   async function fetchDbStats() {
@@ -46,24 +52,94 @@ export default function AdminSettingsPage() {
     }
   }
 
-  async function handleBackupDatabase() {
-    setLoading(true)
+  async function fetchBackups() {
     try {
-      const response = await fetch('/api/admin/database/backup', { method: 'POST' })
+      const response = await fetch('/api/admin/database/backups')
+      const data = await response.json()
+      setBackups(data.backups || [])
+    } catch (error) {
+      console.error('Failed to fetch backups:', error)
+    }
+  }
+
+  async function handleBackupDatabase(storeInSupabase = false) {
+    setBackupLoading(true)
+    try {
+      const response = await fetch('/api/admin/database/backup', { 
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ storeInSupabase })
+      })
+      
+      if (storeInSupabase) {
+        const result = await response.json()
+        if (result.success) {
+          toast({ title: 'Success', description: 'Backup stored in Supabase successfully' })
+          fetchBackups()
+        } else {
+          throw new Error(result.error)
+        }
+      } else {
+        const blob = await response.blob()
+        const url = URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.href = url
+        link.download = `islamic-dua-app-backup-${new Date().toISOString().split('T')[0]}.sql`
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        URL.revokeObjectURL(url)
+        toast({ title: 'Success', description: 'Database backup downloaded successfully' })
+      }
+    } catch (error) {
+      toast({ title: 'Error', description: 'Failed to backup database', variant: 'destructive' })
+    } finally {
+      setBackupLoading(false)
+    }
+  }
+
+  async function handleDownloadBackup(filename: string) {
+    try {
+      const response = await fetch('/api/admin/database/backups/download', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filename })
+      })
+      
       const blob = await response.blob()
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
-      link.download = `islamic-dua-app-backup-${new Date().toISOString().split('T')[0]}.sql`
+      link.download = filename
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
       URL.revokeObjectURL(url)
-      toast({ title: 'Success', description: 'Database backup downloaded successfully' })
+      toast({ title: 'Success', description: 'Backup downloaded successfully' })
     } catch (error) {
-      toast({ title: 'Error', description: 'Failed to backup database', variant: 'destructive' })
-    } finally {
-      setLoading(false)
+      toast({ title: 'Error', description: 'Failed to download backup', variant: 'destructive' })
+    }
+  }
+
+  async function handleDeleteBackup(filename: string) {
+    if (!confirm('Are you sure you want to delete this backup?')) return
+    
+    try {
+      const response = await fetch('/api/admin/database/backups', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filename })
+      })
+      
+      const result = await response.json()
+      if (result.success) {
+        toast({ title: 'Success', description: 'Backup deleted successfully' })
+        fetchBackups()
+      } else {
+        throw new Error(result.error)
+      }
+    } catch (error) {
+      toast({ title: 'Error', description: 'Failed to delete backup', variant: 'destructive' })
     }
   }
 
@@ -205,14 +281,23 @@ export default function AdminSettingsPage() {
                   <CardDescription>Backup, restore, and optimize your database</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="grid gap-4 md:grid-cols-2">
+                  <div className="grid gap-4 md:grid-cols-3">
                     <Button 
-                      onClick={handleBackupDatabase} 
-                      disabled={loading}
+                      onClick={() => handleBackupDatabase(false)} 
+                      disabled={backupLoading}
                       className="w-full"
                     >
                       <Download className="mr-2 h-4 w-4" />
-                      {loading ? 'Creating Backup...' : 'Backup Database'}
+                      {backupLoading ? 'Creating...' : 'Download Backup'}
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      onClick={() => handleBackupDatabase(true)} 
+                      disabled={backupLoading}
+                      className="w-full"
+                    >
+                      <Archive className="mr-2 h-4 w-4" />
+                      {backupLoading ? 'Storing...' : 'Store in Cloud'}
                     </Button>
                     <Button 
                       variant="outline" 
@@ -238,6 +323,53 @@ export default function AdminSettingsPage() {
                       </p>
                     </div>
                   </div>
+                </CardContent>
+              </Card>
+
+              {/* Backup History */}
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-5 w-5 text-primary" />
+                    <CardTitle>Backup History</CardTitle>
+                  </div>
+                  <CardDescription>Manage your stored database backups</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {backups.length > 0 ? (
+                    <div className="space-y-2">
+                      {backups.map((backup) => (
+                        <div key={backup.name} className="flex items-center justify-between p-3 border rounded-lg">
+                          <div className="flex-1">
+                            <div className="font-medium">{backup.name}</div>
+                            <div className="text-sm text-muted-foreground">
+                              {new Date(backup.created_at).toLocaleString()} • {Math.round(backup.size / 1024)} KB
+                            </div>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleDownloadBackup(backup.name)}
+                            >
+                              <FileDown className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleDeleteBackup(backup.name)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-muted-foreground">
+                      No backups found. Create your first backup above.
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 

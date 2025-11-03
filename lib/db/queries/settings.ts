@@ -1,17 +1,33 @@
 import { eq, asc, and } from 'drizzle-orm'
 import { db } from '../index'
 import { appSettings, userSettings } from '../schema'
+import { seedDefaultSettings } from '../seed-settings'
 
 export async function getAppSettings(category?: string) {
-  const baseQuery = db.select().from(appSettings)
+  try {
+    const baseQuery = db.select().from(appSettings)
 
-  if (category) {
-    return await baseQuery
-      .where(eq(appSettings.category, category))
-      .orderBy(asc(appSettings.category), asc(appSettings.label))
+    let result
+    if (category) {
+      result = await baseQuery
+        .where(eq(appSettings.category, category))
+        .orderBy(asc(appSettings.category), asc(appSettings.label))
+    } else {
+      result = await baseQuery.orderBy(asc(appSettings.category), asc(appSettings.label))
+    }
+
+    // If no settings found and no category specified, seed default settings
+    if (result.length === 0 && !category) {
+      await seedDefaultSettings()
+      // Retry the query after seeding
+      result = await baseQuery.orderBy(asc(appSettings.category), asc(appSettings.label))
+    }
+
+    return result
+  } catch (error) {
+    console.error('Error in getAppSettings:', error)
+    throw error
   }
-
-  return await baseQuery.orderBy(asc(appSettings.category), asc(appSettings.label))
 }
 
 export async function updateAppSetting(key: string, value: any) {
@@ -19,6 +35,7 @@ export async function updateAppSetting(key: string, value: any) {
     .update(appSettings)
     .set({ value: JSON.stringify(value), updated_at: new Date() })
     .where(eq(appSettings.key, key))
+    .returning()
 }
 
 export async function getUserSettings(userId: string) {

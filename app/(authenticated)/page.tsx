@@ -96,23 +96,23 @@ export default async function AdminDashboard() {
                     {activity.icon || '📿'}
                   </div> */}
                   <div className="min-w-0 flex-1">
-                    <h3 className="font-medium truncate">{activity.nameBn}</h3>
+                    <h3 className="font-medium truncate">{activity.name_bn}</h3>
                     <p className="text-sm text-muted-foreground truncate">
-                      {activity.nameAr || activity.nameEn}
+                      {activity.name_ar || activity.name_en}
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4 shrink-0 ml-3">
                   <div className="text-right">
                     <p className="text-x md:text-2xl font-bold">
-                      {activity.totalCount}
+                      {activity.total_count}
                     </p>
                     <p className="text-xs text-muted-foreground">completions</p>
                   </div>
                   <div className="text-right">
                     <Badge variant="secondary" className="text-xs">
                       <Users className="mr-1 h-3 w-3" />
-                      {activity.totalUsers}
+                      {activity.total_users}
                     </Badge>
                   </div>
                 </div>

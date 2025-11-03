@@ -1,43 +1,49 @@
 'use server'
 
+import { createDua as createDuaQuery, deleteDua as deleteDuaQuery, getDuaById as getDuaByIdQuery, getDuaCategories as getDuaCategoriesQuery, getDuas as getDuasQuery, getDuaStats as getDuaStatsQuery, updateDua as updateDuaQuery } from '@/lib/db/queries/duas'
 import { apiLogger } from '@/lib/logger'
 import { PERMISSIONS } from '@/lib/permissions'
+import { Dua, DuaCategory, DuaCategoryFromDB, DuaFromDB } from '@/lib/types/duas'
 import { revalidatePath } from 'next/cache'
 import { cache } from 'react'
 import { checkPermission, getUser } from './auth'
-import { getDuas as getDuasQuery, getDuaById as getDuaByIdQuery, createDua as createDuaQuery, updateDua as updateDuaQuery, deleteDua as deleteDuaQuery, getDuaCategories as getDuaCategoriesQuery, getDuaStats as getDuaStatsQuery } from '@/lib/db/queries/duas'
 
-export interface Dua {
-  id: string
-  title_bn: string
-  title_ar?: string
-  title_en?: string
-  dua_text_ar: string
-  translation_bn?: string
-  translation_en?: string
-  transliteration?: string
-  category: string
-  source?: string
-  reference?: string
-  benefits?: string
-  is_important: boolean
-  is_active: boolean
-  tags?: string[]
-  audio_url?: string
-  created_by?: string
-  created_at: string
-  updated_at: string
+// Helper function to convert DB types to client types
+function convertDuaFromDB(dua: DuaFromDB): Dua {
+  return {
+    id: dua.id,
+    title_bn: dua.title_bn,
+    title_ar: dua.title_ar || undefined,
+    title_en: dua.title_en || undefined,
+    dua_text_ar: dua.dua_text_ar,
+    translation_bn: dua.translation_bn || undefined,
+    translation_en: dua.translation_en || undefined,
+    transliteration: dua.transliteration || undefined,
+    category: dua.category,
+    source: dua.source || undefined,
+    reference: dua.reference || undefined,
+    benefits: dua.benefits || undefined,
+    is_important: dua.is_important ?? false,
+    is_active: dua.is_active ?? true,
+    tags: dua.tags ? dua.tags.split(',') : [],
+    audio_url: dua.audio_url || undefined,
+    created_by: dua.created_by || undefined,
+    created_at: dua.created_at?.toISOString() || new Date().toISOString(),
+    updated_at: dua.updated_at?.toISOString() || new Date().toISOString(),
+  }
 }
 
-export interface DuaCategory {
-  id: string
-  name_bn: string
-  name_ar?: string
-  name_en?: string
-  description?: string
-  icon?: string
-  color: string
-  is_active: boolean
+function convertDuaCategoryFromDB(cat: DuaCategoryFromDB): DuaCategory {
+  return {
+    id: cat.id,
+    name_bn: cat.name_bn,
+    name_ar: cat.name_ar || undefined,
+    name_en: cat.name_en || undefined,
+    description: cat.description || undefined,
+    icon: cat.icon || undefined,
+    color: cat.color || '#10b981',
+    is_active: cat.is_active ?? true,
+  }
 }
 
 export async function getDuas(filters?: {
@@ -46,62 +52,22 @@ export async function getDuas(filters?: {
   isImportant?: boolean
   limit?: number
   offset?: number
-}) {
+}): Promise<Dua[]> {
   try {
     const data = await getDuasQuery(filters)
-    return data.map(dua => ({
-      id: dua.id,
-      title_bn: dua.title_bn,
-      title_ar: dua.title_ar,
-      title_en: dua.title_en,
-      dua_text_ar: dua.dua_text_ar,
-      translation_bn: dua.translation_bn,
-      translation_en: dua.translation_en,
-      transliteration: dua.transliteration,
-      category: dua.category,
-      source: dua.source,
-      reference: dua.reference,
-      benefits: dua.benefits,
-      is_important: dua.is_important,
-      is_active: dua.is_active,
-      tags: dua.tags ? dua.tags.split(',') : [],
-      audio_url: dua.audio_url,
-      created_by: dua.created_by,
-      created_at: dua.created_at?.toISOString() || '',
-      updated_at: dua.updated_at?.toISOString() || '',
-    }))
+    console.log('data',data)
+    return data.map(convertDuaFromDB)
   } catch (error) {
     apiLogger.error('Failed to fetch duas with Drizzle', { error, filters })
     return []
   }
 }
 
-const getDuaByIdUncached = async (id: string) => {
+const getDuaByIdUncached = async (id: string): Promise<Dua | null> => {
   try {
     const dua = await getDuaByIdQuery(id)
     if (!dua) return null
-    
-    return {
-      id: dua.id,
-      title_bn: dua.title_bn,
-      title_ar: dua.title_ar,
-      title_en: dua.title_en,
-      dua_text_ar: dua.dua_text_ar,
-      translation_bn: dua.translation_bn,
-      translation_en: dua.translation_en,
-      transliteration: dua.transliteration,
-      category: dua.category,
-      source: dua.source,
-      reference: dua.reference,
-      benefits: dua.benefits,
-      is_important: dua.is_important,
-      is_active: dua.is_active,
-      tags: dua.tags ? dua.tags.split(',') : [],
-      audio_url: dua.audio_url,
-      created_by: dua.created_by,
-      created_at: dua.created_at?.toISOString() || '',
-      updated_at: dua.updated_at?.toISOString() || '',
-    }
+    return convertDuaFromDB(dua)
   } catch (error) {
     apiLogger.error('Failed to fetch dua with Drizzle', { error, id })
     return null
@@ -193,19 +159,10 @@ export async function deleteDua(id: string) {
   }
 }
 
-export async function getDuaCategories() {
+export async function getDuaCategories(): Promise<DuaCategory[]> {
   try {
     const data = await getDuaCategoriesQuery()
-    return data.map(cat => ({
-      id: cat.id,
-      name_bn: cat.name_bn,
-      name_ar: cat.name_ar,
-      name_en: cat.name_en,
-      description: cat.description,
-      icon: cat.icon,
-      color: cat.color,
-      is_active: cat.is_active,
-    }))
+    return data.map(convertDuaCategoryFromDB)
   } catch (error) {
     apiLogger.error('Failed to fetch dua categories with Drizzle', { error })
     return []

@@ -1,6 +1,6 @@
-import { eq, and, desc, ilike, or, count } from 'drizzle-orm'
+import { and, count, desc, eq, ilike, or } from 'drizzle-orm'
 import { db } from '../index'
-import { duas, duaCategories } from '../schema'
+import { duaCategories, duas } from '../schema'
 
 export async function getDuas(filters?: {
   category?: string
@@ -25,7 +25,7 @@ export async function getDuas(filters?: {
     )
   }
 
-  if (filters?.isImportant) {
+  if (filters?.isImportant === true) {
     conditions.push(eq(duas.is_important, true))
   }
 

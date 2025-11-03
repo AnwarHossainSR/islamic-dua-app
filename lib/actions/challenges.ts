@@ -23,32 +23,31 @@ export async function getChallenges() {
     
     // Transform and calculate completion percentage
     const mergedData = challenges.map(challenge => {
-      const completionPercentage = challenge.totalCompletedDays && challenge.totalDays
-        ? Math.min(Math.round((challenge.totalCompletedDays / challenge.totalDays) * 100), 100)
+      const completionPercentage = challenge.total_completed_days && challenge.total_days
+        ? Math.min(Math.round((challenge.total_completed_days / challenge.total_days) * 100), 100)
         : 0
 
       return {
         id: challenge.id,
-        title_bn: challenge.titleBn,
-        title_ar: challenge.titleAr ?? undefined,
-        description_bn: challenge.descriptionBn ?? undefined,
+        title_bn: challenge.title_bn,
+        title_ar: challenge.title_ar ?? undefined,
+        description_bn: challenge.description_bn ?? undefined,
         icon: challenge.icon ?? undefined,
         color: challenge.color ?? undefined,
-        difficulty_level: challenge.difficultyLevel ?? 'medium',
-        is_active: challenge.isActive,
-        is_featured: challenge.isFeatured,
-        total_participants: challenge.totalParticipants || 0,
-        total_completions: challenge.totalCompletions || 0,
-        total_days: challenge.totalDays,
-        daily_target_count: challenge.dailyTargetCount,
-        recommended_prayer: challenge.recommendedPrayer ?? undefined,
-        user_status: challenge.userStatus || 'not_started',
-        progress_id: challenge.progressId ?? undefined,
-        completed_at: challenge.completedAt ?? undefined,
-        total_completed_days: challenge.totalCompletedDays || 0,
-        current_day: challenge.currentDay || 1,
-        completion_count: challenge.completionCount || 0,
-        last_completed_at: challenge.lastCompletedAt ?? undefined,
+        difficulty_level: challenge.difficulty_level ?? 'medium',
+        is_active: challenge.is_active,
+        is_featured: challenge.is_featured,
+        total_participants: challenge.total_participants || 0,
+        total_completions: challenge.total_completions || 0,
+        total_days: challenge.total_days,
+        daily_target_count: challenge.daily_target_count,
+        recommended_prayer: challenge.recommended_prayer ?? undefined,
+        user_status: challenge.user_status || 'not_started',
+        progress_id: challenge.progress_id ?? undefined,
+        completed_at: challenge.completed_at ?? undefined,
+        total_completed_days: challenge.total_completed_days || 0,
+        current_day: challenge.current_day || 1,
+        last_completed_at: challenge.last_completed_at ?? undefined,
         completion_percentage: completionPercentage,
       }
     })
@@ -89,19 +88,19 @@ export async function searchAndFilterChallenges({
     
     return challenges.map(challenge => ({
       id: challenge.id,
-      title_bn: challenge.titleBn,
-      title_ar: challenge.titleAr ?? undefined,
-      description_bn: challenge.descriptionBn ?? undefined,
+      title_bn: challenge.title_bn,
+      title_ar: challenge.title_ar ?? undefined,
+      description_bn: challenge.description_bn ?? undefined,
       icon: challenge.icon ?? undefined,
       color: challenge.color ?? undefined,
-      difficulty_level: challenge.difficultyLevel ?? 'medium',
-      is_active: challenge.isActive,
-      is_featured: challenge.isFeatured,
-      total_participants: challenge.totalParticipants || 0,
-      total_completions: challenge.totalCompletions || 0,
-      total_days: challenge.totalDays,
-      daily_target_count: challenge.dailyTargetCount,
-      recommended_prayer: challenge.recommendedPrayer ?? undefined,
+      difficulty_level: challenge.difficulty_level ?? 'medium',
+      is_active: challenge.is_active,
+      is_featured: challenge.is_featured,
+      total_participants: challenge.total_participants || 0,
+      total_completions: challenge.total_completions || 0,
+      total_days: challenge.total_days,
+      daily_target_count: challenge.daily_target_count,
+      recommended_prayer: challenge.recommended_prayer ?? undefined,
       last_completed_at: undefined, // Will need to join with progress for this
     }))
   } catch (error) {

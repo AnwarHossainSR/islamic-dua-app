@@ -29,10 +29,10 @@ export async function getNotifications(limit = 20) {
       title: n.title,
       message: n.message,
       icon: n.icon || '🔔',
-      action_url: n.actionUrl,
-      is_read: n.isRead || false,
-      created_at: n.createdAt?.toISOString() || '',
-      expires_at: n.expiresAt?.toISOString(),
+      action_url: n.action_url,
+      is_read: n.is_read || false,
+      created_at: n.created_at?.toISOString() || '',
+      expires_at: n.expires_at?.toISOString(),
     }))
   } catch (error) {
     apiLogger.error('Error fetching notifications with Drizzle', { error, userId: user.id })

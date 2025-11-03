@@ -20,32 +20,31 @@ export async function getChallenges() {
     
     // Transform and calculate completion percentage
     const mergedData = challenges.map(challenge => {
-      const completionPercentage = challenge.totalCompletedDays && challenge.totalDays
-        ? Math.min(Math.round((challenge.totalCompletedDays / challenge.totalDays) * 100), 100)
+      const completionPercentage = challenge.total_completed_days && challenge.total_days
+        ? Math.min(Math.round((challenge.total_completed_days / challenge.total_days) * 100), 100)
         : 0
 
       return {
         id: challenge.id,
-        title_bn: challenge.titleBn,
-        title_ar: challenge.titleAr,
-        description_bn: challenge.descriptionBn,
+        title_bn: challenge.title_bn,
+        title_ar: challenge.title_ar,
+        description_bn: challenge.description_bn,
         icon: challenge.icon,
         color: challenge.color,
-        difficulty_level: challenge.difficultyLevel,
-        is_active: challenge.isActive,
-        is_featured: challenge.isFeatured,
-        total_participants: challenge.totalParticipants || 0,
-        total_completions: challenge.totalCompletions || 0,
-        total_days: challenge.totalDays,
-        daily_target_count: challenge.dailyTargetCount,
-        recommended_prayer: challenge.recommendedPrayer,
-        user_status: challenge.userStatus || 'not_started',
-        progress_id: challenge.progressId,
-        completed_at: challenge.completedAt,
-        total_completed_days: challenge.totalCompletedDays || 0,
-        current_day: challenge.currentDay || 1,
-        completion_count: challenge.completionCount || 0,
-        last_completed_at: challenge.lastCompletedAt,
+        difficulty_level: challenge.difficulty_level,
+        is_active: challenge.is_active,
+        is_featured: challenge.is_featured,
+        total_participants: challenge.total_participants || 0,
+        total_completions: challenge.total_completions || 0,
+        total_days: challenge.total_days,
+        daily_target_count: challenge.daily_target_count,
+        recommended_prayer: challenge.recommended_prayer,
+        user_status: challenge.user_status || 'not_started',
+        progress_id: challenge.progress_id,
+        completed_at: challenge.completed_at,
+        total_completed_days: challenge.total_completed_days || 0,
+        current_day: challenge.current_day || 1,
+        last_completed_at: challenge.last_completed_at,
         completion_percentage: completionPercentage,
       }
     })
@@ -85,19 +84,19 @@ export async function searchAndFilterChallenges({
     
     return challenges.map(challenge => ({
       id: challenge.id,
-      title_bn: challenge.titleBn,
-      title_ar: challenge.titleAr,
-      description_bn: challenge.descriptionBn,
+      title_bn: challenge.title_bn,
+      title_ar: challenge.title_ar,
+      description_bn: challenge.description_bn,
       icon: challenge.icon,
       color: challenge.color,
-      difficulty_level: challenge.difficultyLevel,
-      is_active: challenge.isActive,
-      is_featured: challenge.isFeatured,
-      total_participants: challenge.totalParticipants || 0,
-      total_completions: challenge.totalCompletions || 0,
-      total_days: challenge.totalDays,
-      daily_target_count: challenge.dailyTargetCount,
-      recommended_prayer: challenge.recommendedPrayer,
+      difficulty_level: challenge.difficulty_level,
+      is_active: challenge.is_active,
+      is_featured: challenge.is_featured,
+      total_participants: challenge.total_participants || 0,
+      total_completions: challenge.total_completions || 0,
+      total_days: challenge.total_days,
+      daily_target_count: challenge.daily_target_count,
+      recommended_prayer: challenge.recommended_prayer,
       last_completed_at: null, // Will need to join with progress for this
     }))
   } catch (error) {
@@ -113,9 +112,9 @@ const getChallengeByIdUncached = async (id: string) => {
 
     return {
       id: challenge.id,
-      title_bn: challenge.titleBn,
-      title_ar: challenge.titleAr,
-      description_bn: challenge.descriptionBn,
+      title_bn: challenge.title_bn,
+      title_ar: challenge.title_ar,
+      description_bn: challenge.description_bn,
       // ... map other fields as needed
     }
   } catch (error) {

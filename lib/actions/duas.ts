@@ -51,24 +51,24 @@ export async function getDuas(filters?: {
     const data = await getDuasQuery(filters)
     return data.map(dua => ({
       id: dua.id,
-      title_bn: dua.titleBn,
-      title_ar: dua.titleAr,
-      title_en: dua.titleEn,
-      dua_text_ar: dua.duaTextAr,
-      translation_bn: dua.translationBn,
-      translation_en: dua.translationEn,
+      title_bn: dua.title_bn,
+      title_ar: dua.title_ar,
+      title_en: dua.title_en,
+      dua_text_ar: dua.dua_text_ar,
+      translation_bn: dua.translation_bn,
+      translation_en: dua.translation_en,
       transliteration: dua.transliteration,
       category: dua.category,
       source: dua.source,
       reference: dua.reference,
       benefits: dua.benefits,
-      is_important: dua.isImportant,
-      is_active: dua.isActive,
+      is_important: dua.is_important,
+      is_active: dua.is_active,
       tags: dua.tags ? dua.tags.split(',') : [],
-      audio_url: dua.audioUrl,
-      created_by: dua.createdBy,
-      created_at: dua.createdAt?.toISOString() || '',
-      updated_at: dua.updatedAt?.toISOString() || '',
+      audio_url: dua.audio_url,
+      created_by: dua.created_by,
+      created_at: dua.created_at?.toISOString() || '',
+      updated_at: dua.updated_at?.toISOString() || '',
     }))
   } catch (error) {
     apiLogger.error('Failed to fetch duas with Drizzle', { error, filters })
@@ -83,24 +83,24 @@ const getDuaByIdUncached = async (id: string) => {
     
     return {
       id: dua.id,
-      title_bn: dua.titleBn,
-      title_ar: dua.titleAr,
-      title_en: dua.titleEn,
-      dua_text_ar: dua.duaTextAr,
-      translation_bn: dua.translationBn,
-      translation_en: dua.translationEn,
+      title_bn: dua.title_bn,
+      title_ar: dua.title_ar,
+      title_en: dua.title_en,
+      dua_text_ar: dua.dua_text_ar,
+      translation_bn: dua.translation_bn,
+      translation_en: dua.translation_en,
       transliteration: dua.transliteration,
       category: dua.category,
       source: dua.source,
       reference: dua.reference,
       benefits: dua.benefits,
-      is_important: dua.isImportant,
-      is_active: dua.isActive,
+      is_important: dua.is_important,
+      is_active: dua.is_active,
       tags: dua.tags ? dua.tags.split(',') : [],
-      audio_url: dua.audioUrl,
-      created_by: dua.createdBy,
-      created_at: dua.createdAt?.toISOString() || '',
-      updated_at: dua.updatedAt?.toISOString() || '',
+      audio_url: dua.audio_url,
+      created_by: dua.created_by,
+      created_at: dua.created_at?.toISOString() || '',
+      updated_at: dua.updated_at?.toISOString() || '',
     }
   } catch (error) {
     apiLogger.error('Failed to fetch dua with Drizzle', { error, id })
@@ -118,22 +118,22 @@ export async function createDua(
 
   try {
     const result = await createDuaQuery({
-      titleBn: duaData.title_bn,
-      titleAr: duaData.title_ar,
-      titleEn: duaData.title_en,
-      duaTextAr: duaData.dua_text_ar,
-      translationBn: duaData.translation_bn,
-      translationEn: duaData.translation_en,
+      title_bn: duaData.title_bn,
+      title_ar: duaData.title_ar,
+      title_en: duaData.title_en,
+      dua_text_ar: duaData.dua_text_ar,
+      translation_bn: duaData.translation_bn,
+      translation_en: duaData.translation_en,
       transliteration: duaData.transliteration,
       category: duaData.category,
       source: duaData.source,
       reference: duaData.reference,
       benefits: duaData.benefits,
-      isImportant: duaData.is_important,
-      isActive: duaData.is_active,
+      is_important: duaData.is_important,
+      is_active: duaData.is_active,
       tags: duaData.tags?.join(','),
-      audioUrl: duaData.audio_url,
-      createdBy: user?.id,
+      audio_url: duaData.audio_url,
+      created_by: user?.id,
     })
 
     revalidatePath('/duas')
@@ -152,21 +152,21 @@ export async function updateDua(
 
   try {
     const updateData: any = {}
-    if (duaData.title_bn) updateData.titleBn = duaData.title_bn
-    if (duaData.title_ar) updateData.titleAr = duaData.title_ar
-    if (duaData.title_en) updateData.titleEn = duaData.title_en
-    if (duaData.dua_text_ar) updateData.duaTextAr = duaData.dua_text_ar
-    if (duaData.translation_bn) updateData.translationBn = duaData.translation_bn
-    if (duaData.translation_en) updateData.translationEn = duaData.translation_en
+    if (duaData.title_bn) updateData.title_bn = duaData.title_bn
+    if (duaData.title_ar) updateData.title_ar = duaData.title_ar
+    if (duaData.title_en) updateData.title_en = duaData.title_en
+    if (duaData.dua_text_ar) updateData.dua_text_ar = duaData.dua_text_ar
+    if (duaData.translation_bn) updateData.translation_bn = duaData.translation_bn
+    if (duaData.translation_en) updateData.translation_en = duaData.translation_en
     if (duaData.transliteration) updateData.transliteration = duaData.transliteration
     if (duaData.category) updateData.category = duaData.category
     if (duaData.source) updateData.source = duaData.source
     if (duaData.reference) updateData.reference = duaData.reference
     if (duaData.benefits) updateData.benefits = duaData.benefits
-    if (duaData.is_important !== undefined) updateData.isImportant = duaData.is_important
-    if (duaData.is_active !== undefined) updateData.isActive = duaData.is_active
+    if (duaData.is_important !== undefined) updateData.is_important = duaData.is_important
+    if (duaData.is_active !== undefined) updateData.is_active = duaData.is_active
     if (duaData.tags) updateData.tags = duaData.tags.join(',')
-    if (duaData.audio_url) updateData.audioUrl = duaData.audio_url
+    if (duaData.audio_url) updateData.audio_url = duaData.audio_url
 
     const result = await updateDuaQuery(id, updateData)
     
@@ -198,13 +198,13 @@ export async function getDuaCategories() {
     const data = await getDuaCategoriesQuery()
     return data.map(cat => ({
       id: cat.id,
-      name_bn: cat.nameBn,
-      name_ar: cat.nameAr,
-      name_en: cat.nameEn,
+      name_bn: cat.name_bn,
+      name_ar: cat.name_ar,
+      name_en: cat.name_en,
       description: cat.description,
       icon: cat.icon,
       color: cat.color,
-      is_active: cat.isActive,
+      is_active: cat.is_active,
     }))
   } catch (error) {
     apiLogger.error('Failed to fetch dua categories with Drizzle', { error })

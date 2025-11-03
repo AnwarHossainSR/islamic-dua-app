@@ -1,9 +1,9 @@
 'use server'
 
 import { checkPermission, getUser } from '@/lib/actions/auth'
-import { PERMISSIONS } from '@/lib/permissions/constants'
-import { getAppSettings as getAppSettingsQuery, updateAppSetting as updateAppSettingQuery, getUserSettings as getUserSettingsQuery, updateUserSetting as updateUserSettingQuery } from '../db/queries/settings'
 import { apiLogger } from '@/lib/logger'
+import { PERMISSIONS } from '@/lib/permissions/constants'
+import { getAppSettings as getAppSettingsQuery, getUserSettings as getUserSettingsQuery, updateAppSetting as updateAppSettingQuery, updateUserSetting as updateUserSettingQuery } from '../db/queries/settings'
 
 export interface AppSetting {
   id: string
@@ -27,7 +27,7 @@ export async function getAppSettings(category?: string): Promise<AppSetting[]> {
       type: setting.type,
       label: setting.label,
       description: setting.description || undefined,
-      is_public: setting.isPublic || false,
+      is_public: setting.is_public || false,
     }))
   } catch (error) {
     apiLogger.error('Error fetching app settings with Drizzle', { error, category })

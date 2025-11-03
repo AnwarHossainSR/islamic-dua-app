@@ -55,10 +55,10 @@ export async function getUserRecentLogs(limit: number = 10) {
     const logs = await getUserRecentActivityLogs(user.id, limit)
     return logs.map(log => ({
       id: log.id,
-      day_number: log.dayNumber ?? 0,
-      count_completed: log.countCompleted ?? 0,
-      completed_at: log.completedAt ?? '',
-      is_completed: log.isCompleted ?? false,
+      day_number: log.day_number ?? 0,
+      count_completed: log.count_completed ?? 0,
+      completed_at: log.completed_at ?? '',
+      is_completed: log.is_completed ?? false,
       user_progress: log.userProgress
     }))
   } catch (error) {

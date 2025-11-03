@@ -71,7 +71,7 @@ export async function addAdminUser(email: string, role: string = 'admin', passwo
 
     // Add user as admin
     const result = await createAdminUserQuery({
-      userId: user.id,
+      user_id: user.id,
       email: user.email || email,
       role: role as 'user' | 'editor' | 'admin' | 'super_admin'
     })
@@ -104,7 +104,7 @@ export async function updateAdminUser(id: string, updates: { role?: string; is_a
   try {
     const updateData: any = {}
     if (updates.role) updateData.role = updates.role as 'user' | 'editor' | 'admin' | 'super_admin'
-    if (updates.is_active !== undefined) updateData.isActive = updates.is_active
+    if (updates.is_active !== undefined) updateData.is_active = updates.is_active
     
     const result = await updateAdminUserQuery(id, updateData)
     const data = result[0]

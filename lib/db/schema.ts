@@ -173,7 +173,7 @@ export const duas = pgTable('duas', {
   benefits: text('benefits'),
   is_important: boolean('is_important').default(false),
   is_active: boolean('is_active').default(true),
-  tags: text('tags'),
+  tags: text('tags').array(),
   audio_url: text('audio_url'),
   created_by: uuid('created_by'),
   created_at: timestamp('created_at').defaultNow(),

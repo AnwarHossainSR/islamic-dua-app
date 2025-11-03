@@ -14,7 +14,7 @@ export interface DuaFromDB {
   benefits: string | null
   is_important: boolean | null
   is_active: boolean | null
-  tags: string | null
+  tags: string[] | null
   audio_url: string | null
   created_by: string | null
   created_at: Date | null

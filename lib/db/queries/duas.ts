@@ -68,7 +68,7 @@ export async function createDua(duaData: {
   benefits?: string
   is_important?: boolean
   is_active?: boolean
-  tags?: string
+  tags?: string[]
   audio_url?: string
   created_by?: string
 }) {
@@ -92,7 +92,7 @@ export async function updateDua(id: string, duaData: Partial<{
   benefits: string
   is_important: boolean
   is_active: boolean
-  tags: string
+  tags: string[]
   audio_url: string
 }>) {
   return await db

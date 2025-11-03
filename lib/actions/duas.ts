@@ -25,7 +25,7 @@ function convertDuaFromDB(dua: DuaFromDB): Dua {
     benefits: dua.benefits || undefined,
     is_important: dua.is_important ?? false,
     is_active: dua.is_active ?? true,
-    tags: dua.tags ? dua.tags.split(',') : [],
+    tags: dua.tags || [],
     audio_url: dua.audio_url || undefined,
     created_by: dua.created_by || undefined,
     created_at: dua.created_at?.toISOString() || new Date().toISOString(),
@@ -55,7 +55,6 @@ export async function getDuas(filters?: {
 }): Promise<Dua[]> {
   try {
     const data = await getDuasQuery(filters)
-    console.log('data',data)
     return data.map(convertDuaFromDB)
   } catch (error) {
     apiLogger.error('Failed to fetch duas with Drizzle', { error, filters })
@@ -97,7 +96,7 @@ export async function createDua(
       benefits: duaData.benefits,
       is_important: duaData.is_important,
       is_active: duaData.is_active,
-      tags: duaData.tags?.join(','),
+      tags: duaData.tags,
       audio_url: duaData.audio_url,
       created_by: user?.id,
     })
@@ -131,7 +130,7 @@ export async function updateDua(
     if (duaData.benefits) updateData.benefits = duaData.benefits
     if (duaData.is_important !== undefined) updateData.is_important = duaData.is_important
     if (duaData.is_active !== undefined) updateData.is_active = duaData.is_active
-    if (duaData.tags) updateData.tags = duaData.tags.join(',')
+    if (duaData.tags) updateData.tags = duaData.tags
     if (duaData.audio_url) updateData.audio_url = duaData.audio_url
 
     const result = await updateDuaQuery(id, updateData)

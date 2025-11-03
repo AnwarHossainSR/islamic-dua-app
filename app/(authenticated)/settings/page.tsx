@@ -1,31 +1,31 @@
 'use client'
 
 import { BiometricManager } from '@/components/auth/biometric-manager'
+import { NotificationSettings } from '@/components/notifications/notification-settings'
 import { DynamicSettings } from '@/components/settings/dynamic-settings'
 import { SettingsProvider } from '@/components/settings/settings-provider'
-import { NotificationSettings } from '@/components/notifications/notification-settings'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useToast } from '@/hooks/use-toast'
-import { 
-  Database, 
-  Globe, 
-  Palette, 
-  Settings, 
-  Shield, 
-  Download, 
-  Upload, 
-  RefreshCw, 
-  HardDrive, 
+import {
   Activity,
-  FileText,
   Archive,
-  Server
+  Database,
+  Download,
+  FileText,
+  Globe,
+  HardDrive,
+  Palette,
+  RefreshCw,
+  Server,
+  Settings,
+  Shield,
+  Upload
 } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 export default function AdminSettingsPage() {
   const [dbStats, setDbStats] = useState<any>(null)
@@ -95,12 +95,12 @@ export default function AdminSettingsPage() {
 
         <Tabs defaultValue="general" className="space-y-6">
           <TabsList className="grid w-full grid-cols-6">
-            <TabsTrigger value="general">General</TabsTrigger>
-            <TabsTrigger value="localization">Language</TabsTrigger>
-            <TabsTrigger value="security">Security</TabsTrigger>
-            <TabsTrigger value="appearance">Appearance</TabsTrigger>
-            <TabsTrigger value="notifications">Notifications</TabsTrigger>
-            <TabsTrigger value="database">Database</TabsTrigger>
+            <TabsTrigger className='cursor-pointer' value="general">General</TabsTrigger>
+            <TabsTrigger className='cursor-pointer' value="localization">Language</TabsTrigger>
+            <TabsTrigger className='cursor-pointer' value="security">Security</TabsTrigger>
+            <TabsTrigger className='cursor-pointer' value="appearance">Appearance</TabsTrigger>
+            <TabsTrigger className='cursor-pointer' value="notifications">Notifications</TabsTrigger>
+            <TabsTrigger className='cursor-pointer' value="database">Database</TabsTrigger>
           </TabsList>
 
           <TabsContent value="general">

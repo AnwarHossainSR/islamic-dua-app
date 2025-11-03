@@ -13,7 +13,7 @@ export default async function ActivitiesPage() {
   ])
 
   // Calculate user's total stats
-  const totalCompletions = userActivities.reduce((sum, a) => sum + (a.total_completed || 0), 0)
+  const totalCompletions = userActivities.reduce((sum, a) => sum + (a?.total_completed || 0), 0)
   const totalActivities = userActivities.length
   const avgPerActivity = totalActivities > 0 ? Math.round(totalCompletions / totalActivities) : 0
 
@@ -90,8 +90,10 @@ export default async function ActivitiesPage() {
       {/* My Activities List */}
       <div className="space-y-4">
         {userActivities.map((userActivity, index) => {
-          const activity = userActivity.activity
-          const completionRate = userActivity.total_completed || 0
+          const activity = userActivity?.activity
+          if (!activity) return null
+          
+          const completionRate = userActivity?.total_completed || 0
 
           return (
             <Card key={activity.id} className="overflow-hidden">
@@ -101,26 +103,26 @@ export default async function ActivitiesPage() {
                   <div className="flex items-start gap-3">
                     <div
                       className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg text-2xl"
-                      style={{ backgroundColor: activity.color + '20' || '#10b98120' }}
+                      style={{ backgroundColor: (activity?.color || '#10b981') + '20' }}
                     >
-                      {activity.icon || '📿'}
+                      {activity?.icon || '📿'}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1 flex-wrap">
-                        <h3 className="text-xl font-bold truncate">{activity.name_bn}</h3>
+                        <h3 className="text-xl font-bold truncate">{activity?.name_bn || 'Unknown Activity'}</h3>
                         <Badge variant="outline" className="text-xs">
                           #{index + 1}
                         </Badge>
                       </div>
-                      {activity.name_ar && (
+                      {activity?.name_ar && (
                         <p className="arabic-text text-muted-foreground text-sm mb-1">
                           {activity.name_ar}
                         </p>
                       )}
-                      {activity.name_en && (
+                      {activity?.name_en && (
                         <p className="text-sm text-muted-foreground">{activity.name_en}</p>
                       )}
-                      {activity.arabic_text && activity.arabic_text !== 'none' && (
+                      {activity?.arabic_text && activity.arabic_text !== 'none' && (
                         <p className="arabic-text text-lg mt-2 text-emerald-700 dark:text-emerald-400">
                           {activity.arabic_text}
                         </p>
@@ -129,11 +131,11 @@ export default async function ActivitiesPage() {
                   </div>
 
                   <div className="flex flex-wrap gap-3 text-sm">
-                    <Badge variant="secondary">{activity.activity_type || 'dhikr'}</Badge>
+                    <Badge variant="secondary">{activity?.activity_type || 'dhikr'}</Badge>
                     <div className="flex items-center gap-1.5">
                       <span className="text-muted-foreground">Slug:</span>
                       <code className="text-xs bg-muted px-2 py-1 rounded">
-                        {activity.unique_slug}
+                        {activity?.unique_slug || 'unknown'}
                       </code>
                     </div>
                   </div>
@@ -145,7 +147,7 @@ export default async function ActivitiesPage() {
                   <div className="grid grid-cols-2 gap-3">
                     <div className="rounded-lg border bg-muted/50 p-3 text-center">
                       <p className="text-2xl font-bold text-emerald-600">
-                        {userActivity.total_completed.toLocaleString()}
+                        {(userActivity?.total_completed || 0).toLocaleString()}
                       </p>
                       <p className="text-xs text-muted-foreground">My Count</p>
                     </div>
@@ -153,7 +155,7 @@ export default async function ActivitiesPage() {
                       <div className="flex items-center justify-center gap-1">
                         <Users className="h-4 w-4 text-blue-500" />
                         <span className="text-2xl font-bold text-blue-600">
-                          {userActivity.longest_streak || 0}
+                          {userActivity?.longest_streak || 0}
                         </span>
                       </div>
                       <p className="text-xs text-muted-foreground">Best Streak</p>
@@ -165,7 +167,7 @@ export default async function ActivitiesPage() {
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-medium">Last Completed</span>
                       <span className="text-sm font-medium">
-                        {userActivity.last_completed_at 
+                        {userActivity?.last_completed_at 
                           ? new Date(userActivity.last_completed_at).toLocaleDateString()
                           : 'Never'
                         }
@@ -181,7 +183,7 @@ export default async function ActivitiesPage() {
               </div>
             </Card>
           )
-        })}
+        }).filter(Boolean)}
 
         {userActivities.length === 0 && (
           <Card>

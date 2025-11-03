@@ -17,7 +17,7 @@ export async function getAppSettings(category?: string) {
 export async function updateAppSetting(key: string, value: any) {
   return await db
     .update(appSettings)
-    .set({ value: JSON.stringify(value), updatedAt: new Date() })
+    .set({ value: JSON.stringify(value), updated_at: new Date() })
     .where(eq(appSettings.key, key))
 }
 
@@ -25,15 +25,15 @@ export async function getUserSettings(userId: string) {
   return await db
     .select({ key: userSettings.key, value: userSettings.value })
     .from(userSettings)
-    .where(eq(userSettings.userId, userId))
+    .where(eq(userSettings.user_id, userId))
 }
 
 export async function updateUserSetting(userId: string, key: string, value: any) {
   // First try to update existing setting
   const updateResult = await db
     .update(userSettings)
-    .set({ value: JSON.stringify(value), updatedAt: new Date() })
-    .where(and(eq(userSettings.userId, userId), eq(userSettings.key, key)))
+    .set({ value: JSON.stringify(value), updated_at: new Date() })
+    .where(and(eq(userSettings.user_id, userId), eq(userSettings.key, key)))
     .returning()
 
   // If no rows updated, insert new setting
@@ -41,7 +41,7 @@ export async function updateUserSetting(userId: string, key: string, value: any)
     return await db
       .insert(userSettings)
       .values({
-        userId,
+        user_id: userId,
         key,
         value: JSON.stringify(value),
       })

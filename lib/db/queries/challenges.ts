@@ -6,44 +6,43 @@ export async function getChallengesWithProgress(userId: string) {
   const challenges = await db
     .select({
       id: challengeTemplates.id,
-      titleBn: challengeTemplates.titleBn,
-      titleAr: challengeTemplates.titleAr,
-      descriptionBn: challengeTemplates.descriptionBn,
+      title_bn: challengeTemplates.title_bn,
+      title_ar: challengeTemplates.title_ar,
+      description_bn: challengeTemplates.description_bn,
       icon: challengeTemplates.icon,
       color: challengeTemplates.color,
-      difficultyLevel: challengeTemplates.difficultyLevel,
-      isActive: challengeTemplates.isActive,
-      isFeatured: challengeTemplates.isFeatured,
-      totalParticipants: challengeTemplates.totalParticipants,
-      totalCompletions: challengeTemplates.totalCompletions,
-      totalDays: challengeTemplates.totalDays,
-      dailyTargetCount: challengeTemplates.dailyTargetCount,
-      recommendedPrayer: challengeTemplates.recommendedPrayer,
+      difficulty_level: challengeTemplates.difficulty_level,
+      is_active: challengeTemplates.is_active,
+      is_featured: challengeTemplates.is_featured,
+      total_participants: challengeTemplates.total_participants,
+      total_completions: challengeTemplates.total_completions,
+      total_days: challengeTemplates.total_days,
+      daily_target_count: challengeTemplates.daily_target_count,
+      recommended_prayer: challengeTemplates.recommended_prayer,
       // Progress fields
-      userStatus: userChallengeProgress.status,
-      progressId: userChallengeProgress.id,
-      completedAt: userChallengeProgress.completedAt,
-      totalCompletedDays: userChallengeProgress.totalCompletedDays,
-      currentDay: userChallengeProgress.currentDay,
-      completionCount: userChallengeProgress.completionCount,
-      lastCompletedAt: userChallengeProgress.lastCompletedAt,
+      user_status: userChallengeProgress.status,
+      progress_id: userChallengeProgress.id,
+      completed_at: userChallengeProgress.completed_at,
+      total_completed_days: userChallengeProgress.total_completed_days,
+      current_day: userChallengeProgress.current_day,
+      last_completed_at: userChallengeProgress.last_completed_at,
     })
     .from(challengeTemplates)
     .leftJoin(
       userChallengeProgress,
       and(
-        eq(userChallengeProgress.challengeId, challengeTemplates.id),
-        eq(userChallengeProgress.userId, userId)
+        eq(userChallengeProgress.challenge_id, challengeTemplates.id),
+        eq(userChallengeProgress.user_id, userId)
       )
     )
-    .where(eq(challengeTemplates.isActive, true))
-    .orderBy(asc(challengeTemplates.displayOrder))
+    .where(eq(challengeTemplates.is_active, true))
+    .orderBy(asc(challengeTemplates.display_order))
 
   // Convert dates to strings to avoid serialization issues
   return challenges.map(challenge => ({
     ...challenge,
-    completedAt: challenge.completedAt ? challenge.completedAt.toISOString() : null,
-    lastCompletedAt: challenge.lastCompletedAt ? challenge.lastCompletedAt.toISOString() : null
+    completed_at: challenge.completed_at ? challenge.completed_at.toISOString() : null,
+    last_completed_at: challenge.last_completed_at ? challenge.last_completed_at.toISOString() : null
   }))
 }
 
@@ -56,33 +55,33 @@ export async function searchChallenges({
   difficulty?: string
   status?: string
 }) {
-  const conditions = [eq(challengeTemplates.isActive, true)]
+  const conditions = [eq(challengeTemplates.is_active, true)]
 
   if (searchQuery?.trim()) {
     conditions.push(
       or(
-        ilike(challengeTemplates.titleBn, `%${searchQuery}%`),
-        ilike(challengeTemplates.titleAr, `%${searchQuery}%`),
-        ilike(challengeTemplates.descriptionBn, `%${searchQuery}%`)
+        ilike(challengeTemplates.title_bn, `%${searchQuery}%`),
+        ilike(challengeTemplates.title_ar, `%${searchQuery}%`),
+        ilike(challengeTemplates.description_bn, `%${searchQuery}%`)
       )!
     )
   }
 
   if (difficulty && difficulty !== 'all') {
-    conditions.push(eq(challengeTemplates.difficultyLevel, difficulty as any))
+    conditions.push(eq(challengeTemplates.difficulty_level, difficulty as any))
   }
 
   if (status === 'featured') {
-    conditions.push(eq(challengeTemplates.isFeatured, true))
+    conditions.push(eq(challengeTemplates.is_featured, true))
   } else if (status === 'inactive') {
-    conditions[0] = eq(challengeTemplates.isActive, false)
+    conditions[0] = eq(challengeTemplates.is_active, false)
   }
 
   return await db
     .select()
     .from(challengeTemplates)
     .where(and(...conditions))
-    .orderBy(asc(challengeTemplates.displayOrder))
+    .orderBy(asc(challengeTemplates.display_order))
 }
 
 export async function getChallengeById(id: string) {
@@ -99,6 +98,6 @@ export async function getFeaturedChallenges() {
   return await db
     .select()
     .from(challengeTemplates)
-    .where(and(eq(challengeTemplates.isActive, true), eq(challengeTemplates.isFeatured, true)))
-    .orderBy(asc(challengeTemplates.displayOrder))
+    .where(and(eq(challengeTemplates.is_active, true), eq(challengeTemplates.is_featured, true)))
+    .orderBy(asc(challengeTemplates.display_order))
 }

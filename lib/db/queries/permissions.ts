@@ -54,9 +54,9 @@ export async function getUserPermissions(userId: string) {
       description: permissions.description,
     })
     .from(permissions)
-    .innerJoin(rolePermissions, eq(permissions.id, rolePermissions.permissionId))
-    .innerJoin(userRoles, eq(rolePermissions.roleId, userRoles.id))
-    .where(eq(userRoles.userId, userId))
+    .innerJoin(rolePermissions, eq(permissions.id, rolePermissions.permission_id))
+    .innerJoin(userRoles, eq(rolePermissions.role_id, userRoles.id))
+    .where(eq(userRoles.user_id, userId))
 
   return result
 }

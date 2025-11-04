@@ -8,9 +8,9 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
-import { createPermission, updatePermission, deletePermission } from '@/lib/actions/role-permissions'
 import { useToast } from '@/hooks/use-toast'
-import { Plus, Edit, Trash2, Shield } from 'lucide-react'
+import { createPermission, deletePermission, updatePermission } from '@/lib/actions/role-permissions'
+import { Edit, Plus, Shield, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 
 interface Permission {
@@ -183,9 +183,9 @@ export function PermissionsManagementClient({ permissions }: PermissionsManageme
   const openEditDialog = (permission: Permission) => {
     setSelectedPermission(permission)
     setName(permission.name)
-    setDescription(permission.description)
-    setResource(permission.resource || '')
-    setAction(permission.action || '')
+    setDescription(permission?.description || '')
+    setResource(permission?.resource || '')
+    setAction(permission?.action || '')
     setIsEditDialogOpen(true)
   }
 

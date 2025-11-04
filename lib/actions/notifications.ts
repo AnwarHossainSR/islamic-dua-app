@@ -11,7 +11,7 @@ export interface Notification {
   title: string
   message: string
   icon: string
-  action_url?: string
+  action_url?: string | null
   is_read: boolean
   created_at: string
   expires_at?: string

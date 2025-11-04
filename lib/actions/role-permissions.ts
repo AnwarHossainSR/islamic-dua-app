@@ -2,34 +2,11 @@
 
 import { apiLogger } from '@/lib/logger'
 import { PERMISSIONS } from '@/lib/permissions/constants'
+import { Permission, Role } from '@/lib/types'
 import { revalidatePath } from 'next/cache'
 import { createPermission as createPermissionQuery, deletePermission as deletePermissionQuery, getAllPermissions as getAllPermissionsQuery, updatePermission as updatePermissionQuery } from '../db/queries/permissions'
 import { getAdminUserByUserId } from '../db/queries/users'
 import { checkPermission, getUser } from './auth'
-
-export interface Permission {
-  id: string
-  name: string
-  description: string
-  resource: string
-  action: string
-  created_at: string
-}
-
-export interface Role {
-  role: string
-  permissions: Permission[]
-}
-
-export interface UserWithPermissions {
-  id: string
-  user_id: string
-  email: string
-  role: string
-  is_active: boolean
-  created_at: string
-  permissions: Permission[]
-}
 
 // Get all permissions
 export async function getAllPermissions() {
@@ -79,7 +56,7 @@ export async function createPermission(permission: Omit<Permission, 'id' | 'crea
   try {
     const result = await createPermissionQuery({
       name: permission.name,
-      description: permission.description
+      description: permission.description || undefined
     })
     const data = result[0]
 
@@ -101,7 +78,7 @@ export async function updatePermission(id: string, updates: Partial<Omit<Permiss
   try {
     const result = await updatePermissionQuery(id, {
       name: updates.name,
-      description: updates.description
+      description: updates.description || undefined
     })
     const data = result[0]
 

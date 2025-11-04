@@ -8,19 +8,7 @@ import { addPermissionToRole, removePermissionFromRole } from '@/lib/actions/rol
 import { Crown, Edit, Shield, Users } from 'lucide-react'
 import { useState } from 'react'
 
-interface Permission {
-  id: string
-  name: string
-  description: string | null
-  resource?: string
-  action?: string
-  created_at?: Date | null | string
-}
-
-interface Role {
-  role: string
-  permissions: Permission[]
-}
+import type { Permission, Role } from '@/lib/types'
 
 interface RolesManagementClientProps {
   rolesWithPermissions: Role[]

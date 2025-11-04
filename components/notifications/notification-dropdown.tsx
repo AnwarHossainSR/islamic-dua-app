@@ -1,22 +1,21 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuLabel,
-  DropdownMenuItem,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
+  DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { Bell, Check, CheckCheck, Trash2, ExternalLink } from 'lucide-react'
+import { deleteNotification, getNotifications, getUnreadCount, markAllAsRead, markAsRead } from '@/lib/actions/notifications'
+import type { Notification } from '@/lib/types'
 import { formatDistanceToNow } from 'date-fns'
-import { getNotifications, getUnreadCount, markAsRead, markAllAsRead, deleteNotification } from '@/lib/actions/notifications'
-import type { Notification } from '@/lib/actions/notifications'
+import { Bell, Check, CheckCheck, ExternalLink, Trash2 } from 'lucide-react'
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
 
 export function NotificationDropdown() {
   const [notifications, setNotifications] = useState<Notification[]>([])

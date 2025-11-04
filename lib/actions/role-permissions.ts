@@ -2,11 +2,10 @@
 
 import { apiLogger } from '@/lib/logger'
 import { PERMISSIONS } from '@/lib/permissions/constants'
-import { getSupabaseAdminServerClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
-import { checkPermission, getUser } from './auth'
-import { getAllPermissions as getAllPermissionsQuery, createPermission as createPermissionQuery, updatePermission as updatePermissionQuery, deletePermission as deletePermissionQuery } from '../db/queries/permissions'
+import { createPermission as createPermissionQuery, deletePermission as deletePermissionQuery, getAllPermissions as getAllPermissionsQuery, updatePermission as updatePermissionQuery } from '../db/queries/permissions'
 import { getAdminUserByUserId } from '../db/queries/users'
+import { checkPermission, getUser } from './auth'
 
 export interface Permission {
   id: string

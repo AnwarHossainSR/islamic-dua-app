@@ -59,20 +59,20 @@ export default function EditDuaPage({ params }: { params: Promise<{ id: string }
       try {
         const dua = await getDuaById(id)
         setFormData({
-          title_bn: dua.title_bn || '',
-          title_ar: dua.title_ar || '',
-          title_en: dua.title_en || '',
-          dua_text_ar: dua.dua_text_ar || '',
-          transliteration: dua.transliteration || '',
-          translation_bn: dua.translation_bn || '',
-          translation_en: dua.translation_en || '',
-          category: dua.category || '',
-          source: dua.source || '',
-          reference: dua.reference || '',
-          benefits: dua.benefits || '',
-          tags: dua.tags || [],
-          is_important: dua.is_important || false,
-          audio_url: dua.audio_url || '',
+          title_bn: dua?.title_bn || '',
+          title_ar: dua?.title_ar || '',
+          title_en: dua?.title_en || '',
+          dua_text_ar: dua?.dua_text_ar || '',
+          transliteration: dua?.transliteration || '',
+          translation_bn: dua?.translation_bn || '',
+          translation_en: dua?.translation_en || '',
+          category: dua?.category || '',
+          source: dua?.source || '',
+          reference: dua?.reference || '',
+          benefits: dua?.benefits || '',
+          tags: dua?.tags || [],
+          is_important: dua?.is_important || false,
+          audio_url: dua?.audio_url || '',
         })
       } catch (error) {
         toast({

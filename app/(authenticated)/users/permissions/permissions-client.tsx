@@ -13,14 +13,7 @@ import { createPermission, deletePermission, updatePermission } from '@/lib/acti
 import { Edit, Plus, Shield, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 
-interface Permission {
-  id: string
-  name: string
-  description: string | null
-  resource?: string
-  action?: string
-  created_at?: Date | null
-}
+import type { Permission } from '@/lib/types'
 
 interface PermissionsManagementClientProps {
   permissions: Permission[]

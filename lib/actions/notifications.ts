@@ -1,21 +1,10 @@
 'use server'
 
 import { getUser } from '@/lib/actions/auth'
-import { revalidatePath } from 'next/cache'
-import { getNotifications as getNotificationsQuery, getUnreadCount as getUnreadCountQuery, markAsRead as markAsReadQuery, markAllAsRead as markAllAsReadQuery, deleteNotification as deleteNotificationQuery, createNotification as createNotificationQuery } from '../db/queries/notifications'
 import { apiLogger } from '@/lib/logger'
-
-export interface Notification {
-  id: string
-  type: 'dua_reminder' | 'challenge_reminder' | 'achievement' | 'system' | 'prayer_time'
-  title: string
-  message: string
-  icon: string
-  action_url?: string | null
-  is_read: boolean
-  created_at: string
-  expires_at?: string
-}
+import { Notification } from '@/lib/types'
+import { revalidatePath } from 'next/cache'
+import { createNotification as createNotificationQuery, deleteNotification as deleteNotificationQuery, getNotifications as getNotificationsQuery, getUnreadCount as getUnreadCountQuery, markAllAsRead as markAllAsReadQuery, markAsRead as markAsReadQuery } from '../db/queries/notifications'
 
 export async function getNotifications(limit = 20) {
   const user = await getUser()

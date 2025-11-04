@@ -4,6 +4,7 @@ import { ActionButton } from '@/components/ui/action-button'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import {
   Select,
@@ -61,6 +62,7 @@ export default function ChallengesClient({
   const [isPending, startTransition] = useTransition()
   const [user, setUser] = useState<any>(null)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
+  const [showCompletedDialog, setShowCompletedDialog] = useState(false)
 
   // Get user on mount
   React.useEffect(() => {
@@ -571,20 +573,39 @@ export default function ChallengesClient({
                           </Button>
                         )}
 
-                        {/* Preview Button - only show for non-completed challenges */}
-                        {challenge.user_status !== 'completed' && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            asChild
-                            className="text-xs md:text-sm"
-                          >
-                            <Link href={`/challenges/${challenge.id}/preview`}>
-                              <Eye className="mr-1 h-3 w-3" />
-                              Preview
-                            </Link>
-                          </Button>
-                        )}
+                        {/* Preview Button */}
+                        {(() => {
+                          const completedToday = isCurrentDay(challenge.last_completed_at || '')
+                          
+                          if (completedToday) {
+                            return (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="text-xs md:text-sm opacity-50 cursor-not-allowed"
+                                onClick={() => setShowCompletedDialog(true)}
+                                disabled
+                              >
+                                <Eye className="mr-1 h-3 w-3" />
+                                Preview
+                              </Button>
+                            )
+                          }
+                          
+                          return (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              asChild
+                              className="text-xs md:text-sm"
+                            >
+                              <Link href={`/challenges/${challenge.id}/preview`}>
+                                <Eye className="mr-1 h-3 w-3" />
+                                Preview
+                              </Link>
+                            </Button>
+                          )
+                        })()}
 
                         {/* Admin Actions */}
                         <Button size="sm" variant="outline" asChild className="text-xs md:text-sm">
@@ -748,6 +769,26 @@ export default function ChallengesClient({
           </div>
         </TabsContent>
       </Tabs>
+      
+      {/* Completed Today Dialog */}
+      <Dialog open={showCompletedDialog} onOpenChange={setShowCompletedDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+              Challenge Completed Today!
+            </DialogTitle>
+            <DialogDescription className="text-center py-4">
+              You have already completed this challenge today. Please come back tomorrow to continue your journey.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-center">
+            <Button onClick={() => setShowCompletedDialog(false)}>
+              Got it!
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

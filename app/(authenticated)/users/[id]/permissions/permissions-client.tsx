@@ -1,11 +1,10 @@
 'use client'
 
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
-import { addPermissionToRole, removePermissionFromRole } from '@/lib/actions/role-permissions'
 import { useToast } from '@/hooks/use-toast'
+import { addPermissionToRole, removePermissionFromRole } from '@/lib/actions/role-permissions'
 import { useState } from 'react'
 
 interface Permission {
@@ -59,7 +58,7 @@ export function PermissionsClient({ user, userPermissions, allPermissions }: Per
     setLoading(true)
     try {
       if (isChecked) {
-        const result = await addPermissionToRole(user.role, permission.id)
+        const result:any = await addPermissionToRole(user.role, permission.id)
         if (result.error) {
           toast({
             title: 'Error adding permission',
@@ -73,7 +72,7 @@ export function PermissionsClient({ user, userPermissions, allPermissions }: Per
           })
         }
       } else {
-        const result = await removePermissionFromRole(user.role, permission.id)
+        const result:any = await removePermissionFromRole(user.role, permission.id)
         if (result.error) {
           toast({
             title: 'Error removing permission',

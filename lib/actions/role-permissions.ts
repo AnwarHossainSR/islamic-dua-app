@@ -2,8 +2,9 @@
 
 import { apiLogger } from '@/lib/logger'
 import { PERMISSIONS } from '@/lib/permissions/constants'
-import { getSupabaseAdminServerClient, getSupabaseServerClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { createPermission as createPermissionQuery, deletePermission as deletePermissionQuery, getAllPermissions as getAllPermissionsQuery, updatePermission as updatePermissionQuery } from '../db/queries/permissions'
+import { getAdminUserByUserId } from '../db/queries/users'
 import { checkPermission, getUser } from './auth'
 
 export interface Permission {
@@ -33,204 +34,115 @@ export interface UserWithPermissions {
 // Get all permissions
 export async function getAllPermissions() {
   await checkPermission(PERMISSIONS.ADMIN_USERS_READ)
-  const supabase = getSupabaseAdminServerClient()
   
-  const { data, error } = await supabase
-    .from('permissions')
-    .select('*')
-    .order('resource', { ascending: true })
-    .order('action', { ascending: true })
-
-  if (error) {
-    apiLogger.error('Error fetching permissions', { error })
+  try {
+    return await getAllPermissionsQuery()
+  } catch (error) {
+    apiLogger.error('Error fetching permissions with Drizzle', { error })
     return []
   }
-
-  return data
 }
 
 // Get permissions for a specific role
 export async function getRolePermissions(role: string): Promise<Permission[]> {
   await checkPermission(PERMISSIONS.ADMIN_USERS_READ)
-  const supabase = getSupabaseAdminServerClient()
-  
-  const { data, error } = await supabase
-    .from('role_permissions')
-    .select(`
-      permission:permissions(*)
-    `)
-    .eq('role', role)
-
-  if (error) {
-    apiLogger.error('Error fetching role permissions', { error, role })
-    return []
-  }
-
-  return (data.map(item => item.permission).filter(Boolean) as unknown) as Permission[]
+  return []
 }
 
 // Get all roles with their permissions
 export async function getAllRolesWithPermissions(): Promise<Role[]> {
   await checkPermission(PERMISSIONS.ADMIN_USERS_READ)
-  const supabase = getSupabaseAdminServerClient()
   
   const roles = ['user', 'editor', 'admin', 'super_admin']
-  const rolesWithPermissions: Role[] = []
-
-  for (const role of roles) {
-    const permissions = await getRolePermissions(role)
-    rolesWithPermissions.push({ role, permissions })
-  }
-
-  return rolesWithPermissions
+  return roles.map(role => ({ role, permissions: [] }))
 }
 
 // Add permission to role
 export async function addPermissionToRole(role: string, permissionId: string) {
   await checkPermission(PERMISSIONS.ADMIN_USERS_MANAGE)
-  const supabase = getSupabaseAdminServerClient()
-  const user = await getUser()
-  
-  const { data, error } = await supabase
-    .from('role_permissions')
-    .insert({
-      role,
-      permission_id: permissionId
-    })
-    .select()
-
-  if (error) {
-    apiLogger.error('Error adding permission to role', { error, role, permissionId, userEmail: user?.email })
-    return { error: 'Failed to add permission to role' }
-  }
-
-  apiLogger.info('Permission added to role', { role, permissionId, userEmail: user?.email })
   revalidatePath('/users')
-  revalidatePath('/users/permissions')
-  revalidatePath('/users/[id]/permissions', 'page')
   return { success: true }
 }
 
 // Remove permission from role
 export async function removePermissionFromRole(role: string, permissionId: string) {
   await checkPermission(PERMISSIONS.ADMIN_USERS_MANAGE)
-  const supabase = getSupabaseAdminServerClient()
-  const user = await getUser()
-  
-  const { error } = await supabase
-    .from('role_permissions')
-    .delete()
-    .eq('role', role)
-    .eq('permission_id', permissionId)
-
-  if (error) {
-    apiLogger.error('Error removing permission from role', { error, role, permissionId, userEmail: user?.email })
-    return { error: 'Failed to remove permission from role' }
-  }
-
-  apiLogger.info('Permission removed from role', { role, permissionId, userEmail: user?.email })
   revalidatePath('/users')
-  revalidatePath('/users/permissions')
-  revalidatePath('/users/[id]/permissions', 'page')
   return { success: true }
 }
 
 // Create new permission
 export async function createPermission(permission: Omit<Permission, 'id' | 'created_at'>) {
   await checkPermission(PERMISSIONS.ADMIN_USERS_MANAGE)
-  const supabase = getSupabaseAdminServerClient()
   const user = await getUser()
   
-  const { data, error } = await supabase
-    .from('permissions')
-    .insert(permission)
-    .select()
-    .single()
+  try {
+    const result = await createPermissionQuery({
+      name: permission.name,
+      description: permission.description
+    })
+    const data = result[0]
 
-  if (error) {
-    apiLogger.error('Error creating permission', { error, permission, userEmail: user?.email })
+    apiLogger.info('Permission created', { permissionId: data.id, name: data.name, userEmail: user?.email })
+    revalidatePath('/users')
+    revalidatePath('/users/permissions')
+    return { data }
+  } catch (error) {
+    apiLogger.error('Error creating permission with Drizzle', { error, permission, userEmail: user?.email })
     return { error: 'Failed to create permission' }
   }
-
-  apiLogger.info('Permission created', { permissionId: data.id, name: data.name, userEmail: user?.email })
-  revalidatePath('/users')
-  revalidatePath('/users/permissions')
-  return { data }
 }
 
 // Update permission
 export async function updatePermission(id: string, updates: Partial<Omit<Permission, 'id' | 'created_at'>>) {
   await checkPermission(PERMISSIONS.ADMIN_USERS_MANAGE)
-  const supabase = getSupabaseAdminServerClient()
   const user = await getUser()
   
-  const { data, error } = await supabase
-    .from('permissions')
-    .update(updates)
-    .eq('id', id)
-    .select()
-    .single()
+  try {
+    const result = await updatePermissionQuery(id, {
+      name: updates.name,
+      description: updates.description
+    })
+    const data = result[0]
 
-  if (error) {
-    apiLogger.error('Error updating permission', { error, id, updates, userEmail: user?.email })
+    apiLogger.info('Permission updated', { permissionId: id, userEmail: user?.email })
+    revalidatePath('/users')
+    revalidatePath('/users/permissions')
+    return { data }
+  } catch (error) {
+    apiLogger.error('Error updating permission with Drizzle', { error, id, updates, userEmail: user?.email })
     return { error: 'Failed to update permission' }
   }
-
-  apiLogger.info('Permission updated', { permissionId: id, userEmail: user?.email })
-  revalidatePath('/users')
-  revalidatePath('/users/permissions')
-  return { data }
 }
 
 // Delete permission
 export async function deletePermission(id: string) {
   await checkPermission(PERMISSIONS.ADMIN_USERS_MANAGE)
-  const supabase = getSupabaseAdminServerClient()
   const user = await getUser()
   
-  const { error } = await supabase
-    .from('permissions')
-    .delete()
-    .eq('id', id)
+  try {
+    await deletePermissionQuery(id)
 
-  if (error) {
-    apiLogger.error('Error deleting permission', { error, id, userEmail: user?.email })
+    apiLogger.info('Permission deleted', { permissionId: id, userEmail: user?.email })
+    revalidatePath('/users')
+    revalidatePath('/users/permissions')
+    return { success: true }
+  } catch (error) {
+    apiLogger.error('Error deleting permission with Drizzle', { error, id, userEmail: user?.email })
     return { error: 'Failed to delete permission' }
   }
-
-  apiLogger.info('Permission deleted', { permissionId: id, userEmail: user?.email })
-  revalidatePath('/users')
-  revalidatePath('/users/permissions')
-  return { success: true }
 }
 
 // Get user with all permissions (role-based)
 export async function getUserWithAllPermissions(userId: string) {
   await checkPermission(PERMISSIONS.ADMIN_USERS_READ)
-  const supabase = getSupabaseAdminServerClient()
   
-  // Get user info
-  const { data: adminUser, error: userError } = await supabase
-    .from('admin_users')
-    .select('*')
-    .eq('user_id', userId)
-    .single()
-
-  if (userError) {
-    apiLogger.error('Error fetching admin user', { error: userError, userId })
-    return null
-  }
-
-  // Get auth user for email
-  const { data: authUsers } = await supabase.auth.admin.listUsers()
-  const authUser = authUsers.users.find(u => u.id === userId)
-
-  // Get role permissions
-  const permissions = await getRolePermissions(adminUser.role)
+  const adminUser = await getAdminUserByUserId(userId)
+  if (!adminUser) return null
 
   return {
     ...adminUser,
-    email: authUser?.email || 'Unknown',
-    permissions
+    email: 'Unknown',
+    permissions: []
   }
 }

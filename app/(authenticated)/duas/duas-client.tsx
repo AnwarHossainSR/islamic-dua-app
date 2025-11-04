@@ -14,38 +14,11 @@ import {
 } from '@/components/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { deleteDua } from '@/lib/actions/duas'
+import { Dua, DuaCategory, DuaStats } from '@/lib/types/duas'
 import { BarChart3, BookOpen, Edit, Eye, Plus, Search, Star, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
-
-interface Dua {
-  id: string
-  title_bn: string
-  title_ar?: string
-  title_en?: string
-  dua_text_ar: string
-  translation_bn?: string
-  translation_en?: string
-  category: string
-  is_important: boolean
-  tags?: string[]
-  created_at: string
-}
-
-interface DuaCategory {
-  id: string
-  name_bn: string
-  name_en?: string
-  icon?: string
-  color: string
-}
-
-interface DuaStats {
-  total: number
-  important: number
-  byCategory: Record<string, number>
-}
 
 interface DuasClientProps {
   initialDuas: Dua[]

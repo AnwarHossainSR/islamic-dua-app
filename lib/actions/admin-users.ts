@@ -5,6 +5,7 @@ import { PERMISSIONS } from '@/lib/permissions/constants'
 import { getSupabaseAdminServerClient, getSupabaseServerClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { checkPermission, getUser } from './auth'
+import { getAllAdminUsers, getAdminUserByUserId, createAdminUser as createAdminUserQuery, updateAdminUser as updateAdminUserQuery, deleteAdminUser } from '../db/queries/users'
 
 export interface AdminUser {
   id: string
@@ -18,24 +19,13 @@ export interface AdminUser {
 
 export async function getAdminUsers() {
   await checkPermission(PERMISSIONS.ADMIN_USERS_READ)
-  const supabase = await getSupabaseServerClient()
-
-  const { data, error } = await supabase
-    .from('admin_users')
-    .select(
-      `
-      *,
-      user:auth.users(email)
-    `
-    )
-    .order('created_at', { ascending: false })
-
-  if (error) {
-    apiLogger.error('Error fetching admin users', { error })
+  
+  try {
+    return await getAllAdminUsers()
+  } catch (error) {
+    apiLogger.error('Error fetching admin users with Drizzle', { error })
     return []
   }
-
-  return data
 }
 
 export async function addAdminUser(email: string, role: string = 'admin', password?: string) {
@@ -73,85 +63,74 @@ export async function addAdminUser(email: string, role: string = 'admin', passwo
   }
 
   // Check if user is already an admin
-  const { data: existingAdmin } = await supabase
-    .from('admin_users')
-    .select('*')
-    .eq('user_id', user.id)
-    .single()
+  try {
+    const existingAdmin = await getAdminUserByUserId(user.id)
+    if (existingAdmin) {
+      return { error: 'User is already an admin' }
+    }
 
-  if (existingAdmin) {
-    return { error: 'User is already an admin' }
-  }
-
-  // Add user as admin
-  const { data, error } = await supabase
-    .from('admin_users')
-    .insert({
+    // Add user as admin
+    const result = await createAdminUserQuery({
       user_id: user.id,
-      email: user.email,
-      role,
-      is_active: true,
+      email: user.email || email,
+      role: role as 'user' | 'editor' | 'admin' | 'super_admin'
     })
-    .select()
-    .single()
+    const data = result[0]
 
-  if (error) {
-    apiLogger.error('Error adding admin user', { error, email, role })
+    const currentUser = await getUser()
+    apiLogger.info('Admin user added', {
+      email,
+      role,
+      adminUserId: data.id,
+      userCreated,
+      generatedPassword: userCreated ? generatedPassword : 'N/A',
+      actionBy: currentUser?.email
+    })
+    revalidatePath('/users')
+    return {
+      data,
+      userCreated,
+      generatedPassword: userCreated ? generatedPassword : null,
+    }
+  } catch (error) {
+    apiLogger.error('Error adding admin user with Drizzle', { error })
     return { error: 'Failed to add admin user' }
-  }
-
-  const currentUser = await getUser()
-  apiLogger.info('Admin user added', {
-    email,
-    role,
-    adminUserId: data.id,
-    userCreated,
-    generatedPassword: userCreated ? generatedPassword : 'N/A',
-    actionBy: currentUser?.email
-  })
-  revalidatePath('/users')
-  return {
-    data,
-    userCreated,
-    generatedPassword: userCreated ? generatedPassword : null,
   }
 }
 
 export async function updateAdminUser(id: string, updates: { role?: string; is_active?: boolean }) {
   await checkPermission(PERMISSIONS.ADMIN_USERS_UPDATE)
-  const supabase = getSupabaseAdminServerClient()
+  
+  try {
+    const updateData: any = {}
+    if (updates.role) updateData.role = updates.role as 'user' | 'editor' | 'admin' | 'super_admin'
+    if (updates.is_active !== undefined) updateData.is_active = updates.is_active
+    
+    const result = await updateAdminUserQuery(id, updateData)
+    const data = result[0]
 
-  const { data, error } = await supabase
-    .from('admin_users')
-    .update(updates)
-    .eq('id', id)
-    .select()
-    .single()
-
-  if (error) {
-    apiLogger.error('Error updating admin user', { error, id, updates })
+    const currentUser = await getUser()
+    apiLogger.info('Admin user updated', { id, updates, actionBy: currentUser?.email })
+    revalidatePath('/users')
+    return { data }
+  } catch (error) {
+    apiLogger.error('Error updating admin user with Drizzle', { error, id, updates })
     return { error: 'Failed to update admin user' }
   }
-
-  const currentUser = await getUser()
-  apiLogger.info('Admin user updated', { id, updates, actionBy: currentUser?.email })
-  revalidatePath('/users')
-  return { data }
 }
 
 export async function removeAdminUser(id: string) {
   await checkPermission(PERMISSIONS.ADMIN_USERS_DELETE)
-  const supabase = getSupabaseAdminServerClient()
+  
+  try {
+    await deleteAdminUser(id)
 
-  const { error } = await supabase.from('admin_users').delete().eq('id', id)
-
-  if (error) {
-    apiLogger.error('Error removing admin user', { error, id })
+    const currentUser = await getUser()
+    apiLogger.info('Admin user removed', { id, actionBy: currentUser?.email })
+    revalidatePath('/users')
+    return { success: true }
+  } catch (error) {
+    apiLogger.error('Error removing admin user with Drizzle', { error, id })
     return { error: 'Failed to remove admin user' }
   }
-
-  const currentUser = await getUser()
-  apiLogger.info('Admin user removed', { id, actionBy: currentUser?.email })
-  revalidatePath('/users')
-  return { success: true }
 }

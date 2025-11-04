@@ -8,18 +8,18 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
-import { createPermission, updatePermission, deletePermission } from '@/lib/actions/role-permissions'
 import { useToast } from '@/hooks/use-toast'
-import { Plus, Edit, Trash2, Shield } from 'lucide-react'
+import { createPermission, deletePermission, updatePermission } from '@/lib/actions/role-permissions'
+import { Edit, Plus, Shield, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 
 interface Permission {
   id: string
   name: string
-  description: string
-  resource: string
-  action: string
-  created_at: string
+  description: string | null
+  resource?: string
+  action?: string
+  created_at?: Date | null
 }
 
 interface PermissionsManagementClientProps {
@@ -44,10 +44,11 @@ export function PermissionsManagementClient({ permissions }: PermissionsManageme
 
   // Group permissions by resource
   const permissionsByResource = permissions.reduce((acc, permission) => {
-    if (!acc[permission.resource]) {
-      acc[permission.resource] = []
+    const resource = permission.resource || 'general'
+    if (!acc[resource]) {
+      acc[resource] = []
     }
-    acc[permission.resource].push(permission)
+    acc[resource].push(permission)
     return acc
   }, {} as Record<string, Permission[]>)
 
@@ -182,9 +183,9 @@ export function PermissionsManagementClient({ permissions }: PermissionsManageme
   const openEditDialog = (permission: Permission) => {
     setSelectedPermission(permission)
     setName(permission.name)
-    setDescription(permission.description)
-    setResource(permission.resource)
-    setAction(permission.action)
+    setDescription(permission?.description || '')
+    setResource(permission?.resource || '')
+    setAction(permission?.action || '')
     setIsEditDialogOpen(true)
   }
 
@@ -298,7 +299,7 @@ export function PermissionsManagementClient({ permissions }: PermissionsManageme
                       <div className="flex items-center gap-2">
                         <p className="font-medium">{permission.name}</p>
                         <Badge variant="outline" className="text-xs">
-                          {permission.action}
+                          {permission.action || 'general'}
                         </Badge>
                       </div>
                       <p className="text-sm text-muted-foreground">

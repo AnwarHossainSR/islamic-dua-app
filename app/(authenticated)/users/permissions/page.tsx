@@ -1,8 +1,7 @@
-import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { getAllPermissions, getAllRolesWithPermissions } from '@/lib/actions/role-permissions'
-import { Shield, Users, Settings, Plus } from 'lucide-react'
+import { Plus, Settings, Shield, Users } from 'lucide-react'
 import { PermissionsManagementClient } from './permissions-client'
 import { RolesManagementClient } from './roles-client'
 
@@ -14,8 +13,8 @@ export default async function PermissionsManagementPage() {
     getAllRolesWithPermissions()
   ])
 
-  const resourceCount = [...new Set(permissions.map(p => p.resource))].length
-  const actionCount = [...new Set(permissions.map(p => p.action))].length
+  const resourceCount = [...new Set(permissions.map((p: any) => p.resource || 'unknown'))].length
+  const actionCount = [...new Set(permissions.map((p: any) => p.action || 'unknown'))].length
 
   return (
     <div className="space-y-6">

@@ -3,17 +3,18 @@
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
-import { addPermissionToRole, removePermissionFromRole } from '@/lib/actions/role-permissions'
 import { useToast } from '@/hooks/use-toast'
-import { Shield, Users, Crown, Edit } from 'lucide-react'
+import { addPermissionToRole, removePermissionFromRole } from '@/lib/actions/role-permissions'
+import { Crown, Edit, Shield, Users } from 'lucide-react'
 import { useState } from 'react'
 
 interface Permission {
   id: string
   name: string
-  description: string
-  resource: string
-  action: string
+  description: string | null
+  resource?: string
+  action?: string
+  created_at?: Date | null | string
 }
 
 interface Role {
@@ -53,10 +54,11 @@ export function RolesManagementClient({ rolesWithPermissions, allPermissions }: 
 
   // Group permissions by resource
   const permissionsByResource = allPermissions.reduce((acc, permission) => {
-    if (!acc[permission.resource]) {
-      acc[permission.resource] = []
+    const resource = permission.resource || 'general'
+    if (!acc[resource]) {
+      acc[resource] = []
     }
-    acc[permission.resource].push(permission)
+    acc[resource].push(permission)
     return acc
   }, {} as Record<string, Permission[]>)
 
@@ -64,7 +66,7 @@ export function RolesManagementClient({ rolesWithPermissions, allPermissions }: 
     setLoading(true)
     try {
       if (isChecked) {
-        const result = await addPermissionToRole(role, permission.id)
+        const result:any = await addPermissionToRole(role, permission.id)
         if (result.error) {
           toast({
             title: 'Error adding permission',
@@ -78,7 +80,7 @@ export function RolesManagementClient({ rolesWithPermissions, allPermissions }: 
           })
         }
       } else {
-        const result = await removePermissionFromRole(role, permission.id)
+        const result:any = await removePermissionFromRole(role, permission.id)
         if (result.error) {
           toast({
             title: 'Error removing permission',
@@ -148,7 +150,7 @@ export function RolesManagementClient({ rolesWithPermissions, allPermissions }: 
                                 htmlFor={`${roleData.role}-${permission.id}`}
                                 className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
                               >
-                                {permission.action}
+                                {permission.action || permission.name}
                               </label>
                               <p className="text-xs text-muted-foreground">
                                 {permission.description}

@@ -16,10 +16,10 @@ import { useState } from 'react'
 interface Permission {
   id: string
   name: string
-  description: string
-  resource: string
-  action: string
-  created_at: string
+  description: string | null
+  resource?: string
+  action?: string
+  created_at?: Date | null
 }
 
 interface PermissionsManagementClientProps {
@@ -44,10 +44,11 @@ export function PermissionsManagementClient({ permissions }: PermissionsManageme
 
   // Group permissions by resource
   const permissionsByResource = permissions.reduce((acc, permission) => {
-    if (!acc[permission.resource]) {
-      acc[permission.resource] = []
+    const resource = permission.resource || 'general'
+    if (!acc[resource]) {
+      acc[resource] = []
     }
-    acc[permission.resource].push(permission)
+    acc[resource].push(permission)
     return acc
   }, {} as Record<string, Permission[]>)
 
@@ -183,8 +184,8 @@ export function PermissionsManagementClient({ permissions }: PermissionsManageme
     setSelectedPermission(permission)
     setName(permission.name)
     setDescription(permission.description)
-    setResource(permission.resource)
-    setAction(permission.action)
+    setResource(permission.resource || '')
+    setAction(permission.action || '')
     setIsEditDialogOpen(true)
   }
 
@@ -298,7 +299,7 @@ export function PermissionsManagementClient({ permissions }: PermissionsManageme
                       <div className="flex items-center gap-2">
                         <p className="font-medium">{permission.name}</p>
                         <Badge variant="outline" className="text-xs">
-                          {permission.action}
+                          {permission.action || 'general'}
                         </Badge>
                       </div>
                       <p className="text-sm text-muted-foreground">

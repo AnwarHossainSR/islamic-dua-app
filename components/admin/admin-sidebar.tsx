@@ -98,8 +98,12 @@ export function AdminSidebar() {
       >
         <div className="space-y-4 p-4">
           <div className="px-3 py-2">
-            <h2 className="mb-2 text-lg font-semibold">Admin Panel</h2>
-            <p className="text-sm text-muted-foreground">Content Management</p>
+            <h2 className="mb-2 text-lg font-semibold">
+              {role === 'super_admin' ? 'Super Admin Panel' : 'Navigation'}
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              {role === 'super_admin' ? 'System Management' : 'Your Islamic Journey'}
+            </p>
           </div>
           <nav className="space-y-1">
             {navigation.map(item => {

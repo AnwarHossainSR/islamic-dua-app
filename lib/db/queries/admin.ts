@@ -118,3 +118,63 @@ export async function getActivityById(id: string) {
   
   return result[0] || null
 }
+
+export async function getGlobalStats() {
+  // Get total activities
+  const [totalActivitiesResult] = await db
+    .select({ count: count() })
+    .from(activityStats)
+
+  // Get total completions across all users
+  const [totalCompletionsResult] = await db
+    .select({ total: sql<number>`sum(${activityStats.total_count})` })
+    .from(activityStats)
+
+  // Get total active users
+  const [totalActiveUsersResult] = await db
+    .select({ count: count() })
+    .from(userActivityStats)
+
+  // Get active challenges
+  const [activeChallengesResult] = await db
+    .select({ count: count() })
+    .from(challengeTemplates)
+    .where(eq(challengeTemplates.is_active, true))
+
+  // Get today's completions across all users
+  const today = new Date().toISOString().split('T')[0]
+  const [todayCompletionsResult] = await db
+    .select({ count: count() })
+    .from(userChallengeDailyLogs)
+    .where(and(
+      eq(userChallengeDailyLogs.is_completed, true),
+      sql`DATE(${userChallengeDailyLogs.completion_date}) = ${today}`
+    ))
+
+  return {
+    totalActivities: totalActivitiesResult.count,
+    totalCompletions: Number(totalCompletionsResult.total) || 0,
+    totalActiveUsers: totalActiveUsersResult.count,
+    activeChallenges: activeChallengesResult.count,
+    todayCompletions: todayCompletionsResult.count,
+    yesterdayCompletions: 0,
+    weekCompletions: 0,
+  }
+}
+
+export async function getGlobalTopActivities(limit = 10) {
+  return await db
+    .select({
+      id: activityStats.id,
+      name_bn: activityStats.name_bn,
+      name_ar: activityStats.name_ar,
+      name_en: activityStats.name_en,
+      total_count: activityStats.total_count,
+      total_users: activityStats.total_users,
+      icon: activityStats.icon,
+      color: activityStats.color,
+    })
+    .from(activityStats)
+    .orderBy(desc(activityStats.total_count))
+    .limit(limit)
+}

@@ -47,7 +47,7 @@ export const isUserAdmin = cache(isUserAdminUncached)
 // ACTIVITY STATS FUNCTIONS
 // ============================================
 
-export async function getAdminActivityStats() {
+export async function getAdminActivityStats(showGlobal = false) {
   await checkPermission(PERMISSIONS.ACTIVITIES_READ)
   const user = await getUser()
   
@@ -64,9 +64,14 @@ export async function getAdminActivityStats() {
   }
   
   try {
-    return await getUserStats(user.id)
+    if (showGlobal) {
+      const { getGlobalStats } = await import('@/lib/db/queries/admin')
+      return await getGlobalStats()
+    } else {
+      return await getUserStats(user.id)
+    }
   } catch (error) {
-    apiLogger.error('Error fetching user stats with Drizzle', { error, userId: user.id })
+    apiLogger.error('Error fetching stats with Drizzle', { error, userId: user.id, showGlobal })
     return {
       totalActivities: 0,
       totalCompletions: 0,
@@ -79,16 +84,21 @@ export async function getAdminActivityStats() {
   }
 }
 
-export async function getTopActivitiesAction(limit = 10) {
+export async function getTopActivitiesAction(limit = 10, showGlobal = false) {
   await checkPermission(PERMISSIONS.ACTIVITIES_READ)
   const user = await getUser()
   
   if (!user) return []
   
   try {
-    return await getUserTopActivities(user.id, limit)
+    if (showGlobal) {
+      const { getGlobalTopActivities } = await import('@/lib/db/queries/admin')
+      return await getGlobalTopActivities(limit)
+    } else {
+      return await getUserTopActivities(user.id, limit)
+    }
   } catch (error) {
-    apiLogger.error('Error fetching user activities with Drizzle', { error, userId: user.id, limit })
+    apiLogger.error('Error fetching activities with Drizzle', { error, userId: user.id, limit, showGlobal })
     return []
   }
 }

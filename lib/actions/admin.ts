@@ -5,8 +5,8 @@ import { PERMISSIONS } from '@/lib/permissions/constants'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { cache } from 'react'
-import { checkPermission } from './auth'
-import { checkAdminUser, getAdminStats, getTopActivities, getAllActivities, getUserActivityStats, getActivityById } from '@/lib/db/queries/admin'
+import { checkPermission, getUser } from './auth'
+import { checkAdminUser, getUserStats, getUserTopActivities, getAllActivities, getUserActivityStats, getActivityById } from '@/lib/db/queries/admin'
 
 export async function checkAdminAccess() {
   const supabase = await getSupabaseServerClient()
@@ -49,11 +49,24 @@ export const isUserAdmin = cache(isUserAdminUncached)
 
 export async function getAdminActivityStats() {
   await checkPermission(PERMISSIONS.ACTIVITIES_READ)
+  const user = await getUser()
+  
+  if (!user) {
+    return {
+      totalActivities: 0,
+      totalCompletions: 0,
+      totalActiveUsers: 0,
+      activeChallenges: 0,
+      todayCompletions: 0,
+      yesterdayCompletions: 0,
+      weekCompletions: 0,
+    }
+  }
   
   try {
-    return await getAdminStats()
+    return await getUserStats(user.id)
   } catch (error) {
-    apiLogger.error('Error fetching admin stats with Drizzle', { error })
+    apiLogger.error('Error fetching user stats with Drizzle', { error, userId: user.id })
     return {
       totalActivities: 0,
       totalCompletions: 0,
@@ -68,11 +81,14 @@ export async function getAdminActivityStats() {
 
 export async function getTopActivitiesAction(limit = 10) {
   await checkPermission(PERMISSIONS.ACTIVITIES_READ)
+  const user = await getUser()
+  
+  if (!user) return []
   
   try {
-    return await getTopActivities(limit)
+    return await getUserTopActivities(user.id, limit)
   } catch (error) {
-    apiLogger.error('Error fetching top activities with Drizzle', { error, limit })
+    apiLogger.error('Error fetching user activities with Drizzle', { error, userId: user.id, limit })
     return []
   }
 }

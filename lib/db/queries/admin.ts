@@ -19,45 +19,66 @@ export async function checkAdminUser(userId: string) {
   return result[0] || null
 }
 
-export async function getAdminStats() {
-  // Get total activities
+export async function getUserStats(userId: string) {
+  // Get user's activities count
   const [totalActivitiesResult] = await db
     .select({ count: count() })
-    .from(activityStats)
+    .from(userActivityStats)
+    .where(eq(userActivityStats.user_id, userId))
 
-  // Get total completions
+  // Get user's total completions
   const [totalCompletionsResult] = await db
-    .select({ total: sql<number>`sum(${activityStats.total_count})` })
-    .from(activityStats)
+    .select({ total: sql<number>`sum(${userActivityStats.total_completed})` })
+    .from(userActivityStats)
+    .where(eq(userActivityStats.user_id, userId))
 
-  // Get unique active users
-  const activeUsersResult = await db
-    .selectDistinct({ user_id: userChallengeProgress.user_id })
-    .from(userChallengeProgress)
-    .where(sql`${userChallengeProgress.status} != 'not_started'`)
-
-  // Get active challenges
+  // Get user's active challenges
   const [activeChallengesResult] = await db
     .select({ count: count() })
-    .from(challengeTemplates)
-    .where(eq(challengeTemplates.is_active, true))
+    .from(userChallengeProgress)
+    .where(and(
+      eq(userChallengeProgress.user_id, userId),
+      eq(userChallengeProgress.status, 'active')
+    ))
+
+  // Get user's today completions
+  const today = new Date().toISOString().split('T')[0]
+  const [todayCompletionsResult] = await db
+    .select({ count: count() })
+    .from(userChallengeDailyLogs)
+    .where(and(
+      eq(userChallengeDailyLogs.user_id, userId),
+      eq(userChallengeDailyLogs.is_completed, true),
+      sql`DATE(${userChallengeDailyLogs.completion_date}) = ${today}`
+    ))
 
   return {
     totalActivities: totalActivitiesResult.count,
-    totalCompletions: totalCompletionsResult.total || 0,
-    totalActiveUsers: activeUsersResult.length,
+    totalCompletions: Number(totalCompletionsResult.total) || 0,
+    totalActiveUsers: 1, // Always 1 for user's own data
     activeChallenges: activeChallengesResult.count,
-    todayCompletions: 0,
+    todayCompletions: todayCompletionsResult.count,
     yesterdayCompletions: 0,
     weekCompletions: 0,
   }
 }
 
-export async function getTopActivities(limit = 10) {
+export async function getUserTopActivities(userId: string, limit = 10) {
   return await db
-    .select()
-    .from(activityStats)
-    .orderBy(desc(activityStats.total_count))
+    .select({
+      id: activityStats.id,
+      name_bn: activityStats.name_bn,
+      name_ar: activityStats.name_ar,
+      name_en: activityStats.name_en,
+      total_count: userActivityStats.total_completed,
+      total_users: sql<number>`1`, // Always 1 for user's own data
+      icon: activityStats.icon,
+      color: activityStats.color,
+    })
+    .from(userActivityStats)
+    .leftJoin(activityStats, eq(userActivityStats.activity_stat_id, activityStats.id))
+    .where(eq(userActivityStats.user_id, userId))
+    .orderBy(desc(userActivityStats.total_completed))
     .limit(limit)
 }
 

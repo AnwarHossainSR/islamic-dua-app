@@ -86,3 +86,29 @@ export function sortChallengesByCompletion<T extends { last_completed_at?: strin
     return 0
   })
 }
+
+/**
+ * Format large numbers with K, M, B suffixes
+ * @param num - The number to format
+ * @param decimals - Number of decimal places (default: 1)
+ * @returns Formatted string (e.g., 1.2K, 3.4M, 5.6B)
+ */
+export function formatNumber(num: number, decimals: number = 1): string {
+  if (num < 1000) return num.toString()
+  
+  const units = [
+    { value: 1e9, suffix: 'B' },
+    { value: 1e6, suffix: 'M' },
+    { value: 1e3, suffix: 'K' }
+  ]
+  
+  for (const unit of units) {
+    if (num >= unit.value) {
+      const formatted = (num / unit.value).toFixed(decimals)
+      // Remove trailing zeros and decimal point if not needed
+      return parseFloat(formatted) + unit.suffix
+    }
+  }
+  
+  return num.toString()
+}

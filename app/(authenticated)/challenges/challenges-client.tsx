@@ -22,7 +22,7 @@ import {
   searchAndFilterChallenges,
   startChallenge,
 } from '@/lib/actions/challenges'
-import { isCurrentDay, sortChallengesByCompletion } from '@/lib/utils'
+import { formatNumber, isCurrentDay, sortChallengesByCompletion } from '@/lib/utils'
 import { format } from 'date-fns'
 import { toZonedTime } from 'date-fns-tz'
 import {
@@ -43,6 +43,7 @@ import {
   Trophy,
   Users,
 } from 'lucide-react'
+
 import Link from 'next/link'
 import React, { useCallback, useMemo, useState, useTransition } from 'react'
 
@@ -123,9 +124,10 @@ export default function ChallengesClient({
       if (result.error) {
         console.error('Error starting challenge:', result.error)
       } else {
-        // Refresh challenges
-        performSearch(searchQuery, difficultyFilter, statusFilter)
+        // Hard reload the page
+        window.location.reload()
       }
+
     } catch (error) {
       console.error('Error starting challenge:', error)
     } finally {
@@ -140,8 +142,8 @@ export default function ChallengesClient({
       if (result.error) {
         console.error('Error restarting challenge:', result.error)
       } else {
-        // Refresh challenges
-        performSearch(searchQuery, difficultyFilter, statusFilter)
+        // Hard reload the page
+        window.location.reload()
       }
     } catch (error) {
       console.error('Error restarting challenge:', error)
@@ -504,7 +506,7 @@ export default function ChallengesClient({
                           <div className="flex items-center justify-center gap-1 text-blue-500">
                             <Users className="h-4 w-4" />
                             <span className="text-lg md:text-xl font-bold">
-                              {challenge.total_participants || 0}
+                              {formatNumber(challenge.total_participants || 0)}
                             </span>
                           </div>
                           <p className="text-xs text-muted-foreground">Participants</p>
@@ -513,7 +515,7 @@ export default function ChallengesClient({
                           <div className="flex items-center justify-center gap-1 text-amber-500">
                             <Trophy className="h-4 w-4" />
                             <span className="text-lg md:text-xl font-bold">
-                              {challenge.total_completed_days || 0}
+                              {formatNumber(challenge.total_completed_days || 0)}
                             </span>
                           </div>
                           <p className="text-xs text-muted-foreground">Days Done</p>

@@ -7,20 +7,31 @@ interface KeyboardShortcut {
   ctrlKey?: boolean
   altKey?: boolean
   shiftKey?: boolean
+  metaKey?: boolean
   callback: () => void
   description?: string
+  disabled?: boolean
 }
 
 export function useKeyboardShortcuts(shortcuts: KeyboardShortcut[]) {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      // Don't trigger shortcuts when typing in inputs
+      const target = event.target as HTMLElement
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.contentEditable === 'true') {
+        return
+      }
+
       for (const shortcut of shortcuts) {
+        if (shortcut.disabled) continue
+        
         const keyMatch = event.key.toLowerCase() === shortcut.key.toLowerCase()
         const ctrlMatch = !!shortcut.ctrlKey === event.ctrlKey
         const altMatch = !!shortcut.altKey === event.altKey
         const shiftMatch = !!shortcut.shiftKey === event.shiftKey
+        const metaMatch = !!shortcut.metaKey === event.metaKey
 
-        if (keyMatch && ctrlMatch && altMatch && shiftMatch) {
+        if (keyMatch && ctrlMatch && altMatch && shiftMatch && metaMatch) {
           event.preventDefault()
           shortcut.callback()
           break
@@ -31,6 +42,8 @@ export function useKeyboardShortcuts(shortcuts: KeyboardShortcut[]) {
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [shortcuts])
+
+  return shortcuts.filter(s => !s.disabled)
 }
 
 // Common shortcuts

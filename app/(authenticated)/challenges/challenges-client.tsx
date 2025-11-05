@@ -22,7 +22,7 @@ import {
   searchAndFilterChallenges,
   startChallenge,
 } from '@/lib/actions/challenges'
-import { isCurrentDay, sortChallengesByCompletion } from '@/lib/utils'
+import { formatNumber, isCurrentDay, sortChallengesByCompletion } from '@/lib/utils'
 import { format } from 'date-fns'
 import { toZonedTime } from 'date-fns-tz'
 import {
@@ -504,7 +504,7 @@ export default function ChallengesClient({
                           <div className="flex items-center justify-center gap-1 text-blue-500">
                             <Users className="h-4 w-4" />
                             <span className="text-lg md:text-xl font-bold">
-                              {challenge.total_participants || 0}
+                              {formatNumber(challenge.total_participants || 0)}
                             </span>
                           </div>
                           <p className="text-xs text-muted-foreground">Participants</p>
@@ -513,7 +513,7 @@ export default function ChallengesClient({
                           <div className="flex items-center justify-center gap-1 text-amber-500">
                             <Trophy className="h-4 w-4" />
                             <span className="text-lg md:text-xl font-bold">
-                              {challenge.total_completed_days || 0}
+                              {formatNumber(challenge.total_completed_days || 0)}
                             </span>
                           </div>
                           <p className="text-xs text-muted-foreground">Days Done</p>

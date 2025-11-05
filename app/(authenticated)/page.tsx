@@ -2,6 +2,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { getAdminActivityStats, getTopActivitiesAction } from '@/lib/actions/admin'
+import { formatNumber } from '@/lib/utils'
 import { Activity, Flame, Shield, Target, TrendingUp, Trophy, Users } from 'lucide-react'
 import Link from 'next/link'
 
@@ -37,7 +38,7 @@ export default async function AdminDashboard() {
             <Trophy className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalCompletions.toLocaleString()}</div>
+            <div className="text-2xl font-bold">{formatNumber(stats.totalCompletions)}</div>
             <p className="text-xs text-muted-foreground">All-time completions</p>
           </CardContent>
         </Card>
@@ -105,7 +106,7 @@ export default async function AdminDashboard() {
                 <div className="flex items-center gap-4 shrink-0 ml-3">
                   <div className="text-right">
                     <p className="text-x md:text-2xl font-bold">
-                      {activity.total_count}
+                      {formatNumber(activity.total_count)}
                     </p>
                     <p className="text-xs text-muted-foreground">completions</p>
                   </div>
@@ -139,7 +140,7 @@ export default async function AdminDashboard() {
             <CardDescription>Completions in the last 24 hours</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{stats.todayCompletions}</div>
+            <div className="text-3xl font-bold">{formatNumber(stats.todayCompletions)}</div>
             <p className="text-xs text-muted-foreground mt-1">
               {stats.todayCompletions > (stats.yesterdayCompletions || 0) ? (
                 <span className="text-emerald-600 flex items-center gap-1">
@@ -167,7 +168,7 @@ export default async function AdminDashboard() {
             <CardDescription>Completions in the last 7 days</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{stats.weekCompletions || 0}</div>
+            <div className="text-3xl font-bold">{formatNumber(stats.weekCompletions || 0)}</div>
             <p className="text-xs text-muted-foreground mt-1">
               Average {Math.round((stats.weekCompletions || 0) / 7)} per day
             </p>

@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { getUserActivities, getUserChallengeStats } from '@/lib/actions/user-activities'
+import { formatNumber } from '@/lib/utils'
 import { Activity, ArrowLeft, Search, TrendingUp, Users } from 'lucide-react'
 import Link from 'next/link'
 
@@ -41,7 +42,7 @@ export default async function ActivitiesPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">My Completions</p>
-                <p className="text-3xl font-bold">{totalCompletions.toLocaleString()}</p>
+                <p className="text-3xl font-bold">{formatNumber(totalCompletions)}</p>
               </div>
               <TrendingUp className="h-8 w-8 text-emerald-500" />
             </div>
@@ -147,7 +148,7 @@ export default async function ActivitiesPage() {
                   <div className="grid grid-cols-2 gap-3">
                     <div className="rounded-lg border bg-muted/50 p-3 text-center">
                       <p className="text-2xl font-bold text-emerald-600">
-                        {(userActivity?.total_completed || 0).toLocaleString()}
+                        {formatNumber(userActivity?.total_completed || 0)}
                       </p>
                       <p className="text-xs text-muted-foreground">My Count</p>
                     </div>

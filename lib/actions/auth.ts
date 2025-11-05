@@ -180,6 +180,26 @@ export async function checkPermission(permission: string) {
   }
 }
 
+export async function getUserRole() {
+  const supabase = await getSupabaseServerClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return 'user'
+  }
+
+  try {
+    const { checkAdminUser } = await import('@/lib/db/queries/admin')
+    const adminData = await checkAdminUser(user.id)
+    return adminData?.role || 'user'
+  } catch (error) {
+    apiLogger.error('Error fetching user role with Drizzle', { error, userId: user.id })
+    return 'user'
+  }
+}
+
 export async function getUserRoleAndPermissions() {
   const supabase = await getSupabaseServerClient()
   const {
@@ -191,16 +211,16 @@ export async function getUserRoleAndPermissions() {
   }
 
   try {
-    const { getUserRole } = await import('@/lib/db/queries/users')
+    const { checkAdminUser } = await import('@/lib/db/queries/admin')
     const { getUserPermissions } = await import('@/lib/db/queries/permissions')
     
-    const [roleData, permissions] = await Promise.all([
-      getUserRole(user.id),
+    const [adminData, permissions] = await Promise.all([
+      checkAdminUser(user.id),
       getUserPermissions(user.id)
     ])
 
     return {
-      role: roleData?.role || 'user',
+      role: adminData?.role || 'user',
       permissions: permissions || [],
     }
   } catch (error) {

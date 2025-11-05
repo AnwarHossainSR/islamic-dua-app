@@ -1,11 +1,18 @@
 'use client'
 
-import { ActionButton } from '@/components/ui/action-button'
+import { ChallengeCard } from '@/components/challenge-card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import { Pagination } from '@/components/ui/pagination'
 import {
   Select,
   SelectContent,
@@ -17,31 +24,23 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDebounce } from '@/hooks/use-debounce'
 import { getUser } from '@/lib/actions/auth'
 import {
-  deleteChallengeTemplate,
   restartChallenge,
   searchAndFilterChallenges,
   startChallenge,
 } from '@/lib/actions/challenges'
-import { formatNumber, isCurrentDay, sortChallengesByCompletion } from '@/lib/utils'
+import { isCurrentDay, sortChallengesByCompletion } from '@/lib/utils'
 import { format } from 'date-fns'
 import { toZonedTime } from 'date-fns-tz'
 import {
-  Calendar,
   Check,
   CheckCircle2,
   ChevronDown,
-  Edit,
-  Eye,
   Loader2,
-  Play,
   Plus,
-  RotateCcw,
   Search,
   Target,
-  Trash2,
   TrendingUp,
   Trophy,
-  Users,
 } from 'lucide-react'
 
 import Link from 'next/link'
@@ -60,6 +59,9 @@ export default function ChallengesClient({
   const [searchQuery, setSearchQuery] = useState('')
   const [difficultyFilter, setDifficultyFilter] = useState('all')
   const [statusFilter, setStatusFilter] = useState('all')
+  const [completionFilter, setCompletionFilter] = useState('pending') // Default to pending
+  const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage] = useState(10)
   const [isPending, startTransition] = useTransition()
   const [user, setUser] = useState<any>(null)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
@@ -71,7 +73,9 @@ export default function ChallengesClient({
     getUser().then(userData => {
       if (mounted) setUser(userData)
     })
-    return () => { mounted = false }
+    return () => {
+      mounted = false
+    }
   }, [])
 
   // Server search action with debounce
@@ -86,6 +90,7 @@ export default function ChallengesClient({
       // Sort results to keep incomplete challenges at top
       const sortedResults = sortChallengesByCompletion(results)
       setChallenges(sortedResults)
+      setCurrentPage(1) // Reset to first page
     })
   }, [])
 
@@ -115,6 +120,10 @@ export default function ChallengesClient({
     performSearch(searchQuery, difficultyFilter, value)
   }
 
+  const handleCompletionChange = (value: string) => {
+    setCompletionFilter(value)
+  }
+
   const handleStartChallenge = async (challengeId: string) => {
     if (!user) return
 
@@ -127,7 +136,6 @@ export default function ChallengesClient({
         // Hard reload the page
         window.location.reload()
       }
-
     } catch (error) {
       console.error('Error starting challenge:', error)
     } finally {
@@ -163,6 +171,23 @@ export default function ChallengesClient({
     const avgRate = participants > 0 ? Math.round((completions / days) * 100) : 0
     return { total, participants, completions, days, avgRate, todayCompleted }
   }, [challenges])
+
+  // Filter challenges by completion status
+  const filteredChallenges = useMemo(() => {
+    if (completionFilter === 'completed') {
+      return challenges.filter(c => isCurrentDay(c.last_completed_at || ''))
+    } else if (completionFilter === 'pending') {
+      return challenges.filter(c => !isCurrentDay(c.last_completed_at || ''))
+    }
+    return challenges
+  }, [challenges, completionFilter])
+
+  // Paginated challenges
+  const paginatedChallenges = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage
+    const endIndex = startIndex + itemsPerPage
+    return filteredChallenges.slice(startIndex, endIndex)
+  }, [filteredChallenges, currentPage, itemsPerPage])
 
   // Helper functions to clean up JSX
   const getCardClassName = (userStatus: string) => {
@@ -397,7 +422,17 @@ export default function ChallengesClient({
                     <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" />
                   )}
                 </div>
-                <div className="flex gap-2 shrink-0">
+                <div className="flex gap-2 shrink-0 flex-wrap">
+                  <Select value={completionFilter} onValueChange={handleCompletionChange}>
+                    <SelectTrigger className="w-[140px] md:w-[160px] text-xs md:text-sm">
+                      <SelectValue placeholder="Completion" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Challenges</SelectItem>
+                      <SelectItem value="pending">Not Done Today</SelectItem>
+                      <SelectItem value="completed">Done Today</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <Select value={difficultyFilter} onValueChange={handleDifficultyChange}>
                     <SelectTrigger className="w-[140px] md:w-[160px] text-xs md:text-sm">
                       <SelectValue placeholder="Difficulty" />
@@ -427,213 +462,18 @@ export default function ChallengesClient({
 
           {/* Challenges List */}
           <div className="space-y-4">
-            {challenges.map((challenge: Challenge, index) => {
-              const completionRate = challenge.completion_percentage || 0
-              const statusBadge = getStatusBadgeConfig(challenge.user_status)
-              const difficultyVariant = getDifficultyBadgeVariant(challenge.difficulty_level)
-              const progressConfig = getProgressConfig(challenge.user_status, completionRate)
+            {paginatedChallenges.map((challenge: Challenge) => (
+              <ChallengeCard
+                key={challenge.id}
+                challenge={challenge}
+                actionLoading={actionLoading}
+                onStartChallenge={handleStartChallenge}
+                onRestartChallenge={handleRestartChallenge}
+                onShowCompletedDialog={() => setShowCompletedDialog(true)}
+              />
+            ))}
 
-              return (
-                <Card key={challenge.id} className={getCardClassName(challenge.user_status)}>
-                  <div className="flex flex-col gap-6 p-4 md:p-6 md:flex-row">
-                    {/* Left: Challenge Info */}
-                    <div className="flex-1 space-y-4">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex items-start gap-3 flex-1 min-w-0">
-                          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg text-2xl bg-emerald-500/10">
-                            {challenge.icon || '📿'}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="mb-1 flex items-center gap-2 flex-wrap">
-                              <h3 className="text-lg md:text-xl font-bold truncate">
-                                {challenge.title_bn}
-                              </h3>
-                              {challenge.is_featured && (
-                                <Badge variant="secondary" className="text-xs">
-                                  Featured
-                                </Badge>
-                              )}
-                              {!challenge.is_active && (
-                                <Badge variant="outline" className="text-xs">
-                                  Inactive
-                                </Badge>
-                              )}
-                              <Badge variant={statusBadge.variant} className="text-xs">
-                                {statusBadge.text}
-                              </Badge>
-                            </div>
-                            {challenge.title_ar && (
-                              <p className="arabic-text text-muted-foreground text-sm truncate">
-                                {challenge.title_ar}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                        <div className="flex flex-col gap-2 items-end shrink-0">
-                          <Badge variant={difficultyVariant} className="text-xs">
-                            {challenge.difficulty_level}
-                          </Badge>
-                          {getLastCompletedBadge(challenge.last_completed_at || null)}
-                        </div>
-                      </div>
-
-                      <p className="line-clamp-2 text-sm text-muted-foreground">
-                        {challenge.description_bn}
-                      </p>
-
-                      <div className="flex flex-wrap gap-3 text-xs md:text-sm">
-                        <div className="flex items-center gap-2">
-                          <Target className="h-4 w-4 text-muted-foreground shrink-0" />
-                          <span>{challenge.daily_target_count}x daily</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Calendar className="h-4 w-4 text-muted-foreground shrink-0" />
-                          <span>{challenge.total_days} days</span>
-                        </div>
-                        {challenge.recommended_prayer && (
-                          <div className="flex items-center gap-2">
-                            <span className="text-muted-foreground shrink-0">🕌</span>
-                            <span>After {challenge.recommended_prayer}</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Right: Stats & Actions */}
-                    <div className="flex flex-col justify-between gap-4 md:w-64">
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="rounded-lg border bg-muted/50 p-3 text-center">
-                          <div className="flex items-center justify-center gap-1 text-blue-500">
-                            <Users className="h-4 w-4" />
-                            <span className="text-lg md:text-xl font-bold">
-                              {formatNumber(challenge.total_participants || 0)}
-                            </span>
-                          </div>
-                          <p className="text-xs text-muted-foreground">Participants</p>
-                        </div>
-                        <div className="rounded-lg border bg-muted/50 p-3 text-center">
-                          <div className="flex items-center justify-center gap-1 text-amber-500">
-                            <Trophy className="h-4 w-4" />
-                            <span className="text-lg md:text-xl font-bold">
-                              {formatNumber(challenge.total_completed_days || 0)}
-                            </span>
-                          </div>
-                          <p className="text-xs text-muted-foreground">Days Done</p>
-                        </div>
-                      </div>
-
-                      <div className="rounded-lg border bg-muted/50 p-3">
-                        <div className="mb-1 flex items-center justify-between text-xs">
-                          <span className="text-muted-foreground">{progressConfig.label}</span>
-                          <span className="font-bold">{progressConfig.percentage}</span>
-                        </div>
-                        <div className="h-2 overflow-hidden rounded-full bg-muted">
-                          <div
-                            className="h-full transition-all"
-                            style={{
-                              width: `${progressConfig.width}%`,
-                              backgroundColor: progressConfig.color,
-                            }}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="flex gap-2">
-                        {/* Start/Continue/Restart Button */}
-                        {challenge.user_status === 'not_started' && (
-                          <Button
-                            size="sm"
-                            className="flex-1 text-xs md:text-sm"
-                            onClick={() => handleStartChallenge(challenge.id)}
-                            disabled={!challenge.is_active || actionLoading === challenge.id}
-                          >
-                            {actionLoading === challenge.id ? (
-                              <Loader2 className="mr-1 h-3 w-3 animate-spin" />
-                            ) : (
-                              <Play className="mr-1 h-3 w-3" />
-                            )}
-                            Start
-                          </Button>
-                        )}
-
-                        {challenge.user_status === 'completed' && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="flex-1 text-xs md:text-sm"
-                            onClick={() =>
-                              challenge.progress_id && handleRestartChallenge(challenge)
-                            }
-                            disabled={actionLoading === challenge.progress_id}
-                          >
-                            {actionLoading === challenge.progress_id ? (
-                              <Loader2 className="mr-1 h-3 w-3 animate-spin" />
-                            ) : (
-                              <RotateCcw className="mr-1 h-3 w-3" />
-                            )}
-                            Restart
-                          </Button>
-                        )}
-
-                        {/* Preview Button */}
-                        {(() => {
-                          const completedToday = isCurrentDay(challenge.last_completed_at || '')
-                          
-                          if (completedToday) {
-                            return (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="text-xs md:text-sm opacity-50 cursor-not-allowed"
-                                onClick={() => setShowCompletedDialog(true)}
-                                disabled
-                              >
-                                <Eye className="mr-1 h-3 w-3" />
-                                Preview
-                              </Button>
-                            )
-                          }
-                          
-                          return (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              asChild
-                              className="text-xs md:text-sm"
-                            >
-                              <Link href={`/challenges/${challenge.id}/preview`}>
-                                <Eye className="mr-1 h-3 w-3" />
-                                Preview
-                              </Link>
-                            </Button>
-                          )
-                        })()}
-
-                        {/* Admin Actions */}
-                        <Button size="sm" variant="outline" asChild className="text-xs md:text-sm">
-                          <Link href={`/challenges/${challenge.id}`}>
-                            <Edit className="mr-1 h-3 w-3" />
-                            Edit
-                          </Link>
-                        </Button>
-                        <ActionButton
-                          action={deleteChallengeTemplate}
-                          actionParams={[challenge.id]}
-                          title="Delete Challenge"
-                          description="Are you sure you want to delete this challenge?"
-                          confirmText="Delete"
-                          confirmVariant="destructive"
-                        >
-                          <Trash2 className="mr-1 h-3 w-3" />
-                        </ActionButton>
-                      </div>
-                    </div>
-                  </div>
-                </Card>
-              )
-            })}
-
-            {challenges.length === 0 && (
+            {filteredChallenges.length === 0 && (
               <Card>
                 <CardContent className="flex flex-col items-center justify-center py-16">
                   <Target className="mb-4 h-16 w-16 text-muted-foreground" />
@@ -645,6 +485,14 @@ export default function ChallengesClient({
               </Card>
             )}
           </div>
+
+          {/* Pagination */}
+          <Pagination
+            currentPage={currentPage}
+            totalItems={filteredChallenges.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+          />
         </TabsContent>
 
         {/* Other Tabs - Placeholder */}
@@ -771,7 +619,7 @@ export default function ChallengesClient({
           </div>
         </TabsContent>
       </Tabs>
-      
+
       {/* Completed Today Dialog */}
       <Dialog open={showCompletedDialog} onOpenChange={setShowCompletedDialog}>
         <DialogContent className="sm:max-w-md">
@@ -781,13 +629,12 @@ export default function ChallengesClient({
               Challenge Completed Today!
             </DialogTitle>
             <DialogDescription className="text-center py-4">
-              You have already completed this challenge today. Please come back tomorrow to continue your journey.
+              You have already completed this challenge today. Please come back tomorrow to continue
+              your journey.
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-center">
-            <Button onClick={() => setShowCompletedDialog(false)}>
-              Got it!
-            </Button>
+            <Button onClick={() => setShowCompletedDialog(false)}>Got it!</Button>
           </div>
         </DialogContent>
       </Dialog>

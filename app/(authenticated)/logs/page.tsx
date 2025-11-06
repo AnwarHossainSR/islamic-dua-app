@@ -111,7 +111,7 @@ export default function LogsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold">API Logs</h1>
           <p className="text-muted-foreground">Monitor system activity and debug issues</p>
@@ -142,7 +142,7 @@ export default function LogsPage() {
 
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-2">
               <FileText className="h-5 w-5" />
               <CardTitle>Log Entries</CardTitle>
@@ -173,10 +173,11 @@ export default function LogsPage() {
               </Select>
             </div>
           </div>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <CardDescription>Real-time system logs and API activity</CardDescription>
             <div className="text-sm text-muted-foreground">
-              Total: {total} entries | Showing {(page - 1) * limit + 1} to {Math.min(page * limit, total)} of {total}
+              <span className="hidden sm:inline">Total: {total} entries | Showing {(page - 1) * limit + 1} to {Math.min(page * limit, total)} of {total}</span>
+              <span className="sm:hidden">{total} entries | Page {page}</span>
             </div>
           </div>
         </CardHeader>

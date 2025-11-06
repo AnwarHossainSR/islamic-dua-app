@@ -63,6 +63,7 @@ export default function ChallengesClient({
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage] = useState(10)
   const [isPending, startTransition] = useTransition()
+  const [completionLoading, setCompletionLoading] = useState(false)
   const [user, setUser] = useState<any>(null)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
   const [showCompletedDialog, setShowCompletedDialog] = useState(false)
@@ -121,7 +122,11 @@ export default function ChallengesClient({
   }
 
   const handleCompletionChange = (value: string) => {
+    setCompletionLoading(true)
     setCompletionFilter(value)
+    setCurrentPage(1) // Reset to first page
+    // Brief loading state for visual feedback
+    setTimeout(() => setCompletionLoading(false), 200)
   }
 
   const handleStartChallenge = async (challengeId: string) => {
@@ -407,24 +412,15 @@ export default function ChallengesClient({
         <TabsContent value="all" className="space-y-4">
           {/* Filters */}
           <Card>
-            <CardContent className="pt-4 md:pt-6 px-3 md:px-6">
-              <div className="flex flex-col md:flex-row gap-3">
-                <div className="flex-1 relative">
-                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    placeholder="Search challenges..."
-                    className="pl-10 text-xs md:text-sm w-full"
-                    value={searchQuery}
-                    onChange={e => handleSearchChange(e.target.value)}
-                    disabled={isPending}
-                  />
-                  {isPending && (
-                    <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" />
-                  )}
+            <CardHeader>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div className="flex items-center gap-2">
+                  <Target className="h-5 w-5" />
+                  <CardTitle>Challenges</CardTitle>
                 </div>
-                <div className="flex gap-2 shrink-0 flex-wrap">
+                <div className="flex gap-1 shrink-0 flex-wrap">
                   <Select value={completionFilter} onValueChange={handleCompletionChange}>
-                    <SelectTrigger className="w-[135px] md:w-[160px] text-xs md:text-sm">
+                    <SelectTrigger className="w-[130px] md:w-[160px] text-xs md:text-sm">
                       <SelectValue placeholder="Completion" />
                     </SelectTrigger>
                     <SelectContent>
@@ -457,42 +453,68 @@ export default function ChallengesClient({
                   </Select>
                 </div>
               </div>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div className="flex-1 relative">
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    placeholder="Search challenges..."
+                    className="pl-10 text-xs md:text-sm w-full"
+                    value={searchQuery}
+                    onChange={e => handleSearchChange(e.target.value)}
+                    disabled={isPending}
+                  />
+                  {(isPending || completionLoading) && (
+                    <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" />
+                  )}
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  <span className="hidden sm:inline">
+                    Total: {filteredChallenges.length} challenges | Showing{' '}
+                    {(currentPage - 1) * itemsPerPage + 1} to{' '}
+                    {Math.min(currentPage * itemsPerPage, filteredChallenges.length)} of{' '}
+                    {filteredChallenges.length}
+                  </span>
+                  <span className="sm:hidden">
+                    {filteredChallenges.length} challenges | Page {currentPage}
+                  </span>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {/* Challenges List */}
+              <div className="space-y-4">
+                {paginatedChallenges.map((challenge: Challenge) => (
+                  <ChallengeCard
+                    key={challenge.id}
+                    challenge={challenge}
+                    actionLoading={actionLoading}
+                    onStartChallenge={handleStartChallenge}
+                    onRestartChallenge={handleRestartChallenge}
+                    onShowCompletedDialog={() => setShowCompletedDialog(true)}
+                  />
+                ))}
+
+                {filteredChallenges.length === 0 && (
+                  <div className="flex flex-col items-center justify-center py-16">
+                    <Target className="mb-4 h-16 w-16 text-muted-foreground" />
+                    <p className="mb-2 text-lg font-semibold">No challenges found</p>
+                    <p className="mb-4 text-sm text-muted-foreground">
+                      Try adjusting your filters or search query
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Pagination */}
+              <Pagination
+                currentPage={currentPage}
+                totalItems={filteredChallenges.length}
+                itemsPerPage={itemsPerPage}
+                onPageChange={setCurrentPage}
+                showInfo={false}
+              />
             </CardContent>
           </Card>
-
-          {/* Challenges List */}
-          <div className="space-y-4">
-            {paginatedChallenges.map((challenge: Challenge) => (
-              <ChallengeCard
-                key={challenge.id}
-                challenge={challenge}
-                actionLoading={actionLoading}
-                onStartChallenge={handleStartChallenge}
-                onRestartChallenge={handleRestartChallenge}
-                onShowCompletedDialog={() => setShowCompletedDialog(true)}
-              />
-            ))}
-
-            {filteredChallenges.length === 0 && (
-              <Card>
-                <CardContent className="flex flex-col items-center justify-center py-16">
-                  <Target className="mb-4 h-16 w-16 text-muted-foreground" />
-                  <p className="mb-2 text-lg font-semibold">No challenges found</p>
-                  <p className="mb-4 text-sm text-muted-foreground">
-                    Try adjusting your filters or search query
-                  </p>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-
-          {/* Pagination */}
-          <Pagination
-            currentPage={currentPage}
-            totalItems={filteredChallenges.length}
-            itemsPerPage={itemsPerPage}
-            onPageChange={setCurrentPage}
-          />
         </TabsContent>
 
         {/* Other Tabs - Placeholder */}

@@ -1,6 +1,9 @@
 import { pgTable, text, integer, boolean, timestamp, uuid, bigint, time, date } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
 
+// Import Salah schema
+export * from './schema/salah'
+
 // Challenge Templates
 export const challengeTemplates = pgTable('challenge_templates', {
   id: uuid('id').primaryKey().defaultRandom(),

@@ -249,34 +249,36 @@ export function UsersClient({ users }: UsersClientProps) {
 
       <div className="space-y-4">
         {users.map(user => (
-          <div key={user.id} className="flex items-center justify-between p-4 border rounded-lg">
-            <div className="space-y-1">
-              <p className="font-medium">{user.email}</p>
+          <div key={user.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 border rounded-lg">
+            <div className="space-y-1 min-w-0 flex-1">
+              <p className="font-medium truncate">{user.email}</p>
               <p className="text-sm text-muted-foreground">
                 Created: {new Date(user.created_at).toLocaleDateString()}
               </p>
             </div>
-            <div className="flex items-center gap-3">
-              <Badge
-                variant={
-                  user.role === 'super_admin'
-                    ? 'destructive'
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+              <div className="flex flex-wrap gap-2">
+                <Badge
+                  variant={
+                    user.role === 'super_admin'
+                      ? 'destructive'
+                      : user.role === 'admin'
+                      ? 'default'
+                      : 'secondary'
+                  }
+                >
+                  {user.role === 'super_admin'
+                    ? 'Super Admin'
                     : user.role === 'admin'
-                    ? 'default'
-                    : 'secondary'
-                }
-              >
-                {user.role === 'super_admin'
-                  ? 'Super Admin'
-                  : user.role === 'admin'
-                  ? 'Admin'
-                  : user.role === 'editor'
-                  ? 'Editor'
-                  : 'User'}
-              </Badge>
-              <Badge variant={user.is_active ? 'default' : 'outline'}>
-                {user.is_active ? 'Active' : 'Inactive'}
-              </Badge>
+                    ? 'Admin'
+                    : user.role === 'editor'
+                    ? 'Editor'
+                    : 'User'}
+                </Badge>
+                <Badge variant={user.is_active ? 'default' : 'outline'}>
+                  {user.is_active ? 'Active' : 'Inactive'}
+                </Badge>
+              </div>
               <div className="flex gap-2">
                 <Button variant="outline" size="sm" onClick={() => openEditDialog(user)}>
                   <Edit className="h-4 w-4" />

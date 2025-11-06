@@ -170,14 +170,16 @@ export default function AdminSettingsPage() {
         </div>
 
         <Tabs defaultValue="general" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6">
-            <TabsTrigger className='cursor-pointer' value="general">General</TabsTrigger>
-            <TabsTrigger className='cursor-pointer' value="localization">Language</TabsTrigger>
-            <TabsTrigger className='cursor-pointer' value="security">Security</TabsTrigger>
-            <TabsTrigger className='cursor-pointer' value="appearance">Appearance</TabsTrigger>
-            <TabsTrigger className='cursor-pointer' value="notifications">Notifications</TabsTrigger>
-            <TabsTrigger className='cursor-pointer' value="database">Database</TabsTrigger>
-          </TabsList>
+          <div className="overflow-x-auto">
+            <TabsList className="inline-flex w-auto min-w-full">
+              <TabsTrigger className='cursor-pointer text-xs md:text-sm px-2 md:px-4' value="general">General</TabsTrigger>
+              <TabsTrigger className='cursor-pointer text-xs md:text-sm px-2 md:px-4' value="localization">Language</TabsTrigger>
+              <TabsTrigger className='cursor-pointer text-xs md:text-sm px-2 md:px-4' value="security">Security</TabsTrigger>
+              <TabsTrigger className='cursor-pointer text-xs md:text-sm px-2 md:px-4' value="appearance">Appearance</TabsTrigger>
+              <TabsTrigger className='cursor-pointer text-xs md:text-sm px-2 md:px-4' value="notifications">Notifications</TabsTrigger>
+              <TabsTrigger className='cursor-pointer text-xs md:text-sm px-2 md:px-4' value="database">Database</TabsTrigger>
+            </TabsList>
+          </div>
 
           <TabsContent value="general">
             <DynamicSettings

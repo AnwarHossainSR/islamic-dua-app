@@ -424,7 +424,7 @@ export default function ChallengesClient({
                 </div>
                 <div className="flex gap-2 shrink-0 flex-wrap">
                   <Select value={completionFilter} onValueChange={handleCompletionChange}>
-                    <SelectTrigger className="w-[140px] md:w-[160px] text-xs md:text-sm">
+                    <SelectTrigger className="w-[135px] md:w-[160px] text-xs md:text-sm">
                       <SelectValue placeholder="Completion" />
                     </SelectTrigger>
                     <SelectContent>

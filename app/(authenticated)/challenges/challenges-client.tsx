@@ -20,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDebounce } from '@/hooks/use-debounce'
 import { getUser } from '@/lib/actions/auth'
@@ -464,7 +465,7 @@ export default function ChallengesClient({
                     disabled={isPending}
                   />
                   {(isPending || completionLoading) && (
-                    <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" />
+                    <Skeleton className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2" />
                   )}
                 </div>
                 <div className="text-sm text-muted-foreground">
@@ -483,18 +484,50 @@ export default function ChallengesClient({
             <CardContent>
               {/* Challenges List */}
               <div className="space-y-4">
-                {paginatedChallenges.map((challenge: Challenge) => (
-                  <ChallengeCard
-                    key={challenge.id}
-                    challenge={challenge}
-                    actionLoading={actionLoading}
-                    onStartChallenge={handleStartChallenge}
-                    onRestartChallenge={handleRestartChallenge}
-                    onShowCompletedDialog={() => setShowCompletedDialog(true)}
-                  />
-                ))}
+                {(isPending || completionLoading) ? (
+                  // Skeleton loading state
+                  Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="border rounded-lg p-6">
+                      <div className="flex flex-col md:flex-row gap-6">
+                        <div className="flex-1 space-y-4">
+                          <div className="flex items-start gap-3">
+                            <Skeleton className="h-14 w-14 rounded-lg" />
+                            <div className="flex-1 space-y-2">
+                              <Skeleton className="h-6 w-3/4" />
+                              <Skeleton className="h-4 w-1/2" />
+                              <Skeleton className="h-4 w-2/3" />
+                            </div>
+                          </div>
+                          <div className="flex gap-2">
+                            <Skeleton className="h-6 w-16" />
+                            <Skeleton className="h-6 w-20" />
+                          </div>
+                        </div>
+                        <div className="md:w-72 space-y-3">
+                          <div className="grid grid-cols-2 gap-3">
+                            <Skeleton className="h-16 rounded-lg" />
+                            <Skeleton className="h-16 rounded-lg" />
+                          </div>
+                          <Skeleton className="h-12 rounded-lg" />
+                          <Skeleton className="h-9 w-full" />
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  paginatedChallenges.map((challenge: Challenge) => (
+                    <ChallengeCard
+                      key={challenge.id}
+                      challenge={challenge}
+                      actionLoading={actionLoading}
+                      onStartChallenge={handleStartChallenge}
+                      onRestartChallenge={handleRestartChallenge}
+                      onShowCompletedDialog={() => setShowCompletedDialog(true)}
+                    />
+                  ))
+                )}
 
-                {filteredChallenges.length === 0 && (
+                {!isPending && !completionLoading && filteredChallenges.length === 0 && (
                   <div className="flex flex-col items-center justify-center py-16">
                     <Target className="mb-4 h-16 w-16 text-muted-foreground" />
                     <p className="mb-2 text-lg font-semibold">No challenges found</p>

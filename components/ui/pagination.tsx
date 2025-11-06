@@ -25,18 +25,20 @@ export function Pagination({
   }
 
   return (
-    <div className="flex items-center justify-between mt-6 pt-4 border-t">
+    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mt-6 pt-4 border-t">
       {showInfo && (
-        <div className="text-sm text-muted-foreground">
-          Showing {startItem} to {endItem} of {totalItems} entries
+        <div className="text-sm text-muted-foreground order-2 sm:order-1">
+          <span className="hidden sm:inline">Showing {startItem} to {endItem} of {totalItems} entries</span>
+          <span className="sm:hidden">{totalItems} items | Page {currentPage}/{totalPages}</span>
         </div>
       )}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1 sm:gap-2 order-1 sm:order-2 justify-center">
         <Button
           variant="outline"
           size="sm"
           onClick={() => onPageChange(1)}
           disabled={currentPage === 1}
+          className="hidden sm:flex"
         >
           <ChevronsLeft className="h-4 w-4" />
           <span className="sr-only">First page</span>
@@ -50,8 +52,8 @@ export function Pagination({
           <ChevronLeft className="h-4 w-4" />
           <span className="sr-only">Previous page</span>
         </Button>
-        <span className="px-3 py-1 text-sm border rounded">
-          Page {currentPage} of {totalPages}
+        <span className="px-2 sm:px-3 py-1 text-sm border rounded">
+          {currentPage}/{totalPages}
         </span>
         <Button
           variant="outline"
@@ -67,6 +69,7 @@ export function Pagination({
           size="sm"
           onClick={() => onPageChange(totalPages)}
           disabled={currentPage >= totalPages}
+          className="hidden sm:flex"
         >
           <ChevronsRight className="h-4 w-4" />
           <span className="sr-only">Last page</span>

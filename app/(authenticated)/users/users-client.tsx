@@ -20,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Skeleton } from '@/components/ui/skeleton'
 import { useToast } from '@/hooks/use-toast'
 import { addAdminUser, removeAdminUser, updateAdminUser } from '@/lib/actions/admin-users'
 import { Edit, Shield, Trash2, UserPlus } from 'lucide-react'
@@ -248,58 +249,82 @@ export function UsersClient({ users }: UsersClientProps) {
       </div>
 
       <div className="space-y-4">
-        {users.map(user => (
-          <div key={user.id} className="flex items-center justify-between p-4 border rounded-lg">
-            <div className="space-y-1">
-              <p className="font-medium">{user.email}</p>
-              <p className="text-sm text-muted-foreground">
-                Created: {new Date(user.created_at).toLocaleDateString()}
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <Badge
-                variant={
-                  user.role === 'super_admin'
-                    ? 'destructive'
-                    : user.role === 'admin'
-                    ? 'default'
-                    : 'secondary'
-                }
-              >
-                {user.role === 'super_admin'
-                  ? 'Super Admin'
-                  : user.role === 'admin'
-                  ? 'Admin'
-                  : user.role === 'editor'
-                  ? 'Editor'
-                  : 'User'}
-              </Badge>
-              <Badge variant={user.is_active ? 'default' : 'outline'}>
-                {user.is_active ? 'Active' : 'Inactive'}
-              </Badge>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={() => openEditDialog(user)}>
-                  <Edit className="h-4 w-4" />
-                </Button>
-                <Button variant="outline" size="sm" asChild>
-                  <Link href={`/users/${user.user_id}/permissions`}>
-                    <Shield className="h-4 w-4" />
-                  </Link>
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleRemoveUser(user.id, user.email)}
-                  disabled={loading}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
+        {loading ? (
+          Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 border rounded-lg">
+              <div className="space-y-1 min-w-0 flex-1">
+                <Skeleton className="h-5 w-48" />
+                <Skeleton className="h-4 w-32" />
+              </div>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                <div className="flex flex-wrap gap-2">
+                  <Skeleton className="h-6 w-16" />
+                  <Skeleton className="h-6 w-12" />
+                </div>
+                <div className="flex gap-2">
+                  <Skeleton className="h-8 w-8" />
+                  <Skeleton className="h-8 w-8" />
+                  <Skeleton className="h-8 w-8" />
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))
+        ) : (
+          users.map(user => (
+            <div key={user.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 border rounded-lg">
+              <div className="space-y-1 min-w-0 flex-1">
+                <p className="font-medium truncate">{user.email}</p>
+                <p className="text-sm text-muted-foreground">
+                  Created: {new Date(user.created_at).toLocaleDateString()}
+                </p>
+              </div>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                <div className="flex flex-wrap gap-2">
+                  <Badge
+                    variant={
+                      user.role === 'super_admin'
+                        ? 'destructive'
+                        : user.role === 'admin'
+                        ? 'default'
+                        : 'secondary'
+                    }
+                  >
+                    {user.role === 'super_admin'
+                      ? 'Super Admin'
+                      : user.role === 'admin'
+                      ? 'Admin'
+                      : user.role === 'editor'
+                      ? 'Editor'
+                      : 'User'}
+                  </Badge>
+                  <Badge variant={user.is_active ? 'default' : 'outline'}>
+                    {user.is_active ? 'Active' : 'Inactive'}
+                  </Badge>
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={() => openEditDialog(user)}>
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                  <Button variant="outline" size="sm" asChild>
+                    <Link href={`/users/${user.user_id}/permissions`}>
+                      <Shield className="h-4 w-4" />
+                    </Link>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleRemoveUser(user.id, user.email)}
+                    disabled={loading}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
 
-        {users.length === 0 && (
+        {!loading && users.length === 0 && (
           <div className="text-center py-8 text-muted-foreground">No admin users found</div>
         )}
       </div>

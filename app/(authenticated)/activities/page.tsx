@@ -124,7 +124,7 @@ export default async function ActivitiesPage() {
                         <p className="text-sm text-muted-foreground">{activity.name_en}</p>
                       )}
                       {activity?.arabic_text && activity.arabic_text !== 'none' && (
-                        <p className="arabic-text text-lg mt-2 text-emerald-700 dark:text-emerald-400">
+                        <p className="arabic-text text-lg mt-2 text-emerald-700 dark:text-emerald-400 line-clamp-2">
                           {activity.arabic_text}
                         </p>
                       )}

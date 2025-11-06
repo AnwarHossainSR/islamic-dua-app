@@ -12,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Skeleton } from '@/components/ui/skeleton'
 import { usePermissions } from '@/hooks/use-permissions'
 import { useToast } from '@/hooks/use-toast'
 import { PERMISSIONS } from '@/lib/permissions/constants'
@@ -111,7 +112,7 @@ export default function LogsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold">API Logs</h1>
           <p className="text-muted-foreground">Monitor system activity and debug issues</p>
@@ -142,7 +143,7 @@ export default function LogsPage() {
 
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-2">
               <FileText className="h-5 w-5" />
               <CardTitle>Log Entries</CardTitle>
@@ -173,16 +174,30 @@ export default function LogsPage() {
               </Select>
             </div>
           </div>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <CardDescription>Real-time system logs and API activity</CardDescription>
             <div className="text-sm text-muted-foreground">
-              Total: {total} entries | Showing {(page - 1) * limit + 1} to {Math.min(page * limit, total)} of {total}
+              <span className="hidden sm:inline">Total: {total} entries | Showing {(page - 1) * limit + 1} to {Math.min(page * limit, total)} of {total}</span>
+              <span className="sm:hidden">{total} entries | Page {page}</span>
             </div>
           </div>
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="text-center py-8">Loading logs...</div>
+            <div className="space-y-4">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="border rounded-lg p-4 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Skeleton className="h-6 w-16" />
+                      <Skeleton className="h-4 w-20" />
+                    </div>
+                  </div>
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-3/4" />
+                </div>
+              ))}
+            </div>
           ) : logs.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">No logs found</div>
           ) : (

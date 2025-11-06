@@ -1,8 +1,8 @@
 import { Header } from '@/components/layout/header'
-import { ThemeProvider } from '@/components/providers/theme-provider'
 import { NotificationProvider } from '@/components/notifications/notification-provider'
-import { Toaster } from '@/components/ui/toaster'
+import { ThemeProvider } from '@/components/providers/theme-provider'
 import { ErrorBoundary } from '@/components/ui/error-boundary'
+import { Toaster } from '@/components/ui/toaster'
 import { Analytics } from '@vercel/analytics/next'
 import { GeistMono } from 'geist/font/mono'
 import { GeistSans } from 'geist/font/sans'
@@ -17,9 +17,10 @@ export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://islamic-dua-app.vercel.app'),
   title: {
     default: 'Heaven Rose Islamic - Dua & Dhikr App',
-    template: '%s | Heaven Rose Islamic'
+    template: '%s | Heaven Rose Islamic',
   },
-  description: 'Your companion for Islamic duas and dhikr with Bangla translations. Track daily challenges, manage activities, and strengthen your spiritual journey.',
+  description:
+    'Your companion for Islamic duas and dhikr with Bangla translations. Track daily challenges, manage activities, and strengthen your spiritual journey.',
   keywords: ['Islamic', 'Dua', 'Dhikr', 'Bangla', 'Prayer', 'Muslim', 'Spiritual', 'Challenge'],
   authors: [{ name: 'Heaven Rose Islamic Team' }],
   creator: 'Heaven Rose Islamic',
@@ -41,7 +42,7 @@ export const metadata: Metadata = {
     capable: true,
     statusBarStyle: 'default',
     title: 'Heaven Rose Islamic',
-    startupImage: '/icon-512.jpg'
+    startupImage: '/icon-512.jpg',
   },
   formatDetection: {
     telephone: false,
@@ -53,23 +54,25 @@ export const metadata: Metadata = {
     siteName: 'Heaven Rose Islamic',
     title: 'Heaven Rose Islamic - Dua & Dhikr App',
     description: 'Your companion for Islamic duas and dhikr with Bangla translations',
-    images: [{
-      url: '/icon-512.jpg',
-      width: 512,
-      height: 512,
-      alt: 'Heaven Rose Islamic Logo'
-    }]
+    images: [
+      {
+        url: '/icon-512.jpg',
+        width: 512,
+        height: 512,
+        alt: 'Heaven Rose Islamic Logo',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Heaven Rose Islamic - Dua & Dhikr App',
     description: 'Your companion for Islamic duas and dhikr with Bangla translations',
-    images: ['/icon-512.jpg']
+    images: ['/icon-512.jpg'],
   },
   verification: {
     google: 'your-google-verification-code',
   },
-  category: 'Religion & Spirituality'
+  category: 'Religion & Spirituality',
 }
 
 export const viewport = {
@@ -79,8 +82,8 @@ export const viewport = {
   userScalable: false,
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#10b981' },
-    { media: '(prefers-color-scheme: dark)', color: '#059669' }
-  ]
+    { media: '(prefers-color-scheme: dark)', color: '#059669' },
+  ],
 }
 
 export default function RootLayout({
@@ -110,7 +113,7 @@ export default function RootLayout({
             <NotificationProvider>
               <Suspense fallback={null}>
                 <Header />
-                <main className="min-h-[calc(100vh-113px)] px-6 py-6">{children}</main>
+                <main className="min-h-[calc(100vh-113px)] px-4 md:px-6 py-6">{children}</main>
                 <Toaster />
               </Suspense>
               <Analytics />

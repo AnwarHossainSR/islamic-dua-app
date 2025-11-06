@@ -16,7 +16,7 @@ import { ArrowLeft, CheckCircle2, Clock } from 'lucide-react'
 import Link from 'next/link'
 import { use, useEffect, useState } from 'react'
 
-const prayerTimeLabels = {
+const prayerTimeLabels: Record<string, string> = {
   fajr: 'ফজর',
   dhuhr: 'যোহর',
   asr: 'আসর',
@@ -159,7 +159,7 @@ export default function SalahDetailsPage({ params }: { params: Promise<{ id: str
           <div>
             <h1 className="text-3xl font-bold">{prayer?.name_bn}</h1>
             <div className="flex items-center gap-2">
-              <Badge variant="outline">{prayerTimeLabels[prayer.prayer_time]}</Badge>
+              <Badge variant="outline">{prayerTimeLabels[prayer?.prayer_time || ''] || prayer?.prayer_time}</Badge>
               <Badge variant={completionPercentage === 100 ? 'default' : 'secondary'}>
                 {completionPercentage}% সম্পূর্ণ
               </Badge>
@@ -238,36 +238,22 @@ export default function SalahDetailsPage({ params }: { params: Promise<{ id: str
 
                   <div className="flex-1 space-y-3">
                     <div className="flex items-center gap-2">
-                      <h3 className="text-lg font-semibold">{amol.title_bn}</h3>
+                      <h3 className="text-lg font-semibold">{amol.name_bn}</h3>
                       {isCompleted && <CheckCircle2 className="h-5 w-5 text-emerald-600" />}
                     </div>
 
-                    {amol.arabic_text && (
+                    {amol.description_bn && (
                       <div className="p-4 bg-muted/50 rounded-lg">
-                        <p className="arabic-text text-xl text-emerald-700 dark:text-emerald-400 mb-2">
-                          {amol.arabic_text}
-                        </p>
-                        {amol.transliteration && (
-                          <p className="text-sm text-muted-foreground italic mb-1">
-                            {amol.transliteration}
-                          </p>
-                        )}
-                        {amol.translation_bn && <p className="text-sm">{amol.translation_bn}</p>}
+                        <p className="text-sm">{amol.description_bn}</p>
                       </div>
                     )}
 
                     <div className="flex items-center gap-4 text-sm">
-                      <Badge variant="outline">{amol.repetition_count} বার</Badge>
-                      <Badge variant="secondary">{amol.amol_type}</Badge>
+                      <Badge variant="outline">{amol.reward_points} পয়েন্ট</Badge>
+                      {amol.is_required && <Badge variant="secondary">আবশ্যক</Badge>}
                     </div>
 
-                    {amol.benefits_bn && (
-                      <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg dark:bg-blue-950 dark:border-blue-800">
-                        <p className="text-sm text-blue-800 dark:text-blue-200">
-                          <strong>উপকারিতা:</strong> {amol.benefits_bn}
-                        </p>
-                      </div>
-                    )}
+
                   </div>
                 </div>
               </CardContent>

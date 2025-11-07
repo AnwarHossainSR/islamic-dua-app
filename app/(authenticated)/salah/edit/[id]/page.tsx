@@ -23,6 +23,11 @@ export default function EditAmolPage({ params }: { params: Promise<{ id: string 
     name_en: '',
     description_bn: '',
     description_en: '',
+    arabic_text: '',
+    transliteration: '',
+    translation_bn: '',
+    translation_en: '',
+    repetition_count: 1,
     salah_type: 'fajr',
     reward_points: 10,
     is_required: false
@@ -41,6 +46,11 @@ export default function EditAmolPage({ params }: { params: Promise<{ id: string 
           name_en: amol.name_en || '',
           description_bn: amol.description_bn || '',
           description_en: amol.description_en || '',
+          arabic_text: amol.arabic_text || '',
+          transliteration: amol.transliteration || '',
+          translation_bn: amol.translation_bn || '',
+          translation_en: amol.translation_en || '',
+          repetition_count: amol.repetition_count,
           salah_type: amol.salah_type,
           reward_points: amol.reward_points,
           is_required: amol.is_required
@@ -152,15 +162,59 @@ export default function EditAmolPage({ params }: { params: Promise<{ id: string 
             </div>
 
             <div>
-              <Label htmlFor="reward_points">পুরস্কার পয়েন্ট</Label>
-              <Input
-                id="reward_points"
-                type="number"
-                min="1"
-                value={formData.reward_points}
-                onChange={(e) => setFormData({...formData, reward_points: parseInt(e.target.value)})}
-                required
+              <Label htmlFor="arabic_text">আরবি টেক্সট</Label>
+              <Textarea
+                id="arabic_text"
+                value={formData.arabic_text || ''}
+                onChange={(e) => setFormData({...formData, arabic_text: e.target.value})}
+                rows={2}
+                dir="rtl"
+                className="text-xl"
               />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="transliteration">উচ্চারণ</Label>
+                <Input
+                  id="transliteration"
+                  value={formData.transliteration || ''}
+                  onChange={(e) => setFormData({...formData, transliteration: e.target.value})}
+                />
+              </div>
+              <div>
+                <Label htmlFor="translation_bn">অর্থ (বাংলা)</Label>
+                <Input
+                  id="translation_bn"
+                  value={formData.translation_bn || ''}
+                  onChange={(e) => setFormData({...formData, translation_bn: e.target.value})}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="repetition_count">কতবার পড়তে হবে</Label>
+                <Input
+                  id="repetition_count"
+                  type="number"
+                  min="1"
+                  value={formData.repetition_count}
+                  onChange={(e) => setFormData({...formData, repetition_count: parseInt(e.target.value)})}
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="reward_points">পুরস্কার পয়েন্ট</Label>
+                <Input
+                  id="reward_points"
+                  type="number"
+                  min="1"
+                  value={formData.reward_points}
+                  onChange={(e) => setFormData({...formData, reward_points: parseInt(e.target.value)})}
+                  required
+                />
+              </div>
             </div>
 
             <div className="flex items-center space-x-2">

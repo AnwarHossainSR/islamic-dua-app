@@ -6,6 +6,11 @@ export interface SalahAmol {
   name_en?: string
   description_bn?: string
   description_en?: string
+  arabic_text?: string
+  transliteration?: string
+  translation_bn?: string
+  translation_en?: string
+  repetition_count: number
   salah_type: SalahType
   reward_points: number
   is_required: boolean
@@ -31,6 +36,11 @@ export interface AmolFormData {
   name_en?: string
   description_bn?: string
   description_en?: string
+  arabic_text?: string
+  transliteration?: string
+  translation_bn?: string
+  translation_en?: string
+  repetition_count: number
   salah_type: SalahType
   reward_points: number
   is_required: boolean

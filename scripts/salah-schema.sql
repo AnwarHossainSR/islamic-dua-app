@@ -11,6 +11,11 @@ CREATE TABLE salah_amols (
   name_en TEXT,
   description_bn TEXT,
   description_en TEXT,
+  arabic_text TEXT,
+  transliteration TEXT,
+  translation_bn TEXT,
+  translation_en TEXT,
+  repetition_count INTEGER DEFAULT 1,
   salah_type TEXT NOT NULL CHECK (salah_type IN ('fajr', 'dhuhr', 'asr', 'maghrib', 'isha', 'tahajjud', 'chasht', 'ishraq', 'nafal')),
   reward_points INTEGER DEFAULT 1,
   is_required BOOLEAN DEFAULT false,
@@ -60,16 +65,52 @@ CREATE POLICY "Users can manage their own salah progress" ON user_salah_progress
   auth.uid() = user_id
 );
 
--- Insert sample amols
-INSERT INTO salah_amols (name_bn, name_en, description_bn, salah_type, reward_points, is_required, sort_order) VALUES
-('ইস্তিগফার', 'Istighfar', 'আল্লাহর কাছে ক্ষমা চাওয়া - গুনাহ মাফ হয় এবং মানসিক শান্তি আসে', 'fajr', 10, true, 1),
-('দুশ্চিন্তা দূর করার দোয়া', 'Dua for removing anxiety', 'মানসিক শান্তি আসে এবং দিনের শুরুতে টেনশন কমে', 'fajr', 15, false, 2),
-('সূরা ইখলাস', 'Surah Ikhlas', 'তাওহীদের সূরা - ঈমান বৃদ্ধি পায়', 'dhuhr', 20, true, 1),
-('আয়াতুল কুরসী', 'Ayatul Kursi', 'আল্লাহর মহত্ত্ব বর্ণনা - সুরক্ষা পাওয়া যায়', 'asr', 25, true, 1),
-('তাহাজ্জুদের দোয়া', 'Tahajjud Dua', 'রাতের নামাজের বিশেষ দোয়া', 'tahajjud', 50, false, 1),
-('চাশতের তাসবীহ', 'Chasht Tasbih', 'সকালের নফল নামাজের তাসবীহ', 'chasht', 30, false, 1),
-('ইশরাকের দোয়া', 'Ishraq Dua', 'সূর্যোদয়ের পর নামাজের দোয়া', 'ishraq', 35, false, 1),
-('নফল নামাজের দোয়া', 'Nafal Prayer Dua', 'অতিরিক্ত নামাজের দোয়া', 'nafal', 20, false, 1);
+-- Insert standard tasbih for all 5 salah
+INSERT INTO salah_amols (name_bn, name_en, description_bn, arabic_text, transliteration, translation_bn, repetition_count, salah_type, reward_points, is_required, sort_order) VALUES
+-- Fajr
+('সুবহানাল্লাহ', 'Subhanallah', 'আল্লাহর পবিত্রতা ঘোষণা', 'سُبْحَانَ اللَّهِ', 'Subhanallah', 'আল্লাহ পবিত্র', 33, 'fajr', 10, true, 1),
+('আলহামদুলিল্লাহ', 'Alhamdulillah', 'আল্লাহর প্রশংসা', 'الْحَمْدُ لِلَّهِ', 'Alhamdulillah', 'সমস্ত প্রশংসা আল্লাহর', 33, 'fajr', 10, true, 2),
+('আল্লাহু আকবার', 'Allahu Akbar', 'আল্লাহর মহত্ত্ব ঘোষণা', 'اللَّهُ أَكْبَرُ', 'Allahu Akbar', 'আল্লাহ সবচেয়ে বড়', 34, 'fajr', 10, true, 3),
+-- Dhuhr
+('সুবহানাল্লাহ', 'Subhanallah', 'আল্লাহর পবিত্রতা ঘোষণা', 'سُبْحَانَ اللَّهِ', 'Subhanallah', 'আল্লাহ পবিত্র', 33, 'dhuhr', 10, true, 1),
+('আলহামদুলিল্লাহ', 'Alhamdulillah', 'আল্লাহর প্রশংসা', 'الْحَمْدُ لِلَّهِ', 'Alhamdulillah', 'সমস্ত প্রশংসা আল্লাহর', 33, 'dhuhr', 10, true, 2),
+('আল্লাহু আকবার', 'Allahu Akbar', 'আল্লাহর মহত্ত্ব ঘোষণা', 'اللَّهُ أَكْبَرُ', 'Allahu Akbar', 'আল্লাহ সবচেয়ে বড়', 34, 'dhuhr', 10, true, 3),
+-- Asr
+('সুবহানাল্লাহ', 'Subhanallah', 'আল্লাহর পবিত্রতা ঘোষণা', 'سُبْحَانَ اللَّهِ', 'Subhanallah', 'আল্লাহ পবিত্র', 33, 'asr', 10, true, 1),
+('আলহামদুলিল্লাহ', 'Alhamdulillah', 'আল্লাহর প্রশংসা', 'الْحَمْدُ لِلَّهِ', 'Alhamdulillah', 'সমস্ত প্রশংসা আল্লাহর', 33, 'asr', 10, true, 2),
+('আল্লাহু আকবার', 'Allahu Akbar', 'আল্লাহর মহত্ত্ব ঘোষণা', 'اللَّهُ أَكْبَرُ', 'Allahu Akbar', 'আল্লাহ সবচেয়ে বড়', 34, 'asr', 10, true, 3),
+-- Maghrib
+('সুবহানাল্লাহ', 'Subhanallah', 'আল্লাহর পবিত্রতা ঘোষণা', 'سُبْحَانَ اللَّهِ', 'Subhanallah', 'আল্লাহ পবিত্র', 33, 'maghrib', 10, true, 1),
+('আলহামদুলিল্লাহ', 'Alhamdulillah', 'আল্লাহর প্রশংসা', 'الْحَمْدُ لِلَّهِ', 'Alhamdulillah', 'সমস্ত প্রশংসা আল্লাহর', 33, 'maghrib', 10, true, 2),
+('আল্লাহু আকবার', 'Allahu Akbar', 'আল্লাহর মহত্ত্ব ঘোষণা', 'اللَّهُ أَكْبَرُ', 'Allahu Akbar', 'আল্লাহ সবচেয়ে বড়', 34, 'maghrib', 10, true, 3),
+-- Isha
+('সুবহানাল্লাহ', 'Subhanallah', 'আল্লাহর পবিত্রতা ঘোষণা', 'سُبْحَانَ اللَّهِ', 'Subhanallah', 'আল্লাহ পবিত্র', 33, 'isha', 10, true, 1),
+('আলহামদুলিল্লাহ', 'Alhamdulillah', 'আল্লাহর প্রশংসা', 'الْحَمْدُ لِلَّهِ', 'Alhamdulillah', 'সমস্ত প্রশংসা আল্লাহর', 33, 'isha', 10, true, 2),
+('আল্লাহু আকবার', 'Allahu Akbar', 'আল্লাহর মহত্ত্ব ঘোষণা', 'اللَّهُ أَكْبَرُ', 'Allahu Akbar', 'আল্লাহ সবচেয়ে বড়', 34, 'isha', 10, true, 3),
+-- 3 Kul (Qul Surahs) for all 5 salah
+-- Fajr - 3 Kul
+('সূরা ইখলাস', 'Surah Ikhlas', 'তাওহীদের সূরা', 'قُلْ هُوَ اللَّهُ أَحَدٌ اللَّهُ الصَّمَدُ لَمْ يَلِدْ وَلَمْ يُولَدْ وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ', 'Qul huwallahu ahad, Allahus samad, lam yalid wa lam yulad, wa lam yakun lahu kufuwan ahad', 'বলুন, তিনি আল্লাহ, এক। আল্লাহ অমুখাপেক্ষী। তিনি কাউকে জন্ম দেননি এবং তিনি জন্মগ্রহণ করেননি। এবং তার সমকক্ষ কেউ নেই।', 1, 'fajr', 15, true, 4),
+('সূরা ফালাক', 'Surah Falaq', 'ভোরের সূরা', 'قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ مِن شَرِّ مَا خَلَقَ', 'Qul auzu birabbil falaq, min sharri ma khalaq', 'বলুন, আমি ভোরের রবের আশ্রয় চাই তার সৃষ্টির মন্দ থেকে', 1, 'fajr', 15, true, 5),
+('সূরা নাস', 'Surah Nas', 'মানুষের সূরা', 'قُلْ أَعُوذُ بِرَبِّ النَّاسِ مَلِكِ النَّاسِ إِلَٰهِ النَّاسِ', 'Qul auzu birabbin nas, malikin nas, ilahin nas', 'বলুন, আমি মানুষের রবের আশ্রয় চাই, মানুষের মালিক, মানুষের ইলাহ', 1, 'fajr', 15, true, 6),
+-- Dhuhr - 3 Kul
+('সূরা ইখলাস', 'Surah Ikhlas', 'তাওহীদের সূরা', 'قُلْ هُوَ اللَّهُ أَحَدٌ اللَّهُ الصَّمَدُ لَمْ يَلِدْ وَلَمْ يُولَدْ وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ', 'Qul huwallahu ahad, Allahus samad, lam yalid wa lam yulad, wa lam yakun lahu kufuwan ahad', 'বলুন, তিনি আল্লাহ, এক। আল্লাহ অমুখাপেক্ষী। তিনি কাউকে জন্ম দেননি এবং তিনি জন্মগ্রহণ করেননি। এবং তার সমকক্ষ কেউ নেই।', 1, 'dhuhr', 15, true, 4),
+('সূরা ফালাক', 'Surah Falaq', 'ভোরের সূরা', 'قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ مِن شَرِّ مَا خَلَقَ', 'Qul auzu birabbil falaq, min sharri ma khalaq', 'বলুন, আমি ভোরের রবের আশ্রয় চাই তার সৃষ্টির মন্দ থেকে', 1, 'dhuhr', 15, true, 5),
+('সূরা নাস', 'Surah Nas', 'মানুষের সূরা', 'قُلْ أَعُوذُ بِرَبِّ النَّاسِ مَلِكِ النَّاسِ إِلَٰهِ النَّاسِ', 'Qul auzu birabbin nas, malikin nas, ilahin nas', 'বলুন, আমি মানুষের রবের আশ্রয় চাই, মানুষের মালিক, মানুষের ইলাহ', 1, 'dhuhr', 15, true, 6),
+-- Asr - 3 Kul
+('সূরা ইখলাস', 'Surah Ikhlas', 'তাওহীদের সূরা', 'قُلْ هُوَ اللَّهُ أَحَدٌ اللَّهُ الصَّمَدُ لَمْ يَلِدْ وَلَمْ يُولَدْ وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ', 'Qul huwallahu ahad, Allahus samad, lam yalid wa lam yulad, wa lam yakun lahu kufuwan ahad', 'বলুন, তিনি আল্লাহ, এক। আল্লাহ অমুখাপেক্ষী। তিনি কাউকে জন্ম দেননি এবং তিনি জন্মগ্রহণ করেননি। এবং তার সমকক্ষ কেউ নেই।', 1, 'asr', 15, true, 4),
+('সূরা ফালাক', 'Surah Falaq', 'ভোরের সূরা', 'قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ مِن شَرِّ مَا خَلَقَ', 'Qul auzu birabbil falaq, min sharri ma khalaq', 'বলুন, আমি ভোরের রবের আশ্রয় চাই তার সৃষ্টির মন্দ থেকে', 1, 'asr', 15, true, 5),
+('সূরা নাস', 'Surah Nas', 'মানুষের সূরা', 'قُلْ أَعُوذُ بِرَبِّ النَّاسِ مَلِكِ النَّاسِ إِلَٰهِ النَّاسِ', 'Qul auzu birabbin nas, malikin nas, ilahin nas', 'বলুন, আমি মানুষের রবের আশ্রয় চাই, মানুষের মালিক, মানুষের ইলাহ', 1, 'asr', 15, true, 6),
+-- Maghrib - 3 Kul
+('সূরা ইখলাস', 'Surah Ikhlas', 'তাওহীদের সূরা', 'قُلْ هُوَ اللَّهُ أَحَدٌ اللَّهُ الصَّمَدُ لَمْ يَلِدْ وَلَمْ يُولَدْ وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ', 'Qul huwallahu ahad, Allahus samad, lam yalid wa lam yulad, wa lam yakun lahu kufuwan ahad', 'বলুন, তিনি আল্লাহ, এক। আল্লাহ অমুখাপেক্ষী। তিনি কাউকে জন্ম দেননি এবং তিনি জন্মগ্রহণ করেননি। এবং তার সমকক্ষ কেউ নেই।', 1, 'maghrib', 15, true, 4),
+('সূরা ফালাক', 'Surah Falaq', 'ভোরের সূরা', 'قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ مِن شَرِّ مَا خَلَقَ', 'Qul auzu birabbil falaq, min sharri ma khalaq', 'বলুন, আমি ভোরের রবের আশ্রয় চাই তার সৃষ্টির মন্দ থেকে', 1, 'maghrib', 15, true, 5),
+('সূরা নাস', 'Surah Nas', 'মানুষের সূরা', 'قُلْ أَعُوذُ بِرَبِّ النَّاسِ مَلِكِ النَّاسِ إِلَٰهِ النَّاسِ', 'Qul auzu birabbin nas, malikin nas, ilahin nas', 'বলুন, আমি মানুষের রবের আশ্রয় চাই, মানুষের মালিক, মানুষের ইলাহ', 1, 'maghrib', 15, true, 6),
+-- Isha - 3 Kul
+('সূরা ইখলাস', 'Surah Ikhlas', 'তাওহীদের সূরা', 'قُلْ هُوَ اللَّهُ أَحَدٌ اللَّهُ الصَّمَدُ لَمْ يَلِدْ وَلَمْ يُولَدْ وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ', 'Qul huwallahu ahad, Allahus samad, lam yalid wa lam yulad, wa lam yakun lahu kufuwan ahad', 'বলুন, তিনি আল্লাহ, এক। আল্লাহ অমুখাপেক্ষী। তিনি কাউকে জন্ম দেননি এবং তিনি জন্মগ্রহণ করেননি। এবং তার সমকক্ষ কেউ নেই।', 1, 'isha', 15, true, 4),
+('সূরা ফালাক', 'Surah Falaq', 'ভোরের সূরা', 'قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ مِن شَرِّ مَا خَلَقَ', 'Qul auzu birabbil falaq, min sharri ma khalaq', 'বলুন, আমি ভোরের রবের আশ্রয় চাই তার সৃষ্টির মন্দ থেকে', 1, 'isha', 15, true, 5),
+('সূরা নাস', 'Surah Nas', 'মানুষের সূরা', 'قُلْ أَعُوذُ بِرَبِّ النَّاسِ مَلِكِ النَّاسِ إِلَٰهِ النَّاسِ', 'Qul auzu birabbin nas, malikin nas, ilahin nas', 'বলুন, আমি মানুষের রবের আশ্রয় চাই, মানুষের মালিক, মানুষের ইলাহ', 1, 'isha', 15, true, 6),
+-- Additional amols
+('তাহাজ্জুদের দোয়া', 'Tahajjud Dua', 'রাতের নামাজের বিশেষ দোয়া', 'رَبِّ اغْفِرْ لِي ذَنْبِي', 'Rabbighfir li dhanbi', 'হে আমার রব! আমার গুনাহ ক্ষমা করুন', 100, 'tahajjud', 50, false, 1),
+('চাশতের তাসবীহ', 'Chasht Tasbih', 'সকালের নফল নামাজের তাসবীহ', 'لَا إِلَٰهَ إِلَّا اللَّهُ', 'La ilaha illallah', 'আল্লাহ ছাড়া কোনো উপাস্য নেই', 100, 'chasht', 30, false, 1);
 
 -- Update triggers
 CREATE OR REPLACE FUNCTION update_updated_at_column()

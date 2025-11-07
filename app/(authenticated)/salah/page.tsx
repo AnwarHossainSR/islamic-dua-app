@@ -7,10 +7,11 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Plus, Search, Filter, CheckCircle2, Edit, Trash2 } from 'lucide-react'
+import { Plus, Search, Filter, CheckCircle2, Edit, Trash2, Eye } from 'lucide-react'
 import Link from 'next/link'
 import { SalahAmol, SalahType, SALAH_TYPES } from '@/lib/types/salah'
 import { getAllSalahAmols, getUserSalahProgress, toggleAmolCompletion, deleteSalahAmol } from '@/lib/actions/salah'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 
 export default function SalahPage() {
   const [amols, setAmols] = useState<SalahAmol[]>([])
@@ -21,6 +22,7 @@ export default function SalahPage() {
   const [selectedType, setSelectedType] = useState<SalahType | 'all'>('all')
   const [showCompleted, setShowCompleted] = useState(true)
   const [showPending, setShowPending] = useState(true)
+  const [selectedAmol, setSelectedAmol] = useState<SalahAmol | null>(null)
 
   useEffect(() => {
     loadData()
@@ -264,6 +266,54 @@ export default function SalahPage() {
                     </div>
                   </div>
                   <div className="flex gap-1">
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button variant="ghost" size="sm" onClick={() => setSelectedAmol(amol)}>
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-2xl">
+                        <DialogHeader>
+                          <DialogTitle className="flex items-center gap-2">
+                            <span style={{ color: typeInfo.color }}>{typeInfo.icon}</span>
+                            {amol.name_bn}
+                          </DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-4">
+                          {amol.description_bn && (
+                            <div>
+                              <h4 className="font-semibold mb-2">বিবরণ:</h4>
+                              <p className="text-muted-foreground">{amol.description_bn}</p>
+                            </div>
+                          )}
+                          
+                          {amol.arabic_text && (
+                            <div className="p-4 bg-emerald-50 dark:bg-emerald-950 rounded-lg">
+                              <h4 className="font-semibold mb-2">আরবি টেক্সট:</h4>
+                              <p className="text-2xl text-emerald-700 dark:text-emerald-300 mb-2 text-right" dir="rtl">
+                                {amol.arabic_text}
+                              </p>
+                              {amol.transliteration && (
+                                <p className="text-sm text-muted-foreground italic mb-1">
+                                  <strong>উচ্চারণ:</strong> {amol.transliteration}
+                                </p>
+                              )}
+                              {amol.translation_bn && (
+                                <p className="text-sm">
+                                  <strong>অর্থ:</strong> {amol.translation_bn}
+                                </p>
+                              )}
+                            </div>
+                          )}
+                          
+                          <div className="flex items-center gap-4 text-sm">
+                            <Badge variant="outline">{amol.repetition_count} বার</Badge>
+                            <Badge variant="secondary">{amol.reward_points} পয়েন্ট</Badge>
+                            {amol.is_required && <Badge variant="destructive">আবশ্যক</Badge>}
+                          </div>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
                     <Button variant="ghost" size="sm" asChild>
                       <Link href={`/salah/edit/${amol.id}`}>
                         <Edit className="h-4 w-4" />
@@ -285,8 +335,9 @@ export default function SalahPage() {
 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
+                    <Badge variant="outline">{amol.repetition_count} বার</Badge>
                     <Badge variant="secondary">{amol.reward_points} পয়েন্ট</Badge>
-                    {amol.is_required && <Badge variant="outline">আবশ্যক</Badge>}
+                    {amol.is_required && <Badge variant="destructive">আবশ্যক</Badge>}
                   </div>
                   <div className="flex items-center gap-2">
                     <Checkbox

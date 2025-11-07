@@ -39,8 +39,25 @@ export default function SalahPage() {
         getAllSalahAmols(),
         getUserSalahProgress()
       ])
-      setAmols(amolsData)
-      setUserProgress(progressData.map(p => p.amol_id))
+      setAmols(amolsData.map(amol => ({
+        ...amol,
+        name_en: amol.name_en || undefined,
+        description_bn: amol.description_bn || undefined,
+        description_en: amol.description_en || undefined,
+        arabic_text: amol.arabic_text || undefined,
+        transliteration: amol.transliteration || undefined,
+        translation_bn: amol.translation_bn || undefined,
+        translation_en: amol.translation_en || undefined,
+        repetition_count: amol.repetition_count || 1,
+        reward_points: amol.reward_points || 1,
+        is_required: amol.is_required || false,
+        sort_order: amol.sort_order || 0,
+        is_active: amol.is_active || true,
+        salah_type: amol.salah_type as SalahType,
+        created_at: typeof amol.created_at === 'string' ? amol.created_at : amol.created_at?.toISOString() || new Date().toISOString(),
+        updated_at: typeof amol.updated_at === 'string' ? amol.updated_at : amol.updated_at?.toISOString() || new Date().toISOString()
+      })))
+      setUserProgress(progressData.map(p => p.amol_id || ''))
     } catch (error) {
       console.error('Error loading data:', error)
     } finally {
@@ -218,7 +235,7 @@ export default function SalahPage() {
               <Checkbox
                 id="completed"
                 checked={showCompleted}
-                onCheckedChange={setShowCompleted}
+                onCheckedChange={(checked) => setShowCompleted(checked === true)}
               />
               <label htmlFor="completed" className="text-sm">সম্পূর্ণ</label>
             </div>
@@ -226,7 +243,7 @@ export default function SalahPage() {
               <Checkbox
                 id="pending"
                 checked={showPending}
-                onCheckedChange={setShowPending}
+                onCheckedChange={(checked) => setShowPending(checked === true)}
               />
               <label htmlFor="pending" className="text-sm">বাকি</label>
             </div>

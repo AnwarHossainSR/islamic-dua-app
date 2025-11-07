@@ -50,10 +50,10 @@ export default function EditAmolPage({ params }: { params: Promise<{ id: string 
           transliteration: amol.transliteration || '',
           translation_bn: amol.translation_bn || '',
           translation_en: amol.translation_en || '',
-          repetition_count: amol.repetition_count,
-          salah_type: amol.salah_type,
-          reward_points: amol.reward_points,
-          is_required: amol.is_required
+          repetition_count: amol.repetition_count || 1,
+          salah_type: amol.salah_type as SalahType,
+          reward_points: amol.reward_points || 1,
+          is_required: amol.is_required || false
         })
       }
     } catch (error) {

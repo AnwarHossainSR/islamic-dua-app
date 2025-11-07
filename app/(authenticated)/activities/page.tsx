@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { getUserActivities, getUserChallengeStats } from '@/lib/actions/user-activities'
-import { formatNumber } from '@/lib/utils'
+import { formatNumber, formatDateTime } from '@/lib/utils'
 import { Activity, ArrowLeft, Search, TrendingUp, Users } from 'lucide-react'
 import Link from 'next/link'
 
@@ -169,7 +169,7 @@ export default async function ActivitiesPage() {
                       <span className="text-xs font-medium">Last Completed</span>
                       <span className="text-sm font-medium">
                         {userActivity?.last_completed_at 
-                          ? new Date(userActivity.last_completed_at).toLocaleDateString()
+                          ? formatDateTime(userActivity.last_completed_at, { formatType: 'date' })
                           : 'Never'
                         }
                       </span>

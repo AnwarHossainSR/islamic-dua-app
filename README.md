@@ -45,6 +45,12 @@
 - Offline functionality with PWA support
 - Smooth animations and transitions
 
+### 🤖 **AI-Powered Features**
+- Smart dua recommendations based on time and context
+- Natural language search for duas and content
+- Personalized spiritual insights and progress analytics
+- Intelligent challenge suggestions based on user behavior
+
 ## 🚀 Tech Stack
 
 - **Framework:** Next.js 16 with App Router
@@ -54,6 +60,7 @@
 - **Styling:** Tailwind CSS
 - **UI Components:** Radix UI
 - **Authentication:** Supabase Auth + WebAuthn
+- **AI Integration:** OpenAI GPT for smart recommendations
 - **Deployment:** Vercel
 - **Analytics:** Vercel Analytics
 
@@ -134,6 +141,7 @@ NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 DATABASE_URL=your_database_url
+OPENAI_API_KEY=your_openai_api_key  # Optional: For AI features
 ```
 
 ## 📱 Features in Detail

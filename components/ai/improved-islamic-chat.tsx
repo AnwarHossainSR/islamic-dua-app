@@ -205,7 +205,7 @@ export function ImprovedIslamicChat({ initialSessions, hasOpenAIKey }: ImprovedI
   }
 
   return (
-    <div className="h-full flex flex-col bg-background relative">
+    <div className="h-[calc(100vh-113px)] flex flex-col bg-background relative">
       {/* Chat Area */}
       <div className="flex-1 flex">
         {/* Main Chat Area */}
@@ -505,7 +505,7 @@ export function ImprovedIslamicChat({ initialSessions, hasOpenAIKey }: ImprovedI
 
         {/* Right Sidebar - Chat History */}
         <div
-          className={`fixed top-[113px] right-0 bottom-0 w-80 bg-card border-l transform transition-transform duration-300 ease-in-out z-50 ${
+          className={`fixed top-[113px] right-0 bottom-0 w-80 bg-card border-l transform transition-transform duration-300 ease-in-out z-30 ${
             sidebarOpen ? 'translate-x-0' : 'translate-x-full'
           }`}
         >
@@ -582,7 +582,7 @@ export function ImprovedIslamicChat({ initialSessions, hasOpenAIKey }: ImprovedI
         {/* Overlay */}
         {sidebarOpen && (
           <div
-            className="fixed inset-0 bg-black/20 z-40"
+            className="fixed inset-0 bg-black/20 z-20"
             onClick={() => setSidebarOpen(false)}
           />
         )}

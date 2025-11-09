@@ -19,7 +19,7 @@ export default async function AIPage() {
   const initialSessions = hasOpenAIKey ? await getChatSessions() : []
 
   return (
-    <div className="fixed inset-0 top-[113px] bottom-0">
+    <div className="h-full">
       <ImprovedIslamicChat 
         initialSessions={initialSessions}
         hasOpenAIKey={hasOpenAIKey}

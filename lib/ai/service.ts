@@ -323,7 +323,7 @@ export class AIService {
           {
             role: 'system',
             content:
-              'You are a helpful AI assistant. Provide accurate, helpful responses to user questions. Be concise but informative.',
+              'You are a helpful AI assistant. Provide accurate, helpful responses to user questions. Be concise but informative. Format your responses using markdown syntax for better readability (use **bold**, *italic*, # headers, - lists, etc.).',
           },
           {
             role: 'user',
@@ -378,7 +378,15 @@ export class AIService {
 Available MCP Functions:
 ${availableFunctions.map(f => `- ${f.name}: ${f.description}`).join('\n')}
 
-When users ask about their progress, challenges, duas, or activities, use the appropriate MCP functions to get current data. Always provide personalized, accurate Islamic guidance based on their actual data.`,
+When users ask about their progress, challenges, duas, or activities, use the appropriate MCP functions to get current data. Always provide personalized, accurate Islamic guidance based on their actual data.
+
+**Important**: Format your responses using markdown syntax for better readability:
+- Use **bold** for emphasis
+- Use *italic* for Arabic terms
+- Use # ## ### for headers
+- Use - or 1. for lists
+- Use > for important quotes or verses
+- Use \`code\` for specific terms`,
           },
           {
             role: 'user',
@@ -431,7 +439,7 @@ When users ask about their progress, challenges, duas, or activities, use the ap
               {
                 role: 'system',
                 content:
-                  'Based on the database query results, provide a helpful response to the user.',
+                  'Based on the database query results, provide a helpful response to the user. Format your response using markdown syntax for better readability (use **bold**, *italic*, # headers, - lists, > quotes, etc.).',
               },
               {
                 role: 'user',
@@ -484,7 +492,15 @@ When users ask about their progress, challenges, duas, or activities, use the ap
             role: 'system',
             content: `You are a knowledgeable Islamic scholar and assistant. Help users with Islamic questions, duas, prayers, and guidance. 
 
-Available Duas in the database:\n${duasContext}\n\nProvide helpful, accurate Islamic guidance. If the user asks about specific duas or prayers, reference the available ones when relevant. Always be respectful and follow Islamic principles.`,
+Available Duas in the database:\n${duasContext}\n\nProvide helpful, accurate Islamic guidance. If the user asks about specific duas or prayers, reference the available ones when relevant. Always be respectful and follow Islamic principles.
+
+**Important**: Format your responses using markdown syntax for better readability:
+- Use **bold** for emphasis and important points
+- Use *italic* for Arabic terms and transliterations
+- Use # ## ### for headers to organize content
+- Use - or 1. for lists and steps
+- Use > for Quranic verses or hadith quotes
+- Use \`backticks\` for specific Arabic terms or transliterations`,
           },
           {
             role: 'user',

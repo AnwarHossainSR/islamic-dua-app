@@ -31,3 +31,21 @@ export interface AIInsight {
   actionable: boolean
   priority: 'low' | 'medium' | 'high'
 }
+
+export interface AIChatMessage {
+  id: string
+  role: 'user' | 'assistant'
+  content: string
+  timestamp: Date
+}
+
+export interface AIChatResponse {
+  message: string
+  suggestions?: string[]
+  relatedDuas?: {
+    id: string
+    title: string
+    arabic: string
+    translation: string
+  }[]
+}

@@ -257,37 +257,22 @@ export const userPreferences = pgTable('user_preferences', {
   updated_at: timestamp('updated_at').defaultNow(),
 })
 
-// Challenge Achievements
-export const challengeAchievements = pgTable('challenge_achievements', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  code: text('code').notNull().unique(),
-  title_bn: text('title_bn').notNull(),
-  title_ar: text('title_ar'),
-  title_en: text('title_en'),
-  description_bn: text('description_bn'),
-  description_ar: text('description_ar'),
-  description_en: text('description_en'),
-  icon: text('icon'),
-  badge_color: text('badge_color'),
-  requirement_type: text('requirement_type').notNull(),
-  requirement_value: integer('requirement_value').notNull(),
-  display_order: integer('display_order').default(0),
-  created_at: timestamp('created_at').defaultNow(),
-})
-
-// User Achievements
-export const userAchievements = pgTable('user_achievements', {
+// Missed Challenges Tracking
+export const userMissedChallenges = pgTable('user_missed_challenges', {
   id: uuid('id').primaryKey().defaultRandom(),
   user_id: uuid('user_id').notNull(),
-  achievement_id: uuid('achievement_id').notNull().references(() => challengeAchievements.id, { onDelete: 'cascade' }),
-  earned_at: timestamp('earned_at').defaultNow(),
+  challenge_id: uuid('challenge_id').notNull().references(() => challengeTemplates.id, { onDelete: 'cascade' }),
+  missed_date: date('missed_date').notNull(),
+  reason: text('reason').default('not_completed'),
+  was_active: boolean('was_active').default(true),
+  created_at: timestamp('created_at').defaultNow(),
 })
 
 // Relations
 export const challengeTemplatesRelations = relations(challengeTemplates, ({ many }) => ({
   userProgress: many(userChallengeProgress),
   dailyLogs: many(userChallengeDailyLogs),
-  bookmarks: many(userChallengeBookmarks),
+  missedChallenges: many(userMissedChallenges),
 }))
 
 export const userChallengeProgressRelations = relations(userChallengeProgress, ({ one, many }) => ({

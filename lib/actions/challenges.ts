@@ -1,14 +1,16 @@
 'use server'
 
-import { getChallengesWithProgress, searchChallenges } from '@/lib/db/queries/challenges'
-import { PERMISSIONS } from '@/lib/permissions'
-import { getSupabaseServerClient } from '@/lib/supabase/server'
-import { Challenge } from '@/lib/types/challenges'
+import { eq, and, desc, sql } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { cache } from 'react'
+import { db } from '../db'
+import { challengeTemplates, userChallengeProgress, userChallengeDailyLogs } from '../db/schema'
+import { PERMISSIONS } from '../permissions'
+import { Challenge } from '../types/challenges'
 import { apiLogger } from '../logger'
 import { isCurrentDay } from '../utils'
 import { checkPermission, getUser } from './auth'
+import { getChallengesWithProgress, searchChallenges, getChallengeById as getChallengeByIdQuery, getFeaturedChallenges as getFeaturedChallengesQuery } from '../db/queries/challenges'
 
 // ============================================
 // CHALLENGE QUERIES
@@ -21,7 +23,6 @@ export async function getChallenges() {
   try {
     const challenges = await getChallengesWithProgress(user.id)
     
-    // Transform and calculate completion percentage
     const mergedData = challenges.map(challenge => {
       const completionPercentage = challenge.total_completed_days && challenge.total_days
         ? Math.min(Math.round((challenge.total_completed_days / challenge.total_days) * 100), 100)
@@ -48,12 +49,10 @@ export async function getChallenges() {
         total_completed_days: challenge.total_completed_days || 0,
         current_day: challenge.current_day || 1,
         last_completed_at: challenge.last_completed_at ?? undefined,
-
         completion_percentage: completionPercentage,
       } as Challenge
     })
 
-    // Sort based on completion status
     mergedData.sort((a: any, b: any) => {
       const aIsCurrentDay = isCurrentDay(a.last_completed_at)
       const bIsCurrentDay = isCurrentDay(b.last_completed_at)
@@ -74,7 +73,6 @@ export async function getChallenges() {
   }
 }
 
-// NEW: Server action for filtering and searching
 export async function searchAndFilterChallenges({
   searchQuery = '',
   difficulty = 'all',
@@ -118,7 +116,7 @@ export async function searchAndFilterChallenges({
 
 export async function getFeaturedChallenges() {
   try {
-    return []
+    return await getFeaturedChallengesQuery()
   } catch (error) {
     apiLogger.error('Error fetching featured challenges with Drizzle', { error })
     return []
@@ -126,20 +124,12 @@ export async function getFeaturedChallenges() {
 }
 
 const getChallengeByIdUncached = async (id: string) => {
-  const supabase = await getSupabaseServerClient()
-
-  const { data, error } = await supabase
-    .from('challenge_templates')
-    .select('*')
-    .eq('id', id)
-    .single()
-
-  if (error) {
+  try {
+    return await getChallengeByIdQuery(id)
+  } catch (error) {
     apiLogger.error('Error fetching challenge', { error, id })
     return null
   }
-
-  return data
 }
 
 export const getChallengeById = cache(getChallengeByIdUncached)
@@ -149,107 +139,102 @@ export const getChallengeById = cache(getChallengeByIdUncached)
 // ============================================
 
 export async function getUserActiveChallenges(userId: string) {
-  const supabase = await getSupabaseServerClient()
-
-  const { data, error } = await supabase
-    .from('user_challenge_progress')
-    .select(
-      `
-      *,
-      challenge:challenge_templates(*)
-    `
-    )
-    .eq('user_id', userId)
-    .eq('status', 'active')
-    .order('started_at', { ascending: false })
-
-  if (error) {
+  try {
+    return await db
+      .select()
+      .from(userChallengeProgress)
+      .leftJoin(challengeTemplates, eq(userChallengeProgress.challenge_id, challengeTemplates.id))
+      .where(and(
+        eq(userChallengeProgress.user_id, userId),
+        eq(userChallengeProgress.status, 'active')
+      ))
+      .orderBy(desc(userChallengeProgress.started_at))
+  } catch (error) {
     apiLogger.error('Error fetching user active challenges', { error, userId })
     return []
   }
-
-  return data
 }
 
 export async function getUserCompletedChallenges(userId: string) {
-  const supabase = await getSupabaseServerClient()
-
-  const { data, error } = await supabase
-    .from('user_challenge_progress')
-    .select(
-      `
-      *,
-      challenge:challenge_templates(*)
-    `
-    )
-    .eq('user_id', userId)
-    .eq('status', 'completed')
-    .order('completed_at', { ascending: false })
-
-  if (error) {
+  try {
+    return await db
+      .select()
+      .from(userChallengeProgress)
+      .leftJoin(challengeTemplates, eq(userChallengeProgress.challenge_id, challengeTemplates.id))
+      .where(and(
+        eq(userChallengeProgress.user_id, userId),
+        eq(userChallengeProgress.status, 'completed')
+      ))
+      .orderBy(desc(userChallengeProgress.completed_at))
+  } catch (error) {
     apiLogger.error('Error fetching user completed challenges', { error, userId })
     return []
   }
-
-  return data
 }
 
 export async function getUserChallengeProgress(progressId: string) {
-  const supabase = await getSupabaseServerClient()
+  try {
+    const [progress] = await db
+      .select()
+      .from(userChallengeProgress)
+      .leftJoin(challengeTemplates, eq(userChallengeProgress.challenge_id, challengeTemplates.id))
+      .where(eq(userChallengeProgress.id, progressId))
+      .limit(1)
 
-  const { data, error } = await supabase
-    .from('user_challenge_progress')
-    .select(
-      `
-      *,
-      challenge:challenge_templates(*),
-      daily_logs:user_challenge_daily_logs(*)
-    `
-    )
-    .eq('id', progressId)
-    .single()
+    if (!progress) return null
 
-  if (error) {
+    // Get daily logs separately
+    const dailyLogs = await db
+      .select()
+      .from(userChallengeDailyLogs)
+      .where(eq(userChallengeDailyLogs.user_progress_id, progressId))
+      .orderBy(desc(userChallengeDailyLogs.day_number))
+
+    // Return in expected format
+    return {
+      ...progress.user_challenge_progress,
+      challenge: progress.challenge_templates,
+      daily_logs: dailyLogs
+    }
+  } catch (error) {
     apiLogger.error('Error fetching challenge progress', { error, progressId })
     return null
   }
-
-  return data
 }
 
 export async function getUserChallengeStats(userId: string) {
-  const supabase = await getSupabaseServerClient()
+  try {
+    const progressData = await db
+      .select({
+        status: userChallengeProgress.status,
+        current_streak: userChallengeProgress.current_streak,
+        longest_streak: userChallengeProgress.longest_streak,
+        total_completed_days: userChallengeProgress.total_completed_days
+      })
+      .from(userChallengeProgress)
+      .where(eq(userChallengeProgress.user_id, userId))
 
-  // Get total stats
-  const { data: progressData } = await supabase
-    .from('user_challenge_progress')
-    .select('status, current_streak, longest_streak, total_completed_days')
-    .eq('user_id', userId)
+    const totalCompleted = progressData?.filter(p => p.status === 'completed').length || 0
+    const totalActive = progressData?.filter(p => p.status === 'active').length || 0
+    const longestStreak = Math.max(...(progressData?.map(p => p.longest_streak || 0) || [0]))
+    const totalDaysCompleted = progressData?.reduce((sum, p) => sum + (p.total_completed_days || 0), 0) || 0
 
-  const totalCompleted = progressData?.filter(p => p.status === 'completed').length || 0
-  const totalActive = progressData?.filter(p => p.status === 'active').length || 0
-  const longestStreak = Math.max(...(progressData?.map(p => p.longest_streak) || [0]))
-  const totalDaysCompleted =
-    progressData?.reduce((sum, p) => sum + (p.total_completed_days || 0), 0) || 0
-
-  // Get achievements
-  const { data: achievements } = await supabase
-    .from('user_achievements')
-    .select(
-      `
-      *,
-      achievement:challenge_achievements(*)
-    `
-    )
-    .eq('user_id', userId)
-    .order('earned_at', { ascending: false })
-
-  return {
-    totalCompleted,
-    totalActive,
-    longestStreak,
-    totalDaysCompleted,
-    achievements: achievements || [],
+    return {
+      totalCompleted,
+      totalActive,
+      longestStreak,
+      totalDaysCompleted,
+      achievements: [],
+    }
+  } catch (error) {
+    apiLogger.error('Error fetching user challenge stats', { error, userId })
+    return {
+      totalCompleted: 0,
+      totalActive: 0,
+      longestStreak: 0,
+      totalDaysCompleted: 0,
+      achievements: [],
+    }
   }
 }
 
@@ -258,99 +243,84 @@ export async function getUserChallengeStats(userId: string) {
 // ============================================
 
 export async function startChallenge(userId: string, challengeId: string) {
-  const supabase = await getSupabaseServerClient()
-
-  // Check if user already has active challenge
-  const { data: existing } = await supabase
-    .from('user_challenge_progress')
-    .select('*')
-    .eq('user_id', userId)
-    .eq('challenge_id', challengeId)
-    .eq('status', 'active')
-    .single()
-
-  if (existing) {
-    return { error: 'You already have an active challenge for this' }
-  }
-
-  // Create new progress record
-  const { data, error } = await supabase
-    .from('user_challenge_progress')
-    .insert({
-      user_id: userId,
-      challenge_id: challengeId,
-      current_day: 1,
-      status: 'active',
-      current_streak: 0,
-      started_at: new Date().toISOString(),
-    })
-    .select()
-    .single()
-
-  if (error) {
-    apiLogger.error('Error starting challenge', { error, userId, challengeId })
-    return { error: error.message }
-  }
-
   try {
-    const { error: incrementError } = await supabase.rpc('increment_participants', {
-      p_challenge_id: challengeId,
-    })
+    // Check if user already has active challenge
+    const existing = await db
+      .select()
+      .from(userChallengeProgress)
+      .where(and(
+        eq(userChallengeProgress.user_id, userId),
+        eq(userChallengeProgress.challenge_id, challengeId),
+        eq(userChallengeProgress.status, 'active')
+      ))
+      .limit(1)
 
-    if (incrementError) {
-      throw incrementError
+    if (existing.length > 0) {
+      return { error: 'You already have an active challenge for this' }
     }
-  } catch (error) {
-    apiLogger.error('Error incrementing participants', { error, challengeId })
-  }
 
-  revalidatePath('/challenges')
-  return { data }
+    // Create new progress record
+    const [data] = await db
+      .insert(userChallengeProgress)
+      .values({
+        user_id: userId,
+        challenge_id: challengeId,
+        current_day: 1,
+        status: 'active',
+        current_streak: 0,
+        started_at: new Date(),
+      })
+      .returning()
+
+    // Increment participants
+    await db
+      .update(challengeTemplates)
+      .set({ total_participants: sql`${challengeTemplates.total_participants} + 1` })
+      .where(eq(challengeTemplates.id, challengeId))
+
+    revalidatePath('/challenges')
+    return { data }
+  } catch (error) {
+    apiLogger.error('Error starting challenge', { error, userId, challengeId })
+    return { error: 'Failed to start challenge' }
+  }
 }
 
 export async function restartChallenge(challenge: Challenge) {
-  const supabase = await getSupabaseServerClient()
+  try {
+    await db
+      .update(userChallengeProgress)
+      .set({
+        current_day: 1,
+        status: 'active',
+        current_streak: 0,
+        longest_streak: 0,
+        total_completed_days: 0,
+        missed_days: 0,
+        started_at: new Date(),
+        completed_at: null,
+        paused_at: null,
+        last_completed_at: null,
+      })
+      .where(eq(userChallengeProgress.id, challenge.progress_id!))
 
-  // Reset the existing progress record instead of creating a new one
-  const { error } = await supabase
-    .from('user_challenge_progress')
-    .update({
-      current_day: 1,
-      status: 'active',
-      current_streak: 0,
-      longest_streak: 0,
-      total_completed_days: 0,
-      missed_days: 0,
-      started_at: new Date().toISOString(),
-      completed_at: null,
-      paused_at: null,
-      last_completed_at: null,
-    })
-    .eq('id', challenge.progress_id)
+    // Clear existing daily logs
+    await db
+      .delete(userChallengeDailyLogs)
+      .where(eq(userChallengeDailyLogs.user_progress_id, challenge.progress_id!))
 
-  if (error) {
+    // Increment completions
+    await db
+      .update(challengeTemplates)
+      .set({ total_completions: sql`${challengeTemplates.total_completions} + 1` })
+      .where(eq(challengeTemplates.id, challenge.id))
+
+    revalidatePath('/challenges')
+    return { success: true }
+  } catch (error) {
     apiLogger.error('Error restarting challenge', { error, progressId: challenge.progress_id })
-    return { error: error.message }
+    return { error: 'Failed to restart challenge' }
   }
-
-  // Clear existing daily logs for this progress
-  await supabase
-    .from('user_challenge_daily_logs')
-    .delete()
-    .eq('user_progress_id', challenge.progress_id)
-
-  // Increment total_completions when restarting
-  const { error: updateError } = await supabase.rpc('increment_completions', {
-    p_challenge_id: challenge.id
-  })
-
-  if (updateError) {
-    apiLogger.error('Error updating challenge template', { error: updateError, challengeId: challenge.id })
-    return { error: updateError.message }
-  }
-
-  revalidatePath('/challenges')
-  return { success: true }
 }
 
 export async function completeDailyChallenge(
@@ -363,25 +333,41 @@ export async function completeDailyChallenge(
   notes?: string,
   mood?: string
 ) {
-  const supabase = await getSupabaseServerClient()
+  try {
+    const isCompleted = countCompleted >= targetCount
+    const now = new Date()
 
-  const isCompleted = countCompleted >= targetCount
-  const now = new Date().toISOString()
+    // Check if daily log exists
+    const existingLog = await db
+      .select({ id: userChallengeDailyLogs.id })
+      .from(userChallengeDailyLogs)
+      .where(and(
+        eq(userChallengeDailyLogs.user_progress_id, progressId),
+        eq(userChallengeDailyLogs.day_number, dayNumber)
+      ))
+      .limit(1)
 
-  // Check if daily log already exists for this day
-  const { data: existingLog } = await supabase
-    .from('user_challenge_daily_logs')
-    .select('id')
-    .eq('user_progress_id', progressId)
-    .eq('day_number', dayNumber)
-    .single()
-
-  let logError
-  if (existingLog) {
-    // Update existing log
-    const { error } = await supabase
-      .from('user_challenge_daily_logs')
-      .update({
+    if (existingLog.length > 0) {
+      // Update existing log
+      await db
+        .update(userChallengeDailyLogs)
+        .set({
+          count_completed: countCompleted,
+          target_count: targetCount,
+          is_completed: isCompleted,
+          completed_at: now,
+          notes,
+          mood,
+        })
+        .where(eq(userChallengeDailyLogs.id, existingLog[0].id))
+    } else {
+      // Insert new daily log
+      await db.insert(userChallengeDailyLogs).values({
+        user_progress_id: progressId,
+        user_id: userId,
+        challenge_id: challengeId,
+        day_number: dayNumber,
+        completion_date: now.toISOString().split('T')[0],
         count_completed: countCompleted,
         target_count: targetCount,
         is_completed: isCompleted,
@@ -389,155 +375,113 @@ export async function completeDailyChallenge(
         notes,
         mood,
       })
-      .eq('id', existingLog.id)
-    logError = error
-  } else {
-    // Insert new daily log
-    const { error } = await supabase.from('user_challenge_daily_logs').insert({
-      user_progress_id: progressId,
-      user_id: userId,
-      challenge_id: challengeId,
-      day_number: dayNumber,
-      completion_date: new Date().toISOString().split('T')[0],
-      count_completed: countCompleted,
-      target_count: targetCount,
-      is_completed: isCompleted,
-      completed_at: now,
-      notes,
-      mood,
-    })
-    logError = error
-  }
+    }
 
-  if (logError) {
-    console.error('Error logging daily completion:', logError)
-    apiLogger.error('Error logging daily completion', { error: logError })
-    return { error: logError.message }
-  }
+    // Get current progress
+    const [progress] = await db
+      .select()
+      .from(userChallengeProgress)
+      .leftJoin(challengeTemplates, eq(userChallengeProgress.challenge_id, challengeTemplates.id))
+      .where(eq(userChallengeProgress.id, progressId))
+      .limit(1)
 
-  // Get current progress
-  const { data: progress } = await supabase
-    .from('user_challenge_progress')
-    .select('*, challenge:challenge_templates(*)')
-    .eq('id', progressId)
-    .single()
+    if (!progress) {
+      return { error: 'Progress not found' }
+    }
 
-  if (!progress) {
-    apiLogger.error('Progress not found')
-    return { error: 'Progress not found' }
-  }
+    // Update progress
+    const newStreak = isCompleted ? (progress.user_challenge_progress.current_streak || 0) + 1 : 0
+    const newLongestStreak = Math.max(progress.user_challenge_progress.longest_streak || 0, newStreak)
+    const newTotalCompleted = (progress.user_challenge_progress.total_completed_days || 0) + (isCompleted ? 1 : 0)
+    const newMissedDays = (progress.user_challenge_progress.missed_days || 0) + (isCompleted ? 0 : 1)
+    const newCurrentDay = dayNumber + 1
 
-  // Update progress
-  const newStreak = isCompleted ? (progress.current_streak || 0) + 1 : 0
-  const newLongestStreak = Math.max(progress.longest_streak || 0, newStreak)
-  const newTotalCompleted = (progress.total_completed_days || 0) + (isCompleted ? 1 : 0)
-  const newMissedDays = (progress.missed_days || 0) + (isCompleted ? 0 : 1)
-  const newCurrentDay = dayNumber + 1
+    const isChallengeCompleted = newCurrentDay > (progress.challenge_templates?.total_days || 21) &&
+      newTotalCompleted >= (progress.challenge_templates?.total_days || 21)
 
-  const isChallengeCompleted =
-    newCurrentDay > progress.challenge.total_days &&
-    newTotalCompleted >= progress.challenge.total_days
+    const updateData: any = {
+      current_day: newCurrentDay,
+      current_streak: newStreak,
+      longest_streak: newLongestStreak,
+      total_completed_days: newTotalCompleted,
+      missed_days: newMissedDays,
+      last_completed_at: now,
+    }
 
-  const updateData: any = {
-    current_day: newCurrentDay,
-    current_streak: newStreak,
-    longest_streak: newLongestStreak,
-    total_completed_days: newTotalCompleted,
-    missed_days: newMissedDays,
-    last_completed_at: now,
-  }
+    if (isChallengeCompleted) {
+      updateData.status = 'completed'
+      updateData.completed_at = now
+    }
 
-  if (isChallengeCompleted) {
-    updateData.status = 'completed'
-    updateData.completed_at = now
-  }
+    await db
+      .update(userChallengeProgress)
+      .set(updateData)
+      .where(eq(userChallengeProgress.id, progressId))
 
-  const { error: updateError } = await supabase
-    .from('user_challenge_progress')
-    .update(updateData)
-    .eq('id', progressId)
+    // Increment completions
+    await db
+      .update(challengeTemplates)
+      .set({ total_completions: sql`${challengeTemplates.total_completions} + 1` })
+      .where(eq(challengeTemplates.id, challengeId))
 
-  if (updateError) {
-    console.error('Error updating progress:', updateError)
-    apiLogger.error('Error updating progress', { error: updateError })
-    return { error: updateError.message }
-  }
+    revalidatePath(`/challenges/${progressId}`)
+    revalidatePath('/challenges')
 
-  // Check and award achievements
-  await supabase.rpc('check_and_award_achievements', { p_user_id: userId })
-
-  try {
-    const { error: incrementError } = await supabase.rpc('increment_completions', {
-      p_challenge_id: challengeId,
-    })
-
-    if (incrementError) {
-      throw incrementError
+    return {
+      success: true,
+      isCompleted,
+      isChallengeCompleted,
+      newStreak,
     }
   } catch (error) {
-    apiLogger.error('Error incrementing completions', { error, challengeId })
-  }
-
-  revalidatePath(`/challenges/${progressId}`)
-  revalidatePath('/challenges')
-
-  return {
-    success: true,
-    isCompleted,
-    isChallengeCompleted,
-    newStreak,
+    apiLogger.error('Error completing daily challenge', { error })
+    return { error: 'Failed to complete daily challenge' }
   }
 }
 
 export async function pauseChallenge(progressId: string) {
-  const supabase = await getSupabaseServerClient()
+  try {
+    await db
+      .update(userChallengeProgress)
+      .set({
+        status: 'paused',
+        paused_at: new Date(),
+      })
+      .where(eq(userChallengeProgress.id, progressId))
 
-  const { error } = await supabase
-    .from('user_challenge_progress')
-    .update({
-      status: 'paused',
-      paused_at: new Date().toISOString(),
-    })
-    .eq('id', progressId)
-
-  if (error) {
-    return { error: error.message }
+    revalidatePath('/challenges')
+    return { success: true }
+  } catch (error) {
+    return { error: 'Failed to pause challenge' }
   }
-
-  revalidatePath('/challenges')
-  return { success: true }
 }
 
 export async function resumeChallenge(progressId: string) {
-  const supabase = await getSupabaseServerClient()
+  try {
+    await db
+      .update(userChallengeProgress)
+      .set({
+        status: 'active',
+        paused_at: null,
+      })
+      .where(eq(userChallengeProgress.id, progressId))
 
-  const { error } = await supabase
-    .from('user_challenge_progress')
-    .update({
-      status: 'active',
-      paused_at: null,
-    })
-    .eq('id', progressId)
-
-  if (error) {
-    return { error: error.message }
+    revalidatePath('/challenges')
+    return { success: true }
+  } catch (error) {
+    return { error: 'Failed to resume challenge' }
   }
-
-  revalidatePath('/challenges')
-  return { success: true }
 }
 
 export async function deleteChallenge(progressId: string) {
-  const supabase = await getSupabaseServerClient()
+  try {
+    await db.delete(userChallengeProgress).where(eq(userChallengeProgress.id, progressId))
 
-  const { error } = await supabase.from('user_challenge_progress').delete().eq('id', progressId)
-
-  if (error) {
-    return { error: error.message }
+    revalidatePath('/challenges')
+    return { success: true }
+  } catch (error) {
+    return { error: 'Failed to delete challenge' }
   }
-
-  revalidatePath('/challenges')
-  return { success: true }
 }
 
 // ============================================
@@ -546,209 +490,127 @@ export async function deleteChallenge(progressId: string) {
 
 export async function createChallengeTemplate(formData: FormData) {
   await checkPermission(PERMISSIONS.CHALLENGES_CREATE)
-  const supabase = await getSupabaseServerClient()
 
   const challengeData = {
     title_bn: formData.get('title_bn') as string,
-    title_ar: formData.get('title_ar') as string,
-    title_en: formData.get('title_en') as string,
-    description_bn: formData.get('description_bn') as string,
-    description_ar: formData.get('description_ar') as string,
-    description_en: formData.get('description_en') as string,
+    title_ar: formData.get('title_ar') as string || null,
+    title_en: formData.get('title_en') as string || null,
+    description_bn: formData.get('description_bn') as string || null,
+    description_ar: formData.get('description_ar') as string || null,
+    description_en: formData.get('description_en') as string || null,
     arabic_text: formData.get('arabic_text') as string,
-    transliteration_bn: formData.get('transliteration_bn') as string,
+    transliteration_bn: formData.get('transliteration_bn') as string || null,
     translation_bn: formData.get('translation_bn') as string,
-    translation_en: formData.get('translation_en') as string,
+    translation_en: formData.get('translation_en') as string || null,
     daily_target_count: parseInt(formData.get('daily_target_count') as string) || 21,
     total_days: parseInt(formData.get('total_days') as string) || 21,
     recommended_time: (formData.get('recommended_time') as string) || null,
     recommended_prayer: (formData.get('recommended_prayer') as string) || null,
-    reference: formData.get('reference') as string,
-    fazilat_bn: formData.get('fazilat_bn') as string,
-    fazilat_ar: formData.get('fazilat_ar') as string,
-    fazilat_en: formData.get('fazilat_en') as string,
+    reference: formData.get('reference') as string || null,
+    fazilat_bn: formData.get('fazilat_bn') as string || null,
+    fazilat_ar: formData.get('fazilat_ar') as string || null,
+    fazilat_en: formData.get('fazilat_en') as string || null,
     difficulty_level: (formData.get('difficulty_level') as string) || 'medium',
-    icon: formData.get('icon') as string,
-    color: formData.get('color') as string,
+    icon: formData.get('icon') as string || null,
+    color: formData.get('color') as string || null,
     display_order: parseInt(formData.get('display_order') as string) || 0,
     is_featured: formData.get('is_featured') === 'true',
     is_active: formData.get('is_active') === 'true',
   }
 
-  // Clean up null/empty values
-  if (!challengeData.recommended_time || challengeData.recommended_time === 'anytime') {
+  if (challengeData.recommended_time === 'anytime') {
     challengeData.recommended_time = null
   }
-  if (!challengeData.recommended_prayer || challengeData.recommended_prayer === '') {
-    challengeData.recommended_prayer = null
-  }
 
-  const { data, error } = await supabase
-    .from('challenge_templates')
-    .insert(challengeData)
-    .select()
-    .single()
+  try {
+    const [data] = await db
+      .insert(challengeTemplates)
+      .values(challengeData)
+      .returning()
 
-  if (error) {
+    revalidatePath('/challenges')
+    return { data }
+  } catch (error) {
     apiLogger.error('Error creating challenge', { error, challengeData })
-    return { error: error.message }
+    return { error: 'Failed to create challenge' }
   }
-
-  revalidatePath('/challenges')
-  return { data }
 }
 
 export async function updateChallengeTemplate(id: string, formData: FormData) {
   await checkPermission(PERMISSIONS.CHALLENGES_UPDATE)
-  const supabase = await getSupabaseServerClient()
 
   const challengeData = {
     title_bn: formData.get('title_bn') as string,
-    title_ar: formData.get('title_ar') as string,
-    title_en: formData.get('title_en') as string,
-    description_bn: formData.get('description_bn') as string,
-    description_ar: formData.get('description_ar') as string,
-    description_en: formData.get('description_en') as string,
+    title_ar: formData.get('title_ar') as string || null,
+    title_en: formData.get('title_en') as string || null,
+    description_bn: formData.get('description_bn') as string || null,
+    description_ar: formData.get('description_ar') as string || null,
+    description_en: formData.get('description_en') as string || null,
     arabic_text: formData.get('arabic_text') as string,
-    transliteration_bn: formData.get('transliteration_bn') as string,
+    transliteration_bn: formData.get('transliteration_bn') as string || null,
     translation_bn: formData.get('translation_bn') as string,
-    translation_en: formData.get('translation_en') as string,
+    translation_en: formData.get('translation_en') as string || null,
     daily_target_count: parseInt(formData.get('daily_target_count') as string) || 21,
     total_days: parseInt(formData.get('total_days') as string) || 21,
     recommended_time: (formData.get('recommended_time') as string) || null,
     recommended_prayer: (formData.get('recommended_prayer') as string) || null,
-    reference: formData.get('reference') as string,
-    fazilat_bn: formData.get('fazilat_bn') as string,
-    fazilat_ar: formData.get('fazilat_ar') as string,
-    fazilat_en: formData.get('fazilat_en') as string,
+    reference: formData.get('reference') as string || null,
+    fazilat_bn: formData.get('fazilat_bn') as string || null,
+    fazilat_ar: formData.get('fazilat_ar') as string || null,
+    fazilat_en: formData.get('fazilat_en') as string || null,
     difficulty_level: (formData.get('difficulty_level') as string) || 'medium',
-    icon: formData.get('icon') as string,
-    color: formData.get('color') as string,
+    icon: formData.get('icon') as string || null,
+    color: formData.get('color') as string || null,
     display_order: parseInt(formData.get('display_order') as string) || 0,
     is_featured: formData.get('is_featured') === 'true',
     is_active: formData.get('is_active') === 'true',
   }
 
-  // Clean up null/empty values
-  if (!challengeData.recommended_time || challengeData.recommended_time === 'anytime') {
+  if (challengeData.recommended_time === 'anytime') {
     challengeData.recommended_time = null
   }
-  if (!challengeData.recommended_prayer || challengeData.recommended_prayer === '') {
-    challengeData.recommended_prayer = null
-  }
 
-  const { error } = await supabase.from('challenge_templates').update(challengeData).eq('id', id)
+  try {
+    await db
+      .update(challengeTemplates)
+      .set(challengeData)
+      .where(eq(challengeTemplates.id, id))
 
-  if (error) {
+    revalidatePath('/challenges')
+    return { success: true }
+  } catch (error) {
     apiLogger.error('Error updating challenge', { error, id })
-    return { error: error.message }
+    return { error: 'Failed to update challenge' }
   }
-
-  revalidatePath('/challenges')
-  return { success: true }
 }
 
 export async function deleteChallengeTemplate(id: string) {
   await checkPermission(PERMISSIONS.CHALLENGES_DELETE)
-  const supabase = await getSupabaseServerClient()
 
-  const { error } = await supabase.from('challenge_templates').delete().eq('id', id)
-
-  if (error) {
+  try {
+    await db.delete(challengeTemplates).where(eq(challengeTemplates.id, id))
+    revalidatePath('/challenges')
+  } catch (error) {
     apiLogger.error('Error deleting challenge', { error, id })
     throw error
   }
-
-  revalidatePath('/challenges')
-}
-
-// ============================================
-// BOOKMARKS
-// ============================================
-
-export async function toggleChallengeBookmark(userId: string, challengeId: string) {
-  const supabase = await getSupabaseServerClient()
-
-  // Check if bookmark exists
-  const { data: existing } = await supabase
-    .from('user_challenge_bookmarks')
-    .select('*')
-    .eq('user_id', userId)
-    .eq('challenge_id', challengeId)
-    .single()
-
-  if (existing) {
-    // Remove bookmark
-    const { error } = await supabase
-      .from('user_challenge_bookmarks')
-      .delete()
-      .eq('user_id', userId)
-      .eq('challenge_id', challengeId)
-
-    if (error) {
-      return { error: error.message }
-    }
-
-    return { bookmarked: false }
-  } else {
-    // Add bookmark
-    const { error } = await supabase
-      .from('user_challenge_bookmarks')
-      .insert({ user_id: userId, challenge_id: challengeId })
-
-    if (error) {
-      return { error: error.message }
-    }
-
-    return { bookmarked: true }
-  }
-}
-
-export async function getUserBookmarkedChallenges(userId: string) {
-  const supabase = await getSupabaseServerClient()
-
-  const { data, error } = await supabase
-    .from('user_challenge_bookmarks')
-    .select(
-      `
-      *,
-      challenge:challenge_templates(*)
-    `
-    )
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false })
-
-  if (error) {
-    apiLogger.error('Error fetching bookmarked challenges', { error, userId })
-    return []
-  }
-
-  return data
 }
 
 export async function getRecentLogs(limit: number = 10) {
-  const supabase = await getSupabaseServerClient()
   const user = await getUser()
-  
   if (!user) return []
   
-  const { data, error } = await supabase
-    .from('user_challenge_daily_logs')
-    .select(
-      `
-      *,
-      user_progress:user_challenge_progress(
-        challenge:challenge_templates(title_bn, icon)
-      )
-    `
-    )
-    .eq('user_id', user.id)
-    .order('created_at', { ascending: false })
-    .limit(limit)
-
-  if (error) {
+  try {
+    return await db
+      .select()
+      .from(userChallengeDailyLogs)
+      .leftJoin(userChallengeProgress, eq(userChallengeDailyLogs.user_progress_id, userChallengeProgress.id))
+      .leftJoin(challengeTemplates, eq(userChallengeProgress.challenge_id, challengeTemplates.id))
+      .where(eq(userChallengeDailyLogs.user_id, user.id))
+      .orderBy(desc(userChallengeDailyLogs.created_at))
+      .limit(limit)
+  } catch (error) {
     apiLogger.error('Error fetching recent logs', { error, limit })
     return []
   }
-  return data
 }

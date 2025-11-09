@@ -11,21 +11,18 @@ const TABLE_EXPORT_ORDER = [
   'admin_users',
   'app_settings',
   'user_settings',
-  'user_preferences',
   'dua_categories',
   'duas',
   'activity_stats',
   'challenge_templates',
-  'challenge_achievements',
   
   // Tables with foreign keys
   'role_permissions',
   'user_activity_stats',
   'challenge_activity_mapping',
   'user_challenge_progress',
-  'user_challenge_bookmarks',
-  'user_achievements',
   'user_challenge_daily_logs',
+  'user_missed_challenges',
   'notifications',
   'api_logs'
 ];

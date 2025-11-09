@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils'
 import {
   Activity,
   BookOpen,
+  Brain,
   Calendar,
   LayoutDashboard,
   Logs,
@@ -42,6 +43,7 @@ const allNavigation = [
     icon: Activity,
     permission: PERMISSIONS.ACTIVITIES_READ,
   },
+  { name: 'AI Assistant', href: '/ai', icon: Brain, permission: PERMISSIONS.DASHBOARD_READ },
   { name: 'Users', href: '/users', icon: Users, permission: PERMISSIONS.USERS_READ },
   {
     name: 'Permissions',

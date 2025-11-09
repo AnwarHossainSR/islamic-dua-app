@@ -11,7 +11,18 @@ import {
   sendChatMessage,
 } from '@/lib/actions/ai-chat'
 import { renderMarkdown } from '@/lib/utils/markdown-renderer'
-import { Brain, Database, Globe, MessageCircle, Plus, Send, Sparkles, Trash2, History, X } from 'lucide-react'
+import {
+  Brain,
+  Database,
+  Globe,
+  History,
+  MessageCircle,
+  Plus,
+  Send,
+  Sparkles,
+  Trash2,
+  X,
+} from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
 interface ChatMessage {
@@ -192,7 +203,7 @@ export function ImprovedIslamicChat({ initialSessions, hasOpenAIKey }: ImprovedI
 
   if (!hasOpenAIKey) {
     return (
-      <div className="h-full flex items-center justify-center">
+      <div className="h-full flex items-center justify-center ">
         <Card className="p-8 text-center max-w-md">
           <Brain className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
           <h3 className="text-lg font-semibold mb-2">AI Assistant Unavailable</h3>
@@ -208,31 +219,31 @@ export function ImprovedIslamicChat({ initialSessions, hasOpenAIKey }: ImprovedI
   }
 
   return (
-    <div className="h-[calc(100vh-113px)] flex flex-col bg-background relative">
+    <div className="h-[calc(100vh-200px)] flex flex-col bg-background relative touch-pan-y ">
       {/* Chat Area */}
-      <div className="flex-1 flex">
+      <div className="flex-1 flex min-w-0 ">
         {/* Main Chat Area */}
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col min-w-0 ">
           {/* Chat Header */}
-          <div className="border-b px-6 py-4 bg-card">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
+          <div className="border-b px-2 py-4 bg-card md:px-6">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 md:gap-3 min-w-0 flex-1">
                 <div
-                  className={`p-2 rounded-full ${
+                  className={`p-2 rounded-full shrink-0 ${
                     chatMode === 'database' ? 'bg-primary/10' : 'bg-blue-100 dark:bg-blue-900/30'
                   }`}
                 >
                   {chatMode === 'database' ? (
-                    <Database className="h-5 w-5 text-primary" />
+                    <Database className="h-4 w-4 md:h-5 md:w-5 text-primary" />
                   ) : (
-                    <MessageCircle className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                    <MessageCircle className="h-4 w-4 md:h-5 md:w-5 text-blue-600 dark:text-blue-400" />
                   )}
                 </div>
-                <div>
-                  <h1 className="text-xl font-semibold">
+                <div className="min-w-0 flex-1">
+                  <h1 className="text-lg md:text-xl font-semibold truncate">
                     {chatMode === 'database' ? 'Islamic AI Assistant' : 'General AI Assistant'}
                   </h1>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-xs md:text-sm text-muted-foreground truncate">
                     {chatMode === 'database'
                       ? 'Ask me anything about Islamic prayers, duas, or spiritual guidance'
                       : 'Ask me anything - general knowledge, advice, or help with tasks'}
@@ -240,9 +251,9 @@ export function ImprovedIslamicChat({ initialSessions, hasOpenAIKey }: ImprovedI
                 </div>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 md:gap-3 shrink-0">
                 {/* Chat Mode Toggle */}
-                <div className="flex items-center gap-2 text-sm">
+                <div className="hidden sm:flex items-center gap-2 text-xs md:text-sm">
                   <span
                     className={
                       chatMode === 'database' ? 'text-primary font-medium' : 'text-muted-foreground'
@@ -264,20 +275,19 @@ export function ImprovedIslamicChat({ initialSessions, hasOpenAIKey }: ImprovedI
                 </div>
 
                 {/* History Toggle Button */}
-                <Button
-                  onClick={() => setSidebarOpen(!sidebarOpen)}
-                  variant="outline"
-                  size="sm"
-                >
-                  <History className="h-4 w-4 mr-1" />
-                  History
+                <Button onClick={() => setSidebarOpen(!sidebarOpen)} variant="outline" size="sm">
+                  <History className="h-4 w-4 md:mr-1" />
+                  <span className="hidden md:inline">History</span>
                 </Button>
               </div>
             </div>
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto px-6 py-4">
+          <div
+            className="flex-1 overflow-y-scroll overflow-x-hidden px-0 py-4 md:px-6 min-h-0 scrollbar-hide"
+            style={{ WebkitOverflowScrolling: 'touch' }}
+          >
             {messages.length === 0 ? (
               <div className="text-center py-12">
                 <div className="mb-6">
@@ -334,7 +344,7 @@ export function ImprovedIslamicChat({ initialSessions, hasOpenAIKey }: ImprovedI
                     className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
                     <div
-                      className={`flex items-start gap-3 max-w-[85%] ${
+                      className={`flex items-start gap-2 md:gap-3 max-w-[95%] md:max-w-[85%] ${
                         message.role === 'user' ? 'flex-row-reverse' : ''
                       }`}
                     >
@@ -360,7 +370,7 @@ export function ImprovedIslamicChat({ initialSessions, hasOpenAIKey }: ImprovedI
                         )}
                       </div>
                       <div
-                        className={`rounded-2xl p-4 shadow-sm ${
+                        className={`rounded-2xl p-3 md:p-4 shadow-sm ${
                           message.role === 'user'
                             ? 'bg-primary text-primary-foreground rounded-br-md'
                             : 'bg-card border rounded-bl-md'
@@ -462,8 +472,8 @@ export function ImprovedIslamicChat({ initialSessions, hasOpenAIKey }: ImprovedI
           </div>
 
           {/* Input */}
-          <div className="border-t px-6 py-4 bg-card">
-            <div className="flex gap-3 items-end max-w-4xl mx-auto">
+          <div className="border-t px-2 py-4 bg-card md:px-6">
+            <div className="flex gap-2 md:gap-3 items-end max-w-4xl mx-auto">
               <div className="flex-1 relative">
                 <textarea
                   value={input}
@@ -511,7 +521,7 @@ export function ImprovedIslamicChat({ initialSessions, hasOpenAIKey }: ImprovedI
 
         {/* Right Sidebar - Chat History */}
         <div
-          className={`fixed top-[113px] right-0 bottom-0 w-80 bg-card border-l transform transition-transform duration-300 ease-in-out z-30 ${
+          className={`fixed top-[113px] right-0 bottom-0 w-full max-w-sm bg-card border-l transform transition-transform duration-300 ease-in-out z-30 ${
             sidebarOpen ? 'translate-x-0' : 'translate-x-full'
           }`}
         >
@@ -527,11 +537,7 @@ export function ImprovedIslamicChat({ initialSessions, hasOpenAIKey }: ImprovedI
                 <Plus className="h-4 w-4 mr-1" />
                 New
               </Button>
-              <Button
-                onClick={() => setSidebarOpen(false)}
-                variant="ghost"
-                size="sm"
-              >
+              <Button onClick={() => setSidebarOpen(false)} variant="ghost" size="sm">
                 <X className="h-4 w-4" />
               </Button>
             </div>
@@ -587,10 +593,7 @@ export function ImprovedIslamicChat({ initialSessions, hasOpenAIKey }: ImprovedI
 
         {/* Overlay */}
         {sidebarOpen && (
-          <div
-            className="fixed inset-0 bg-black/20 z-20"
-            onClick={() => setSidebarOpen(false)}
-          />
+          <div className="fixed inset-0 bg-black/20 z-20" onClick={() => setSidebarOpen(false)} />
         )}
       </div>
     </div>

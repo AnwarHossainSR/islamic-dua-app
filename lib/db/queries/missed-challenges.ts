@@ -27,7 +27,7 @@ export async function getUserMissedChallenges(userId: string): Promise<MissedCha
     sql`SELECT * FROM get_user_missed_challenges_3months(${userId}::uuid)`
   )
   
-  return result.rows.map(row => ({
+  return result.map(row => ({
     missed_date: row.missed_date as string,
     challenge_id: row.challenge_id as string,
     challenge_title_bn: row.challenge_title_bn as string,
@@ -72,7 +72,7 @@ export async function getMissedChallengesSummary(userId: string): Promise<Missed
     LEFT JOIN most_missed mm ON true
   `)
 
-  const row = result.rows[0]
+  const row = result[0]
   
   return {
     total_missed: Number(row?.total_missed || 0),

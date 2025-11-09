@@ -54,6 +54,27 @@ export async function searchDuasWithAI(query: string): Promise<any[]> {
   }
 }
 
+export async function askIslamicQuestion(question: string): Promise<any> {
+  try {
+    if (!process.env.OPENAI_API_KEY) {
+      console.warn('OpenAI API key not configured - AI chat unavailable')
+      return {
+        message: 'AI assistant is not available. Please configure OpenAI API key.',
+        suggestions: []
+      }
+    }
+
+    const duas = await getDuas()
+    return await AIService.askIslamicQuestion(question, duas)
+  } catch (error) {
+    console.error('Error asking Islamic question:', error)
+    return {
+      message: 'Sorry, I encountered an error. Please try again.',
+      suggestions: []
+    }
+  }
+}
+
 export async function getPersonalizedInsights(userId: string): Promise<AIInsight[]> {
   try {
     if (!process.env.OPENAI_API_KEY) {

@@ -1,9 +1,9 @@
 'use server'
 
-import { AIService } from '@/lib/ai/service'
-import { getDuas } from './duas'
-import { UserContext, AIRecommendation, AIInsight } from '@/lib/types/ai'
+import { EnhancedAIService as AIService } from '@/lib/ai/service'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
+import { AIInsight, AIRecommendation, UserContext } from '@/lib/types/ai'
+import { getDuas } from './duas'
 
 export async function getAIRecommendations(userId: string): Promise<AIRecommendation[]> {
   try {
@@ -13,14 +13,16 @@ export async function getAIRecommendations(userId: string): Promise<AIRecommenda
     }
 
     const supabase = await getSupabaseServerClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
     if (!user || user.id !== userId) {
       throw new Error('Unauthorized')
     }
 
     const duas = await getDuas()
-    
+
     const context: UserContext = {
       userId,
       currentTime: new Date(),
@@ -28,8 +30,8 @@ export async function getAIRecommendations(userId: string): Promise<AIRecommenda
       preferences: {
         language: 'bn',
         difficulty: 'medium',
-        categories: []
-      }
+        categories: [],
+      },
     }
 
     return await AIService.getSmartDuaRecommendations(context, duas)
@@ -60,7 +62,7 @@ export async function askIslamicQuestion(question: string): Promise<any> {
       console.warn('OpenAI API key not configured - AI chat unavailable')
       return {
         message: 'AI assistant is not available. Please configure OpenAI API key.',
-        suggestions: []
+        suggestions: [],
       }
     }
 
@@ -70,7 +72,7 @@ export async function askIslamicQuestion(question: string): Promise<any> {
     console.error('Error asking Islamic question:', error)
     return {
       message: 'Sorry, I encountered an error. Please try again.',
-      suggestions: []
+      suggestions: [],
     }
   }
 }
@@ -83,8 +85,10 @@ export async function getPersonalizedInsights(userId: string): Promise<AIInsight
     }
 
     const supabase = await getSupabaseServerClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
     if (!user || user.id !== userId) {
       throw new Error('Unauthorized')
     }
@@ -96,15 +100,15 @@ export async function getPersonalizedInsights(userId: string): Promise<AIInsight
       preferences: {
         language: 'bn',
         difficulty: 'medium',
-        categories: []
-      }
+        categories: [],
+      },
     }
 
     // Mock user stats for now
     const userStats = {
       completionRate: 0.7,
       streak: 5,
-      totalChallenges: 30
+      totalChallenges: 30,
     }
 
     return await AIService.generatePersonalizedInsights(context, userStats)

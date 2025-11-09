@@ -304,6 +304,49 @@ export class AIService {
     }
   }
 
+  static async askGeneralQuestion(question: string): Promise<AIChatResponse> {
+    if (!openai) {
+      return {
+        message: 'AI assistant is not available. Please configure OpenAI API key.',
+        suggestions: ['Configure API key to enable AI features'],
+      }
+    }
+
+    try {
+      const completion = await openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [
+          {
+            role: 'system',
+            content: 'You are a helpful AI assistant. Provide accurate, helpful responses to user questions. Be concise but informative.',
+          },
+          {
+            role: 'user',
+            content: question,
+          },
+        ],
+        max_tokens: 500,
+        temperature: 0.7,
+      })
+
+      const response =
+        completion.choices[0]?.message?.content ||
+        'I apologize, but I could not generate a response.'
+
+      return {
+        message: response,
+        suggestions: ['Ask me anything else', 'Need help with something specific?'],
+      }
+    } catch (error) {
+      const errorMessage = await this.getErrorMessage(error)
+      await this.logOpenAIError('general_chat', error, { question })
+      return {
+        message: errorMessage,
+        suggestions: ['Try rephrasing your question'],
+      }
+    }
+  }
+
   static async askIslamicQuestion(question: string, availableDuas: Dua[]): Promise<AIChatResponse> {
     if (!openai) {
       return {

@@ -1,7 +1,7 @@
-import { AIStatusWarning } from '@/components/ai/ai-status-warning'
-import { IslamicChat } from '@/components/ai/islamic-chat'
+import { ImprovedIslamicChat } from '@/components/ai/improved-islamic-chat'
+import { getChatSessions } from '@/lib/actions/ai-chat'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
-import { Brain } from 'lucide-react'
+import { redirect } from 'next/navigation'
 
 export const dynamic = 'force-dynamic'
 
@@ -12,25 +12,24 @@ export default async function AIPage() {
   } = await supabase.auth.getUser()
 
   if (!user) {
-    return <div>Please log in to access AI features.</div>
+    redirect('/login')
   }
 
   const hasOpenAIKey = !!process.env.OPENAI_API_KEY
+  let initialSessions: any[] = []
+
+  if (hasOpenAIKey) {
+    try {
+      initialSessions = await getChatSessions()
+    } catch (error) {
+      console.error('Failed to load chat sessions:', error)
+      initialSessions = []
+    }
+  }
 
   return (
-    <div className="h-[calc(100vh-9.4rem)] max-w-4xl mx-auto">
-      {!hasOpenAIKey ? (
-        <>
-          <AIStatusWarning />
-          <div className="text-center py-12">
-            <Brain className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-            <h3 className="text-lg font-semibold mb-2">AI Assistant Unavailable</h3>
-            <p className="text-muted-foreground">Configure OpenAI API key to enable AI features</p>
-          </div>
-        </>
-      ) : (
-        <IslamicChat />
-      )}
+    <div className="h-full">
+      <ImprovedIslamicChat initialSessions={initialSessions} hasOpenAIKey={hasOpenAIKey} />
     </div>
   )
 }

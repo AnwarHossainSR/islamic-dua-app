@@ -113,7 +113,8 @@ export default function RootLayout({
             <NotificationProvider>
               <Suspense fallback={null}>
                 <Header />
-                <main className="min-h-[calc(100vh-113px)] px-4 md:px-6 py-6">{children}</main>
+                {/* className="min-h-[calc(100vh-113px)] px-4 md:px-6 py-6" */}
+                <main>{children}</main>
                 <Toaster />
               </Suspense>
               <Analytics />

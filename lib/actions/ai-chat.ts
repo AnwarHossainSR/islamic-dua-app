@@ -29,9 +29,12 @@ export async function createChatSession(title: string, chatMode: 'general' | 'da
 
 export async function getChatSessions() {
   const supabase = await getSupabaseServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { user }, error } = await supabase.auth.getUser()
   
-  if (!user) throw new Error('Unauthorized')
+  if (error || !user) {
+    console.error('Auth error in getChatSessions:', error)
+    return []
+  }
 
   const sessions = await db.select().from(aiChatSessions)
     .where(eq(aiChatSessions.user_id, user.id))

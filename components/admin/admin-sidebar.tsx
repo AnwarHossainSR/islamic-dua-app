@@ -101,7 +101,7 @@ export function AdminSidebar() {
       {/* Sidebar */}
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-40 w-64 transform border-r border-border bg-card transition-transform duration-300 ease-in-out md:sticky md:top-16 md:translate-x-0',
+          'fixed inset-y-0 left-0 z-40 w-[18%] transform border-r border-border bg-card transition-transform duration-300 ease-in-out md:sticky md:top-16 md:translate-x-0',
           isOpen ? 'translate-x-0' : '-translate-x-full'
         )}
       >

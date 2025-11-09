@@ -16,14 +16,20 @@ export default async function AIPage() {
   }
 
   const hasOpenAIKey = !!process.env.OPENAI_API_KEY
-  const initialSessions = hasOpenAIKey ? await getChatSessions() : []
+  let initialSessions: any[] = []
+
+  if (hasOpenAIKey) {
+    try {
+      initialSessions = await getChatSessions()
+    } catch (error) {
+      console.error('Failed to load chat sessions:', error)
+      initialSessions = []
+    }
+  }
 
   return (
     <div className="h-full">
-      <ImprovedIslamicChat 
-        initialSessions={initialSessions}
-        hasOpenAIKey={hasOpenAIKey}
-      />
+      <ImprovedIslamicChat initialSessions={initialSessions} hasOpenAIKey={hasOpenAIKey} />
     </div>
   )
 }

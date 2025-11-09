@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils'
 import {
   Activity,
   BookOpen,
-
+  Calendar,
   LayoutDashboard,
   Logs,
   Menu,
@@ -27,6 +27,12 @@ const allNavigation = [
     name: 'Challenges',
     href: '/challenges',
     icon: Target,
+    permission: PERMISSIONS.CHALLENGES_READ,
+  },
+  {
+    name: 'Missed Challenges',
+    href: '/missed-challenges',
+    icon: Calendar,
     permission: PERMISSIONS.CHALLENGES_READ,
   },
   { name: 'Duas', href: '/duas', icon: BookOpen, permission: PERMISSIONS.DUAS_READ },

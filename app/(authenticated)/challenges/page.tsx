@@ -1,14 +1,21 @@
-import { getChallenges } from '@/lib/actions/challenges'
+import { getChallenges, getTodayRemainingChallenges, getTodayCompletionStats } from '@/lib/actions/challenges'
 import { getUserRecentLogs } from '@/lib/actions/user-activities'
 import ChallengesClient from './challenges-client'
 
 export const dynamic = 'force-dynamic'
 
 export default async function ChallengesPage() {
-  // Initial load - get user's challenges and their recent logs
-  const [challenges, recentLogs] = await Promise.all([
+  // Initial load - get user's challenges, recent logs, and today's stats
+  const [challenges, recentLogs, todayRemaining, todayStats] = await Promise.all([
     getChallenges(),
-    getUserRecentLogs(10)
+    getUserRecentLogs(10),
+    getTodayRemainingChallenges(),
+    getTodayCompletionStats()
   ])
-  return <ChallengesClient initialChallenges={challenges} initialRecentLogs={recentLogs} />
+  return <ChallengesClient 
+    initialChallenges={challenges} 
+    initialRecentLogs={recentLogs}
+    todayRemaining={todayRemaining}
+    todayStats={todayStats}
+  />
 }

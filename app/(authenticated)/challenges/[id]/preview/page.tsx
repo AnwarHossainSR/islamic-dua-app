@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { getChallengeById, startChallenge } from '@/lib/actions/challenges'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
+import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import ChallengePreviewClient from './ChallengePreviewClient'
 
@@ -96,7 +97,9 @@ export default async function ChallengePreviewPage({ params, searchParams }: Pro
                   </div>
                   {hasActiveChallenge ? (
                     <Button size="lg" asChild>
-                      <a href={`/challenges/progress/${activeProgressId}`}>Continue Challenge</a>
+                      <Link href={`/challenges/progress/${activeProgressId}`}>
+                        Continue Challenge
+                      </Link>
                     </Button>
                   ) : (
                     <form action={handleStartChallenge}>

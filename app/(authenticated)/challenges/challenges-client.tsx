@@ -52,9 +52,13 @@ import { Challenge, RecentLog } from '@/lib/types/challenges'
 export default function ChallengesClient({
   initialChallenges,
   initialRecentLogs,
+  todayRemaining,
+  todayStats,
 }: {
   initialChallenges: Challenge[]
   initialRecentLogs: RecentLog[]
+  todayRemaining: any[]
+  todayStats: { completed: number; total: number; percentage: number }
 }) {
   const [challenges, setChallenges] = useState<Challenge[]>(initialChallenges)
   const [searchQuery, setSearchQuery] = useState('')
@@ -313,8 +317,8 @@ export default function ChallengesClient({
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-muted-foreground">Days Completed</p>
-                      <p className="text-3xl font-bold">{stats.completions}</p>
+                      <p className="text-sm text-muted-foreground">Remain Today</p>
+                      <p className="text-3xl font-bold">{todayRemaining.length}</p>
                     </div>
                     <Trophy className="h-8 w-8 text-amber-500" />
                   </div>
@@ -325,8 +329,8 @@ export default function ChallengesClient({
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-muted-foreground">Avg Completion</p>
-                      <p className="text-3xl font-bold">{stats.avgRate}%</p>
+                      <p className="text-sm text-muted-foreground">Today Average</p>
+                      <p className="text-3xl font-bold">{todayStats.percentage}%</p>
                     </div>
                     <TrendingUp className="h-8 w-8 text-purple-500" />
                   </div>
@@ -365,8 +369,8 @@ export default function ChallengesClient({
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Days Completed</p>
-                  <p className="text-3xl font-bold">{stats.completions}</p>
+                  <p className="text-sm text-muted-foreground">Remain Today</p>
+                  <p className="text-3xl font-bold">{todayRemaining.length}</p>
                 </div>
                 <Trophy className="h-8 w-8 text-amber-500" />
               </div>
@@ -377,8 +381,8 @@ export default function ChallengesClient({
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Avg Completion</p>
-                  <p className="text-3xl font-bold">{stats.avgRate}%</p>
+                  <p className="text-sm text-muted-foreground">Today Average</p>
+                  <p className="text-3xl font-bold">{todayStats.percentage}%</p>
                 </div>
                 <TrendingUp className="h-8 w-8 text-purple-500" />
               </div>

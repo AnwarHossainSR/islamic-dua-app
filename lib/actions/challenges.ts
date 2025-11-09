@@ -614,3 +614,99 @@ export async function getRecentLogs(limit: number = 10) {
     return []
   }
 }
+
+export async function getTodayCompletedChallenges() {
+  const user = await getUser()
+  if (!user) return []
+  
+  const today = new Date().toISOString().split('T')[0]
+  
+  try {
+    return await db
+      .select({
+        id: userChallengeDailyLogs.id,
+        challenge_title: challengeTemplates.title_bn,
+        challenge_icon: challengeTemplates.icon,
+        count_completed: userChallengeDailyLogs.count_completed,
+        target_count: userChallengeDailyLogs.target_count,
+        completed_at: userChallengeDailyLogs.completed_at,
+        is_completed: userChallengeDailyLogs.is_completed
+      })
+      .from(userChallengeDailyLogs)
+      .leftJoin(userChallengeProgress, eq(userChallengeDailyLogs.user_progress_id, userChallengeProgress.id))
+      .leftJoin(challengeTemplates, eq(userChallengeProgress.challenge_id, challengeTemplates.id))
+      .where(and(
+        eq(userChallengeDailyLogs.user_id, user.id),
+        eq(userChallengeDailyLogs.completion_date, today),
+        eq(userChallengeDailyLogs.is_completed, true)
+      ))
+      .orderBy(desc(userChallengeDailyLogs.completed_at))
+  } catch (error) {
+    apiLogger.error('Error fetching today completed challenges', { error })
+    return []
+  }
+}
+
+export async function getTodayRemainingChallenges() {
+  const user = await getUser()
+  if (!user) return []
+  
+  const today = new Date().toISOString().split('T')[0]
+  
+  try {
+    // Get active challenges that haven't been completed today
+    const activeChallenges = await db
+      .select({
+        challenge_id: userChallengeProgress.challenge_id,
+        title_bn: challengeTemplates.title_bn,
+        icon: challengeTemplates.icon
+      })
+      .from(userChallengeProgress)
+      .leftJoin(challengeTemplates, eq(userChallengeProgress.challenge_id, challengeTemplates.id))
+      .where(and(
+        eq(userChallengeProgress.user_id, user.id),
+        eq(userChallengeProgress.status, 'active')
+      ))
+
+    // Get today's completed challenge IDs
+    const completedToday = await db
+      .select({ challenge_id: userChallengeDailyLogs.challenge_id })
+      .from(userChallengeDailyLogs)
+      .leftJoin(userChallengeProgress, eq(userChallengeDailyLogs.user_progress_id, userChallengeProgress.id))
+      .where(and(
+        eq(userChallengeDailyLogs.user_id, user.id),
+        eq(userChallengeDailyLogs.completion_date, today),
+        eq(userChallengeDailyLogs.is_completed, true)
+      ))
+
+    const completedIds = new Set(completedToday.map(c => c.challenge_id))
+    return activeChallenges.filter(c => !completedIds.has(c.challenge_id))
+  } catch (error) {
+    apiLogger.error('Error fetching today remaining challenges', { error })
+    return []
+  }
+}
+
+export async function getTodayCompletionStats() {
+  const user = await getUser()
+  if (!user) return { completed: 0, total: 0, percentage: 0 }
+  
+  try {
+    const [completed, remaining] = await Promise.all([
+      getTodayCompletedChallenges(),
+      getTodayRemainingChallenges()
+    ])
+    
+    const total = completed.length + remaining.length
+    const percentage = total > 0 ? Math.round((completed.length / total) * 100) : 0
+    
+    return {
+      completed: completed.length,
+      total,
+      percentage
+    }
+  } catch (error) {
+    apiLogger.error('Error fetching today completion stats', { error })
+    return { completed: 0, total: 0, percentage: 0 }
+  }
+}

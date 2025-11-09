@@ -1,7 +1,7 @@
 'use server'
 
 import { db } from '@/lib/db'
-import { aiChatSessions, aiChatMessages } from '@/lib/db/schema'
+import { aiChatSessions, aiChatMessages, challengeTemplates, userChallengeProgress } from '@/lib/db/schema'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { eq, desc, and } from 'drizzle-orm'
 import { AIService } from '@/lib/ai/service'
@@ -83,8 +83,7 @@ export async function sendChatMessage(sessionId: string, message: string, chatMo
   // Get AI response
   let aiResponse
   if (chatMode === 'database') {
-    const duas = await getDuas()
-    aiResponse = await AIService.askIslamicQuestion(message, duas)
+    aiResponse = await AIService.askIslamicQuestionWithMCP(message, user.id)
   } else {
     aiResponse = await AIService.askGeneralQuestion(message)
   }
@@ -133,4 +132,29 @@ export async function deleteChatSession(sessionId: string) {
     ))
 
   revalidatePath('/ai')
+}
+
+async function getUserContextForAI(userId: string) {
+  try {
+    // Get user's recent challenge progress
+    const recentProgress = await db.select({
+      challengeTitle: challengeTemplates.title_bn,
+      status: userChallengeProgress.status,
+      currentDay: userChallengeProgress.current_day,
+      currentStreak: userChallengeProgress.current_streak,
+      totalDays: challengeTemplates.total_days,
+    })
+    .from(userChallengeProgress)
+    .innerJoin(challengeTemplates, eq(userChallengeProgress.challenge_id, challengeTemplates.id))
+    .where(eq(userChallengeProgress.user_id, userId))
+    .limit(5)
+
+    return {
+      recentProgress,
+      userId
+    }
+  } catch (error) {
+    console.error('Error getting user context:', error)
+    return { recentProgress: [], userId }
+  }
 }

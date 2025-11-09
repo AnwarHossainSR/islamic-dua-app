@@ -1,6 +1,6 @@
+import { apiLogger } from '@/lib/logger'
 import { AIChatResponse, AIInsight, AIRecommendation, UserContext } from '@/lib/types/ai'
 import { Dua } from '@/lib/types/duas'
-import { apiLogger } from '@/lib/logger'
 import OpenAI from 'openai'
 
 const openai = process.env.OPENAI_API_KEY
@@ -290,17 +290,21 @@ export class AIService {
       // Fallback to simple search
       const normalizedQuery = query.toLowerCase()
       const keywords = normalizedQuery.split(' ')
-      return duas.filter(dua => {
-        const searchText = [
-          dua.title_bn,
-          dua.title_en,
-          dua.translation_bn,
-          dua.translation_en,
-          dua.category,
-          ...(dua.tags || [])
-        ].join(' ').toLowerCase()
-        return keywords.some(keyword => searchText.includes(keyword))
-      }).slice(0, 10)
+      return duas
+        .filter(dua => {
+          const searchText = [
+            dua.title_bn,
+            dua.title_en,
+            dua.translation_bn,
+            dua.translation_en,
+            dua.category,
+            ...(dua.tags || []),
+          ]
+            .join(' ')
+            .toLowerCase()
+          return keywords.some(keyword => searchText.includes(keyword))
+        })
+        .slice(0, 10)
     }
   }
 
@@ -318,7 +322,8 @@ export class AIService {
         messages: [
           {
             role: 'system',
-            content: 'You are a helpful AI assistant. Provide accurate, helpful responses to user questions. Be concise but informative.',
+            content:
+              'You are a helpful AI assistant. Provide accurate, helpful responses to user questions. Be concise but informative.',
           },
           {
             role: 'user',
@@ -343,6 +348,117 @@ export class AIService {
       return {
         message: errorMessage,
         suggestions: ['Try rephrasing your question'],
+      }
+    }
+  }
+
+  static async askIslamicQuestionWithMCP(
+    question: string,
+    userId: string
+  ): Promise<AIChatResponse> {
+    if (!openai) {
+      return {
+        message: 'AI assistant is not available. Please configure OpenAI API key.',
+        suggestions: ['Configure API key to enable AI features'],
+      }
+    }
+
+    try {
+      const { MCPServer } = await import('@/lib/mcp/server')
+      const mcpServer = new MCPServer(userId)
+      const availableFunctions = mcpServer.getAvailableFunctions()
+
+      const completion = await openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [
+          {
+            role: 'system',
+            content: `You are a knowledgeable Islamic scholar and assistant with direct access to the user's Islamic app database through MCP functions. You can call these functions to get real-time data about the user's spiritual journey.
+
+Available MCP Functions:
+${availableFunctions.map(f => `- ${f.name}: ${f.description}`).join('\n')}
+
+When users ask about their progress, challenges, duas, or activities, use the appropriate MCP functions to get current data. Always provide personalized, accurate Islamic guidance based on their actual data.`,
+          },
+          {
+            role: 'user',
+            content: question,
+          },
+        ],
+        tools: availableFunctions.map(f => ({
+          type: 'function' as const,
+          function: {
+            name: f.name,
+            description: f.description,
+            parameters: {
+              type: 'object',
+              properties: f.parameters || {},
+              required: [],
+            },
+          },
+        })),
+        tool_choice: 'auto',
+        max_tokens: 600,
+        temperature: 0.7,
+      })
+
+      let responseMessage =
+        completion.choices[0]?.message?.content ||
+        'I apologize, but I could not generate a response.'
+
+      // Handle function calls
+      if (completion.choices[0]?.message?.tool_calls) {
+        const toolCalls = completion.choices[0].message.tool_calls
+        let functionResults = []
+
+        for (const toolCall of toolCalls) {
+          try {
+            if (toolCall.type === 'function') {
+              const args = JSON.parse(toolCall.function.arguments)
+              const result = await mcpServer.executeFunction(toolCall.function.name, args)
+              functionResults.push({ function: toolCall.function.name, result })
+            }
+          } catch (error) {
+            console.error('MCP function error:', error)
+          }
+        }
+
+        // Generate final response with function results
+        if (functionResults.length > 0) {
+          const followUp = await openai.chat.completions.create({
+            model: 'gpt-4o-mini',
+            messages: [
+              {
+                role: 'system',
+                content:
+                  'Based on the database query results, provide a helpful response to the user.',
+              },
+              {
+                role: 'user',
+                content: `Question: ${question}\n\nDatabase Results: ${JSON.stringify(
+                  functionResults,
+                  null,
+                  2
+                )}`,
+              },
+            ],
+            max_tokens: 600,
+            temperature: 0.7,
+          })
+          responseMessage = followUp.choices[0]?.message?.content || responseMessage
+        }
+      }
+
+      return {
+        message: responseMessage,
+        suggestions: this.generateSuggestions(question),
+      }
+    } catch (error) {
+      const errorMessage = await this.getErrorMessage(error)
+      await this.logOpenAIError('mcp_chat', error, { question, userId })
+      return {
+        message: errorMessage,
+        suggestions: ['Try rephrasing your question', 'Ask about your challenges or progress'],
       }
     }
   }
@@ -384,9 +500,10 @@ Available Duas in the database:\n${duasContext}\n\nProvide helpful, accurate Isl
         'I apologize, but I could not generate a response.'
 
       // Find related duas based on the question (only if specifically asked)
-      const relatedDuas = question.toLowerCase().includes('dua') || question.toLowerCase().includes('prayer') 
-        ? this.findRelatedDuas(question, availableDuas) 
-        : []
+      const relatedDuas =
+        question.toLowerCase().includes('dua') || question.toLowerCase().includes('prayer')
+          ? this.findRelatedDuas(question, availableDuas)
+          : []
 
       // Generate follow-up suggestions
       const suggestions = this.generateSuggestions(question)
@@ -518,9 +635,9 @@ Available Duas in the database:\n${duasContext}\n\nProvide helpful, accurate Isl
       operation,
       error: error.message || error.toString(),
       context,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     }
-    
+
     apiLogger.error(`OpenAI ${operation} error`, errorDetails)
   }
 

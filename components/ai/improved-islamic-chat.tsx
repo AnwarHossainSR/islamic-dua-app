@@ -96,10 +96,14 @@ export function ImprovedIslamicChat({ initialSessions, hasOpenAIKey }: ImprovedI
   const handleSend = async () => {
     if (!input.trim() || loading || !hasOpenAIKey) return
 
+    const messageText = input.trim()
+    setInput('')
+    setLoading(true)
+
     let session = currentSession
     if (!session) {
       try {
-        const title = input.slice(0, 50) + (input.length > 50 ? '...' : '')
+        const title = messageText.slice(0, 50) + (messageText.length > 50 ? '...' : '')
         const newSession = await createChatSession(title, chatMode)
         const formattedSession = {
           ...newSession,
@@ -115,6 +119,7 @@ export function ImprovedIslamicChat({ initialSessions, hasOpenAIKey }: ImprovedI
           description: 'Failed to create chat session',
           variant: 'destructive',
         })
+        setLoading(false)
         return
       }
     }
@@ -122,16 +127,14 @@ export function ImprovedIslamicChat({ initialSessions, hasOpenAIKey }: ImprovedI
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
       role: 'user',
-      content: input.trim(),
+      content: messageText,
       created_at: new Date().toISOString(),
     }
 
     setMessages(prev => [...prev, userMessage])
-    setInput('')
-    setLoading(true)
 
     try {
-      const response = await sendChatMessage(session.id, input.trim(), chatMode)
+      const response = await sendChatMessage(session.id, messageText, chatMode)
 
       const assistantMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
@@ -461,24 +464,24 @@ export function ImprovedIslamicChat({ initialSessions, hasOpenAIKey }: ImprovedI
           {/* Input */}
           <div className="border-t px-6 py-4 bg-card">
             <div className="flex gap-3 items-end max-w-4xl mx-auto">
-              <div className="flex-1">
+              <div className="flex-1 relative">
                 <textarea
                   value={input}
                   onChange={e => setInput(e.target.value)}
                   onKeyDown={e => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
+                    if (e.key === 'Enter' && !e.shiftKey && !loading) {
                       e.preventDefault()
                       handleSend()
                     }
                   }}
                   placeholder={
                     chatMode === 'database'
-                      ? 'Ask about duas, prayers, or Islamic guidance...'
-                      : 'Ask me anything...'
+                      ? 'Ask about duas, prayers, or Islamic guidance... (Press Enter to send)'
+                      : 'Ask me anything... (Press Enter to send)'
                   }
                   disabled={loading}
                   rows={1}
-                  className="w-full min-h-[60px] max-h-32 resize-none rounded-xl border border-input bg-background px-4 py-3 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="w-full min-h-[56px] max-h-32 resize-none rounded-2xl border-2 border-input bg-background px-4 py-3 pr-12 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-primary disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-200"
                   style={{ height: 'auto' }}
                   onInput={e => {
                     const target = e.target as HTMLTextAreaElement
@@ -486,19 +489,22 @@ export function ImprovedIslamicChat({ initialSessions, hasOpenAIKey }: ImprovedI
                     target.style.height = Math.min(target.scrollHeight, 128) + 'px'
                   }}
                 />
+                <Button
+                  onClick={handleSend}
+                  disabled={!input.trim() || loading}
+                  size="icon"
+                  className={`absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-xl transition-all duration-200 ${
+                    chatMode === 'database'
+                      ? 'bg-primary hover:bg-primary/90 hover:scale-105'
+                      : 'bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 hover:scale-105'
+                  } ${!input.trim() ? 'opacity-50' : 'opacity-100'}`}
+                >
+                  <Send className="h-4 w-4" />
+                </Button>
               </div>
-              <Button
-                onClick={handleSend}
-                disabled={!input.trim() || loading}
-                size="icon"
-                className={`h-[60px] w-[60px] rounded-xl ${
-                  chatMode === 'database'
-                    ? 'bg-primary hover:bg-primary/90'
-                    : 'bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600'
-                }`}
-              >
-                <Send className="h-5 w-5" />
-              </Button>
+            </div>
+            <div className="text-xs text-muted-foreground mt-2 text-center">
+              Press Enter to send • Shift+Enter for new line
             </div>
           </div>
         </div>

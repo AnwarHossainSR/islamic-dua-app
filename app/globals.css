@@ -195,4 +195,50 @@
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 3;
   }
+
+  /* AI Chat specific styles */
+  .ai-message {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+
+  .ai-message p {
+    margin-bottom: 0.75rem;
+  }
+
+  .ai-message p:last-child {
+    margin-bottom: 0;
+  }
+
+  .ai-message ul, .ai-message ol {
+    margin: 0.75rem 0;
+    padding-left: 1.5rem;
+  }
+
+  .ai-message li {
+    margin-bottom: 0.25rem;
+  }
+
+  .ai-message code {
+    background-color: hsl(var(--muted));
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
+    font-size: 0.875em;
+  }
+
+  .ai-message pre {
+    background-color: hsl(var(--muted));
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    overflow-x: auto;
+    margin: 0.75rem 0;
+  }
+
+  .ai-message blockquote {
+    border-left: 4px solid hsl(var(--primary));
+    padding-left: 1rem;
+    margin: 0.75rem 0;
+    font-style: italic;
+  }
 }

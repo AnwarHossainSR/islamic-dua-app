@@ -257,6 +257,27 @@ export const userPreferences = pgTable('user_preferences', {
   updated_at: timestamp('updated_at').defaultNow(),
 })
 
+// AI Chat Sessions
+export const aiChatSessions = pgTable('ai_chat_sessions', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  user_id: uuid('user_id').notNull(),
+  title: text('title').notNull(),
+  chat_mode: text('chat_mode', { enum: ['general', 'database'] }).notNull().default('general'),
+  created_at: timestamp('created_at').defaultNow(),
+  updated_at: timestamp('updated_at').defaultNow(),
+})
+
+// AI Chat Messages
+export const aiChatMessages = pgTable('ai_chat_messages', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  session_id: uuid('session_id').notNull().references(() => aiChatSessions.id, { onDelete: 'cascade' }),
+  user_id: uuid('user_id').notNull(),
+  role: text('role').notNull(), // 'user' or 'assistant'
+  content: text('content').notNull(),
+  metadata: text('metadata'), // JSON string for additional data
+  created_at: timestamp('created_at').defaultNow(),
+})
+
 // Missed Challenges Tracking
 export const userMissedChallenges = pgTable('user_missed_challenges', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -310,5 +331,16 @@ export const adminUsersRelations = relations(adminUsers, ({ one }) => ({
   userRole: one(userRoles, {
     fields: [adminUsers.user_id],
     references: [userRoles.user_id],
+  }),
+}))
+
+export const aiChatSessionsRelations = relations(aiChatSessions, ({ many }) => ({
+  messages: many(aiChatMessages),
+}))
+
+export const aiChatMessagesRelations = relations(aiChatMessages, ({ one }) => ({
+  session: one(aiChatSessions, {
+    fields: [aiChatMessages.session_id],
+    references: [aiChatSessions.id],
   }),
 }))

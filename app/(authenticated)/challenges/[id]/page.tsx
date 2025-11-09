@@ -84,7 +84,7 @@ export default async function ChallengeFormPage({ params }: Props) {
                   <Input
                     id="title_bn"
                     name="title_bn"
-                    defaultValue={challenge?.title_bn}
+                    defaultValue={challenge?.title_bn || ''}
                     required
                     placeholder="চ্যালেঞ্জের নাম"
                   />
@@ -116,7 +116,7 @@ export default async function ChallengeFormPage({ params }: Props) {
                 <Textarea
                   id="description_bn"
                   name="description_bn"
-                  defaultValue={challenge?.description_bn}
+                  defaultValue={challenge?.description_bn || ''}
                   required
                   rows={3}
                   placeholder="চ্যালেঞ্জের বিস্তারিত বর্ণনা"
@@ -181,7 +181,7 @@ export default async function ChallengeFormPage({ params }: Props) {
                 <Textarea
                   id="arabic_text"
                   name="arabic_text"
-                  defaultValue={challenge?.arabic_text}
+                  defaultValue={challenge?.arabic_text || ''}
                   required
                   rows={3}
                   className="arabic-text text-xl"
@@ -205,7 +205,7 @@ export default async function ChallengeFormPage({ params }: Props) {
                 <Textarea
                   id="translation_bn"
                   name="translation_bn"
-                  defaultValue={challenge?.translation_bn}
+                  defaultValue={challenge?.translation_bn || ''}
                   required
                   rows={3}
                   placeholder="বাংলা অনুবাদ"
@@ -395,7 +395,7 @@ export default async function ChallengeFormPage({ params }: Props) {
                 <Checkbox
                   id="is_featured"
                   name="is_featured"
-                  defaultChecked={challenge?.is_featured}
+                  defaultChecked={challenge?.is_featured || false}
                   value="true"
                 />
                 <Label htmlFor="is_featured" className="font-normal">

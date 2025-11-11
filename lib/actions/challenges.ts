@@ -673,19 +673,15 @@ export async function getTodayRemainingChallenges() {
   const today = bdNow.toLocaleDateString('en-CA')
   
   try {
-    // Get active challenges that haven't been completed today
-    const activeChallenges = await db
+    // Get all available challenges (both active and not_started)
+    const availableChallenges = await db
       .select({
-        challenge_id: userChallengeProgress.challenge_id,
+        challenge_id: challengeTemplates.id,
         title_bn: challengeTemplates.title_bn,
         icon: challengeTemplates.icon
       })
-      .from(userChallengeProgress)
-      .leftJoin(challengeTemplates, eq(userChallengeProgress.challenge_id, challengeTemplates.id))
-      .where(and(
-        eq(userChallengeProgress.user_id, user.id),
-        eq(userChallengeProgress.status, 'active')
-      ))
+      .from(challengeTemplates)
+      .where(eq(challengeTemplates.is_active, true))
 
     // Get today's completed challenge IDs
     const completedToday = await db
@@ -699,7 +695,7 @@ export async function getTodayRemainingChallenges() {
       ))
 
     const completedIds = new Set(completedToday.map(c => c.challenge_id))
-    return activeChallenges.filter(c => !completedIds.has(c.challenge_id))
+    return availableChallenges.filter(c => !completedIds.has(c.challenge_id))
   } catch (error) {
     apiLogger.error('Error fetching today remaining challenges', { error })
     return []

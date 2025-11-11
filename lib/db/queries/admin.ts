@@ -41,8 +41,10 @@ export async function getUserStats(userId: string) {
       eq(userChallengeProgress.status, 'active')
     ))
 
-  // Get user's today completions
-  const today = new Date().toLocaleDateString('en-CA')
+  // Get user's today completions in Bangladesh timezone
+  const now = new Date()
+  const bdNow = new Date(now.getTime() + 6 * 60 * 60 * 1000)
+  const today = bdNow.toLocaleDateString('en-CA')
   const [todayCompletionsResult] = await db
     .select({ count: count() })
     .from(userChallengeDailyLogs)
@@ -52,8 +54,8 @@ export async function getUserStats(userId: string) {
       sql`DATE(${userChallengeDailyLogs.completion_date}) = ${today}`
     ))
 
-  // Get user's week completions (last 7 days)
-  const weekAgo = new Date()
+  // Get user's week completions (last 7 days) in Bangladesh timezone
+  const weekAgo = new Date(bdNow.getTime())
   weekAgo.setDate(weekAgo.getDate() - 7)
   const weekAgoStr = weekAgo.toLocaleDateString('en-CA')
   
@@ -155,8 +157,10 @@ export async function getGlobalStats() {
     .from(challengeTemplates)
     .where(eq(challengeTemplates.is_active, true))
 
-  // Get today's completions across all users
-  const today = new Date().toLocaleDateString('en-CA')
+  // Get today's completions across all users in Bangladesh timezone
+  const now = new Date()
+  const bdNow = new Date(now.getTime() + 6 * 60 * 60 * 1000)
+  const today = bdNow.toLocaleDateString('en-CA')
   const [todayCompletionsResult] = await db
     .select({ count: count() })
     .from(userChallengeDailyLogs)
@@ -165,8 +169,8 @@ export async function getGlobalStats() {
       sql`DATE(${userChallengeDailyLogs.completion_date}) = ${today}`
     ))
 
-  // Get week completions (last 7 days) across all users
-  const weekAgo = new Date()
+  // Get week completions (last 7 days) across all users in Bangladesh timezone
+  const weekAgo = new Date(bdNow.getTime())
   weekAgo.setDate(weekAgo.getDate() - 7)
   const weekAgoStr = weekAgo.toLocaleDateString('en-CA')
   

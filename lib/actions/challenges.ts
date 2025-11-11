@@ -363,7 +363,11 @@ export async function completeDailyChallenge(
         user_id: userId,
         challenge_id: challengeId,
         day_number: dayNumber,
-        completion_date: new Date().toLocaleDateString('en-CA'),
+        completion_date: (() => {
+          const now = new Date()
+          const bdNow = new Date(now.getTime() + 6 * 60 * 60 * 1000)
+          return bdNow.toLocaleDateString('en-CA')
+        })(),
         count_completed: countCompleted,
         target_count: targetCount,
         is_completed: isCompleted,
@@ -628,7 +632,10 @@ export async function getTodayCompletedChallenges() {
   const user = await getUser()
   if (!user) return []
   
-  const today = new Date().toLocaleDateString('en-CA')
+  // Get today's date in Bangladesh timezone
+  const now = new Date()
+  const bdNow = new Date(now.getTime() + 6 * 60 * 60 * 1000)
+  const today = bdNow.toLocaleDateString('en-CA')
   
   try {
     return await db
@@ -660,7 +667,10 @@ export async function getTodayRemainingChallenges() {
   const user = await getUser()
   if (!user) return []
   
-  const today = new Date().toLocaleDateString('en-CA')
+  // Get today's date in Bangladesh timezone
+  const now = new Date()
+  const bdNow = new Date(now.getTime() + 6 * 60 * 60 * 1000)
+  const today = bdNow.toLocaleDateString('en-CA')
   
   try {
     // Get active challenges that haven't been completed today

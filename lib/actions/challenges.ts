@@ -268,7 +268,6 @@ export async function startChallenge(userId: string, challengeId: string) {
         current_day: 1,
         status: 'active',
         current_streak: 0,
-        started_at: new Date(),
       })
       .returning()
 
@@ -297,7 +296,6 @@ export async function restartChallenge(challenge: Challenge) {
         longest_streak: 0,
         total_completed_days: 0,
         missed_days: 0,
-        started_at: new Date(),
         completed_at: null,
         paused_at: null,
         last_completed_at: null,
@@ -335,7 +333,6 @@ export async function completeDailyChallenge(
 ) {
   try {
     const isCompleted = countCompleted >= targetCount
-    const now = new Date()
 
     // Check if daily log exists
     const existingLog = await db
@@ -355,7 +352,6 @@ export async function completeDailyChallenge(
           count_completed: countCompleted,
           target_count: targetCount,
           is_completed: isCompleted,
-          completed_at: now,
           notes,
           mood,
         })
@@ -367,11 +363,10 @@ export async function completeDailyChallenge(
         user_id: userId,
         challenge_id: challengeId,
         day_number: dayNumber,
-        completion_date: now.toISOString().split('T')[0],
+        completion_date: new Date().toLocaleDateString('en-CA'),
         count_completed: countCompleted,
         target_count: targetCount,
         is_completed: isCompleted,
-        completed_at: now,
         notes,
         mood,
       })
@@ -405,12 +400,10 @@ export async function completeDailyChallenge(
       longest_streak: newLongestStreak,
       total_completed_days: newTotalCompleted,
       missed_days: newMissedDays,
-      last_completed_at: now,
     }
 
     if (isChallengeCompleted) {
       updateData.status = 'completed'
-      updateData.completed_at = now
     }
 
     await db
@@ -437,7 +430,7 @@ export async function completeDailyChallenge(
         targetCount,
         newStreak,
         isChallengeCompleted,
-        completedAt: now.toISOString()
+        completedAt: new Date().toISOString()
       })
     }
 
@@ -462,7 +455,6 @@ export async function pauseChallenge(progressId: string) {
       .update(userChallengeProgress)
       .set({
         status: 'paused',
-        paused_at: new Date(),
       })
       .where(eq(userChallengeProgress.id, progressId))
 
@@ -636,7 +628,7 @@ export async function getTodayCompletedChallenges() {
   const user = await getUser()
   if (!user) return []
   
-  const today = new Date().toISOString().split('T')[0]
+  const today = new Date().toLocaleDateString('en-CA')
   
   try {
     return await db
@@ -668,7 +660,7 @@ export async function getTodayRemainingChallenges() {
   const user = await getUser()
   if (!user) return []
   
-  const today = new Date().toISOString().split('T')[0]
+  const today = new Date().toLocaleDateString('en-CA')
   
   try {
     // Get active challenges that haven't been completed today

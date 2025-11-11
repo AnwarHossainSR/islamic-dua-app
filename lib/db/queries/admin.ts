@@ -42,7 +42,7 @@ export async function getUserStats(userId: string) {
     ))
 
   // Get user's today completions
-  const today = new Date().toISOString().split('T')[0]
+  const today = new Date().toLocaleDateString('en-CA')
   const [todayCompletionsResult] = await db
     .select({ count: count() })
     .from(userChallengeDailyLogs)
@@ -52,6 +52,20 @@ export async function getUserStats(userId: string) {
       sql`DATE(${userChallengeDailyLogs.completion_date}) = ${today}`
     ))
 
+  // Get user's week completions (last 7 days)
+  const weekAgo = new Date()
+  weekAgo.setDate(weekAgo.getDate() - 7)
+  const weekAgoStr = weekAgo.toLocaleDateString('en-CA')
+  
+  const [weekCompletionsResult] = await db
+    .select({ count: count() })
+    .from(userChallengeDailyLogs)
+    .where(and(
+      eq(userChallengeDailyLogs.user_id, userId),
+      eq(userChallengeDailyLogs.is_completed, true),
+      sql`DATE(${userChallengeDailyLogs.completion_date}) >= ${weekAgoStr}`
+    ))
+
   return {
     totalActivities: totalActivitiesResult.count,
     totalCompletions: Number(totalCompletionsResult.total) || 0,
@@ -59,7 +73,7 @@ export async function getUserStats(userId: string) {
     activeChallenges: activeChallengesResult.count,
     todayCompletions: todayCompletionsResult.count,
     yesterdayCompletions: 0,
-    weekCompletions: 0,
+    weekCompletions: weekCompletionsResult.count,
   }
 }
 
@@ -142,7 +156,7 @@ export async function getGlobalStats() {
     .where(eq(challengeTemplates.is_active, true))
 
   // Get today's completions across all users
-  const today = new Date().toISOString().split('T')[0]
+  const today = new Date().toLocaleDateString('en-CA')
   const [todayCompletionsResult] = await db
     .select({ count: count() })
     .from(userChallengeDailyLogs)
@@ -154,7 +168,7 @@ export async function getGlobalStats() {
   // Get week completions (last 7 days) across all users
   const weekAgo = new Date()
   weekAgo.setDate(weekAgo.getDate() - 7)
-  const weekAgoStr = weekAgo.toISOString().split('T')[0]
+  const weekAgoStr = weekAgo.toLocaleDateString('en-CA')
   
   const [weekCompletionsResult] = await db
     .select({ count: count() })

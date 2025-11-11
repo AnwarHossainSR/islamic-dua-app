@@ -1,6 +1,5 @@
 import { clsx, type ClassValue } from 'clsx'
 import { format, isSameDay } from 'date-fns'
-import { toZonedTime } from 'date-fns-tz'
 import { twMerge } from 'tailwind-merge'
 
 export function cn(...inputs: ClassValue[]) {
@@ -9,62 +8,31 @@ export function cn(...inputs: ClassValue[]) {
 
 export const isCurrentDay = (lastCompletedAt: string | null) => {
   if (!lastCompletedAt) return false
-
-  const timeZone = 'Asia/Dhaka'
-  const utcDate = new Date(lastCompletedAt)
-  const completedDateInDhaka = toZonedTime(utcDate, timeZone)
-  const nowInDhaka = toZonedTime(new Date(), timeZone)
-
-  // Compare only the date part (year, month, day)
-  const completedToday = isSameDay(completedDateInDhaka, nowInDhaka)
-
-  return completedToday
+  return isSameDay(new Date(lastCompletedAt), new Date())
 }
 
 /**
- * Format date into human-readable or specific formats.
- *
- * @param dateInput - The input date string (UTC or local)
- * @param options - {
- *   formatType: 'human' | 'date' | 'datetime' | 'full' (default: 'human')
- *   source: 'utc' | 'local' (default: 'utc')
- *   locale: 'Asia/Dhaka' | 'UTC' (default: 'Asia/Dhaka')
- * }
- *
- * @returns string - Formatted date
+ * Format date into human-readable formats.
+ * Database timestamps are already in Bangladesh time.
  */
 export const formatDateTime = (
   dateInput: string | Date,
-  options?: {
-    formatType?: 'human' | 'date' | 'datetime' | 'full'
-    source?: 'utc' | 'local'
-    locale?: 'Asia/Dhaka' | 'UTC'
-  }
+  formatType: 'date' | 'datetime' | 'full' = 'datetime'
 ): string => {
   if (!dateInput) return 'Invalid date'
 
-  const { formatType = 'human', source = 'utc', locale = 'Asia/Dhaka' } = options || {}
+  const date = new Date(dateInput)
 
-  // Convert to Date object
-  const utcDate = source === 'utc' ? new Date(dateInput) : new Date(dateInput)
-  const dateInZone = toZonedTime(utcDate, locale)
-
-  let pattern = ''
   switch (formatType) {
     case 'date':
-      pattern = 'PPP' // e.g., Oct 22, 2025
-      break
+      return format(date, 'PPP') // Oct 22, 2025
     case 'datetime':
-      pattern = 'PPp' // e.g., Oct 22, 2025, 10:45 PM
-      break
+      return format(date, 'PPp') // Oct 22, 2025, 10:45 PM
     case 'full':
-      pattern = 'PPpp' // e.g., Wednesday, October 22, 2025 at 10:45:30 PM
-      break
+      return format(date, 'PPpp') // Wednesday, October 22, 2025 at 10:45:30 PM
     default:
-      pattern = 'PPpp' // fallback human-readable
+      return format(date, 'PPp')
   }
-
-  return format(dateInZone, pattern)
 }
 
 /**

@@ -104,7 +104,7 @@ export default async function MissedChallengesPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Calendar className="h-5 w-5" />
-                  {formatDateTime(date, { formatType: 'date' })}
+                  {formatDateTime(date, 'date')}
                   <Badge variant="destructive" className="ml-auto">
                     {groupedByDate[date].length} missed
                   </Badge>

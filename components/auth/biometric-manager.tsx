@@ -195,12 +195,12 @@ export function BiometricManager() {
                   <div>
                     <div className="font-medium">{credential.device_name}</div>
                     <div className="text-sm text-muted-foreground">
-                      Added {formatDateTime(credential.created_at, { formatType: 'date' })}
+                      Added {formatDateTime(credential.created_at, 'date')}
                       {credential.last_used_at && (
                         <span>
                           {' '}
                           • Last used{' '}
-                          {formatDateTime(credential.last_used_at, { formatType: 'full' })}
+                          {formatDateTime(credential.last_used_at, 'full')}
                         </span>
                       )}
                     </div>

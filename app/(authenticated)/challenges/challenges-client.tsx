@@ -31,12 +31,10 @@ import {
 } from '@/lib/actions/challenges'
 import { isCurrentDay, sortChallengesByCompletion } from '@/lib/utils'
 import { format } from 'date-fns'
-import { toZonedTime } from 'date-fns-tz'
 import {
   Check,
   CheckCircle2,
   ChevronDown,
-  Loader2,
   Plus,
   Search,
   Target,
@@ -64,7 +62,7 @@ export default function ChallengesClient({
   const [searchQuery, setSearchQuery] = useState('')
   const [difficultyFilter, setDifficultyFilter] = useState('all')
   const [statusFilter, setStatusFilter] = useState('all')
-  const [completionFilter, setCompletionFilter] = useState('pending') // Default to pending
+  const [completionFilter, setCompletionFilter] = useState('all') // Show all challenges by default
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage] = useState(10)
   const [isPending, startTransition] = useTransition()
@@ -234,32 +232,6 @@ export default function ChallengesClient({
       width: isCompleted ? 100 : completionRate,
       color: isCompleted ? 'rgb(34 197 94)' : 'rgb(16 185 129)',
     }
-  }
-
-  function getLastCompletedBadge(lastCompletedAt: string | null) {
-    if (!lastCompletedAt) {
-      return (
-        <Badge variant="outline" className="text-xs">
-          Not started
-        </Badge>
-      )
-    }
-
-    const completedToday = isCurrentDay(lastCompletedAt)
-    const timeZone = 'Asia/Dhaka'
-    const utcDate = new Date(lastCompletedAt)
-    const date = toZonedTime(utcDate, timeZone)
-
-    return completedToday ? (
-      <Badge className="bg-emerald-500/10 text-emerald-700 border-emerald-200 flex items-center gap-1 text-xs">
-        <CheckCircle2 className="h-3 w-3" />
-        Today at {format(date, 'h:mm a')}
-      </Badge>
-    ) : (
-      <Badge variant="secondary" className="text-xs">
-        {format(date, 'MMM d, h:mm a')}
-      </Badge>
-    )
   }
 
   return (
@@ -488,48 +460,46 @@ export default function ChallengesClient({
             <CardContent>
               {/* Challenges List */}
               <div className="space-y-4">
-                {(isPending || completionLoading) ? (
-                  // Skeleton loading state
-                  Array.from({ length: 3 }).map((_, i) => (
-                    <div key={i} className="border rounded-lg p-6">
-                      <div className="flex flex-col md:flex-row gap-6">
-                        <div className="flex-1 space-y-4">
-                          <div className="flex items-start gap-3">
-                            <Skeleton className="h-14 w-14 rounded-lg" />
-                            <div className="flex-1 space-y-2">
-                              <Skeleton className="h-6 w-3/4" />
-                              <Skeleton className="h-4 w-1/2" />
-                              <Skeleton className="h-4 w-2/3" />
+                {isPending || completionLoading
+                  ? // Skeleton loading state
+                    Array.from({ length: 3 }).map((_, i) => (
+                      <div key={i} className="border rounded-lg p-6">
+                        <div className="flex flex-col md:flex-row gap-6">
+                          <div className="flex-1 space-y-4">
+                            <div className="flex items-start gap-3">
+                              <Skeleton className="h-14 w-14 rounded-lg" />
+                              <div className="flex-1 space-y-2">
+                                <Skeleton className="h-6 w-3/4" />
+                                <Skeleton className="h-4 w-1/2" />
+                                <Skeleton className="h-4 w-2/3" />
+                              </div>
+                            </div>
+                            <div className="flex gap-2">
+                              <Skeleton className="h-6 w-16" />
+                              <Skeleton className="h-6 w-20" />
                             </div>
                           </div>
-                          <div className="flex gap-2">
-                            <Skeleton className="h-6 w-16" />
-                            <Skeleton className="h-6 w-20" />
+                          <div className="md:w-72 space-y-3">
+                            <div className="grid grid-cols-2 gap-3">
+                              <Skeleton className="h-16 rounded-lg" />
+                              <Skeleton className="h-16 rounded-lg" />
+                            </div>
+                            <Skeleton className="h-12 rounded-lg" />
+                            <Skeleton className="h-9 w-full" />
                           </div>
-                        </div>
-                        <div className="md:w-72 space-y-3">
-                          <div className="grid grid-cols-2 gap-3">
-                            <Skeleton className="h-16 rounded-lg" />
-                            <Skeleton className="h-16 rounded-lg" />
-                          </div>
-                          <Skeleton className="h-12 rounded-lg" />
-                          <Skeleton className="h-9 w-full" />
                         </div>
                       </div>
-                    </div>
-                  ))
-                ) : (
-                  paginatedChallenges.map((challenge: Challenge) => (
-                    <ChallengeCard
-                      key={challenge.id}
-                      challenge={challenge}
-                      actionLoading={actionLoading}
-                      onStartChallenge={handleStartChallenge}
-                      onRestartChallenge={handleRestartChallenge}
-                      onShowCompletedDialog={() => setShowCompletedDialog(true)}
-                    />
-                  ))
-                )}
+                    ))
+                  : paginatedChallenges.map((challenge: Challenge) => (
+                      <ChallengeCard
+                        key={challenge.id}
+                        challenge={challenge}
+                        actionLoading={actionLoading}
+                        onStartChallenge={handleStartChallenge}
+                        onRestartChallenge={handleRestartChallenge}
+                        onShowCompletedDialog={() => setShowCompletedDialog(true)}
+                      />
+                    ))}
 
                 {!isPending && !completionLoading && filteredChallenges.length === 0 && (
                   <div className="flex flex-col items-center justify-center py-16">
@@ -589,7 +559,10 @@ export default function ChallengesClient({
                           </p>
                           <p className="text-xs text-muted-foreground truncate">
                             Day {log.day_number} • {log.count_completed} reps •{' '}
-                            {format(new Date(log.completed_at), 'PPpp')}
+                            {log.completed_at && !isNaN(new Date(log.completed_at + ' GMT+0600').getTime()) 
+                              ? format(new Date(log.completed_at + ' GMT+0600'), 'PPpp')
+                              : 'Invalid date'
+                            }
                           </p>
                         </div>
                       </div>

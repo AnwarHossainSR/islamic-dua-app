@@ -1,16 +1,21 @@
 'use server'
 
-import { eq, and, desc, sql } from 'drizzle-orm'
+import { and, desc, eq, sql } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { cache } from 'react'
 import { db } from '../db'
-import { challengeTemplates, userChallengeProgress, userChallengeDailyLogs } from '../db/schema'
+import {
+  getChallengeById as getChallengeByIdQuery,
+  getChallengesWithProgress,
+  getFeaturedChallenges as getFeaturedChallengesQuery,
+  searchChallenges,
+} from '../db/queries/challenges'
+import { challengeTemplates, userChallengeDailyLogs, userChallengeProgress } from '../db/schema'
+import { apiLogger } from '../logger'
 import { PERMISSIONS } from '../permissions'
 import { Challenge } from '../types/challenges'
-import { apiLogger } from '../logger'
 import { isCurrentDay } from '../utils'
 import { checkPermission, getUser } from './auth'
-import { getChallengesWithProgress, searchChallenges, getChallengeById as getChallengeByIdQuery, getFeaturedChallenges as getFeaturedChallengesQuery } from '../db/queries/challenges'
 
 // ============================================
 // CHALLENGE QUERIES
@@ -22,11 +27,12 @@ export async function getChallenges() {
 
   try {
     const challenges = await getChallengesWithProgress(user.id)
-    
+
     const mergedData = challenges.map(challenge => {
-      const completionPercentage = challenge.total_completed_days && challenge.total_days
-        ? Math.min(Math.round((challenge.total_completed_days / challenge.total_days) * 100), 100)
-        : 0
+      const completionPercentage =
+        challenge.total_completed_days && challenge.total_days
+          ? Math.min(Math.round((challenge.total_completed_days / challenge.total_days) * 100), 100)
+          : 0
 
       return {
         id: challenge.id,
@@ -84,30 +90,33 @@ export async function searchAndFilterChallenges({
 }) {
   try {
     const challenges = await searchChallenges({ searchQuery, difficulty, status })
-    
-    return challenges.map(challenge => ({
-      id: challenge.id,
-      title_bn: challenge.title_bn,
-      title_ar: challenge.title_ar ?? undefined,
-      description_bn: challenge.description_bn ?? undefined,
-      icon: challenge.icon ?? undefined,
-      color: challenge.color ?? undefined,
-      difficulty_level: (challenge.difficulty_level ?? 'medium') as 'easy' | 'medium' | 'hard',
-      is_active: challenge.is_active ?? true,
-      is_featured: challenge.is_featured ?? false,
-      total_participants: challenge.total_participants || 0,
-      total_completions: challenge.total_completions || 0,
-      total_days: challenge.total_days ?? 21,
-      daily_target_count: challenge.daily_target_count ?? 21,
-      recommended_prayer: challenge.recommended_prayer ?? undefined,
-      last_completed_at: undefined,
-      user_status: 'not_started' as const,
-      progress_id: undefined,
-      completed_at: undefined,
-      total_completed_days: 0,
-      current_day: 1,
-      completion_percentage: 0,
-    } as Challenge))
+
+    return challenges.map(
+      challenge =>
+        ({
+          id: challenge.id,
+          title_bn: challenge.title_bn,
+          title_ar: challenge.title_ar ?? undefined,
+          description_bn: challenge.description_bn ?? undefined,
+          icon: challenge.icon ?? undefined,
+          color: challenge.color ?? undefined,
+          difficulty_level: (challenge.difficulty_level ?? 'medium') as 'easy' | 'medium' | 'hard',
+          is_active: challenge.is_active ?? true,
+          is_featured: challenge.is_featured ?? false,
+          total_participants: challenge.total_participants || 0,
+          total_completions: challenge.total_completions || 0,
+          total_days: challenge.total_days ?? 21,
+          daily_target_count: challenge.daily_target_count ?? 21,
+          recommended_prayer: challenge.recommended_prayer ?? undefined,
+          last_completed_at: undefined,
+          user_status: 'not_started' as const,
+          progress_id: undefined,
+          completed_at: undefined,
+          total_completed_days: 0,
+          current_day: 1,
+          completion_percentage: 0,
+        } as Challenge)
+    )
   } catch (error) {
     apiLogger.error('Error searching challenges with Drizzle', { error })
     return []
@@ -144,10 +153,9 @@ export async function getUserActiveChallenges(userId: string) {
       .select()
       .from(userChallengeProgress)
       .leftJoin(challengeTemplates, eq(userChallengeProgress.challenge_id, challengeTemplates.id))
-      .where(and(
-        eq(userChallengeProgress.user_id, userId),
-        eq(userChallengeProgress.status, 'active')
-      ))
+      .where(
+        and(eq(userChallengeProgress.user_id, userId), eq(userChallengeProgress.status, 'active'))
+      )
       .orderBy(desc(userChallengeProgress.started_at))
   } catch (error) {
     apiLogger.error('Error fetching user active challenges', { error, userId })
@@ -161,10 +169,12 @@ export async function getUserCompletedChallenges(userId: string) {
       .select()
       .from(userChallengeProgress)
       .leftJoin(challengeTemplates, eq(userChallengeProgress.challenge_id, challengeTemplates.id))
-      .where(and(
-        eq(userChallengeProgress.user_id, userId),
-        eq(userChallengeProgress.status, 'completed')
-      ))
+      .where(
+        and(
+          eq(userChallengeProgress.user_id, userId),
+          eq(userChallengeProgress.status, 'completed')
+        )
+      )
       .orderBy(desc(userChallengeProgress.completed_at))
   } catch (error) {
     apiLogger.error('Error fetching user completed challenges', { error, userId })
@@ -194,7 +204,7 @@ export async function getUserChallengeProgress(progressId: string) {
     return {
       ...progress.user_challenge_progress,
       challenge: progress.challenge_templates,
-      daily_logs: dailyLogs
+      daily_logs: dailyLogs,
     }
   } catch (error) {
     apiLogger.error('Error fetching challenge progress', { error, progressId })
@@ -209,7 +219,7 @@ export async function getUserChallengeStats(userId: string) {
         status: userChallengeProgress.status,
         current_streak: userChallengeProgress.current_streak,
         longest_streak: userChallengeProgress.longest_streak,
-        total_completed_days: userChallengeProgress.total_completed_days
+        total_completed_days: userChallengeProgress.total_completed_days,
       })
       .from(userChallengeProgress)
       .where(eq(userChallengeProgress.user_id, userId))
@@ -217,7 +227,8 @@ export async function getUserChallengeStats(userId: string) {
     const totalCompleted = progressData?.filter(p => p.status === 'completed').length || 0
     const totalActive = progressData?.filter(p => p.status === 'active').length || 0
     const longestStreak = Math.max(...(progressData?.map(p => p.longest_streak || 0) || [0]))
-    const totalDaysCompleted = progressData?.reduce((sum, p) => sum + (p.total_completed_days || 0), 0) || 0
+    const totalDaysCompleted =
+      progressData?.reduce((sum, p) => sum + (p.total_completed_days || 0), 0) || 0
 
     return {
       totalCompleted,
@@ -248,11 +259,13 @@ export async function startChallenge(userId: string, challengeId: string) {
     const existing = await db
       .select()
       .from(userChallengeProgress)
-      .where(and(
-        eq(userChallengeProgress.user_id, userId),
-        eq(userChallengeProgress.challenge_id, challengeId),
-        eq(userChallengeProgress.status, 'active')
-      ))
+      .where(
+        and(
+          eq(userChallengeProgress.user_id, userId),
+          eq(userChallengeProgress.challenge_id, challengeId),
+          eq(userChallengeProgress.status, 'active')
+        )
+      )
       .limit(1)
 
     if (existing.length > 0) {
@@ -338,10 +351,12 @@ export async function completeDailyChallenge(
     const existingLog = await db
       .select({ id: userChallengeDailyLogs.id })
       .from(userChallengeDailyLogs)
-      .where(and(
-        eq(userChallengeDailyLogs.user_progress_id, progressId),
-        eq(userChallengeDailyLogs.day_number, dayNumber)
-      ))
+      .where(
+        and(
+          eq(userChallengeDailyLogs.user_progress_id, progressId),
+          eq(userChallengeDailyLogs.day_number, dayNumber)
+        )
+      )
       .limit(1)
 
     if (existingLog.length > 0) {
@@ -390,12 +405,18 @@ export async function completeDailyChallenge(
 
     // Update progress
     const newStreak = isCompleted ? (progress.user_challenge_progress.current_streak || 0) + 1 : 0
-    const newLongestStreak = Math.max(progress.user_challenge_progress.longest_streak || 0, newStreak)
-    const newTotalCompleted = (progress.user_challenge_progress.total_completed_days || 0) + (isCompleted ? 1 : 0)
-    const newMissedDays = (progress.user_challenge_progress.missed_days || 0) + (isCompleted ? 0 : 1)
+    const newLongestStreak = Math.max(
+      progress.user_challenge_progress.longest_streak || 0,
+      newStreak
+    )
+    const newTotalCompleted =
+      (progress.user_challenge_progress.total_completed_days || 0) + (isCompleted ? 1 : 0)
+    const newMissedDays =
+      (progress.user_challenge_progress.missed_days || 0) + (isCompleted ? 0 : 1)
     const newCurrentDay = dayNumber + 1
 
-    const isChallengeCompleted = newCurrentDay > (progress.challenge_templates?.total_days || 21) &&
+    const isChallengeCompleted =
+      newCurrentDay > (progress.challenge_templates?.total_days || 21) &&
       newTotalCompleted >= (progress.challenge_templates?.total_days || 21)
 
     const updateData: any = {
@@ -434,7 +455,7 @@ export async function completeDailyChallenge(
         targetCount,
         newStreak,
         isChallengeCompleted,
-        completedAt: new Date().toISOString()
+        completedAt: new Date().toISOString(),
       })
     }
 
@@ -506,26 +527,26 @@ export async function createChallengeTemplate(formData: FormData) {
 
   const challengeData = {
     title_bn: formData.get('title_bn') as string,
-    title_ar: formData.get('title_ar') as string || null,
-    title_en: formData.get('title_en') as string || null,
-    description_bn: formData.get('description_bn') as string || null,
-    description_ar: formData.get('description_ar') as string || null,
-    description_en: formData.get('description_en') as string || null,
+    title_ar: (formData.get('title_ar') as string) || null,
+    title_en: (formData.get('title_en') as string) || null,
+    description_bn: (formData.get('description_bn') as string) || null,
+    description_ar: (formData.get('description_ar') as string) || null,
+    description_en: (formData.get('description_en') as string) || null,
     arabic_text: formData.get('arabic_text') as string,
-    transliteration_bn: formData.get('transliteration_bn') as string || null,
+    transliteration_bn: (formData.get('transliteration_bn') as string) || null,
     translation_bn: formData.get('translation_bn') as string,
-    translation_en: formData.get('translation_en') as string || null,
+    translation_en: (formData.get('translation_en') as string) || null,
     daily_target_count: parseInt(formData.get('daily_target_count') as string) || 21,
     total_days: parseInt(formData.get('total_days') as string) || 21,
     recommended_time: (formData.get('recommended_time') as string) || null,
     recommended_prayer: (formData.get('recommended_prayer') as string) || null,
-    reference: formData.get('reference') as string || null,
-    fazilat_bn: formData.get('fazilat_bn') as string || null,
-    fazilat_ar: formData.get('fazilat_ar') as string || null,
-    fazilat_en: formData.get('fazilat_en') as string || null,
+    reference: (formData.get('reference') as string) || null,
+    fazilat_bn: (formData.get('fazilat_bn') as string) || null,
+    fazilat_ar: (formData.get('fazilat_ar') as string) || null,
+    fazilat_en: (formData.get('fazilat_en') as string) || null,
     difficulty_level: (formData.get('difficulty_level') as string) || 'medium',
-    icon: formData.get('icon') as string || null,
-    color: formData.get('color') as string || null,
+    icon: (formData.get('icon') as string) || null,
+    color: (formData.get('color') as string) || null,
     display_order: parseInt(formData.get('display_order') as string) || 0,
     is_featured: formData.get('is_featured') === 'true',
     is_active: formData.get('is_active') === 'true',
@@ -536,10 +557,7 @@ export async function createChallengeTemplate(formData: FormData) {
   }
 
   try {
-    const [data] = await db
-      .insert(challengeTemplates)
-      .values(challengeData)
-      .returning()
+    const [data] = await db.insert(challengeTemplates).values(challengeData).returning()
 
     revalidatePath('/challenges')
     return { data }
@@ -554,26 +572,26 @@ export async function updateChallengeTemplate(id: string, formData: FormData) {
 
   const challengeData = {
     title_bn: formData.get('title_bn') as string,
-    title_ar: formData.get('title_ar') as string || null,
-    title_en: formData.get('title_en') as string || null,
-    description_bn: formData.get('description_bn') as string || null,
-    description_ar: formData.get('description_ar') as string || null,
-    description_en: formData.get('description_en') as string || null,
+    title_ar: (formData.get('title_ar') as string) || null,
+    title_en: (formData.get('title_en') as string) || null,
+    description_bn: (formData.get('description_bn') as string) || null,
+    description_ar: (formData.get('description_ar') as string) || null,
+    description_en: (formData.get('description_en') as string) || null,
     arabic_text: formData.get('arabic_text') as string,
-    transliteration_bn: formData.get('transliteration_bn') as string || null,
+    transliteration_bn: (formData.get('transliteration_bn') as string) || null,
     translation_bn: formData.get('translation_bn') as string,
-    translation_en: formData.get('translation_en') as string || null,
+    translation_en: (formData.get('translation_en') as string) || null,
     daily_target_count: parseInt(formData.get('daily_target_count') as string) || 21,
     total_days: parseInt(formData.get('total_days') as string) || 21,
     recommended_time: (formData.get('recommended_time') as string) || null,
     recommended_prayer: (formData.get('recommended_prayer') as string) || null,
-    reference: formData.get('reference') as string || null,
-    fazilat_bn: formData.get('fazilat_bn') as string || null,
-    fazilat_ar: formData.get('fazilat_ar') as string || null,
-    fazilat_en: formData.get('fazilat_en') as string || null,
+    reference: (formData.get('reference') as string) || null,
+    fazilat_bn: (formData.get('fazilat_bn') as string) || null,
+    fazilat_ar: (formData.get('fazilat_ar') as string) || null,
+    fazilat_en: (formData.get('fazilat_en') as string) || null,
     difficulty_level: (formData.get('difficulty_level') as string) || 'medium',
-    icon: formData.get('icon') as string || null,
-    color: formData.get('color') as string || null,
+    icon: (formData.get('icon') as string) || null,
+    color: (formData.get('color') as string) || null,
     display_order: parseInt(formData.get('display_order') as string) || 0,
     is_featured: formData.get('is_featured') === 'true',
     is_active: formData.get('is_active') === 'true',
@@ -584,10 +602,7 @@ export async function updateChallengeTemplate(id: string, formData: FormData) {
   }
 
   try {
-    await db
-      .update(challengeTemplates)
-      .set(challengeData)
-      .where(eq(challengeTemplates.id, id))
+    await db.update(challengeTemplates).set(challengeData).where(eq(challengeTemplates.id, id))
 
     revalidatePath('/challenges')
     return { success: true }
@@ -612,12 +627,15 @@ export async function deleteChallengeTemplate(id: string) {
 export async function getRecentLogs(limit: number = 10) {
   const user = await getUser()
   if (!user) return []
-  
+
   try {
     return await db
       .select()
       .from(userChallengeDailyLogs)
-      .leftJoin(userChallengeProgress, eq(userChallengeDailyLogs.user_progress_id, userChallengeProgress.id))
+      .leftJoin(
+        userChallengeProgress,
+        eq(userChallengeDailyLogs.user_progress_id, userChallengeProgress.id)
+      )
       .leftJoin(challengeTemplates, eq(userChallengeProgress.challenge_id, challengeTemplates.id))
       .where(eq(userChallengeDailyLogs.user_id, user.id))
       .orderBy(desc(userChallengeDailyLogs.created_at))
@@ -631,12 +649,12 @@ export async function getRecentLogs(limit: number = 10) {
 export async function getTodayCompletedChallenges() {
   const user = await getUser()
   if (!user) return []
-  
+
   // Get today's date in Bangladesh timezone
   const now = new Date()
   const bdNow = new Date(now.getTime() + 6 * 60 * 60 * 1000)
   const today = bdNow.toLocaleDateString('en-CA')
-  
+
   try {
     return await db
       .select({
@@ -646,16 +664,21 @@ export async function getTodayCompletedChallenges() {
         count_completed: userChallengeDailyLogs.count_completed,
         target_count: userChallengeDailyLogs.target_count,
         completed_at: userChallengeDailyLogs.completed_at,
-        is_completed: userChallengeDailyLogs.is_completed
+        is_completed: userChallengeDailyLogs.is_completed,
       })
       .from(userChallengeDailyLogs)
-      .leftJoin(userChallengeProgress, eq(userChallengeDailyLogs.user_progress_id, userChallengeProgress.id))
+      .leftJoin(
+        userChallengeProgress,
+        eq(userChallengeDailyLogs.user_progress_id, userChallengeProgress.id)
+      )
       .leftJoin(challengeTemplates, eq(userChallengeProgress.challenge_id, challengeTemplates.id))
-      .where(and(
-        eq(userChallengeDailyLogs.user_id, user.id),
-        eq(userChallengeDailyLogs.completion_date, today),
-        eq(userChallengeDailyLogs.is_completed, true)
-      ))
+      .where(
+        and(
+          eq(userChallengeDailyLogs.user_id, user.id),
+          eq(userChallengeDailyLogs.completion_date, today),
+          eq(userChallengeDailyLogs.is_completed, true)
+        )
+      )
       .orderBy(desc(userChallengeDailyLogs.completed_at))
   } catch (error) {
     apiLogger.error('Error fetching today completed challenges', { error })
@@ -666,19 +689,19 @@ export async function getTodayCompletedChallenges() {
 export async function getTodayRemainingChallenges() {
   const user = await getUser()
   if (!user) return []
-  
+
   // Get today's date in Bangladesh timezone
   const now = new Date()
   const bdNow = new Date(now.getTime() + 6 * 60 * 60 * 1000)
   const today = bdNow.toLocaleDateString('en-CA')
-  
+
   try {
     // Get all available challenges (both active and not_started)
     const availableChallenges = await db
       .select({
         challenge_id: challengeTemplates.id,
         title_bn: challengeTemplates.title_bn,
-        icon: challengeTemplates.icon
+        icon: challengeTemplates.icon,
       })
       .from(challengeTemplates)
       .where(eq(challengeTemplates.is_active, true))
@@ -687,38 +710,72 @@ export async function getTodayRemainingChallenges() {
     const completedToday = await db
       .select({ challenge_id: userChallengeDailyLogs.challenge_id })
       .from(userChallengeDailyLogs)
-      .leftJoin(userChallengeProgress, eq(userChallengeDailyLogs.user_progress_id, userChallengeProgress.id))
-      .where(and(
-        eq(userChallengeDailyLogs.user_id, user.id),
-        eq(userChallengeDailyLogs.completion_date, today),
-        eq(userChallengeDailyLogs.is_completed, true)
-      ))
+      .leftJoin(
+        userChallengeProgress,
+        eq(userChallengeDailyLogs.user_progress_id, userChallengeProgress.id)
+      )
+      .where(
+        and(
+          eq(userChallengeDailyLogs.user_id, user.id),
+          eq(userChallengeDailyLogs.completion_date, today),
+          eq(userChallengeDailyLogs.is_completed, true)
+        )
+      )
 
     const completedIds = new Set(completedToday.map(c => c.challenge_id))
-    return availableChallenges.filter(c => !completedIds.has(c.challenge_id))
+    const remaining = availableChallenges.filter(c => !completedIds.has(c.challenge_id))
+
+    return remaining
   } catch (error) {
     apiLogger.error('Error fetching today remaining challenges', { error })
     return []
   }
 }
 
+export async function cleanDuplicateDailyLogs() {
+  const user = await getUser()
+  if (!user) return { error: 'User not found' }
+  
+  // Get today's date in Bangladesh timezone
+  const now = new Date()
+  const bdNow = new Date(now.getTime() + 6 * 60 * 60 * 1000)
+  const today = bdNow.toLocaleDateString('en-CA')
+  
+  try {
+    // Delete duplicate entries for today where completion_date doesn't match actual completion
+    await db
+      .delete(userChallengeDailyLogs)
+      .where(and(
+        eq(userChallengeDailyLogs.user_id, user.id),
+        eq(userChallengeDailyLogs.completion_date, today),
+        eq(userChallengeDailyLogs.challenge_id, '64ac0c70-37cf-4e76-a71c-06b2bb22a208')
+      ))
+    
+    revalidatePath('/challenges')
+    return { success: true }
+  } catch (error) {
+    apiLogger.error('Error cleaning duplicate daily logs', { error })
+    return { error: 'Failed to clean duplicates' }
+  }
+}
+
 export async function getTodayCompletionStats() {
   const user = await getUser()
   if (!user) return { completed: 0, total: 0, percentage: 0 }
-  
+
   try {
     const [completed, remaining] = await Promise.all([
       getTodayCompletedChallenges(),
-      getTodayRemainingChallenges()
+      getTodayRemainingChallenges(),
     ])
-    
+
     const total = completed.length + remaining.length
     const percentage = total > 0 ? Math.round((completed.length / total) * 100) : 0
-    
+
     return {
       completed: completed.length,
       total,
-      percentage
+      percentage,
     }
   } catch (error) {
     apiLogger.error('Error fetching today completion stats', { error })

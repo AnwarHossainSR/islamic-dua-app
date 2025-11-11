@@ -173,7 +173,6 @@ export default function ChallengesClient({
     const total = challenges.length
     const participants = challenges.reduce((sum, c) => sum + (c.total_participants || 0), 0)
     const todayCompleted = challenges.filter(c => isCurrentDay(c.last_completed_at || '')).length
-    console.log('challenges for stats calculation:', challenges)
     const completions = challenges.reduce((sum, c) => sum + (c.total_completed_days || 0), 0)
     const days = challenges.reduce((sum, c) => sum + c.total_days, 0)
     const avgRate = participants > 0 ? Math.round((completions / days) * 100) : 0
@@ -559,10 +558,10 @@ export default function ChallengesClient({
                           </p>
                           <p className="text-xs text-muted-foreground truncate">
                             Day {log.day_number} • {log.count_completed} reps •{' '}
-                            {log.completed_at && !isNaN(new Date(log.completed_at + ' GMT+0600').getTime()) 
+                            {log.completed_at &&
+                            !isNaN(new Date(log.completed_at + ' GMT+0600').getTime())
                               ? format(new Date(log.completed_at + ' GMT+0600'), 'PPpp')
-                              : 'Invalid date'
-                            }
+                              : 'Invalid date'}
                           </p>
                         </div>
                       </div>

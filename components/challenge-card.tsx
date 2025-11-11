@@ -7,7 +7,6 @@ import { Card } from '@/components/ui/card'
 import { deleteChallengeTemplate } from '@/lib/actions/challenges'
 import { formatNumber, isCurrentDay } from '@/lib/utils'
 import { format } from 'date-fns'
-import { toZonedTime } from 'date-fns-tz'
 import {
   Calendar,
   CheckCircle2,
@@ -85,11 +84,18 @@ export function ChallengeCard({
         </Badge>
       )
     }
-
-    const completedToday = isCurrentDay(lastCompletedAt)
-    const timeZone = 'Asia/Dhaka'
+    // Database stores Bangladesh time but returns as UTC, so subtract 6 hours
     const utcDate = new Date(lastCompletedAt)
-    const date = toZonedTime(utcDate, timeZone)
+    const date = new Date(utcDate.getTime() - 6 * 60 * 60 * 1000)
+    if (isNaN(date.getTime())) {
+      return (
+        <Badge variant="outline" className="text-xs">
+          Invalid date
+        </Badge>
+      )
+    }
+
+    const completedToday = isCurrentDay(date.toISOString())
 
     return completedToday ? (
       <Badge className="bg-emerald-500/10 text-emerald-700 border-emerald-200 flex items-center gap-1 text-xs">

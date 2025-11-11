@@ -359,7 +359,12 @@ export async function completeDailyChallenge(
       )
       .limit(1)
 
+    console.log('DEBUG - Existing log found:', existingLog.length > 0)
+    console.log('DEBUG - Progress ID:', progressId)
+    console.log('DEBUG - Day Number:', dayNumber)
+
     if (existingLog.length > 0) {
+      console.log('DEBUG - Updating existing log')
       // Update existing log
       await db
         .update(userChallengeDailyLogs)
@@ -372,6 +377,7 @@ export async function completeDailyChallenge(
         })
         .where(eq(userChallengeDailyLogs.id, existingLog[0].id))
     } else {
+      console.log('DEBUG - Creating new log')
       // Insert new daily log
       await db.insert(userChallengeDailyLogs).values({
         user_progress_id: progressId,
@@ -425,6 +431,10 @@ export async function completeDailyChallenge(
       longest_streak: newLongestStreak,
       total_completed_days: newTotalCompleted,
       missed_days: newMissedDays,
+    }
+
+    if (isCompleted) {
+      updateData.last_completed_at = new Date()
     }
 
     if (isChallengeCompleted) {

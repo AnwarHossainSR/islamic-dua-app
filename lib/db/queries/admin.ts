@@ -151,6 +151,19 @@ export async function getGlobalStats() {
       sql`DATE(${userChallengeDailyLogs.completion_date}) = ${today}`
     ))
 
+  // Get week completions (last 7 days) across all users
+  const weekAgo = new Date()
+  weekAgo.setDate(weekAgo.getDate() - 7)
+  const weekAgoStr = weekAgo.toISOString().split('T')[0]
+  
+  const [weekCompletionsResult] = await db
+    .select({ count: count() })
+    .from(userChallengeDailyLogs)
+    .where(and(
+      eq(userChallengeDailyLogs.is_completed, true),
+      sql`DATE(${userChallengeDailyLogs.completion_date}) >= ${weekAgoStr}`
+    ))
+
   return {
     totalActivities: totalActivitiesResult.count,
     totalCompletions: Number(totalCompletionsResult.total) || 0,
@@ -158,7 +171,7 @@ export async function getGlobalStats() {
     activeChallenges: activeChallengesResult.count,
     todayCompletions: todayCompletionsResult.count,
     yesterdayCompletions: 0,
-    weekCompletions: 0,
+    weekCompletions: weekCompletionsResult.count,
   }
 }
 

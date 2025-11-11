@@ -66,6 +66,14 @@ export async function signIn(email: string, password: string) {
       sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 7,
     })
+
+    // Log successful login
+    apiLogger.info('User logged in successfully', {
+      userId: data.user?.id,
+      email: data.user?.email,
+      loginTime: new Date().toISOString(),
+      userAgent: 'web-app'
+    })
   }
 
   revalidatePath('/', 'layout')

@@ -424,6 +424,23 @@ export async function completeDailyChallenge(
       .set({ total_completions: sql`${challengeTemplates.total_completions} + 1` })
       .where(eq(challengeTemplates.id, challengeId))
 
+    // Log challenge completion
+    const user = await getUser()
+    if (user && isCompleted) {
+      apiLogger.info('Challenge completed', {
+        userId: user.id,
+        userEmail: user.email,
+        challengeId,
+        challengeTitle: progress.challenge_templates?.title_bn,
+        dayNumber,
+        countCompleted,
+        targetCount,
+        newStreak,
+        isChallengeCompleted,
+        completedAt: now.toISOString()
+      })
+    }
+
     revalidatePath(`/challenges/${progressId}`)
     revalidatePath('/challenges')
 

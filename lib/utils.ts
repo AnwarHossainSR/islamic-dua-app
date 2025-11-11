@@ -8,7 +8,16 @@ export function cn(...inputs: ClassValue[]) {
 
 export const isCurrentDay = (lastCompletedAt: string | null) => {
   if (!lastCompletedAt) return false
-  return isSameDay(new Date(lastCompletedAt), new Date())
+  
+  // Convert UTC timestamp to Bangladesh time for comparison
+  const utcDate = new Date(lastCompletedAt)
+  const bdDate = new Date(utcDate.getTime() - 6 * 60 * 60 * 1000)
+  
+  // Get current Bangladesh date
+  const now = new Date()
+  const bdNow = new Date(now.getTime() + 6 * 60 * 60 * 1000)
+  
+  return isSameDay(bdDate, bdNow)
 }
 
 /**

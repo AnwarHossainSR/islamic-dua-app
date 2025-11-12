@@ -792,3 +792,131 @@ export async function getTodayCompletionStats() {
     return { completed: 0, total: 0, percentage: 0 }
   }
 }
+
+export async function getCompletedTodayChallenges() {
+  const user = await getUser()
+  if (!user) return []
+
+  // Get today's date in Bangladesh timezone
+  const now = new Date()
+  const bdNow = new Date(now.getTime() + 6 * 60 * 60 * 1000)
+  const today = bdNow.toLocaleDateString('en-CA')
+
+  try {
+    const challenges = await getChallengesWithProgress(user.id)
+    
+    // Filter challenges completed today using database query
+    const completedToday = await db
+      .select({ challenge_id: userChallengeDailyLogs.challenge_id })
+      .from(userChallengeDailyLogs)
+      .where(
+        and(
+          eq(userChallengeDailyLogs.user_id, user.id),
+          eq(userChallengeDailyLogs.completion_date, today),
+          eq(userChallengeDailyLogs.is_completed, true)
+        )
+      )
+
+    const completedIds = new Set(completedToday.map(c => c.challenge_id))
+    
+    return challenges
+      .filter(challenge => completedIds.has(challenge.id))
+      .map(challenge => {
+        const completionPercentage =
+          challenge.total_completed_days && challenge.total_days
+            ? Math.min(Math.round((challenge.total_completed_days / challenge.total_days) * 100), 100)
+            : 0
+
+        return {
+          id: challenge.id,
+          title_bn: challenge.title_bn,
+          title_ar: challenge.title_ar ?? undefined,
+          description_bn: challenge.description_bn ?? undefined,
+          icon: challenge.icon ?? undefined,
+          color: challenge.color ?? undefined,
+          difficulty_level: (challenge.difficulty_level ?? 'medium') as 'easy' | 'medium' | 'hard',
+          is_active: challenge.is_active ?? true,
+          is_featured: challenge.is_featured ?? false,
+          total_participants: challenge.total_participants || 0,
+          total_completions: challenge.total_completions || 0,
+          total_days: challenge.total_days ?? 21,
+          daily_target_count: challenge.daily_target_count ?? 21,
+          recommended_prayer: challenge.recommended_prayer ?? undefined,
+          user_status: challenge.user_status || 'not_started',
+          progress_id: challenge.progress_id ?? undefined,
+          completed_at: challenge.completed_at ?? undefined,
+          total_completed_days: challenge.total_completed_days || 0,
+          current_day: challenge.current_day || 1,
+          last_completed_at: challenge.last_completed_at ?? undefined,
+          completion_percentage: completionPercentage,
+        } as Challenge
+      })
+  } catch (error) {
+    apiLogger.error('Error fetching completed today challenges', { error })
+    return []
+  }
+}
+
+export async function getPendingTodayChallenges() {
+  const user = await getUser()
+  if (!user) return []
+
+  // Get today's date in Bangladesh timezone
+  const now = new Date()
+  const bdNow = new Date(now.getTime() + 6 * 60 * 60 * 1000)
+  const today = bdNow.toLocaleDateString('en-CA')
+
+  try {
+    const challenges = await getChallengesWithProgress(user.id)
+    
+    // Filter challenges NOT completed today using database query
+    const completedToday = await db
+      .select({ challenge_id: userChallengeDailyLogs.challenge_id })
+      .from(userChallengeDailyLogs)
+      .where(
+        and(
+          eq(userChallengeDailyLogs.user_id, user.id),
+          eq(userChallengeDailyLogs.completion_date, today),
+          eq(userChallengeDailyLogs.is_completed, true)
+        )
+      )
+
+    const completedIds = new Set(completedToday.map(c => c.challenge_id))
+    
+    return challenges
+      .filter(challenge => !completedIds.has(challenge.id))
+      .map(challenge => {
+        const completionPercentage =
+          challenge.total_completed_days && challenge.total_days
+            ? Math.min(Math.round((challenge.total_completed_days / challenge.total_days) * 100), 100)
+            : 0
+
+        return {
+          id: challenge.id,
+          title_bn: challenge.title_bn,
+          title_ar: challenge.title_ar ?? undefined,
+          description_bn: challenge.description_bn ?? undefined,
+          icon: challenge.icon ?? undefined,
+          color: challenge.color ?? undefined,
+          difficulty_level: (challenge.difficulty_level ?? 'medium') as 'easy' | 'medium' | 'hard',
+          is_active: challenge.is_active ?? true,
+          is_featured: challenge.is_featured ?? false,
+          total_participants: challenge.total_participants || 0,
+          total_completions: challenge.total_completions || 0,
+          total_days: challenge.total_days ?? 21,
+          daily_target_count: challenge.daily_target_count ?? 21,
+          recommended_prayer: challenge.recommended_prayer ?? undefined,
+          user_status: challenge.user_status || 'not_started',
+          progress_id: challenge.progress_id ?? undefined,
+          completed_at: challenge.completed_at ?? undefined,
+          total_completed_days: challenge.total_completed_days || 0,
+          current_day: challenge.current_day || 1,
+          last_completed_at: challenge.last_completed_at ?? undefined,
+          completion_percentage: completionPercentage,
+        } as Challenge
+      })
+  } catch (error) {
+    apiLogger.error('Error fetching pending today challenges', { error })
+    return []
+  }
+}

@@ -35,15 +35,15 @@ import {
   Check,
   CheckCircle2,
   ChevronDown,
+  ClockAlert,
   Plus,
   Search,
   Target,
   TrendingUp,
-  Trophy,
 } from 'lucide-react'
 
 import Link from 'next/link'
-import React, { useCallback, useMemo, useState, useTransition } from 'react'
+import React, { useCallback, useEffect, useMemo, useState, useTransition } from 'react'
 
 import { Challenge, RecentLog } from '@/lib/types/challenges'
 
@@ -62,7 +62,7 @@ export default function ChallengesClient({
   const [searchQuery, setSearchQuery] = useState('')
   const [difficultyFilter, setDifficultyFilter] = useState('all')
   const [statusFilter, setStatusFilter] = useState('all')
-  const [completionFilter, setCompletionFilter] = useState('all') // Show all challenges by default
+  const [completionFilter, setCompletionFilter] = useState('pending') // Show all pending challenges by default
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage] = useState(10)
   const [isPending, startTransition] = useTransition()
@@ -124,13 +124,42 @@ export default function ChallengesClient({
     performSearch(searchQuery, difficultyFilter, value)
   }
 
+  // Load challenges based on completion filter
+  const loadChallengesByCompletion = useCallback(
+    async (filter: string) => {
+      setCompletionLoading(true)
+      try {
+        let result: Challenge[] = []
+        if (filter === 'completed') {
+          const { getCompletedTodayChallenges } = await import('@/lib/actions/challenges')
+          result = await getCompletedTodayChallenges()
+        } else if (filter === 'pending') {
+          const { getPendingTodayChallenges } = await import('@/lib/actions/challenges')
+          result = await getPendingTodayChallenges()
+        } else {
+          result = initialChallenges
+        }
+        setFilteredChallenges(result)
+      } catch (error) {
+        console.error('Error loading challenges:', error)
+        setFilteredChallenges([])
+      } finally {
+        setCompletionLoading(false)
+      }
+    },
+    [initialChallenges]
+  )
+
   const handleCompletionChange = (value: string) => {
-    setCompletionLoading(true)
     setCompletionFilter(value)
     setCurrentPage(1) // Reset to first page
-    // Brief loading state for visual feedback
-    setTimeout(() => setCompletionLoading(false), 200)
+    loadChallengesByCompletion(value)
   }
+
+  // Load initial challenges based on default filter
+  useEffect(() => {
+    loadChallengesByCompletion(completionFilter)
+  }, [loadChallengesByCompletion, completionFilter])
 
   const handleStartChallenge = async (challengeId: string) => {
     if (!user) return
@@ -179,15 +208,8 @@ export default function ChallengesClient({
     return { total, participants, completions, days, avgRate, todayCompleted }
   }, [challenges])
 
-  // Filter challenges by completion status
-  const filteredChallenges = useMemo(() => {
-    if (completionFilter === 'completed') {
-      return challenges.filter(c => isCurrentDay(c.last_completed_at || ''))
-    } else if (completionFilter === 'pending') {
-      return challenges.filter(c => !isCurrentDay(c.last_completed_at || ''))
-    }
-    return challenges
-  }, [challenges, completionFilter])
+  // Server-side filtered challenges based on completion status
+  const [filteredChallenges, setFilteredChallenges] = useState<Challenge[]>(initialChallenges)
 
   // Paginated challenges
   const paginatedChallenges = useMemo(() => {
@@ -291,7 +313,7 @@ export default function ChallengesClient({
                       <p className="text-sm text-muted-foreground">Remain Today</p>
                       <p className="text-3xl font-bold">{todayRemaining.length}</p>
                     </div>
-                    <Trophy className="h-8 w-8 text-amber-500" />
+                    <ClockAlert className="h-8 w-8 text-amber-500" />
                   </div>
                 </CardContent>
               </Card>
@@ -343,7 +365,7 @@ export default function ChallengesClient({
                   <p className="text-sm text-muted-foreground">Remain Today</p>
                   <p className="text-3xl font-bold">{todayRemaining.length}</p>
                 </div>
-                <Trophy className="h-8 w-8 text-amber-500" />
+                <ClockAlert className="h-8 w-8 text-amber-500" />
               </div>
             </CardContent>
           </Card>

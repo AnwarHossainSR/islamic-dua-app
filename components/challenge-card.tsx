@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { deleteChallengeTemplate } from '@/lib/actions/challenges'
+import { Challenge } from '@/lib/types/challenges'
 import { formatNumber, isCurrentDay } from '@/lib/utils'
 import { format } from 'date-fns'
 import {
@@ -21,7 +22,6 @@ import {
   Users,
 } from 'lucide-react'
 import Link from 'next/link'
-import { Challenge } from '@/lib/types/challenges'
 
 interface ChallengeCardProps {
   challenge: Challenge
@@ -39,7 +39,7 @@ export function ChallengeCard({
   onShowCompletedDialog,
 }: ChallengeCardProps) {
   const completionRate = challenge.completion_percentage || 0
-  
+
   const getCardClassName = (userStatus: string) => {
     const baseClass = 'overflow-hidden'
     const completedClass =
@@ -95,7 +95,7 @@ export function ChallengeCard({
       )
     }
 
-    const completedToday = isCurrentDay(date.toISOString())
+    const completedToday = isCurrentDay(lastCompletedAt)
 
     return completedToday ? (
       <Badge className="bg-emerald-500/10 text-emerald-700 border-emerald-200 flex items-center gap-1 text-xs">
@@ -126,9 +126,7 @@ export function ChallengeCard({
               </div>
               <div className="flex-1 min-w-0">
                 <div className="mb-1 flex items-center gap-2 flex-wrap">
-                  <h3 className="text-lg md:text-xl font-bold truncate">
-                    {challenge.title_bn}
-                  </h3>
+                  <h3 className="text-lg md:text-xl font-bold truncate">{challenge.title_bn}</h3>
                   {challenge.is_featured && (
                     <Badge variant="secondary" className="text-xs">
                       Featured
@@ -158,9 +156,7 @@ export function ChallengeCard({
             </div>
           </div>
 
-          <p className="line-clamp-2 text-sm text-muted-foreground">
-            {challenge.description_bn}
-          </p>
+          <p className="line-clamp-2 text-sm text-muted-foreground">{challenge.description_bn}</p>
 
           <div className="flex flex-wrap gap-3 text-xs md:text-sm">
             <div className="flex items-center gap-2">
@@ -267,12 +263,7 @@ export function ChallengeCard({
                 Preview
               </Button>
             ) : (
-              <Button
-                size="sm"
-                variant="outline"
-                asChild
-                className="text-xs md:text-sm"
-              >
+              <Button size="sm" variant="outline" asChild className="text-xs md:text-sm">
                 <Link href={`/challenges/${challenge.id}/preview`}>
                   <Eye className="mr-1 h-3 w-3" />
                   Preview

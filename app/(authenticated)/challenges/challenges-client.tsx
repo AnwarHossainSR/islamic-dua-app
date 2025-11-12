@@ -62,7 +62,7 @@ export default function ChallengesClient({
   const [searchQuery, setSearchQuery] = useState('')
   const [difficultyFilter, setDifficultyFilter] = useState('all')
   const [statusFilter, setStatusFilter] = useState('all')
-  const [completionFilter, setCompletionFilter] = useState('all') // Show all challenges by default
+  const [completionFilter, setCompletionFilter] = useState('pending') // Show all pending challenges by default
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage] = useState(10)
   const [isPending, startTransition] = useTransition()

@@ -385,9 +385,10 @@ export async function completeDailyChallenge(
         challenge_id: challengeId,
         day_number: dayNumber,
         completion_date: (() => {
+          // Get current UTC time and convert to Bangladesh timezone
           const now = new Date()
-          const bdNow = new Date(now.getTime() + 6 * 60 * 60 * 1000)
-          return bdNow.toLocaleDateString('en-CA')
+          const bdTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Dhaka' }))
+          return bdTime.toLocaleDateString('en-CA') // YYYY-MM-DD format
         })(),
         count_completed: countCompleted,
         target_count: targetCount,
@@ -662,8 +663,7 @@ export async function getTodayCompletedChallenges() {
 
   // Get today's date in Bangladesh timezone
   const now = new Date()
-  const bdNow = new Date(now.getTime() + 6 * 60 * 60 * 1000)
-  const today = bdNow.toLocaleDateString('en-CA')
+  const today = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Dhaka' })).toLocaleDateString('en-CA')
 
   try {
     return await db
@@ -702,8 +702,7 @@ export async function getTodayRemainingChallenges() {
 
   // Get today's date in Bangladesh timezone
   const now = new Date()
-  const bdNow = new Date(now.getTime() + 6 * 60 * 60 * 1000)
-  const today = bdNow.toLocaleDateString('en-CA')
+  const today = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Dhaka' })).toLocaleDateString('en-CA')
 
   try {
     // Get all available challenges (both active and not_started)
@@ -748,8 +747,7 @@ export async function cleanDuplicateDailyLogs() {
   
   // Get today's date in Bangladesh timezone
   const now = new Date()
-  const bdNow = new Date(now.getTime() + 6 * 60 * 60 * 1000)
-  const today = bdNow.toLocaleDateString('en-CA')
+  const today = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Dhaka' })).toLocaleDateString('en-CA')
   
   try {
     // Delete duplicate entries for today where completion_date doesn't match actual completion
@@ -799,13 +797,28 @@ export async function getCompletedTodayChallenges() {
 
   // Get today's date in Bangladesh timezone
   const now = new Date()
-  const bdNow = new Date(now.getTime() + 6 * 60 * 60 * 1000)
-  const today = bdNow.toLocaleDateString('en-CA')
+  const today = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Dhaka' })).toLocaleDateString('en-CA')
   
   console.log('DEBUG - getCompletedTodayChallenges - Today date:', today)
   console.log('DEBUG - getCompletedTodayChallenges - User ID:', user.id)
 
   try {
+    // First, let's see what completion dates exist in the database
+    const allLogs = await db
+      .select({
+        completion_date: userChallengeDailyLogs.completion_date,
+        is_completed: userChallengeDailyLogs.is_completed,
+        challenge_id: userChallengeDailyLogs.challenge_id,
+      })
+      .from(userChallengeDailyLogs)
+      .where(eq(userChallengeDailyLogs.user_id, user.id))
+    
+    console.log('DEBUG - All user logs:', allLogs.map(log => ({ 
+      date: log.completion_date, 
+      completed: log.is_completed,
+      challenge: log.challenge_id 
+    })))
+    
     // Get challenges completed today from daily logs
     const completedToday = await db
       .select({
@@ -880,12 +893,15 @@ export async function getPendingTodayChallenges() {
 
   // Get today's date in Bangladesh timezone
   const now = new Date()
-  const bdNow = new Date(now.getTime() + 6 * 60 * 60 * 1000)
-  const today = bdNow.toLocaleDateString('en-CA')
+  const today = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Dhaka' })).toLocaleDateString('en-CA')
+  
+  console.log('DEBUG - getPendingTodayChallenges - Today date:', today)
+  console.log('DEBUG - getPendingTodayChallenges - User ID:', user.id)
 
   try {
     // Get all active challenges
     const allChallenges = await getChallengesWithProgress(user.id)
+    console.log('DEBUG - getPendingTodayChallenges - All challenges count:', allChallenges.length)
     
     // Get challenges completed today
     const completedToday = await db
@@ -899,11 +915,16 @@ export async function getPendingTodayChallenges() {
         )
       )
 
+    console.log('DEBUG - getPendingTodayChallenges - Completed today IDs:', completedToday.map(c => c.challenge_id))
     const completedIds = new Set(completedToday.map(c => c.challenge_id))
     
     // Return challenges NOT completed today
-    return allChallenges
+    const pendingChallenges = allChallenges
       .filter(challenge => !completedIds.has(challenge.id))
+    
+    console.log('DEBUG - getPendingTodayChallenges - Pending count:', pendingChallenges.length)
+    
+    return pendingChallenges
       .map(challenge => {
         const completionPercentage =
           challenge.total_completed_days && challenge.total_days

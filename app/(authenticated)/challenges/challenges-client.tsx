@@ -130,15 +130,12 @@ export default function ChallengesClient({
       setCompletionLoading(true)
       try {
         let result: Challenge[] = []
-        console.log('Loading challenges for filter:', filter)
         if (filter === 'completed') {
           const { getCompletedTodayChallenges } = await import('@/lib/actions/challenges')
           result = await getCompletedTodayChallenges()
-          console.log('Completed today challenges:', result.length)
         } else if (filter === 'pending') {
           const { getPendingTodayChallenges } = await import('@/lib/actions/challenges')
           result = await getPendingTodayChallenges()
-          console.log('Pending today challenges:', result.length)
         } else {
           result = initialChallenges
         }
@@ -584,7 +581,12 @@ export default function ChallengesClient({
                           <p className="text-xs text-muted-foreground truncate">
                             Day {log.day_number} • {log.count_completed} reps •{' '}
                             {log.completed_at
-                              ? format(new Date(log.completed_at).toLocaleString('en-US', { timeZone: 'Asia/Dhaka' }), 'PPpp')
+                              ? format(
+                                  new Date(log.completed_at).toLocaleString('en-US', {
+                                    timeZone: 'Asia/Dhaka',
+                                  }),
+                                  'PPpp'
+                                )
                               : 'No date'}
                           </p>
                         </div>

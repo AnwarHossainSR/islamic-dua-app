@@ -7,16 +7,18 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export const isCurrentDay = (lastCompletedAt: number | null) => {
-  if (!lastCompletedAt) return false
-  
+  if (!lastCompletedAt || isNaN(lastCompletedAt) || lastCompletedAt === null) return false
+
   // Convert UTC timestamp to Bangladesh time
   const completedDate = new Date(lastCompletedAt)
-  const completedBdTime = new Date(completedDate.toLocaleString('en-US', { timeZone: 'Asia/Dhaka' }))
-  
+  const completedBdTime = new Date(
+    completedDate.toLocaleString('en-US', { timeZone: 'Asia/Dhaka' })
+  )
+
   // Get current Bangladesh time
   const now = new Date()
   const bdNow = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Dhaka' }))
-  
+
   return isSameDay(completedBdTime, bdNow)
 }
 
@@ -72,13 +74,13 @@ export function sortChallengesByCompletion<T extends { last_completed_at?: numbe
  */
 export function formatNumber(num: number, decimals: number = 1): string {
   if (num < 1000) return num.toString()
-  
+
   const units = [
     { value: 1e9, suffix: 'B' },
     { value: 1e6, suffix: 'M' },
-    { value: 1e3, suffix: 'K' }
+    { value: 1e3, suffix: 'K' },
   ]
-  
+
   for (const unit of units) {
     if (num >= unit.value) {
       const formatted = (num / unit.value).toFixed(decimals)
@@ -86,6 +88,6 @@ export function formatNumber(num: number, decimals: number = 1): string {
       return parseFloat(formatted) + unit.suffix
     }
   }
-  
+
   return num.toString()
 }

@@ -81,7 +81,7 @@ export interface RecentLog {
   id: string
   day_number: number
   count_completed: number
-  completed_at: string
+  completed_at: string | number
   is_completed: boolean
   user_progress?: {
     challenge?: {

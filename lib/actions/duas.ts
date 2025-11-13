@@ -28,8 +28,8 @@ function convertDuaFromDB(dua: DuaFromDB): Dua {
     tags: dua.tags || [],
     audio_url: dua.audio_url || undefined,
     created_by: dua.created_by || undefined,
-    created_at: dua.created_at?.toISOString() || new Date().toISOString(),
-    updated_at: dua.updated_at?.toISOString() || new Date().toISOString(),
+    created_at: dua.created_at ? new Date(dua.created_at).toISOString() : new Date().toISOString(),
+    updated_at: dua.updated_at ? new Date(dua.updated_at).toISOString() : new Date().toISOString(),
   }
 }
 

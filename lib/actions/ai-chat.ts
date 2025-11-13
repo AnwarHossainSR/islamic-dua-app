@@ -29,8 +29,8 @@ export async function createChatSession(
 
   return {
     ...session,
-    created_at: session.created_at?.toISOString() || new Date().toISOString(),
-    updated_at: session.updated_at?.toISOString() || new Date().toISOString(),
+    created_at: session.created_at ? new Date(session.created_at).toISOString() : new Date().toISOString(),
+    updated_at: session.updated_at ? new Date(session.updated_at).toISOString() : new Date().toISOString(),
   }
 }
 
@@ -54,8 +54,8 @@ export async function getChatSessions() {
 
   return sessions.map(session => ({
     ...session,
-    created_at: session.created_at?.toISOString() || new Date().toISOString(),
-    updated_at: session.updated_at?.toISOString() || new Date().toISOString(),
+    created_at: session.created_at ? new Date(session.created_at).toISOString() : new Date().toISOString(),
+    updated_at: session.updated_at ? new Date(session.updated_at).toISOString() : new Date().toISOString(),
   }))
 }
 
@@ -75,7 +75,7 @@ export async function getChatMessages(sessionId: string) {
 
   return messages.map(message => ({
     ...message,
-    created_at: message.created_at?.toISOString() || new Date().toISOString(),
+    created_at: message.created_at ? new Date(message.created_at).toISOString() : new Date().toISOString(),
   }))
 }
 
@@ -139,7 +139,7 @@ export async function sendChatMessage(
   // Update session timestamp
   await db
     .update(aiChatSessions)
-    .set({ updated_at: new Date() })
+    .set({ updated_at: Date.now() })
     .where(eq(aiChatSessions.id, sessionId))
 
   revalidatePath('/ai')

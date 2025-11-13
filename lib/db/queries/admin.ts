@@ -43,8 +43,7 @@ export async function getUserStats(userId: string) {
 
   // Get user's today completions in Bangladesh timezone
   const now = new Date()
-  const bdNow = new Date(now.getTime() + 6 * 60 * 60 * 1000)
-  const today = bdNow.toLocaleDateString('en-CA')
+  const today = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Dhaka' })).toLocaleDateString('en-CA')
   const [todayCompletionsResult] = await db
     .select({ count: count() })
     .from(userChallengeDailyLogs)
@@ -55,6 +54,7 @@ export async function getUserStats(userId: string) {
     ))
 
   // Get user's week completions (last 7 days) in Bangladesh timezone
+  const bdNow = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Dhaka' }))
   const weekAgo = new Date(bdNow.getTime())
   weekAgo.setDate(weekAgo.getDate() - 7)
   const weekAgoStr = weekAgo.toLocaleDateString('en-CA')
@@ -159,8 +159,7 @@ export async function getGlobalStats() {
 
   // Get today's completions across all users in Bangladesh timezone
   const now = new Date()
-  const bdNow = new Date(now.getTime() + 6 * 60 * 60 * 1000)
-  const today = bdNow.toLocaleDateString('en-CA')
+  const today = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Dhaka' })).toLocaleDateString('en-CA')
   const [todayCompletionsResult] = await db
     .select({ count: count() })
     .from(userChallengeDailyLogs)
@@ -170,6 +169,7 @@ export async function getGlobalStats() {
     ))
 
   // Get week completions (last 7 days) across all users in Bangladesh timezone
+  const bdNow = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Dhaka' }))
   const weekAgo = new Date(bdNow.getTime())
   weekAgo.setDate(weekAgo.getDate() - 7)
   const weekAgoStr = weekAgo.toLocaleDateString('en-CA')

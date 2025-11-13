@@ -55,7 +55,7 @@ export async function updateAdminUser(id: string, data: {
 }) {
   return await db
     .update(adminUsers)
-    .set({ ...data, updated_at: new Date() })
+    .set({ ...data, updated_at: Date.now() })
     .where(eq(adminUsers.id, id))
     .returning()
 }
@@ -86,7 +86,7 @@ export async function createUserRole(userId: string, role: 'user' | 'editor' | '
 export async function updateUserRole(userId: string, role: 'user' | 'editor' | 'admin' | 'super_admin') {
   return await db
     .update(userRoles)
-    .set({ role, updated_at: new Date() })
+    .set({ role, updated_at: Date.now() })
     .where(eq(userRoles.user_id, userId))
     .returning()
 }

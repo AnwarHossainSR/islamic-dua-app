@@ -22,8 +22,9 @@ import {
 } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useToast } from '@/hooks/use-toast'
+import { useUserPresence } from '@/hooks/use-user-presence'
 import { addAdminUser, removeAdminUser, updateAdminUser } from '@/lib/actions/admin-users'
-import { Edit, Shield, Trash2, UserPlus } from 'lucide-react'
+import { Edit, Shield, Trash2, UserPlus, Wifi, WifiOff } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
 
@@ -51,6 +52,7 @@ export function UsersClient({ users }: UsersClientProps) {
   const [loading, setLoading] = useState(false)
   const [generatedPassword, setGeneratedPassword] = useState('')
   const { toast } = useToast()
+  const { isUserOnline } = useUserPresence()
 
   const handleAddAdmin = async () => {
     if (!email.trim()) {
@@ -299,6 +301,16 @@ export function UsersClient({ users }: UsersClientProps) {
                   </Badge>
                   <Badge variant={user.is_active ? 'default' : 'outline'}>
                     {user.is_active ? 'Active' : 'Inactive'}
+                  </Badge>
+                  <Badge 
+                    variant={isUserOnline(user.user_id) ? 'default' : 'secondary'}
+                    className={isUserOnline(user.user_id) ? 'bg-green-500 hover:bg-green-600' : 'bg-gray-500'}
+                  >
+                    {isUserOnline(user.user_id) ? (
+                      <><Wifi className="h-3 w-3 mr-1" />Online</>
+                    ) : (
+                      <><WifiOff className="h-3 w-3 mr-1" />Offline</>
+                    )}
                   </Badge>
                 </div>
                 <div className="flex gap-2">

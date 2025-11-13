@@ -5,6 +5,7 @@ import { getSupabaseAdminServerClient } from '@/lib/supabase/server'
 import { ArrowLeft, Shield, Settings } from 'lucide-react'
 import Link from 'next/link'
 import { PermissionsClient } from './permissions-client'
+import { UserOnlineStatus } from './user-online-status'
 
 export const dynamic = 'force-dynamic'
 
@@ -110,11 +111,14 @@ export default async function UserPermissionsPage({ params }: { params: Promise<
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
-              <div>
+              <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">Status</p>
-                <Badge variant={user.is_active ? 'default' : 'outline'}>
-                  {user.is_active ? 'Active' : 'Inactive'}
-                </Badge>
+                <div className="flex gap-2">
+                  <Badge variant={user.is_active ? 'default' : 'outline'}>
+                    {user.is_active ? 'Active' : 'Inactive'}
+                  </Badge>
+                  <UserOnlineStatus />
+                </div>
               </div>
             </div>
           </CardContent>

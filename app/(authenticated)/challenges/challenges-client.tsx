@@ -130,12 +130,15 @@ export default function ChallengesClient({
       setCompletionLoading(true)
       try {
         let result: Challenge[] = []
+        console.log('Loading challenges for filter:', filter)
         if (filter === 'completed') {
           const { getCompletedTodayChallenges } = await import('@/lib/actions/challenges')
           result = await getCompletedTodayChallenges()
+          console.log('Completed today challenges:', result.length)
         } else if (filter === 'pending') {
           const { getPendingTodayChallenges } = await import('@/lib/actions/challenges')
           result = await getPendingTodayChallenges()
+          console.log('Pending today challenges:', result.length)
         } else {
           result = initialChallenges
         }
@@ -201,7 +204,7 @@ export default function ChallengesClient({
   const stats = useMemo(() => {
     const total = challenges.length
     const participants = challenges.reduce((sum, c) => sum + (c.total_participants || 0), 0)
-    const todayCompleted = challenges.filter(c => isCurrentDay(c.last_completed_at || '')).length
+    const todayCompleted = challenges.filter(c => isCurrentDay(c.last_completed_at || null)).length
     const completions = challenges.reduce((sum, c) => sum + (c.total_completed_days || 0), 0)
     const days = challenges.reduce((sum, c) => sum + c.total_days, 0)
     const avgRate = participants > 0 ? Math.round((completions / days) * 100) : 0
@@ -580,10 +583,9 @@ export default function ChallengesClient({
                           </p>
                           <p className="text-xs text-muted-foreground truncate">
                             Day {log.day_number} • {log.count_completed} reps •{' '}
-                            {log.completed_at &&
-                            !isNaN(new Date(log.completed_at + ' GMT+0600').getTime())
-                              ? format(new Date(log.completed_at + ' GMT+0600'), 'PPpp')
-                              : 'Invalid date'}
+                            {log.completed_at
+                              ? format(new Date(log.completed_at).toLocaleString('en-US', { timeZone: 'Asia/Dhaka' }), 'PPpp')
+                              : 'No date'}
                           </p>
                         </div>
                       </div>

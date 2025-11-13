@@ -145,15 +145,6 @@ CREATE TABLE IF NOT EXISTS user_challenge_daily_logs (
   UNIQUE(user_progress_id, day_number)
 );
 
--- User Challenge Bookmarks
-CREATE TABLE IF NOT EXISTS user_challenge_bookmarks (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id UUID NOT NULL,
-  challenge_id UUID REFERENCES challenge_templates(id) ON DELETE CASCADE,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  
-  UNIQUE(user_id, challenge_id)
-);
 
 -- Challenge Achievements
 CREATE TABLE IF NOT EXISTS challenge_achievements (

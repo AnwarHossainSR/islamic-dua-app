@@ -38,12 +38,8 @@ export async function getChallengesWithProgress(userId: string) {
     .where(eq(challengeTemplates.is_active, true))
     .orderBy(asc(challengeTemplates.display_order))
 
-  // Convert dates to strings to avoid serialization issues
-  return challenges.map(challenge => ({
-    ...challenge,
-    completed_at: challenge.completed_at ? challenge.completed_at.toISOString() : null,
-    last_completed_at: challenge.last_completed_at ? challenge.last_completed_at.toISOString() : null
-  }))
+  // Return challenges with Unix timestamps (already numbers)
+  return challenges
 }
 
 export async function searchChallenges({

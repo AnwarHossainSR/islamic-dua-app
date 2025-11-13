@@ -59,7 +59,7 @@ export async function createNotification(data: {
       message: data.message,
       icon: data.icon || '🔔',
       action_url: data.actionUrl,
-      expires_at: data.expiresAt,
+      expires_at: data.expiresAt ? data.expiresAt.getTime() : null,
       metadata: data.metadata ? JSON.stringify(data.metadata) : null,
     })
     .returning()

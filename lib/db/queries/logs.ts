@@ -54,7 +54,7 @@ export async function insertLog({
       level,
       message,
       meta,
-      timestamp: new Date()
+      timestamp: Date.now()
     })
     .returning()
 }

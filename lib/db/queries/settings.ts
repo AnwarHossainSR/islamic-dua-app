@@ -33,7 +33,7 @@ export async function getAppSettings(category?: string) {
 export async function updateAppSetting(key: string, value: any) {
   return await db
     .update(appSettings)
-    .set({ value: JSON.stringify(value), updated_at: new Date() })
+    .set({ value: JSON.stringify(value), updated_at: Date.now() })
     .where(eq(appSettings.key, key))
     .returning()
 }
@@ -49,7 +49,7 @@ export async function updateUserSetting(userId: string, key: string, value: any)
   // First try to update existing setting
   const updateResult = await db
     .update(userSettings)
-    .set({ value: JSON.stringify(value), updated_at: new Date() })
+    .set({ value: JSON.stringify(value), updated_at: Date.now() })
     .where(and(eq(userSettings.user_id, userId), eq(userSettings.key, key)))
     .returning()
 

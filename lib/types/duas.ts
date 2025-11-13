@@ -17,8 +17,8 @@ export interface DuaFromDB {
   tags: string[] | null
   audio_url: string | null
   created_by: string | null
-  created_at: Date | null
-  updated_at: Date | null
+  created_at: number | null
+  updated_at: number | null
 }
 
 export interface DuaCategoryFromDB {
@@ -30,7 +30,7 @@ export interface DuaCategoryFromDB {
   icon: string | null
   color: string | null
   is_active: boolean | null
-  created_at: Date | null
+  created_at: number | null
 }
 
 // Client types (what we use in components)

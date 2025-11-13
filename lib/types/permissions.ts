@@ -4,7 +4,7 @@ export interface Permission {
   description: string | null
   resource?: string
   action?: string
-  created_at?: Date | null | string
+  created_at?: Date | null | string | number
 }
 
 export interface Role {

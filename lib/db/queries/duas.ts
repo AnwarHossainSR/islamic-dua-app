@@ -97,7 +97,7 @@ export async function updateDua(id: string, duaData: Partial<{
 }>) {
   return await db
     .update(duas)
-    .set({ ...duaData, updated_at: new Date() })
+    .set({ ...duaData, updated_at: Date.now() })
     .where(eq(duas.id, id))
     .returning()
 }
@@ -105,7 +105,7 @@ export async function updateDua(id: string, duaData: Partial<{
 export async function deleteDua(id: string) {
   return await db
     .update(duas)
-    .set({ is_active: false, updated_at: new Date() })
+    .set({ is_active: false, updated_at: Date.now() })
     .where(eq(duas.id, id))
 }
 

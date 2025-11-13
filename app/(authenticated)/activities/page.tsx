@@ -169,7 +169,7 @@ export default async function ActivitiesPage() {
                       <span className="text-xs font-medium">Last Completed</span>
                       <span className="text-sm font-medium">
                         {userActivity?.last_completed_at 
-                          ? formatDateTime(userActivity.last_completed_at, 'date')
+                          ? formatDateTime(new Date(userActivity.last_completed_at), 'date')
                           : 'Never'
                         }
                       </span>

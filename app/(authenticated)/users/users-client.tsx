@@ -1,5 +1,7 @@
 'use client'
 
+console.log('UsersClient component loaded')
+
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -42,6 +44,7 @@ interface UsersClientProps {
 }
 
 export function UsersClient({ users }: UsersClientProps) {
+  console.log('UsersClient component rendering')
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
@@ -52,7 +55,9 @@ export function UsersClient({ users }: UsersClientProps) {
   const [loading, setLoading] = useState(false)
   const [generatedPassword, setGeneratedPassword] = useState('')
   const { toast } = useToast()
+  console.log('About to call useUserPresence hook')
   const { isUserOnline } = useUserPresence()
+  console.log('useUserPresence hook called successfully')
 
   const handleAddAdmin = async () => {
     if (!email.trim()) {

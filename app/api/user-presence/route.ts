@@ -1,59 +1,110 @@
-import { getSupabaseServerClient } from '@/lib/supabase/server'
+import { db } from '@/lib/db'
+import { userSettings } from '@/lib/db/schema'
+import { and, eq } from 'drizzle-orm'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(request: NextRequest) {
+  console.log('=== USER PRESENCE API POST CALLED ===')
   try {
     const { userId, lastSeen } = await request.json()
-    const supabase = await getSupabaseServerClient()
+    console.log('Received presence update:', {
+      userId,
+      lastSeen,
+      timestamp: new Date().toISOString(),
+    })
 
-    // Update user's last seen timestamp
-    const { error } = await supabase
-      .from('user_settings')
-      .upsert({
-        user_id: userId,
-        key: 'last_seen',
-        value: lastSeen.toString(),
-      })
+    // Check if record exists
+    console.log('Checking for existing record...')
+    const existing = await db
+      .select()
+      .from(userSettings)
+      .where(and(eq(userSettings.user_id, userId), eq(userSettings.key, 'last_seen')))
+      .limit(1)
 
-    if (error) {
-      console.error('Error updating user presence:', error)
-      return NextResponse.json({ error: 'Failed to update presence' }, { status: 500 })
+    console.log('Existing records found:', existing.length)
+
+    let result
+    if (existing.length > 0) {
+      console.log('Updating existing record for user:', userId)
+      // Update existing record
+      result = await db
+        .update(userSettings)
+        .set({
+          value: lastSeen.toString(),
+          updated_at: Date.now(),
+        })
+        .where(and(eq(userSettings.user_id, userId), eq(userSettings.key, 'last_seen')))
+        .returning()
+      console.log('Update result:', result)
+    } else {
+      console.log('Inserting new record for user:', userId)
+      // Insert new record
+      result = await db
+        .insert(userSettings)
+        .values({
+          user_id: userId,
+          key: 'last_seen',
+          value: lastSeen.toString(),
+        })
+        .returning()
+      console.log('Insert result:', result)
     }
 
-    return NextResponse.json({ success: true })
-  } catch (error) {
-    console.error('Error in user presence API:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    console.log('Final database result:', result)
+    console.log('=== USER PRESENCE API POST COMPLETED ===')
+    return NextResponse.json({ success: true, data: result })
+  } catch (error: any) {
+    console.error('=== ERROR in user presence API ===', error)
+    console.error('Error details:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name,
+    })
+    return NextResponse.json(
+      { error: 'Internal server error', details: error.message },
+      { status: 500 }
+    )
   }
 }
 
 export async function GET() {
+  console.log('=== USER PRESENCE API GET CALLED ===')
   try {
-    const supabase = await getSupabaseServerClient()
+    // Get all user last seen timestamps using Drizzle
+    console.log('Fetching user presence data from database...')
+    const data = await db
+      .select({
+        user_id: userSettings.user_id,
+        value: userSettings.value,
+      })
+      .from(userSettings)
+      .where(eq(userSettings.key, 'last_seen'))
 
-    // Get all user last seen timestamps
-    const { data, error } = await supabase
-      .from('user_settings')
-      .select('user_id, value')
-      .eq('key', 'last_seen')
-
-    if (error) {
-      console.error('Error fetching user presence:', error)
-      return NextResponse.json({ error: 'Failed to fetch presence' }, { status: 500 })
-    }
+    console.log('Raw database data:', data)
 
     // Calculate online status (online if last seen within 2 minutes)
     const now = Date.now()
     const onlineUsers: Record<string, boolean> = {}
-    
-    data?.forEach(({ user_id, value }) => {
+
+    data.forEach(({ user_id, value }) => {
       const lastSeen = parseInt(value || '0')
-      onlineUsers[user_id] = (now - lastSeen) < 120000 // 2 minutes
+      const isOnline = now - lastSeen < 120000 // 2 minutes
+      onlineUsers[user_id] = isOnline
+      console.log(
+        `User ${user_id}: lastSeen=${lastSeen}, now=${now}, diff=${
+          now - lastSeen
+        }ms, online=${isOnline}`
+      )
     })
 
+    console.log('Calculated online users:', onlineUsers)
+    console.log('=== USER PRESENCE API GET COMPLETED ===')
     return NextResponse.json({ onlineUsers })
-  } catch (error) {
-    console.error('Error in user presence API:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  } catch (error: any) {
+    console.error('=== ERROR in user presence GET API ===', error)
+    return NextResponse.json(
+      { error: 'Internal server error', details: error.message },
+      { status: 500 }
+    )
   }
 }

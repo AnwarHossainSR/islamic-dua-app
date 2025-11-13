@@ -76,7 +76,7 @@ export function ChallengeCard({
     }
   }
 
-  function getLastCompletedBadge(lastCompletedAt: string | null) {
+  function getLastCompletedBadge(lastCompletedAt: number | null) {
     if (!lastCompletedAt) {
       return (
         <Badge variant="outline" className="text-xs">
@@ -84,9 +84,9 @@ export function ChallengeCard({
         </Badge>
       )
     }
-    // Database stores Bangladesh time but returns as UTC, so subtract 6 hours
+    // Convert UTC timestamp to Bangladesh time
     const utcDate = new Date(lastCompletedAt)
-    const date = new Date(utcDate.getTime() - 6 * 60 * 60 * 1000)
+    const date = new Date(utcDate.toLocaleString('en-US', { timeZone: 'Asia/Dhaka' }))
     if (isNaN(date.getTime())) {
       return (
         <Badge variant="outline" className="text-xs">
@@ -112,7 +112,7 @@ export function ChallengeCard({
   const statusBadge = getStatusBadgeConfig(challenge.user_status)
   const difficultyVariant = getDifficultyBadgeVariant(challenge.difficulty_level)
   const progressConfig = getProgressConfig(challenge.user_status, completionRate)
-  const completedToday = isCurrentDay(challenge.last_completed_at || '')
+  const completedToday = isCurrentDay(challenge.last_completed_at || null)
 
   return (
     <Card className={getCardClassName(challenge.user_status)}>

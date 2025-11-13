@@ -68,10 +68,10 @@ export interface Challenge {
   total_days: number
   daily_target_count: number
   recommended_prayer?: string
-  last_completed_at?: string
+  last_completed_at?: number
   user_status: 'not_started' | 'active' | 'paused' | 'completed'
   progress_id?: string
-  completed_at?: string
+  completed_at?: number
   total_completed_days: number
   current_day: number
   completion_percentage?: number

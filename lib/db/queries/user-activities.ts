@@ -76,7 +76,7 @@ export async function getUserRecentActivityLogs(userId: string, limit: number = 
     id: log.id,
     day_number: log.day_number,
     count_completed: log.count_completed,
-    completed_at: log.completed_at ? log.completed_at.toISOString() : null,
+    completed_at: log.completed_at || null,
     is_completed: log.is_completed,
     userProgress: {
       challenge: {

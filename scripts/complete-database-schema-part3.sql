@@ -220,7 +220,6 @@ ALTER TABLE admin_users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE challenge_templates ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_challenge_progress ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_challenge_daily_logs ENABLE ROW LEVEL SECURITY;
-ALTER TABLE user_challenge_bookmarks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE challenge_achievements ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_achievements ENABLE ROW LEVEL SECURITY;
 ALTER TABLE activity_stats ENABLE ROW LEVEL SECURITY;
@@ -291,15 +290,6 @@ CREATE POLICY "Users can manage their own daily logs"
   USING (auth.uid() = user_id)
   WITH CHECK (auth.uid() = user_id);
 
--- Bookmark policies
-CREATE POLICY "Users can view their own bookmarks"
-  ON user_challenge_bookmarks FOR SELECT
-  USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can manage their own bookmarks"
-  ON user_challenge_bookmarks FOR ALL
-  USING (auth.uid() = user_id)
-  WITH CHECK (auth.uid() = user_id);
 
 -- Achievement policies
 CREATE POLICY "Achievements are viewable by everyone"

@@ -3,6 +3,7 @@
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { ChallengeCalendar } from '@/components/ui/challenge-calendar'
 import { useConfirm } from '@/components/ui/confirm'
 import { Progress } from '@/components/ui/progress'
 import {
@@ -665,59 +666,11 @@ export default function UserChallengeProgressClient({
       )}
 
       {/* Calendar/History */}
-      <Card>
-        <CardHeader className="pb-3 sm:pb-6">
-          <CardTitle className="text-base sm:text-lg">Progress Calendar</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-7 gap-1.5 sm:gap-2">
-            {Array.from({ length: challenge.total_days }, (_, i) => {
-              const dayNum = i + 1
-              const log = progress.daily_logs?.find((l: any) => l.day_number === dayNum)
-              const isCompleted = log?.is_completed
-              const isCurrent = dayNum === progress.current_day
-
-              return (
-                <div
-                  key={dayNum}
-                  className={cn(
-                    'flex aspect-square flex-col items-center justify-center rounded-lg border-2 p-1 text-xs font-medium sm:p-2 sm:text-sm',
-                    isCurrent &&
-                      !isCompleted &&
-                      'border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-950',
-                    !isCompleted && !isCurrent && 'border-muted bg-muted/50 text-muted-foreground',
-                    isCompleted && 'border-emerald-500 bg-emerald-500/5 text-emerald-500'
-                  )}
-                >
-                  {isCompleted ? (
-                    <CheckCircle2 className="mb-0.5 h-3 w-3 sm:mb-1 sm:h-5 sm:w-5" />
-                  ) : isCurrent ? (
-                    <Circle className="mb-0.5 h-3 w-3 sm:mb-1 sm:h-5 sm:w-5" />
-                  ) : (
-                    <Circle className="mb-0.5 h-3 w-3 opacity-30 sm:mb-1 sm:h-5 sm:w-5" />
-                  )}
-                  <span className="text-[10px] sm:text-xs">{dayNum}</span>
-                </div>
-              )
-            })}
-          </div>
-
-          <div className="mt-3 flex flex-wrap gap-3 text-xs sm:mt-4 sm:gap-4 sm:text-sm">
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4 text-emerald-500" />
-              <span className="text-muted-foreground">Completed</span>
-            </div>
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <Circle className="h-3 w-3 text-blue-500 sm:h-4 sm:w-4" />
-              <span className="text-muted-foreground">Today</span>
-            </div>
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <Circle className="h-3 w-3 text-muted-foreground opacity-30 sm:h-4 sm:w-4" />
-              <span className="text-muted-foreground">Upcoming</span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <ChallengeCalendar
+        challenge={challenge}
+        progress={progress}
+        dailyLogs={progress.daily_logs || []}
+      />
 
       {/* Success Modal */}
       {showSuccessModal && (

@@ -1,8 +1,8 @@
 import { getActivityWithChallenges, getTopUsersForActivity } from '@/lib/actions/admin'
 import { getUser } from '@/lib/actions/auth'
 import { db } from '@/lib/db'
-import { userChallengeDailyLogs, challengeActivityMapping } from '@/lib/db/schema'
-import { eq, and, inArray } from 'drizzle-orm'
+import { challengeActivityMapping, userChallengeDailyLogs } from '@/lib/db/schema'
+import { and, eq, inArray } from 'drizzle-orm'
 import { notFound } from 'next/navigation'
 import ActivityDetailsPageClient from './activity-details-client'
 
@@ -19,11 +19,11 @@ async function getUserDailyLogsForActivity(activityId: string, userId: string) {
       .select({ challenge_id: challengeActivityMapping.challenge_id })
       .from(challengeActivityMapping)
       .where(eq(challengeActivityMapping.activity_stat_id, activityId))
-    
+
     if (linkedChallenges.length === 0) return []
-    
+
     const challengeIds = linkedChallenges.map(c => c.challenge_id)
-    
+
     // Get user's daily logs for these challenges
     const logs = await db
       .select()
@@ -36,7 +36,6 @@ async function getUserDailyLogsForActivity(activityId: string, userId: string) {
         )
       )
       .orderBy(userChallengeDailyLogs.completion_date)
-    
     return logs
   } catch (error) {
     console.error('Error fetching user daily logs:', error)
@@ -47,16 +46,22 @@ async function getUserDailyLogsForActivity(activityId: string, userId: string) {
 export default async function ActivityDetailsPage({ params }: Props) {
   const resolvedParams = await params
   const user = await getUser()
-  
+
   const [activity, topUsers, userDailyLogs] = await Promise.all([
     getActivityWithChallenges(resolvedParams.id),
     getTopUsersForActivity(resolvedParams.id, 10),
-    user ? getUserDailyLogsForActivity(resolvedParams.id, user.id) : []
+    user ? getUserDailyLogsForActivity(resolvedParams.id, user.id) : [],
   ])
 
   if (!activity) {
     notFound()
   }
 
-  return <ActivityDetailsPageClient activity={activity} topUsers={topUsers} userDailyLogs={userDailyLogs} />
+  return (
+    <ActivityDetailsPageClient
+      activity={activity}
+      topUsers={topUsers}
+      userDailyLogs={userDailyLogs}
+    />
+  )
 }

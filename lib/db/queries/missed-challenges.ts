@@ -101,5 +101,21 @@ export async function trackMissedChallenge(
 
 // Run daily missed challenges tracking
 export async function runDailyMissedChallengesTracking() {
-  await db.execute(sql`SELECT track_missed_challenges()`)
+  const startTime = Date.now()
+  
+  try {
+    const result = await db.execute(sql`SELECT track_missed_challenges()`)
+    const duration = Date.now() - startTime
+    
+    return {
+      success: true,
+      duration: `${duration}ms`,
+      processedAt: new Date().toISOString(),
+      result: result[0] || null
+    }
+  } catch (error) {
+    const duration = Date.now() - startTime
+    
+    throw new Error(`Missed challenges tracking failed after ${duration}ms: ${error instanceof Error ? error.message : 'Unknown error'}`)
+  }
 }

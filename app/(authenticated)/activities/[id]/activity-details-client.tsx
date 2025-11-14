@@ -13,11 +13,13 @@ import { useState } from 'react'
 interface ActivityDetailsPageProps {
   activity: any
   topUsers: any[]
+  userDailyLogs: any[]
 }
 
 export default function ActivityDetailsPageClient({
   activity,
   topUsers,
+  userDailyLogs,
 }: ActivityDetailsPageProps) {
   const { toast } = useToast()
   const [currentCount, setCurrentCount] = useState(activity.total_count)
@@ -345,6 +347,79 @@ export default function ActivityDetailsPageClient({
                   </div>
                 </div>
               ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* My Daily Completion Details */}
+      {userDailyLogs && userDailyLogs.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>My Daily Completion Details</CardTitle>
+            <CardDescription>Your personal completion history for this activity</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {userDailyLogs
+                .sort((a: any, b: any) => new Date(b.completion_date).getTime() - new Date(a.completion_date).getTime())
+                .map((log: any) => (
+                  <div
+                    key={log.id}
+                    className="flex items-center justify-between rounded-lg border p-4 bg-emerald-50/50 dark:bg-emerald-950/20"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/10">
+                        <Trophy className="h-5 w-5 text-emerald-500" />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-medium">Day {log.day_number}</h4>
+                          {log.mood && (
+                            <Badge variant="outline" className="text-xs">
+                              {log.mood === 'great' && '😊 Great'}
+                              {log.mood === 'good' && '🙂 Good'}
+                              {log.mood === 'okay' && '😐 Okay'}
+                              {log.mood === 'difficult' && '😓 Difficult'}
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                          <span>
+                            Completed: {log.count_completed}/{log.target_count}
+                          </span>
+                          <span>
+                            {new Date(log.completion_date).toLocaleDateString('en-US', {
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric',
+                            })}
+                          </span>
+                          {log.completed_at && (
+                            <span>
+                              {new Date(log.completed_at).toLocaleTimeString('en-US', {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                              })}
+                            </span>
+                          )}
+                        </div>
+                        {log.notes && (
+                          <p className="mt-1 text-sm text-muted-foreground italic">
+                            "{log.notes}"
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-2xl font-bold text-emerald-600">
+                        {log.count_completed}
+                      </div>
+                      <div className="text-xs text-muted-foreground">count</div>
+                    </div>
+                  </div>
+                ))
+              }
             </div>
           </CardContent>
         </Card>

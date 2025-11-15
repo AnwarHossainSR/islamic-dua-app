@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   getMissedChallenges,
   getMissedChallengesSummaryData,
+  getLastSyncTimeAction,
 } from '@/lib/actions/missed-challenges'
 import { formatDateTime } from '@/lib/utils'
 import { AlertTriangle, ArrowLeft, Calendar, TrendingDown } from 'lucide-react'
@@ -11,10 +12,28 @@ import Link from 'next/link'
 import { SyncButton } from './sync-button'
 
 export default async function MissedChallengesPage() {
-  const [missedChallenges, summary] = await Promise.all([
+  const [missedChallenges, summary, lastSyncTime] = await Promise.all([
     getMissedChallenges(),
     getMissedChallengesSummaryData(),
+    getLastSyncTimeAction(),
   ])
+
+  const formatLastSync = (timestamp: number | null) => {
+    if (!timestamp) return 'Never'
+    const date = new Date(timestamp)
+    const now = new Date()
+    const diffMs = now.getTime() - date.getTime()
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
+    const diffDays = Math.floor(diffHours / 24)
+    
+    if (diffDays > 0) {
+      return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`
+    } else if (diffHours > 0) {
+      return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`
+    } else {
+      return 'Less than an hour ago'
+    }
+  }
 
   // Group by date
   const groupedByDate = missedChallenges.reduce((acc, challenge) => {
@@ -44,6 +63,9 @@ export default async function MissedChallengesPage() {
             <h1 className="text-4xl font-bold">Missed Challenges</h1>
             <p className="text-muted-foreground">
               Track challenges you missed in the last 3 months
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Last sync: {formatLastSync(lastSyncTime)}
             </p>
           </div>
         </div>

@@ -4,6 +4,7 @@ import {
   getMissedChallengesSummary,
   getUserMissedChallenges,
   runDailyMissedChallengesTracking,
+  getLastSyncTime,
 } from '@/lib/db/queries/missed-challenges'
 import { getUser } from './auth'
 
@@ -49,5 +50,14 @@ export async function trackDailyMissedChallenges() {
   } catch (error) {
     console.error('Error tracking daily missed challenges:', error)
     return { success: false, error: 'Failed to track missed challenges' }
+  }
+}
+
+export async function getLastSyncTimeAction() {
+  try {
+    return await getLastSyncTime()
+  } catch (error) {
+    console.error('Error getting last sync time:', error)
+    return null
   }
 }

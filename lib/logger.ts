@@ -1,5 +1,6 @@
 import winston from 'winston'
-import { getSupabaseServerClient } from './supabase/server'
+import { db } from './db'
+import { apiLogs } from './db/schema'
 
 const logger = winston.createLogger({
   level: 'info',
@@ -17,12 +18,11 @@ const logger = winston.createLogger({
 
 export async function logToDatabase(level: string, message: string, meta?: any) {
   try {
-    const supabase = await getSupabaseServerClient()
-    await supabase.from('api_logs').insert({
+    await db.insert(apiLogs).values({
       level,
       message,
       meta: meta ? JSON.stringify(meta) : null,
-      timestamp: new Date().toISOString()
+      timestamp: Date.now()
     })
   } catch (error) {
     console.error('Failed to log to database:', error)

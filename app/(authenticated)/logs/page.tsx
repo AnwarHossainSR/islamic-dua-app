@@ -24,7 +24,7 @@ interface LogEntry {
   level: string
   message: string
   meta: string | null
-  timestamp: string
+  timestamp: number
 }
 
 export default function LogsPage() {
@@ -47,7 +47,16 @@ export default function LogsPage() {
     setLoading(true)
     try {
       const response = await fetch(`/api/logs?page=${page}&level=${level}&limit=${limit}`)
+      
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error('API Error:', response.status, errorText)
+        toast({ title: 'Error', description: `API Error: ${response.status}`, variant: 'destructive' })
+        return
+      }
+      
       const data = await response.json()
+      console.log('Logs data:', data)
 
       if (data.error) {
         toast({ title: 'Error', description: data.error, variant: 'destructive' })
@@ -57,7 +66,8 @@ export default function LogsPage() {
       setLogs(data.logs || [])
       setTotal(data.total || 0)
     } catch (error) {
-      toast({ title: 'Error', description: 'Failed to fetch logs', variant: 'destructive' })
+      console.error('Fetch error:', error)
+      toast({ title: 'Error', description: `Failed to fetch logs: ${error}`, variant: 'destructive' })
     } finally {
       setLoading(false)
       fetchingRef.current = false
@@ -85,7 +95,7 @@ export default function LogsPage() {
 
   useEffect(() => {
     if (page !== 1) {
-      setPage(1) // Reset to first page when limit changes
+      setPage(1)
     } else {
       fetchLogs()
     }
@@ -202,68 +212,31 @@ export default function LogsPage() {
             <div className="text-center py-8 text-muted-foreground">No logs found</div>
           ) : (
             <div className="space-y-4">
-              {(() => {
-                const groupedLogs = logs.reduce((groups, log) => {
-                  const date = new Date(log.timestamp)
-                  const today = new Date()
-                  const yesterday = new Date(today)
-                  yesterday.setDate(yesterday.getDate() - 1)
-
-                  let dateKey
-                  if (date.toDateString() === today.toDateString()) {
-                    dateKey = 'Today'
-                  } else if (date.toDateString() === yesterday.toDateString()) {
-                    dateKey = 'Yesterday'
-                  } else {
-                    dateKey = date.toLocaleDateString()
-                  }
-
-                  if (!groups[dateKey]) {
-                    groups[dateKey] = []
-                  }
-                  groups[dateKey].push(log)
-                  return groups
-                }, {} as Record<string, LogEntry[]>)
-
-                return Object.entries(groupedLogs).map(([dateKey, dateLogs]) => (
-                  <div key={dateKey} className="space-y-2">
+              {logs.map(log => (
+                <div key={log.id} className="border rounded-lg p-4 space-y-2">
+                  <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <div className="h-px bg-border flex-1" />
-                      <span className="text-sm font-medium text-muted-foreground px-2">
-                        {dateKey}
+                      <Badge variant={getLevelColor(log.level)}>
+                        {log.level.toUpperCase()}
+                      </Badge>
+                      <span className="text-sm text-muted-foreground">
+                        {new Date(log.timestamp).toLocaleString()}
                       </span>
-                      <div className="h-px bg-border flex-1" />
-                    </div>
-                    <div className="space-y-2">
-                      {dateLogs.map(log => (
-                        <div key={log.id} className="border rounded-lg p-4 space-y-2">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <Badge variant={getLevelColor(log.level)}>
-                                {log.level.toUpperCase()}
-                              </Badge>
-                              <span className="text-sm text-muted-foreground">
-                                {new Date(log.timestamp).toLocaleTimeString()}
-                              </span>
-                            </div>
-                          </div>
-                          <div className="text-sm">{log.message}</div>
-                          {log.meta && (
-                            <details className="text-xs">
-                              <summary className="cursor-pointer text-muted-foreground">
-                                Show metadata
-                              </summary>
-                              <pre className="mt-2 p-2 bg-muted rounded text-xs overflow-auto">
-                                {JSON.stringify(JSON.parse(log.meta), null, 2)}
-                              </pre>
-                            </details>
-                          )}
-                        </div>
-                      ))}
                     </div>
                   </div>
-                ))
-              })()}
+                  <div className="text-sm">{String(log.message)}</div>
+                  {log.meta && (
+                    <details className="text-xs">
+                      <summary className="cursor-pointer text-muted-foreground">
+                        Show metadata
+                      </summary>
+                      <pre className="mt-2 p-2 bg-muted rounded text-xs overflow-auto">
+                        {typeof log.meta === 'string' ? log.meta : JSON.stringify(log.meta, null, 2)}
+                      </pre>
+                    </details>
+                  )}
+                </div>
+              ))}
             </div>
           )}
 

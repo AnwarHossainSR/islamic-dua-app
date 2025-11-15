@@ -11,7 +11,6 @@ CREATE INDEX IF NOT EXISTS idx_user_challenge_daily_logs_user ON user_challenge_
 CREATE INDEX IF NOT EXISTS idx_user_challenge_daily_logs_progress ON user_challenge_daily_logs(user_progress_id);
 CREATE INDEX IF NOT EXISTS idx_user_challenge_daily_logs_date ON user_challenge_daily_logs(completion_date);
 CREATE INDEX IF NOT EXISTS idx_user_challenge_bookmarks_user ON user_challenge_bookmarks(user_id);
-CREATE INDEX IF NOT EXISTS idx_user_achievements_user ON user_achievements(user_id);
 
 -- Activity stats indexes
 CREATE INDEX IF NOT EXISTS idx_activity_stats_slug ON activity_stats(unique_slug);
@@ -47,6 +46,16 @@ CREATE INDEX IF NOT EXISTS idx_webauthn_credentials_last_used ON webauthn_creden
 -- API logs indexes
 CREATE INDEX IF NOT EXISTS idx_api_logs_level ON api_logs(level);
 CREATE INDEX IF NOT EXISTS idx_api_logs_timestamp ON api_logs(timestamp DESC);
+
+-- Missed challenges indexes
+CREATE INDEX IF NOT EXISTS idx_user_missed_challenges_user_id ON user_missed_challenges(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_missed_challenges_date ON user_missed_challenges(missed_date);
+CREATE INDEX IF NOT EXISTS idx_user_missed_challenges_challenge ON user_missed_challenges(challenge_id);
+
+-- AI chat indexes
+CREATE INDEX IF NOT EXISTS idx_ai_chat_sessions_user_id ON ai_chat_sessions(user_id);
+CREATE INDEX IF NOT EXISTS idx_ai_chat_messages_session_id ON ai_chat_messages(session_id);
+CREATE INDEX IF NOT EXISTS idx_ai_chat_messages_user_id ON ai_chat_messages(user_id);
 
 -- ============================================
 -- TRIGGER FUNCTIONS
@@ -91,10 +100,6 @@ $$ LANGUAGE plpgsql;
 -- ============================================
 -- TRIGGERS
 -- ============================================
-
--- User preferences triggers
-CREATE TRIGGER update_user_preferences_updated_at BEFORE UPDATE ON user_preferences
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- Admin users triggers
 CREATE TRIGGER update_admin_users_updated_at BEFORE UPDATE ON admin_users
@@ -144,6 +149,10 @@ CREATE TRIGGER update_webauthn_credentials_updated_at
 CREATE TRIGGER update_user_roles_updated_at BEFORE UPDATE ON user_roles
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+-- AI chat sessions triggers
+CREATE TRIGGER update_ai_chat_sessions_updated_at BEFORE UPDATE ON ai_chat_sessions
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
 -- ============================================
 -- HELPER FUNCTIONS
 -- ============================================
@@ -186,48 +195,6 @@ BEGIN
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
-
--- Function to check and award achievements
-CREATE OR REPLACE FUNCTION check_and_award_achievements(p_user_id UUID)
-RETURNS void AS $$
-DECLARE
-  total_completed INTEGER;
-  max_streak INTEGER;
-BEGIN
-  -- Get user stats
-  SELECT 
-    COUNT(*) FILTER (WHERE status = 'completed'),
-    MAX(longest_streak)
-  INTO total_completed, max_streak
-  FROM user_challenge_progress
-  WHERE user_id = p_user_id;
-  
-  -- Award achievements based on stats
-  INSERT INTO user_achievements (user_id, achievement_id)
-  SELECT p_user_id, id
-  FROM challenge_achievements
-  WHERE code = 'first_challenge' 
-    AND NOT EXISTS (
-      SELECT 1 FROM user_achievements 
-      WHERE user_id = p_user_id AND achievement_id = challenge_achievements.id
-    )
-    AND total_completed >= 1
-  ON CONFLICT (user_id, achievement_id) DO NOTHING;
-  
-  -- Streak achievements
-  INSERT INTO user_achievements (user_id, achievement_id)
-  SELECT p_user_id, id
-  FROM challenge_achievements
-  WHERE requirement_type = 'streak' 
-    AND requirement_value <= max_streak
-    AND NOT EXISTS (
-      SELECT 1 FROM user_achievements 
-      WHERE user_id = p_user_id AND achievement_id = challenge_achievements.id
-    )
-  ON CONFLICT (user_id, achievement_id) DO NOTHING;
-  
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Function to increment participants
 CREATE OR REPLACE FUNCTION increment_participants(p_challenge_id UUID)

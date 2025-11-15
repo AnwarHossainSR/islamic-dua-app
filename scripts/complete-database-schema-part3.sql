@@ -215,13 +215,10 @@ CREATE TRIGGER trigger_create_activity_stat_for_challenge
 -- ============================================
 
 -- Enable RLS on all tables
-ALTER TABLE user_preferences ENABLE ROW LEVEL SECURITY;
 ALTER TABLE admin_users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE challenge_templates ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_challenge_progress ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_challenge_daily_logs ENABLE ROW LEVEL SECURITY;
-ALTER TABLE challenge_achievements ENABLE ROW LEVEL SECURITY;
-ALTER TABLE user_achievements ENABLE ROW LEVEL SECURITY;
 ALTER TABLE activity_stats ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_activity_stats ENABLE ROW LEVEL SECURITY;
 ALTER TABLE challenge_activity_mapping ENABLE ROW LEVEL SECURITY;
@@ -235,20 +232,13 @@ ALTER TABLE role_permissions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE webauthn_credentials ENABLE ROW LEVEL SECURITY;
 ALTER TABLE api_logs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE user_missed_challenges ENABLE ROW LEVEL SECURITY;
+ALTER TABLE ai_chat_sessions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE ai_chat_messages ENABLE ROW LEVEL SECURITY;
 
 -- ============================================
 -- RLS POLICIES
 -- ============================================
-
--- User preferences policies
-CREATE POLICY "Users can view their own preferences"
-  ON user_preferences FOR SELECT
-  USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can manage their own preferences"
-  ON user_preferences FOR ALL
-  USING (auth.uid() = user_id)
-  WITH CHECK (auth.uid() = user_id);
 
 -- Admin users policies
 CREATE POLICY "Users can view their own admin record"
@@ -289,16 +279,6 @@ CREATE POLICY "Users can manage their own daily logs"
   ON user_challenge_daily_logs FOR ALL
   USING (auth.uid() = user_id)
   WITH CHECK (auth.uid() = user_id);
-
-
--- Achievement policies
-CREATE POLICY "Achievements are viewable by everyone"
-  ON challenge_achievements FOR SELECT
-  USING (true);
-
-CREATE POLICY "Users can view their own achievements"
-  ON user_achievements FOR SELECT
-  USING (auth.uid() = user_id);
 
 -- Activity stats policies
 CREATE POLICY "Activity stats are viewable by everyone"
@@ -420,3 +400,56 @@ CREATE POLICY "System can insert logs"
 CREATE POLICY "Admin users can delete logs"
   ON api_logs FOR DELETE
   USING (is_admin());
+
+-- Missed challenges policies
+CREATE POLICY "Users can manage their own missed challenges"
+  ON user_missed_challenges FOR ALL
+  USING (auth.uid() = user_id);
+
+-- AI chat policies
+CREATE POLICY "Users can manage their own chat sessions"
+  ON ai_chat_sessions FOR ALL
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can manage their own chat messages"
+  ON ai_chat_messages FOR ALL
+  USING (auth.uid() = user_id);
+
+-- ============================================
+-- MISSED CHALLENGES TRACKING FUNCTION
+-- ============================================
+
+CREATE OR REPLACE FUNCTION track_missed_challenges()
+RETURNS void AS $$
+DECLARE
+  target_date DATE;
+  user_record RECORD;
+  challenge_record RECORD;
+  daily_log_record RECORD;
+BEGIN
+  target_date := CURRENT_DATE - INTERVAL '1 day';
+  
+  FOR user_record IN 
+    SELECT DISTINCT user_id FROM user_challenge_progress WHERE status = 'active'
+  LOOP
+    FOR challenge_record IN
+      SELECT ucp.challenge_id, ucp.user_id
+      FROM user_challenge_progress ucp
+      JOIN challenge_templates ct ON ucp.challenge_id = ct.id
+      WHERE ucp.user_id = user_record.user_id AND ucp.status = 'active' AND ct.is_active = true
+    LOOP
+      SELECT * INTO daily_log_record
+      FROM user_challenge_daily_logs
+      WHERE user_id = challenge_record.user_id
+      AND challenge_id = challenge_record.challenge_id
+      AND completion_date = target_date AND is_completed = true;
+      
+      IF NOT FOUND THEN
+        INSERT INTO user_missed_challenges (user_id, challenge_id, missed_date, reason, was_active)
+        VALUES (challenge_record.user_id, challenge_record.challenge_id, target_date, 'not_completed', true)
+        ON CONFLICT (user_id, challenge_id, missed_date) DO NOTHING;
+      END IF;
+    END LOOP;
+  END LOOP;
+END;
+$$ LANGUAGE plpgsql;

@@ -43,6 +43,9 @@ export function LoginForm({ returnUrl }: { returnUrl?: string }) {
         setError(result.error)
         if (result.code === 'email_not_confirmed') {
           setNeedsEmailConfirmation(true)
+        } else if (result.code === 'account_inactive') {
+          // Don't show resend option for inactive accounts
+          setNeedsEmailConfirmation(false)
         }
       } else {
         // Success - redirect to return URL or home

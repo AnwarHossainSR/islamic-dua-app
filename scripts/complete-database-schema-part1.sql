@@ -12,20 +12,6 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- CORE TABLES
 -- ============================================
 
--- User Preferences table
-CREATE TABLE IF NOT EXISTS user_preferences (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id UUID UNIQUE NOT NULL,
-  language TEXT DEFAULT 'bn',
-  theme TEXT DEFAULT 'light',
-  font_size TEXT DEFAULT 'medium',
-  show_transliteration BOOLEAN DEFAULT true,
-  show_translation BOOLEAN DEFAULT true,
-  auto_play_audio BOOLEAN DEFAULT false,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-
 -- Admin Users table
 CREATE TABLE IF NOT EXISTS admin_users (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -143,35 +129,6 @@ CREATE TABLE IF NOT EXISTS user_challenge_daily_logs (
   created_at TIMESTAMPTZ DEFAULT NOW(),
   
   UNIQUE(user_progress_id, day_number)
-);
-
-
--- Challenge Achievements
-CREATE TABLE IF NOT EXISTS challenge_achievements (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  code TEXT UNIQUE NOT NULL,
-  title_bn TEXT NOT NULL,
-  title_ar TEXT,
-  title_en TEXT,
-  description_bn TEXT,
-  description_ar TEXT,
-  description_en TEXT,
-  icon TEXT,
-  badge_color TEXT,
-  requirement_type TEXT NOT NULL,
-  requirement_value INTEGER NOT NULL,
-  display_order INTEGER DEFAULT 0,
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- User Achievements
-CREATE TABLE IF NOT EXISTS user_achievements (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id UUID NOT NULL,
-  achievement_id UUID REFERENCES challenge_achievements(id) ON DELETE CASCADE,
-  earned_at TIMESTAMPTZ DEFAULT NOW(),
-  
-  UNIQUE(user_id, achievement_id)
 );
 
 -- ============================================
@@ -382,5 +339,46 @@ CREATE TABLE IF NOT EXISTS api_logs (
   level VARCHAR(20) NOT NULL,
   message TEXT NOT NULL,
   meta TEXT,
-  timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+  timestamp BIGINT DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT
+);
+
+-- ============================================
+-- MISSED CHALLENGES TRACKING
+-- ============================================
+
+-- Missed challenges table
+CREATE TABLE IF NOT EXISTS user_missed_challenges (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL,
+  challenge_id UUID NOT NULL REFERENCES challenge_templates(id) ON DELETE CASCADE,
+  missed_date DATE NOT NULL,
+  reason TEXT DEFAULT 'not_completed',
+  was_active BOOLEAN DEFAULT true,
+  created_at BIGINT DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT,
+  UNIQUE(user_id, challenge_id, missed_date)
+);
+
+-- ============================================
+-- AI CHAT SYSTEM
+-- ============================================
+
+-- AI Chat Sessions
+CREATE TABLE IF NOT EXISTS ai_chat_sessions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL,
+  title TEXT NOT NULL,
+  chat_mode TEXT NOT NULL DEFAULT 'general' CHECK (chat_mode IN ('general', 'database')),
+  created_at BIGINT DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT,
+  updated_at BIGINT DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT
+);
+
+-- AI Chat Messages
+CREATE TABLE IF NOT EXISTS ai_chat_messages (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  session_id UUID NOT NULL REFERENCES ai_chat_sessions(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL,
+  role TEXT NOT NULL CHECK (role IN ('user', 'assistant')),
+  content TEXT NOT NULL,
+  metadata TEXT,
+  created_at BIGINT DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT
 );

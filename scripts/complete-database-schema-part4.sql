@@ -94,19 +94,6 @@ WHERE NOT EXISTS (
   SELECT 1 FROM challenge_templates WHERE title_en = v.title_en
 );
 
--- Insert achievements
-INSERT INTO challenge_achievements (code, title_bn, title_ar, title_en, description_bn, description_ar, description_en, icon, badge_color, requirement_type, requirement_value, display_order)
-SELECT * FROM (VALUES
-  ('first_challenge', 'প্রথম চ্যালেঞ্জ', null, 'First Challenge', 'প্রথম চ্যালেঞ্জ সম্পূর্ণ করেছেন', null, null, '🎯', '#10b981', 'challenges_completed', 1, 1),
-  ('streak_7', '৭ দিনের স্ট্রীক', null, '7-Day Streak', 'টানা ৭ দিন চ্যালেঞ্জ চালিয়ে গেছেন', null, null, '🔥', '#f59e0b', 'streak', 7, 2),
-  ('streak_21', '২১ দিনের স্ট্রীক', null, '21-Day Streak', 'টানা ২১ দিন চ্যালেঞ্জ চালিয়ে গেছেন', null, null, '⚡', '#ef4444', 'streak', 21, 3),
-  ('complete_3', '৩টি চ্যালেঞ্জ', null, '3 Challenges', '৩টি চ্যালেঞ্জ সম্পূর্ণ করেছেন', null, null, '🏆', '#8b5cf6', 'challenges_completed', 3, 4),
-  ('complete_10', '১০টি চ্যালেঞ্জ', null, '10 Challenges', '১০টি চ্যালেঞ্জ সম্পূর্ণ করেছেন', null, null, '👑', '#ec4899', 'challenges_completed', 10, 5)
-) AS v(code, title_bn, title_ar, title_en, description_bn, description_ar, description_en, icon, badge_color, requirement_type, requirement_value, display_order)
-WHERE NOT EXISTS (
-  SELECT 1 FROM challenge_achievements WHERE code = v.code
-);
-
 -- Insert basic permissions
 INSERT INTO permissions (name, description) VALUES
 ('challenges.create', 'Create new challenges'),
@@ -231,6 +218,14 @@ DO UPDATE SET
   is_active = true,
   updated_at = now();
 
+-- Storage bucket setup
+INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+VALUES ('backups', 'backups', false, 52428800, ARRAY['application/sql', 'text/plain'])
+ON CONFLICT (id) DO NOTHING;
+
+-- Cleanup unused tables
+DROP TABLE IF EXISTS user_challenge_bookmarks CASCADE;
+
 -- ============================================
 -- COMPLETION MESSAGE
 -- ============================================
@@ -243,6 +238,9 @@ BEGIN
   RAISE NOTICE '============================================';
   RAISE NOTICE '';
   RAISE NOTICE '✅ All tables created successfully';
+  RAISE NOTICE '✅ Missed challenges & AI chat system ready';
+  RAISE NOTICE '✅ Storage bucket configured';
+  RAISE NOTICE '✅ Unused tables cleaned up';
   RAISE NOTICE '✅ Indexes and triggers configured';
   RAISE NOTICE '✅ Row Level Security policies applied';
   RAISE NOTICE '✅ Sample data inserted';

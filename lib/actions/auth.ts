@@ -52,7 +52,40 @@ export async function signIn(email: string, password: string) {
     return { error: error.message }
   }
 
-  if (data.session) {
+  if (data.session && data.user) {
+    // Check if user is active in admin_users table (if they are an admin)
+    try {
+      const { checkAdminUser } = await import('@/lib/db/queries/admin')
+      const adminUser = await checkAdminUser(data.user.id)
+      
+      // If user exists in admin_users but is inactive, deny access
+      if (adminUser === null) {
+        // Check if user exists but is inactive
+        const { db } = await import('@/lib/db')
+        const { adminUsers } = await import('@/lib/db/schema')
+        const { eq } = await import('drizzle-orm')
+        
+        const inactiveAdmin = await db
+          .select()
+          .from(adminUsers)
+          .where(eq(adminUsers.user_id, data.user.id))
+          .limit(1)
+        
+        if (inactiveAdmin.length > 0 && !inactiveAdmin[0].is_active) {
+          // User exists but is inactive
+          await supabase.auth.signOut()
+          apiLogger.warn('Inactive user attempted login', { email, userId: data.user.id })
+          return {
+            error: 'Your account has been deactivated. Please contact support.',
+            code: 'account_inactive'
+          }
+        }
+      }
+    } catch (dbError) {
+      // If there's a DB error, log it but don't block login for regular users
+      apiLogger.error('Error checking user status during login', { error: dbError, userId: data.user.id })
+    }
+
     const cookieStore = await cookies()
     cookieStore.set('sb-access-token', data.session.access_token, {
       httpOnly: true,

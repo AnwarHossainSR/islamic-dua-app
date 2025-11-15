@@ -1,5 +1,5 @@
 import { clsx, type ClassValue } from 'clsx'
-import { format, isSameDay } from 'date-fns'
+import { format, isSameDay, formatDistanceToNow } from 'date-fns'
 import { twMerge } from 'tailwind-merge'
 
 export function cn(...inputs: ClassValue[]) {
@@ -64,6 +64,24 @@ export function sortChallengesByCompletion<T extends { last_completed_at?: numbe
     // If both have same completion status, maintain original order
     return 0
   })
+}
+
+/**
+ * Format timestamp to relative time (e.g., "2 minutes ago", "just now")
+ */
+export function formatTimeAgo(timestamp: number | null): string {
+  if (!timestamp) return 'Never'
+  
+  const date = new Date(timestamp)
+  const now = new Date()
+  const diffMs = now.getTime() - date.getTime()
+  
+  // If less than 30 seconds, show "just now"
+  if (diffMs < 30000) {
+    return 'Just now'
+  }
+  
+  return formatDistanceToNow(date, { addSuffix: true })
 }
 
 /**

@@ -1,15 +1,19 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { getMissedChallenges, getMissedChallengesSummaryData } from '@/lib/actions/missed-challenges'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  getMissedChallenges,
+  getMissedChallengesSummaryData,
+} from '@/lib/actions/missed-challenges'
 import { formatDateTime } from '@/lib/utils'
-import { ArrowLeft, Calendar, TrendingDown, AlertTriangle } from 'lucide-react'
+import { AlertTriangle, ArrowLeft, Calendar, TrendingDown } from 'lucide-react'
 import Link from 'next/link'
+import { SyncButton } from './sync-button'
 
 export default async function MissedChallengesPage() {
   const [missedChallenges, summary] = await Promise.all([
     getMissedChallenges(),
-    getMissedChallengesSummaryData()
+    getMissedChallengesSummaryData(),
   ])
 
   // Group by date
@@ -22,23 +26,28 @@ export default async function MissedChallengesPage() {
     return acc
   }, {} as Record<string, typeof missedChallenges>)
 
-  const sortedDates = Object.keys(groupedByDate).sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
+  const sortedDates = Object.keys(groupedByDate).sort(
+    (a, b) => new Date(b).getTime() - new Date(a).getTime()
+  )
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild>
-          <Link href="/challenges">
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-        </Button>
-        <div>
-          <h1 className="text-4xl font-bold">Missed Challenges</h1>
-          <p className="text-muted-foreground">
-            Track challenges you missed in the last 3 months
-          </p>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" asChild>
+            <Link href="/challenges">
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
+          </Button>
+          <div>
+            <h1 className="text-4xl font-bold">Missed Challenges</h1>
+            <p className="text-muted-foreground">
+              Track challenges you missed in the last 3 months
+            </p>
+          </div>
         </div>
+        <SyncButton />
       </div>
 
       {/* Summary Stats */}
@@ -112,7 +121,7 @@ export default async function MissedChallengesPage() {
               </CardHeader>
               <CardContent>
                 <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-                  {groupedByDate[date].map((challenge) => (
+                  {groupedByDate[date].map(challenge => (
                     <div
                       key={`${challenge.challenge_id}-${challenge.missed_date}`}
                       className="flex items-center gap-3 p-3 rounded-lg border bg-red-50 dark:bg-red-950/20"

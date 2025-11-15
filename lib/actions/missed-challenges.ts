@@ -1,6 +1,10 @@
 'use server'
 
-import { getUserMissedChallenges, getMissedChallengesSummary, runDailyMissedChallengesTracking } from '@/lib/db/queries/missed-challenges'
+import {
+  getMissedChallengesSummary,
+  getUserMissedChallenges,
+  runDailyMissedChallengesTracking,
+} from '@/lib/db/queries/missed-challenges'
 import { getUser } from './auth'
 
 export async function getMissedChallenges() {
@@ -18,12 +22,13 @@ export async function getMissedChallenges() {
 export async function getMissedChallengesSummaryData() {
   try {
     const user = await getUser()
-    if (!user) return {
-      total_missed: 0,
-      last_7_days: 0,
-      last_30_days: 0,
-      most_missed_challenge: null
-    }
+    if (!user)
+      return {
+        total_missed: 0,
+        last_7_days: 0,
+        last_30_days: 0,
+        most_missed_challenge: null,
+      }
 
     return await getMissedChallengesSummary(user.id)
   } catch (error) {
@@ -32,7 +37,7 @@ export async function getMissedChallengesSummaryData() {
       total_missed: 0,
       last_7_days: 0,
       last_30_days: 0,
-      most_missed_challenge: null
+      most_missed_challenge: null,
     }
   }
 }

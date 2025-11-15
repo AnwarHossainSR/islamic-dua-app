@@ -1,5 +1,6 @@
 import { db } from '@/lib/db'
-import { sql } from 'drizzle-orm'
+import { challengeTemplates, userMissedChallenges } from '@/lib/db/schema'
+import { and, desc, eq, gte, sql } from 'drizzle-orm'
 
 export interface MissedChallenge {
   missed_date: string
@@ -21,24 +22,42 @@ export interface MissedChallengesSummary {
   } | null
 }
 
-// Get user's missed challenges for last 3 months
 export async function getUserMissedChallenges(userId: string): Promise<MissedChallenge[]> {
-  const result = await db.execute(
-    sql`SELECT * FROM get_user_missed_challenges_3months(${userId}::uuid)`
-  )
-  
+  const threeMonthsAgo = new Date()
+  threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3)
+  const threeMonthsAgoDate = threeMonthsAgo.toISOString().split('T')[0]
+
+  const result = await db
+    .select({
+      missed_date: userMissedChallenges.missed_date,
+      challenge_id: userMissedChallenges.challenge_id,
+      challenge_title_bn: challengeTemplates.title_bn,
+      challenge_icon: challengeTemplates.icon,
+      challenge_color: challengeTemplates.color,
+      reason: userMissedChallenges.reason,
+      days_ago: sql<number>`(CURRENT_DATE - ${userMissedChallenges.missed_date})::INTEGER`,
+    })
+    .from(userMissedChallenges)
+    .innerJoin(challengeTemplates, eq(userMissedChallenges.challenge_id, challengeTemplates.id))
+    .where(
+      and(
+        eq(userMissedChallenges.user_id, userId),
+        gte(userMissedChallenges.missed_date, threeMonthsAgoDate)
+      )
+    )
+    .orderBy(desc(userMissedChallenges.missed_date), challengeTemplates.title_bn)
+
   return result.map(row => ({
-    missed_date: row.missed_date as string,
-    challenge_id: row.challenge_id as string,
-    challenge_title_bn: row.challenge_title_bn as string,
-    challenge_icon: row.challenge_icon as string | null,
-    challenge_color: row.challenge_color as string | null,
-    reason: row.reason as string,
-    days_ago: row.days_ago as number
+    missed_date: row.missed_date,
+    challenge_id: row.challenge_id,
+    challenge_title_bn: row.challenge_title_bn,
+    challenge_icon: row.challenge_icon,
+    challenge_color: row.challenge_color,
+    reason: row.reason || 'not_completed',
+    days_ago: row.days_ago,
   }))
 }
 
-// Get missed challenges summary
 export async function getMissedChallengesSummary(userId: string): Promise<MissedChallengesSummary> {
   const result = await db.execute(sql`
     WITH missed_stats AS (
@@ -73,49 +92,60 @@ export async function getMissedChallengesSummary(userId: string): Promise<Missed
   `)
 
   const row = result[0]
-  
+
   return {
     total_missed: Number(row?.total_missed || 0),
     last_7_days: Number(row?.last_7_days || 0),
     last_30_days: Number(row?.last_30_days || 0),
-    most_missed_challenge: row?.most_missed_title ? {
-      title_bn: row.most_missed_title as string,
-      count: Number(row.most_missed_count || 0)
-    } : null
+    most_missed_challenge: row?.most_missed_title
+      ? {
+          title_bn: row.most_missed_title as string,
+          count: Number(row.most_missed_count || 0),
+        }
+      : null,
   }
 }
 
 // Manually track missed challenge (for admin or correction)
 export async function trackMissedChallenge(
-  userId: string, 
-  challengeId: string, 
-  missedDate: string, 
+  userId: string,
+  challengeId: string,
+  missedDate: string,
   reason: string = 'not_completed'
 ) {
-  await db.execute(sql`
-    INSERT INTO user_missed_challenges (user_id, challenge_id, missed_date, reason, was_active)
-    VALUES (${userId}::uuid, ${challengeId}::uuid, ${missedDate}::date, ${reason}, true)
-    ON CONFLICT (user_id, challenge_id, missed_date) DO NOTHING
-  `)
+  await db
+    .insert(userMissedChallenges)
+    .values({
+      user_id: userId,
+      challenge_id: challengeId,
+      missed_date: missedDate,
+      reason,
+      was_active: true,
+    })
+    .onConflictDoNothing()
 }
 
 // Run daily missed challenges tracking
 export async function runDailyMissedChallengesTracking() {
   const startTime = Date.now()
-  
+
   try {
     const result = await db.execute(sql`SELECT track_missed_challenges()`)
     const duration = Date.now() - startTime
-    
+
     return {
       success: true,
       duration: `${duration}ms`,
       processedAt: new Date().toISOString(),
-      result: result[0] || null
+      result: result[0] || null,
     }
   } catch (error) {
     const duration = Date.now() - startTime
-    
-    throw new Error(`Missed challenges tracking failed after ${duration}ms: ${error instanceof Error ? error.message : 'Unknown error'}`)
+
+    throw new Error(
+      `Missed challenges tracking failed after ${duration}ms: ${
+        error instanceof Error ? error.message : 'Unknown error'
+      }`
+    )
   }
 }

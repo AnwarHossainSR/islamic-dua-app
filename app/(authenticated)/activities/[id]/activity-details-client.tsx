@@ -3,12 +3,12 @@
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { useToast } from '@/hooks/use-toast'
-import { updateActivityCount } from '@/lib/actions/admin'
+import { updateActivityCountAction } from '@/lib/actions/forms'
 import { format } from 'date-fns'
 import { ArrowLeft, Calendar, Flame, RotateCcw, Trophy, Users, X } from 'lucide-react'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useOptimistic, useState } from 'react'
+import { useFormStatus } from 'react-dom'
 
 interface ActivityDetailsPageProps {
   activity: any
@@ -16,60 +16,37 @@ interface ActivityDetailsPageProps {
   userDailyLogs: any[]
 }
 
+function SubmitButton() {
+  const { pending } = useFormStatus()
+  return (
+    <Button
+      type="submit"
+      disabled={pending}
+      className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium transition-colors disabled:opacity-50 flex-1"
+    >
+      {pending ? 'Saving...' : 'Save'}
+    </Button>
+  )
+}
+
 export default function ActivityDetailsPageClient({
   activity,
   topUsers,
   userDailyLogs,
 }: ActivityDetailsPageProps) {
-  const { toast } = useToast()
-  const [currentCount, setCurrentCount] = useState(activity.total_count)
+  const [optimisticCount, addOptimistic] = useOptimistic(
+    activity.total_count,
+    (state, newCount: number) => newCount
+  )
   const [inputValue, setInputValue] = useState(activity.total_count.toString())
-  const [isLoading, setIsLoading] = useState(false)
   const [showModal, setShowModal] = useState(false)
 
-  const avgPerUser = activity.total_users > 0 ? Math.round(currentCount / activity.total_users) : 0
+  const avgPerUser = activity.total_users > 0 ? Math.round(optimisticCount / activity.total_users) : 0
 
-  const handleSetCustomCount = async () => {
-    const newCount = parseInt(inputValue, 10)
-    if (isNaN(newCount) || newCount < 0) {
-      toast({
-        title: 'Invalid Input',
-        description: 'Please enter a valid non-negative number.',
-        variant: 'destructive',
-      })
-    }
 
-    setIsLoading(true)
-
-    try {
-      const result = await updateActivityCount(activity.id, newCount)
-      if (result.success) {
-        setCurrentCount(result.newCount)
-        toast({
-          title: 'Success',
-          description: 'Activity count updated successfully.',
-        })
-        setShowModal(false)
-      } else {
-        toast({
-          title: 'Error',
-          description: result.error || 'Update failed',
-          variant: 'destructive',
-        })
-      }
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'An error occurred while updating the activity count.',
-        variant: 'destructive',
-      })
-    } finally {
-      setIsLoading(false)
-    }
-  }
 
   const handleReset = () => {
-    setInputValue(currentCount.toString())
+    setInputValue(optimisticCount.toString())
   }
 
   const handleQuickAdjust = (amount: number) => {
@@ -99,7 +76,7 @@ export default function ActivityDetailsPageClient({
           <CardContent className="pt-6">
             <div className="flex flex-col items-center text-center">
               <Trophy className="mb-2 h-8 w-8 text-amber-500" />
-              <p className="text-3xl font-bold">{currentCount.toLocaleString()}</p>
+              <p className="text-3xl font-bold">{optimisticCount.toLocaleString()}</p>
               <p className="text-xs text-muted-foreground">Total Completions</p>
             </div>
           </CardContent>
@@ -145,15 +122,14 @@ export default function ActivityDetailsPageClient({
               <div>
                 <p className="text-xs text-slate-500">Count</p>
                 <p className="text-2xl font-bold text-emerald-400">
-                  {currentCount.toLocaleString()}
+                  {optimisticCount.toLocaleString()}
                 </p>
               </div>
             </div>
 
             <Button
               onClick={() => setShowModal(true)}
-              disabled={isLoading}
-              className="px-4 py-2 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium transition-colors disabled:opacity-50"
+              className="px-4 py-2 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium transition-colors"
             >
               Add Custom Count
             </Button>
@@ -180,7 +156,7 @@ export default function ActivityDetailsPageClient({
               <div className="bg-slate-800 rounded-lg p-3 text-center">
                 <p className="text-xs text-slate-400 mb-1">Current</p>
                 <p className="text-2xl font-bold text-emerald-400">
-                  {currentCount.toLocaleString()}
+                  {optimisticCount.toLocaleString()}
                 </p>
               </div>
 
@@ -189,30 +165,30 @@ export default function ActivityDetailsPageClient({
                 <p className="text-xs text-slate-400 mb-2 font-semibold uppercase">Quick Adjust</p>
                 <div className="grid grid-cols-4 gap-2">
                   <Button
+                    type="button"
                     onClick={() => handleQuickAdjust(-10)}
-                    disabled={isLoading}
-                    className="px-2 py-2 rounded-md bg-red-900/30 hover:bg-red-900/50 text-red-400 text-xs font-medium transition-colors disabled:opacity-50"
+                    className="px-2 py-2 rounded-md bg-red-900/30 hover:bg-red-900/50 text-red-400 text-xs font-medium transition-colors"
                   >
                     -10
                   </Button>
                   <Button
+                    type="button"
                     onClick={() => handleQuickAdjust(-50)}
-                    disabled={isLoading}
-                    className="px-2 py-2 rounded-md bg-red-900/30 hover:bg-red-900/50 text-red-400 text-xs font-medium transition-colors disabled:opacity-50"
+                    className="px-2 py-2 rounded-md bg-red-900/30 hover:bg-red-900/50 text-red-400 text-xs font-medium transition-colors"
                   >
                     -50
                   </Button>
                   <Button
+                    type="button"
                     onClick={() => handleQuickAdjust(50)}
-                    disabled={isLoading}
-                    className="px-2 py-2 rounded-md bg-emerald-900/30 hover:bg-emerald-900/50 text-emerald-400 text-xs font-medium transition-colors disabled:opacity-50"
+                    className="px-2 py-2 rounded-md bg-emerald-900/30 hover:bg-emerald-900/50 text-emerald-400 text-xs font-medium transition-colors"
                   >
                     +50
                   </Button>
                   <Button
+                    type="button"
                     onClick={() => handleQuickAdjust(10)}
-                    disabled={isLoading}
-                    className="px-2 py-2 rounded-md bg-emerald-900/30 hover:bg-emerald-900/50 text-emerald-400 text-xs font-medium transition-colors disabled:opacity-50"
+                    className="px-2 py-2 rounded-md bg-emerald-900/30 hover:bg-emerald-900/50 text-emerald-400 text-xs font-medium transition-colors"
                   >
                     +10
                   </Button>
@@ -222,41 +198,45 @@ export default function ActivityDetailsPageClient({
               {/* Custom Input */}
               <div>
                 <label className="text-sm text-slate-400 mb-2 block">Custom Value</label>
-                <input
-                  type="number"
-                  value={inputValue}
-                  onChange={e => setInputValue(e.target.value)}
-                  disabled={isLoading}
-                  autoFocus
-                  className="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white font-medium outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:opacity-50"
-                  placeholder="Enter count"
-                />
+
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex gap-2">
-                <Button
-                  onClick={handleReset}
-                  disabled={isLoading || inputValue === currentCount.toString()}
-                  className="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium transition-colors disabled:opacity-50 flex-1"
-                >
-                  Reset
-                </Button>
-                <Button
-                  onClick={() => setShowModal(false)}
-                  disabled={isLoading}
-                  className="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium transition-colors disabled:opacity-50 flex-1"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={handleSetCustomCount}
-                  disabled={isLoading}
-                  className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium transition-colors disabled:opacity-50 flex-1"
-                >
-                  {isLoading ? 'Saving...' : 'Save'}
-                </Button>
-              </div>
+              <form
+                action={async (formData) => {
+                  const newCount = parseInt(formData.get('count') as string, 10)
+                  addOptimistic(newCount)
+                  setShowModal(false)
+                  await updateActivityCountAction({}, formData)
+                }}
+              >
+                <input type="hidden" name="activityId" value={activity.id} />
+                <input
+                  type="number"
+                  name="count"
+                  value={inputValue}
+                  onChange={e => setInputValue(e.target.value)}
+                  autoFocus
+                  className="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white font-medium outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent mb-4"
+                  placeholder="Enter count"
+                />
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    onClick={handleReset}
+                    className="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium transition-colors flex-1"
+                  >
+                    Reset
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={() => setShowModal(false)}
+                    className="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium transition-colors flex-1"
+                  >
+                    Cancel
+                  </Button>
+                  <SubmitButton />
+                </div>
+              </form>
             </div>
           </div>
         </div>

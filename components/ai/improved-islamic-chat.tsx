@@ -23,7 +23,7 @@ import {
   Trash2,
   X,
 } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, use, Suspense } from 'react'
 
 interface ChatMessage {
   id: string
@@ -65,7 +65,8 @@ export function ImprovedIslamicChat({ initialSessions, hasOpenAIKey }: ImprovedI
 
   const loadMessages = async (sessionId: string) => {
     try {
-      const sessionMessages = await getChatMessages(sessionId)
+      const messagesPromise = getChatMessages(sessionId)
+      const sessionMessages = use(messagesPromise)
       const formattedMessages: ChatMessage[] = sessionMessages.map(msg => ({
         id: msg.id,
         role: msg.role as 'user' | 'assistant',

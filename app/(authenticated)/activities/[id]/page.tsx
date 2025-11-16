@@ -4,12 +4,37 @@ import { db } from '@/lib/db'
 import { challengeActivityMapping, userChallengeDailyLogs } from '@/lib/db/schema'
 import { and, eq, inArray } from 'drizzle-orm'
 import { notFound } from 'next/navigation'
+import { generatePageMetadata } from '@/lib/metadata'
 import ActivityDetailsPageClient from './activity-details-client'
 
 interface Props {
   params: Promise<{
     id: string
   }>
+}
+
+export async function generateStaticParams() {
+  const { generateActivityStaticParams } = await import('@/lib/prerendering')
+  return generateActivityStaticParams()
+}
+
+export async function generateMetadata({ params }: Props) {
+  const resolvedParams = await params
+  const activity = await getActivityWithChallenges(resolvedParams.id)
+  
+  if (!activity) {
+    return generatePageMetadata({
+      title: 'Activity Not Found',
+      description: 'The requested activity could not be found.',
+      path: `/activities/${resolvedParams.id}`
+    })
+  }
+  
+  return generatePageMetadata({
+    title: activity.name_bn || 'Islamic Activity',
+    description: `Track your progress in ${activity.name_bn}. Total completions: ${activity.total_count?.toLocaleString() || 0} by ${activity.total_users || 0} users.`,
+    path: `/activities/${resolvedParams.id}`
+  })
 }
 
 async function getUserDailyLogsForActivity(activityId: string, userId: string) {

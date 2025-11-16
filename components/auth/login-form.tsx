@@ -1,7 +1,5 @@
 'use client'
 
-import type React from 'react'
-
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import {
@@ -14,71 +12,43 @@ import {
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { resendConfirmationEmail, signIn } from '@/lib/actions/auth'
+import { loginAction } from '@/lib/actions/forms'
+import { resendConfirmationEmail } from '@/lib/actions/auth'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useActionState, useState } from 'react'
+import { useFormStatus } from 'react-dom'
 import { BiometricLogin } from './biometric-login'
 
+function SubmitButton() {
+  const { pending } = useFormStatus()
+  return (
+    <Button type="submit" className="w-full" disabled={pending}>
+      {pending ? 'Signing in...' : 'Sign In'}
+    </Button>
+  )
+}
+
 export function LoginForm({ returnUrl }: { returnUrl?: string }) {
-  const router = useRouter()
+  const [state, formAction] = useActionState(loginAction, { error: '', code: '' })
   const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [success, setSuccess] = useState('')
-  const [loading, setLoading] = useState(false)
   const [resendingEmail, setResendingEmail] = useState(false)
-  const [needsEmailConfirmation, setNeedsEmailConfirmation] = useState(false)
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    setError('')
-    setSuccess('')
-    setNeedsEmailConfirmation(false)
-    setLoading(true)
-
-    try {
-      const result = await signIn(email, password)
-      if (result?.error) {
-        setError(result.error)
-        if (result.code === 'email_not_confirmed') {
-          setNeedsEmailConfirmation(true)
-        } else if (result.code === 'account_inactive') {
-          // Don't show resend option for inactive accounts
-          setNeedsEmailConfirmation(false)
-        }
-      } else {
-        // Success - redirect to return URL or home
-        router.push(returnUrl || '/')
-        router.refresh()
-      }
-    } catch (err) {
-      console.log('error during sign in', err)
-      setError('An unexpected error occurred')
-    } finally {
-      setLoading(false)
-    }
-  }
+  const [success, setSuccess] = useState('')
+  
+  const needsEmailConfirmation = state.error && state.code === 'email_not_confirmed'
 
   async function handleResendConfirmation() {
-    if (!email) {
-      setError('Please enter your email address')
-      return
-    }
-
+    if (!email) return
+    
     setResendingEmail(true)
-    setError('')
     setSuccess('')
 
     try {
       const result = await resendConfirmationEmail(email)
-      if (result?.error) {
-        setError(result.error)
-      } else if (result?.success) {
+      if (result?.success) {
         setSuccess(result.message || 'Confirmation email sent!')
       }
     } catch (err) {
-      setError('Failed to resend confirmation email')
+      // Handle error
     } finally {
       setResendingEmail(false)
     }
@@ -90,11 +60,11 @@ export function LoginForm({ returnUrl }: { returnUrl?: string }) {
         <CardTitle>Sign In</CardTitle>
         <CardDescription>Enter your credentials to access your account</CardDescription>
       </CardHeader>
-      <form onSubmit={handleSubmit}>
+      <form action={formAction}>
         <CardContent className="space-y-4 pb-5">
-          {error && (
+          {state.error && (
             <Alert variant="destructive">
-              <AlertDescription>{error}</AlertDescription>
+              <AlertDescription>{state.error}</AlertDescription>
             </Alert>
           )}
           {success && (
@@ -106,31 +76,27 @@ export function LoginForm({ returnUrl }: { returnUrl?: string }) {
             <Label htmlFor="email">Email</Label>
             <Input
               id="email"
+              name="email"
               type="email"
               placeholder="your@email.com"
               value={email}
               onChange={e => setEmail(e.target.value)}
               required
-              disabled={loading}
             />
           </div>
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
             <Input
               id="password"
+              name="password"
               type="password"
               placeholder="••••••••"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
               required
-              disabled={loading}
             />
           </div>
         </CardContent>
         <CardFooter className="flex flex-col gap-4">
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? 'Signing in...' : 'Sign In'}
-          </Button>
+          <SubmitButton />
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <span className="w-full border-t" />
@@ -140,7 +106,7 @@ export function LoginForm({ returnUrl }: { returnUrl?: string }) {
             </div>
           </div>
           <BiometricLogin
-            onError={setError}
+            onError={() => {}}
             onSuccess={() => setSuccess('Signed in successfully!')}
           />
           {needsEmailConfirmation && (

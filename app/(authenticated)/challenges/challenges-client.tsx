@@ -218,44 +218,13 @@ export default function ChallengesClient({
     return filteredChallenges.slice(startIndex, endIndex)
   }, [filteredChallenges, currentPage, itemsPerPage])
 
-  // Helper functions to clean up JSX
-  const getCardClassName = (userStatus: string) => {
-    const baseClass = 'overflow-hidden'
-    const completedClass =
-      'bg-emerald-100/80 border-emerald-300 dark:bg-emerald-900/40 dark:border-emerald-600'
-    return userStatus === 'completed' ? `${baseClass} ${completedClass}` : baseClass
-  }
 
-  const getStatusBadgeConfig = (userStatus: string) => {
-    const configs = {
-      completed: { variant: 'default' as const, text: 'Completed' },
-      active: { variant: 'secondary' as const, text: 'Active' },
-      paused: { variant: 'destructive' as const, text: 'Paused' },
-      not_started: { variant: 'outline' as const, text: 'Not Started' },
-    }
-    return configs[userStatus as keyof typeof configs] || configs.not_started
-  }
-
-  const getDifficultyBadgeVariant = (difficulty: string) => {
-    const variants = {
-      easy: 'secondary' as const,
-      hard: 'destructive' as const,
-      medium: 'default' as const,
-    }
-    return variants[difficulty as keyof typeof variants] || 'default'
-  }
-
-  const getProgressConfig = (userStatus: string, completionRate: number) => {
-    const isCompleted = userStatus === 'completed'
-    return {
-      label: isCompleted ? 'Completed' : 'Progress',
-      percentage: isCompleted ? '100%' : `${completionRate}%`,
-      width: isCompleted ? 100 : completionRate,
-      color: isCompleted ? 'rgb(34 197 94)' : 'rgb(16 185 129)',
-    }
-  }
 
   return (
+    <>
+      <title>Daily Islamic Challenges - Track Your Spiritual Journey</title>
+      <meta name="description" content="Complete daily Islamic challenges and track your spiritual progress with dhikr and duas." />
+      <meta name="keywords" content="Islamic challenges, dhikr, dua, spiritual progress, daily habits" />
     <div className="space-y-6">
       {/* Header */}
       <div>
@@ -696,5 +665,6 @@ export default function ChallengesClient({
         </DialogContent>
       </Dialog>
     </div>
+    </>
   )
 }

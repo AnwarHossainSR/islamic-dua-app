@@ -4,4 +4,7 @@ npx tsc --noEmit
 echo "🧹 Running ESLint..."
 npx eslint .
 
+echo "🧪 Running unit tests..."
+npm run test
+
 echo "✅ All checks passed!"

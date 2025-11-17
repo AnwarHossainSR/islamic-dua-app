@@ -10,10 +10,12 @@
     "build": "next build",
     "dev": "next dev",
     "lint": "next lint",
+    "type-check": "tsc --noEmit",
     "start": "next start",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:studio": "node --env-file=.env.local node_modules/drizzle-kit/bin.cjs studio --port 4984"
+    "db:studio": "node --env-file=.env.local node_modules/drizzle-kit/bin.cjs studio --port 4984",
+    "prepare": "husky"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -75,6 +77,9 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "drizzle-kit": "^0.31.6",
+    "eslint": "^9.39.1",
+    "eslint-config-next": "^16.0.3",
+    "husky": "^9.1.7",
     "tailwindcss": "^4",
     "tw-animate-css": "1.3.3",
     "typescript": "^5"

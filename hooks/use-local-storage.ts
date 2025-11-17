@@ -24,7 +24,8 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
 
   // Set hydration flag after mount
   useEffect(() => {
-    setIsHydrated(true)
+    const timer = setTimeout(() => setIsHydrated(true), 0)
+    return () => clearTimeout(timer)
   }, [])
 
   // Return a wrapped version of useState's setter function that

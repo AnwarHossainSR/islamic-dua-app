@@ -37,8 +37,7 @@ export function useDebounce<T extends (...args: any[]) => void>(
         savedCallback.current(...args) // Pass args (e.g., your `value`)
       }, delay)
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    deps // Recreate debounced fn if deps change
+    [delay, ...deps] // Recreate debounced fn if deps change
   ) as unknown as T
 
   const cancel = useCallback(() => {

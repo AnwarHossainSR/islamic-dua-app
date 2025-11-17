@@ -11,8 +11,8 @@ CREATE TABLE "activity_stats" (
 	"icon" text,
 	"color" text,
 	"display_order" integer DEFAULT 0,
-	"created_at" timestamp DEFAULT now(),
-	"updated_at" timestamp DEFAULT now(),
+	"created_at" bigint DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT,
+	"updated_at" bigint DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT,
 	CONSTRAINT "activity_stats_unique_slug_unique" UNIQUE("unique_slug")
 );
 --> statement-breakpoint
@@ -22,8 +22,8 @@ CREATE TABLE "admin_users" (
 	"email" text NOT NULL,
 	"role" text DEFAULT 'editor',
 	"is_active" boolean DEFAULT true,
-	"created_at" timestamp DEFAULT now(),
-	"updated_at" timestamp DEFAULT now(),
+	"created_at" bigint DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT,
+	"updated_at" bigint DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT,
 	CONSTRAINT "admin_users_user_id_unique" UNIQUE("user_id")
 );
 --> statement-breakpoint
@@ -34,7 +34,7 @@ CREATE TABLE "ai_chat_messages" (
 	"role" text NOT NULL,
 	"content" text NOT NULL,
 	"metadata" text,
-	"created_at" timestamp DEFAULT now()
+	"created_at" bigint DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT
 );
 --> statement-breakpoint
 CREATE TABLE "ai_chat_sessions" (
@@ -42,8 +42,8 @@ CREATE TABLE "ai_chat_sessions" (
 	"user_id" uuid NOT NULL,
 	"title" text NOT NULL,
 	"chat_mode" text DEFAULT 'general' NOT NULL,
-	"created_at" timestamp DEFAULT now(),
-	"updated_at" timestamp DEFAULT now()
+	"created_at" bigint DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT,
+	"updated_at" bigint DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT
 );
 --> statement-breakpoint
 CREATE TABLE "api_logs" (
@@ -51,7 +51,7 @@ CREATE TABLE "api_logs" (
 	"level" text NOT NULL,
 	"message" text NOT NULL,
 	"meta" text,
-	"timestamp" timestamp DEFAULT now()
+	"timestamp" bigint DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT
 );
 --> statement-breakpoint
 CREATE TABLE "app_settings" (
@@ -63,8 +63,8 @@ CREATE TABLE "app_settings" (
 	"label" text NOT NULL,
 	"description" text,
 	"is_public" boolean DEFAULT false,
-	"created_at" timestamp DEFAULT now(),
-	"updated_at" timestamp DEFAULT now(),
+	"created_at" bigint DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT,
+	"updated_at" bigint DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT,
 	CONSTRAINT "app_settings_key_unique" UNIQUE("key")
 );
 --> statement-breakpoint
@@ -72,7 +72,7 @@ CREATE TABLE "challenge_activity_mapping" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"challenge_id" uuid NOT NULL,
 	"activity_stat_id" uuid NOT NULL,
-	"created_at" timestamp DEFAULT now()
+	"created_at" bigint DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT
 );
 --> statement-breakpoint
 CREATE TABLE "challenge_templates" (
@@ -103,8 +103,8 @@ CREATE TABLE "challenge_templates" (
 	"is_active" boolean DEFAULT true,
 	"total_participants" integer DEFAULT 0,
 	"total_completions" integer DEFAULT 0,
-	"created_at" timestamp DEFAULT now(),
-	"updated_at" timestamp DEFAULT now()
+	"created_at" bigint DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT,
+	"updated_at" bigint DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT
 );
 --> statement-breakpoint
 CREATE TABLE "dua_categories" (
@@ -116,7 +116,7 @@ CREATE TABLE "dua_categories" (
 	"icon" text,
 	"color" text DEFAULT '#10b981',
 	"is_active" boolean DEFAULT true,
-	"created_at" timestamp DEFAULT now()
+	"created_at" bigint DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT
 );
 --> statement-breakpoint
 CREATE TABLE "duas" (
@@ -137,8 +137,8 @@ CREATE TABLE "duas" (
 	"tags" text[],
 	"audio_url" text,
 	"created_by" uuid,
-	"created_at" timestamp DEFAULT now(),
-	"updated_at" timestamp DEFAULT now()
+	"created_at" bigint DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT,
+	"updated_at" bigint DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT
 );
 --> statement-breakpoint
 CREATE TABLE "notifications" (
@@ -150,16 +150,16 @@ CREATE TABLE "notifications" (
 	"icon" text DEFAULT '🔔',
 	"action_url" text,
 	"is_read" boolean DEFAULT false,
-	"expires_at" timestamp,
+	"expires_at" bigint,
 	"metadata" text,
-	"created_at" timestamp DEFAULT now()
+	"created_at" bigint DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT
 );
 --> statement-breakpoint
 CREATE TABLE "permissions" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"name" text NOT NULL,
 	"description" text,
-	"created_at" timestamp DEFAULT now(),
+	"created_at" bigint DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT,
 	CONSTRAINT "permissions_name_unique" UNIQUE("name")
 );
 --> statement-breakpoint
@@ -167,7 +167,7 @@ CREATE TABLE "role_permissions" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"role_id" uuid NOT NULL,
 	"permission_id" uuid NOT NULL,
-	"created_at" timestamp DEFAULT now()
+	"created_at" bigint DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT
 );
 --> statement-breakpoint
 CREATE TABLE "user_activity_stats" (
@@ -177,16 +177,16 @@ CREATE TABLE "user_activity_stats" (
 	"total_completed" bigint DEFAULT 0,
 	"current_streak" integer DEFAULT 0,
 	"longest_streak" integer DEFAULT 0,
-	"last_completed_at" timestamp,
-	"created_at" timestamp DEFAULT now(),
-	"updated_at" timestamp DEFAULT now()
+	"last_completed_at" bigint,
+	"created_at" bigint DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT,
+	"updated_at" bigint DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT
 );
 --> statement-breakpoint
 CREATE TABLE "user_challenge_bookmarks" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"user_id" uuid NOT NULL,
 	"challenge_id" uuid NOT NULL,
-	"created_at" timestamp DEFAULT now()
+	"created_at" bigint DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT
 );
 --> statement-breakpoint
 CREATE TABLE "user_challenge_daily_logs" (
@@ -199,12 +199,12 @@ CREATE TABLE "user_challenge_daily_logs" (
 	"count_completed" integer NOT NULL,
 	"target_count" integer NOT NULL,
 	"is_completed" boolean DEFAULT false,
-	"started_at" timestamp,
-	"completed_at" timestamp,
+	"started_at" bigint,
+	"completed_at" bigint,
 	"duration_seconds" integer,
 	"notes" text,
 	"mood" text,
-	"created_at" timestamp DEFAULT now()
+	"created_at" bigint DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT
 );
 --> statement-breakpoint
 CREATE TABLE "user_challenge_progress" (
@@ -217,14 +217,23 @@ CREATE TABLE "user_challenge_progress" (
 	"longest_streak" integer DEFAULT 0,
 	"total_completed_days" integer DEFAULT 0,
 	"missed_days" integer DEFAULT 0,
-	"started_at" timestamp DEFAULT now(),
-	"last_completed_at" timestamp,
-	"completed_at" timestamp,
-	"paused_at" timestamp,
+	"started_at" bigint DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT,
+	"last_completed_at" bigint,
+	"completed_at" bigint,
+	"paused_at" bigint,
 	"daily_reminder_enabled" boolean DEFAULT true,
 	"reminder_time" time,
-	"created_at" timestamp DEFAULT now(),
-	"updated_at" timestamp DEFAULT now()
+	"created_at" bigint DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT,
+	"updated_at" bigint DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT
+);
+--> statement-breakpoint
+CREATE TABLE "user_logs" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"user_id" uuid NOT NULL,
+	"user_email" text NOT NULL,
+	"action" text NOT NULL,
+	"details" text,
+	"created_at" bigint DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT
 );
 --> statement-breakpoint
 CREATE TABLE "user_missed_challenges" (
@@ -234,7 +243,7 @@ CREATE TABLE "user_missed_challenges" (
 	"missed_date" date NOT NULL,
 	"reason" text DEFAULT 'not_completed',
 	"was_active" boolean DEFAULT true,
-	"created_at" timestamp DEFAULT now()
+	"created_at" bigint DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT
 );
 --> statement-breakpoint
 CREATE TABLE "user_preferences" (
@@ -246,8 +255,8 @@ CREATE TABLE "user_preferences" (
 	"show_transliteration" boolean DEFAULT true,
 	"show_translation" boolean DEFAULT true,
 	"auto_play_audio" boolean DEFAULT false,
-	"created_at" timestamp DEFAULT now(),
-	"updated_at" timestamp DEFAULT now(),
+	"created_at" bigint DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT,
+	"updated_at" bigint DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT,
 	CONSTRAINT "user_preferences_user_id_unique" UNIQUE("user_id")
 );
 --> statement-breakpoint
@@ -255,8 +264,8 @@ CREATE TABLE "user_roles" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"user_id" uuid NOT NULL,
 	"role" text DEFAULT 'user',
-	"created_at" timestamp DEFAULT now(),
-	"updated_at" timestamp DEFAULT now(),
+	"created_at" bigint DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT,
+	"updated_at" bigint DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT,
 	CONSTRAINT "user_roles_user_id_unique" UNIQUE("user_id")
 );
 --> statement-breakpoint
@@ -265,8 +274,8 @@ CREATE TABLE "user_settings" (
 	"user_id" uuid NOT NULL,
 	"key" text NOT NULL,
 	"value" text,
-	"created_at" timestamp DEFAULT now(),
-	"updated_at" timestamp DEFAULT now()
+	"created_at" bigint DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT,
+	"updated_at" bigint DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT
 );
 --> statement-breakpoint
 ALTER TABLE "ai_chat_messages" ADD CONSTRAINT "ai_chat_messages_session_id_ai_chat_sessions_id_fk" FOREIGN KEY ("session_id") REFERENCES "public"."ai_chat_sessions"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint

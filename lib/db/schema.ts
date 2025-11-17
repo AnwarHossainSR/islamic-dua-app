@@ -354,3 +354,20 @@ export const aiChatMessagesRelations = relations(aiChatMessages, ({ one }) => ({
     references: [aiChatSessions.id],
   }),
 }))
+
+export const challengeActivityMappingRelations = relations(challengeActivityMapping, ({ one }) => ({
+  challenge: one(challengeTemplates, {
+    fields: [challengeActivityMapping.challenge_id],
+    references: [challengeTemplates.id],
+  }),
+  activity: one(activityStats, {
+    fields: [challengeActivityMapping.activity_stat_id],
+    references: [activityStats.id],
+  }),
+}))
+export const userMissedChallengesRelations = relations(userMissedChallenges, ({ one }) => ({
+  challenge: one(challengeTemplates, {
+    fields: [userMissedChallenges.challenge_id],
+    references: [challengeTemplates.id],
+  }),
+}))

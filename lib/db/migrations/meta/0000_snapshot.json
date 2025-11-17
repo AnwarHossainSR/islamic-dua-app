@@ -1,5 +1,5 @@
 {
-  "id": "b9058371-b50b-4926-91db-4d05cf0b106d",
+  "id": "2c129b90-59f2-49f0-948b-9410b4d32d85",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -87,17 +87,17 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": false,
-          "default": "now()"
+          "default": "(EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT"
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": false,
-          "default": "now()"
+          "default": "(EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT"
         }
       },
       "indexes": {},
@@ -155,17 +155,17 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": false,
-          "default": "now()"
+          "default": "(EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT"
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": false,
-          "default": "now()"
+          "default": "(EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT"
         }
       },
       "indexes": {},
@@ -227,10 +227,10 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": false,
-          "default": "now()"
+          "default": "(EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT"
         }
       },
       "indexes": {},
@@ -287,17 +287,17 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": false,
-          "default": "now()"
+          "default": "(EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT"
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": false,
-          "default": "now()"
+          "default": "(EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT"
         }
       },
       "indexes": {},
@@ -339,10 +339,10 @@
         },
         "timestamp": {
           "name": "timestamp",
-          "type": "timestamp",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": false,
-          "default": "now()"
+          "default": "(EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT"
         }
       },
       "indexes": {},
@@ -409,17 +409,17 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": false,
-          "default": "now()"
+          "default": "(EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT"
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": false,
-          "default": "now()"
+          "default": "(EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT"
         }
       },
       "indexes": {},
@@ -463,10 +463,10 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": false,
-          "default": "now()"
+          "default": "(EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT"
         }
       },
       "indexes": {},
@@ -681,17 +681,17 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": false,
-          "default": "now()"
+          "default": "(EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT"
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": false,
-          "default": "now()"
+          "default": "(EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT"
         }
       },
       "indexes": {},
@@ -759,10 +759,10 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": false,
-          "default": "now()"
+          "default": "(EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT"
         }
       },
       "indexes": {},
@@ -885,17 +885,17 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": false,
-          "default": "now()"
+          "default": "(EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT"
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": false,
-          "default": "now()"
+          "default": "(EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT"
         }
       },
       "indexes": {},
@@ -963,7 +963,7 @@
         },
         "expires_at": {
           "name": "expires_at",
-          "type": "timestamp",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": false
         },
@@ -975,10 +975,10 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": false,
-          "default": "now()"
+          "default": "(EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT"
         }
       },
       "indexes": {},
@@ -1014,10 +1014,10 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": false,
-          "default": "now()"
+          "default": "(EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT"
         }
       },
       "indexes": {},
@@ -1061,10 +1061,10 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": false,
-          "default": "now()"
+          "default": "(EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT"
         }
       },
       "indexes": {},
@@ -1148,23 +1148,23 @@
         },
         "last_completed_at": {
           "name": "last_completed_at",
-          "type": "timestamp",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": false,
-          "default": "now()"
+          "default": "(EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT"
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": false,
-          "default": "now()"
+          "default": "(EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT"
         }
       },
       "indexes": {},
@@ -1214,10 +1214,10 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": false,
-          "default": "now()"
+          "default": "(EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT"
         }
       },
       "indexes": {},
@@ -1304,13 +1304,13 @@
         },
         "started_at": {
           "name": "started_at",
-          "type": "timestamp",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": false
         },
         "completed_at": {
           "name": "completed_at",
-          "type": "timestamp",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": false
         },
@@ -1334,10 +1334,10 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": false,
-          "default": "now()"
+          "default": "(EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT"
         }
       },
       "indexes": {},
@@ -1442,26 +1442,26 @@
         },
         "started_at": {
           "name": "started_at",
-          "type": "timestamp",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": false,
-          "default": "now()"
+          "default": "(EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT"
         },
         "last_completed_at": {
           "name": "last_completed_at",
-          "type": "timestamp",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": false
         },
         "completed_at": {
           "name": "completed_at",
-          "type": "timestamp",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": false
         },
         "paused_at": {
           "name": "paused_at",
-          "type": "timestamp",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": false
         },
@@ -1480,17 +1480,17 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": false,
-          "default": "now()"
+          "default": "(EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT"
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": false,
-          "default": "now()"
+          "default": "(EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT"
         }
       },
       "indexes": {},
@@ -1509,6 +1509,57 @@
           "onUpdate": "no action"
         }
       },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.user_logs": {
+      "name": "user_logs",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "user_email": {
+          "name": "user_email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "action": {
+          "name": "action",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "details": {
+          "name": "details",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "(EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
@@ -1560,10 +1611,10 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": false,
-          "default": "now()"
+          "default": "(EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT"
         }
       },
       "indexes": {},
@@ -1649,17 +1700,17 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": false,
-          "default": "now()"
+          "default": "(EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT"
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": false,
-          "default": "now()"
+          "default": "(EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT"
         }
       },
       "indexes": {},
@@ -1704,17 +1755,17 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": false,
-          "default": "now()"
+          "default": "(EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT"
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": false,
-          "default": "now()"
+          "default": "(EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT"
         }
       },
       "indexes": {},
@@ -1764,17 +1815,17 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": false,
-          "default": "now()"
+          "default": "(EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT"
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": false,
-          "default": "now()"
+          "default": "(EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT"
         }
       },
       "indexes": {},

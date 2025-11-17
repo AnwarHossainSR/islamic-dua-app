@@ -13,7 +13,7 @@
     "start": "next start",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "node --env-file=.env.local node_modules/drizzle-kit/bin.cjs studio --port 4984"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -54,6 +54,7 @@
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "date-fns-tz": "^3.2.0",
+    "dotenv": "^17.2.3",
     "drizzle-orm": "^0.44.7",
     "geist": "latest",
     "lucide-react": "^0.454.0",

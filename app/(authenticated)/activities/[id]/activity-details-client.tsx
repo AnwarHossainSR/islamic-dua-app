@@ -313,7 +313,7 @@ export default function ActivityDetailsPageClient({
                     <div className="min-w-0 flex-1">
                       <h3 className="font-medium truncate">{challenge.title_bn}</h3>
                       <p className="text-sm text-muted-foreground">
-                        {challenge.daily_target_count}x daily • {challenge.total_days} days
+                        {challenge.daily_target_count}x daily &bull; {challenge.total_days} days
                       </p>
                     </div>
                   </div>
@@ -386,7 +386,7 @@ export default function ActivityDetailsPageClient({
                         </div>
                         {log.notes && (
                           <p className="mt-1 text-sm text-muted-foreground italic">
-                            "{log.notes}"
+                            &quot;{log.notes}&quot;
                           </p>
                         )}
                       </div>

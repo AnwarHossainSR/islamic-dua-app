@@ -64,7 +64,8 @@ export function AdminSidebar() {
 
   // Close sidebar when route changes on mobile
   useEffect(() => {
-    setIsOpen(false)
+    const timer = setTimeout(() => setIsOpen(false), 0)
+    return () => clearTimeout(timer)
   }, [pathname])
 
   // Prevent body scroll when mobile menu is open

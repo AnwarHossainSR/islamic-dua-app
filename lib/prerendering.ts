@@ -1,25 +1,21 @@
-import { unstable_cache } from 'next/cache'
+import { cacheLife } from 'next/cache'
 import { db } from '@/lib/db'
 import { challengeTemplates, activityStats } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
 
 // Cached challenge data for prerendering
-export const getCachedChallenges = unstable_cache(
-  async () => {
-    return await db.select().from(challengeTemplates).where(eq(challengeTemplates.is_active, true))
-  },
-  ['challenges'],
-  { revalidate: 3600 } // 1 hour
-)
+export async function getCachedChallenges() {
+  'use cache'
+  cacheLife('hours')
+  return await db.select().from(challengeTemplates).where(eq(challengeTemplates.is_active, true))
+}
 
 // Cached activity stats for prerendering
-export const getCachedActivities = unstable_cache(
-  async () => {
-    return await db.select().from(activityStats)
-  },
-  ['activities'],
-  { revalidate: 1800 } // 30 minutes
-)
+export async function getCachedActivities() {
+  'use cache'
+  cacheLife('minutes')
+  return await db.select().from(activityStats)
+}
 
 // Static params for challenge pages
 export async function generateChallengeStaticParams() {

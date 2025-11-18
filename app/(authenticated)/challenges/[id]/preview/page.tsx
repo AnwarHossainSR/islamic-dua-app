@@ -4,6 +4,7 @@ import { getChallengeById, startChallenge } from '@/lib/actions/challenges'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
+import { Route } from 'next'
 import ChallengePreviewClient from './ChallengePreviewClient'
 
 interface Props {
@@ -59,7 +60,7 @@ export default async function ChallengePreviewPage({ params, searchParams }: Pro
     } = await supabase.auth.getUser()
 
     if (!user) {
-      redirect('/login?redirect=/challenges/' + id + '/preview')
+      redirect(`/login?redirect=/challenges/${id}/preview` as Route)
     }
 
     // Use the server action
@@ -120,7 +121,7 @@ export default async function ChallengePreviewPage({ params, searchParams }: Pro
                     </p>
                   </div>
                   <Button size="lg" asChild>
-                    <a href={`/login?redirect=/challenges/${id}/preview`}>Login</a>
+                    <Link href={`/login?redirect=/challenges/${id}/preview`}>Login</Link>
                   </Button>
                 </CardContent>
               </Card>

@@ -1,14 +1,12 @@
-import { SignUpForm } from "@/components/auth/signup-form"
-import { getUser } from "@/lib/actions/auth"
-import { redirect } from "next/navigation"
-
-export const dynamic = 'force-dynamic'
+import { SignUpForm } from '@/components/auth/signup-form'
+import { getUser } from '@/lib/actions/auth'
+import { redirect } from 'next/navigation'
 
 export default async function SignUpPage() {
   const user = await getUser()
 
   if (user) {
-    redirect("/")
+    redirect('/')
   }
 
   return (

@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Home, ArrowLeft, FileQuestion } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
+import { Route } from 'next'
 
 export default function NotFound() {
   const router = useRouter()
@@ -57,7 +58,7 @@ export default function NotFound() {
             <div className="space-y-2">
               {getSuggestions().map((suggestion, index) => (
                 <Button key={index} variant="outline" asChild className="w-full justify-start">
-                  <Link href={suggestion.href}>
+                  <Link href={suggestion.href as Route}>
                     <span className="mr-2">{suggestion.icon}</span>
                     {suggestion.label}
                   </Link>
@@ -72,7 +73,7 @@ export default function NotFound() {
               Go Back
             </Button>
             <Button asChild className="flex-1">
-              <Link href="/">
+              <Link href={"/" as Route}>
                 <Home className="mr-2 h-4 w-4" />
                 Home
               </Link>

@@ -5,8 +5,9 @@ const nextConfig: NextConfig = {
   experimental: {
     turbopackFileSystemCacheForDev: true,
   },
-  // cacheComponents: true, // Disabled due to dynamic routes
+  cacheComponents: true, // Disabled due to dynamic routes
   reactCompiler: true,
+  typedRoutes: true,
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
   },

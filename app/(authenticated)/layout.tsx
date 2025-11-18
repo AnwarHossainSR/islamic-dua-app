@@ -5,8 +5,6 @@ import { PERMISSIONS } from '@/lib/permissions'
 import type React from 'react'
 import { Suspense } from 'react'
 
-export const dynamic = 'force-dynamic'
-
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   await checkAdminAccess()
 

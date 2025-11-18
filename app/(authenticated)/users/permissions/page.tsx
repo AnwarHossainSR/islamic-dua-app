@@ -5,12 +5,10 @@ import { Plus, Settings, Shield, Users } from 'lucide-react'
 import { PermissionsManagementClient } from './permissions-client'
 import { RolesManagementClient } from './roles-client'
 
-export const dynamic = 'force-dynamic'
-
 export default async function PermissionsManagementPage() {
   const [permissions, rolesWithPermissions] = await Promise.all([
     getAllPermissions(),
-    getAllRolesWithPermissions()
+    getAllRolesWithPermissions(),
   ])
 
   const resourceCount = [...new Set(permissions.map((p: any) => p.resource || 'unknown'))].length
@@ -88,7 +86,7 @@ export default async function PermissionsManagementPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <RolesManagementClient 
+              <RolesManagementClient
                 rolesWithPermissions={rolesWithPermissions}
                 allPermissions={permissions}
               />
@@ -100,9 +98,7 @@ export default async function PermissionsManagementPage() {
           <Card>
             <CardHeader>
               <CardTitle>System Permissions</CardTitle>
-              <CardDescription>
-                Create, edit, and manage system permissions
-              </CardDescription>
+              <CardDescription>Create, edit, and manage system permissions</CardDescription>
             </CardHeader>
             <CardContent>
               <PermissionsManagementClient permissions={permissions} />

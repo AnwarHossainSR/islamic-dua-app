@@ -1,14 +1,22 @@
 import { NotificationDropdown } from '@/components/notifications/notification-dropdown'
 import { Button } from '@/components/ui/button'
 import { isUserAdmin } from '@/lib/actions/admin'
-import { getUser } from '@/lib/actions/auth'
+import { getCachedUser } from '@/lib/cached-auth'
 import Link from 'next/link'
 import { ThemeToggle } from './theme-toggle'
 import { UserMenu } from './user-menu'
 
 export async function Header() {
-  const user = await getUser()
-  const isAdmin = user ? await isUserAdmin() : false
+  let user = null
+  let isAdmin = false
+  
+  try {
+    user = await getCachedUser()
+    isAdmin = user ? await isUserAdmin() : false
+  } catch (error) {
+    // Handle prerendering errors gracefully
+    console.log('Auth check failed during prerendering')
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 md:px-6">

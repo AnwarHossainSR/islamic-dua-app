@@ -2,9 +2,7 @@ import { createClient } from '@supabase/supabase-js'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function updateSession(request: NextRequest) {
-  const supabaseResponse = NextResponse.next({
-    request,
-  })
+  const supabaseResponse = NextResponse.next({ request })
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -13,31 +11,35 @@ export async function updateSession(request: NextRequest) {
     return supabaseResponse
   }
 
-  // Get auth tokens from cookies
   const accessToken = request.cookies.get('sb-access-token')?.value
   const refreshToken = request.cookies.get('sb-refresh-token')?.value
 
+  // Only create client and check session if we have tokens
+  if (!accessToken || !refreshToken) {
+    return supabaseResponse
+  }
+
   const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-    auth: {
-      persistSession: false,
-    },
+    auth: { persistSession: false, autoRefreshToken: false },
     global: {
-      headers: accessToken
-        ? {
-            Authorization: `Bearer ${accessToken}`,
-          }
-        : {},
+      headers: { Authorization: `Bearer ${accessToken}` },
+      fetch: (url, options = {}) => {
+        return fetch(url, {
+          ...options,
+          cache: 'force-cache',
+          next: { revalidate: 30 }
+        })
+      }
     },
   })
 
-  // If we have tokens, set the session and refresh if needed
-  if (accessToken && refreshToken) {
+  try {
     const { data, error } = await supabase.auth.setSession({
       access_token: accessToken,
       refresh_token: refreshToken,
     })
 
-    // If session was refreshed, update cookies
+    // Only update cookies if session was actually refreshed
     if (data.session && data.session.access_token !== accessToken) {
       supabaseResponse.cookies.set('sb-access-token', data.session.access_token, {
         httpOnly: true,
@@ -52,6 +54,10 @@ export async function updateSession(request: NextRequest) {
         maxAge: 60 * 60 * 24 * 7,
       })
     }
+  } catch (error) {
+    // If session is invalid, clear cookies
+    supabaseResponse.cookies.delete('sb-access-token')
+    supabaseResponse.cookies.delete('sb-refresh-token')
   }
 
   return supabaseResponse

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { Menu, Home, Target, BookOpen, Brain, Activity } from 'lucide-react'
+import { Route } from 'next'
 
 export function MobileNav() {
   const [open, setOpen] = useState(false)
@@ -37,7 +38,7 @@ export function MobileNav() {
             {navItems.map((item) => (
               <Link
                 key={item.href}
-                href={item.href}
+                href={item.href as Route}
                 onClick={() => setOpen(false)}
                 className="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground transition-colors"
               >

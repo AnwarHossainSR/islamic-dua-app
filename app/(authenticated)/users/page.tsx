@@ -5,8 +5,6 @@ import { Edit, Shield, Users } from 'lucide-react'
 import { cookies } from 'next/headers'
 import { UsersClient } from './users-client'
 
-export const dynamic = 'force-dynamic'
-
 async function getUsers() {
   // Access cookies to make this dynamic
   await cookies()

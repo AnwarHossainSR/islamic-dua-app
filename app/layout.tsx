@@ -11,8 +11,6 @@ import type React from 'react'
 import { Suspense } from 'react'
 import './globals.css'
 
-// export const dynamic = 'force-dynamic' // Removed for React 19 compatibility
-
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://islamic-dua-app.vercel.app'),
   title: {

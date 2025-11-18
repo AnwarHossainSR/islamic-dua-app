@@ -16,6 +16,7 @@ import { formatDistanceToNow } from 'date-fns'
 import { Bell, Check, CheckCheck, ExternalLink, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
+import { Route } from 'next'
 
 export function NotificationDropdown() {
   const [notifications, setNotifications] = useState<Notification[]>([])
@@ -178,7 +179,7 @@ export function NotificationDropdown() {
                         </span>
                         
                         {notification.action_url && (
-                          <Link href={notification.action_url}>
+                          <Link href={notification.action_url as Route}>
                             <Button
                               variant="ghost"
                               size="sm"
@@ -203,7 +204,7 @@ export function NotificationDropdown() {
           <>
             <DropdownMenuSeparator />
             <div className="p-2">
-              <Link href="/notifications">
+              <Link href={"/notifications" as Route}>
                 <Button 
                   variant="ghost" 
                   className="w-full justify-center text-sm"

@@ -2,16 +2,14 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { getSupabaseAdminServerClient } from '@/lib/supabase/server'
-import { ArrowLeft, Shield, Settings } from 'lucide-react'
+import { ArrowLeft, Settings, Shield } from 'lucide-react'
 import Link from 'next/link'
 import { PermissionsClient } from './permissions-client'
 import { UserOnlineStatus } from './user-online-status'
 
-export const dynamic = 'force-dynamic'
-
 async function getUserWithPermissions(userId: string) {
   const supabase = getSupabaseAdminServerClient()
-  
+
   // Get user info
   const { data: adminUser } = await supabase
     .from('admin_users')
@@ -28,9 +26,11 @@ async function getUserWithPermissions(userId: string) {
   // Get role permissions
   const { data: rolePermissions } = await supabase
     .from('role_permissions')
-    .select(`
+    .select(
+      `
       permission:permissions(*)
-    `)
+    `
+    )
     .eq('role', adminUser.role)
 
   // Get all available permissions
@@ -41,11 +41,11 @@ async function getUserWithPermissions(userId: string) {
 
   const permissions = rolePermissions?.map(rp => rp.permission).filter(Boolean) || []
 
-  return { 
-    ...adminUser, 
+  return {
+    ...adminUser,
     email: authUser?.email || 'Unknown',
     permissions,
-    allPermissions: allPermissions || []
+    allPermissions: allPermissions || [],
   }
 }
 
@@ -133,8 +133,8 @@ export default async function UserPermissionsPage({ params }: { params: Promise<
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <PermissionsClient 
-            user={user} 
+          <PermissionsClient
+            user={user}
             userPermissions={user.permissions}
             allPermissions={user.allPermissions}
           />

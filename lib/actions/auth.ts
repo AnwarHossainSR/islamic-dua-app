@@ -5,6 +5,7 @@ import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
+import { Route } from 'next'
 
 export async function signUp(email: string, password: string) {
   const supabase = await getSupabaseServerClient()
@@ -147,7 +148,7 @@ export async function signOut(currentPath?: string) {
 
   // Redirect to login with return URL if provided
   const redirectUrl = currentPath ? `/login?returnUrl=${encodeURIComponent(currentPath)}` : '/login'
-  redirect(redirectUrl)
+  redirect(redirectUrl as Route)
 }
 
 export async function getUser() {

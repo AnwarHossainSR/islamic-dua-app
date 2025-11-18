@@ -1,22 +1,20 @@
+import { AIRecommendations } from '@/components/ai/ai-recommendations'
+import { SmartSearch } from '@/components/ai/smart-search'
+import { DashboardClient } from '@/components/dashboard-client'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { getAdminActivityStats, getTopActivitiesAction } from '@/lib/actions/admin'
 import { getUserRole } from '@/lib/actions/auth'
+import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { formatNumber } from '@/lib/utils'
 import { Activity, Brain, Flame, Target, TrendingUp, Trophy, Users } from 'lucide-react'
 import Link from 'next/link'
-import { DashboardClient } from '@/components/dashboard-client'
-import { AIRecommendations } from '@/components/ai/ai-recommendations'
-import { SmartSearch } from '@/components/ai/smart-search'
-import { getSupabaseServerClient } from '@/lib/supabase/server'
-
-export const dynamic = 'force-dynamic'
 
 async function DashboardContent() {
   const stats = await getAdminActivityStats()
   const topActivities = await getTopActivitiesAction(5)
-  
+
   return (
     <>
       {/* Stats Grid */}
@@ -196,7 +194,11 @@ async function DashboardContent() {
                 <span>Browse Duas</span>
               </Link>
             </Button>
-            <Button asChild variant="outline" className="h-auto flex-col gap-2 py-4 bg-transparent border-purple-200 hover:bg-purple-50">
+            <Button
+              asChild
+              variant="outline"
+              className="h-auto flex-col gap-2 py-4 bg-transparent border-purple-200 hover:bg-purple-50"
+            >
               <Link href="/ai">
                 <Brain className="h-6 w-6 text-purple-500" />
                 <span>AI Assistant</span>
@@ -214,9 +216,11 @@ export default async function Dashboard() {
   const stats = await getAdminActivityStats()
   const topActivities = await getTopActivitiesAction(5)
   const isSuperAdmin = userRole === 'super_admin'
-  
+
   const supabase = await getSupabaseServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
   return (
     <div className="space-y-8">
@@ -227,8 +231,8 @@ export default async function Dashboard() {
           <SmartSearch />
         </div>
       )}
-      
-      <DashboardClient 
+
+      <DashboardClient
         isSuperAdmin={isSuperAdmin}
         initialStats={stats}
         initialTopActivities={topActivities}

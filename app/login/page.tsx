@@ -1,8 +1,7 @@
 import { LoginForm } from '@/components/auth/login-form'
 import { getUser } from '@/lib/actions/auth'
 import { redirect } from 'next/navigation'
-
-export const dynamic = 'force-dynamic'
+import { Route } from 'next'
 
 export default async function LoginPage({
   searchParams,
@@ -14,7 +13,7 @@ export default async function LoginPage({
 
   if (user) {
     // If already logged in, redirect to return URL or home
-    redirect(params.returnUrl || '/')
+    redirect((params.returnUrl || '/') as Route)
   }
 
   return (

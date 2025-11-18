@@ -15,6 +15,7 @@ import type { User } from '@supabase/supabase-js'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
+import { Route } from 'next'
 
 export function UserMenu({ user, isAdmin }: { user: User; isAdmin: boolean }) {
   const initials = user.email?.substring(0, 2).toUpperCase() || 'U'
@@ -41,7 +42,7 @@ export function UserMenu({ user, isAdmin }: { user: User; isAdmin: boolean }) {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link href="/bookmarks">Bookmarks</Link>
+          <Link href={"/bookmarks" as Route}>Bookmarks</Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link href="/settings">Settings</Link>

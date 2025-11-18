@@ -1,11 +1,16 @@
 import type { NextConfig } from 'next'
+import bundleAnalyzer from '@next/bundle-analyzer'
+
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env.ANALYZE === 'true',
+})
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   experimental: {
     turbopackFileSystemCacheForDev: true,
   },
-  cacheComponents: true, // Disabled due to dynamic routes
+  cacheComponents: true,
   reactCompiler: true,
   typedRoutes: true,
   compiler: {
@@ -13,6 +18,11 @@ const nextConfig: NextConfig = {
   },
   images: {
     formats: ['image/webp', 'image/avif'],
+  },
+  logging: {
+    fetches: {
+      fullUrl: true,
+    },
   },
   async headers() {
     return [
@@ -33,4 +43,4 @@ const nextConfig: NextConfig = {
   },
 }
 
-export default nextConfig
+export default withBundleAnalyzer(nextConfig)

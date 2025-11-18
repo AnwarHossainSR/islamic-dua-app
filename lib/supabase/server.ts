@@ -3,11 +3,21 @@ import { cookies } from 'next/headers'
 
 export async function getSupabaseServerClient() {
   try {
-    const cookieStore = await cookies()
-
-    // Get the auth token from cookies
-    const authToken = cookieStore.get('sb-access-token')?.value
-    const refreshToken = cookieStore.get('sb-refresh-token')?.value
+    // Check if we're in a prerendering context
+    let cookieStore
+    let authToken
+    let refreshToken
+    
+    try {
+      cookieStore = await cookies()
+      authToken = cookieStore.get('sb-access-token')?.value
+      refreshToken = cookieStore.get('sb-refresh-token')?.value
+    } catch (cookieError) {
+      // During prerendering, cookies() might not be available
+      console.log('Cookies not available during prerendering')
+      authToken = undefined
+      refreshToken = undefined
+    }
 
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -15,6 +25,7 @@ export async function getSupabaseServerClient() {
       {
         auth: {
           persistSession: false,
+          autoRefreshToken: false,
         },
         global: {
           headers: authToken
@@ -22,6 +33,7 @@ export async function getSupabaseServerClient() {
                 Authorization: `Bearer ${authToken}`,
               }
             : {},
+
         },
       }
     )

@@ -61,7 +61,7 @@ export async function getCachedUser() {
       authToken = cookieStore.get('sb-access-token')?.value
       refreshToken = cookieStore.get('sb-refresh-token')?.value
     } catch (error) {
-      console.log('Cookies not available during prerendering')
+      // Cookies not available, continue without tokens
     }
     
     const user = await getCachedUserData(authToken, refreshToken)

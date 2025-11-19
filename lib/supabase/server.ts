@@ -1,27 +1,18 @@
 import { createClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
-import { cache } from 'react'
 
-// Cache the client creation to avoid multiple instances
-const createSupabaseClient = cache(async () => {
-  let authToken: string | undefined
-  let refreshToken: string | undefined
+export async function getSupabaseServerClient() {
+  let authToken, refreshToken
   
   try {
     const cookieStore = await cookies()
     authToken = cookieStore.get('sb-access-token')?.value
     refreshToken = cookieStore.get('sb-refresh-token')?.value
   } catch (error) {
-    // During prerendering or static generation, cookies are not available
-    return createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        auth: { persistSession: false, autoRefreshToken: true },
-      }
-    )
+    // During prerendering, cookies are not available
+    authToken = undefined
+    refreshToken = undefined
   }
-
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -57,10 +48,6 @@ const createSupabaseClient = cache(async () => {
   }
 
   return supabase
-})
-
-export async function getSupabaseServerClient() {
-  return createSupabaseClient()
 }
 
 export function getSupabaseAdminServerClient() {

@@ -5,9 +5,8 @@ import { challengeActivityMapping, userChallengeDailyLogs } from '@/lib/db/schem
 import { generatePageMetadata } from '@/lib/metadata'
 import { and, eq, inArray } from 'drizzle-orm'
 import { notFound } from 'next/navigation'
+import { Suspense } from 'react'
 import ActivityDetailsPageClient from './activity-details-client'
-
-export const dynamic = 'force-dynamic'
 
 interface Props {
   params: Promise<{
@@ -68,7 +67,7 @@ async function getUserDailyLogsForActivity(activityId: string, userId: string) {
   }
 }
 
-export default async function ActivityDetailsPage({ params }: Props) {
+async function ActivityContent({ params }: Props) {
   const resolvedParams = await params
   const user = await getUser()
 
@@ -88,5 +87,13 @@ export default async function ActivityDetailsPage({ params }: Props) {
       topUsers={topUsers}
       userDailyLogs={userDailyLogs}
     />
+  )
+}
+
+export default function ActivityDetailsPage({ params }: Props) {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ActivityContent params={params} />
+    </Suspense>
   )
 }

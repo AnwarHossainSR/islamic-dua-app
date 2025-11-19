@@ -17,7 +17,7 @@ const createSupabaseClient = cache(async () => {
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
-        auth: { persistSession: false, autoRefreshToken: false },
+        auth: { persistSession: false, autoRefreshToken: true },
       }
     )
   }
@@ -26,16 +26,21 @@ const createSupabaseClient = cache(async () => {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
-      auth: { persistSession: false, autoRefreshToken: false },
+      auth: { persistSession: false, autoRefreshToken: true },
       global: {
         headers: authToken ? { Authorization: `Bearer ${authToken}` } : {},
         fetch: (url, options = {}) => {
-          return fetch(url, {
-            ...options,
-            cache: 'force-cache',
-            next: { revalidate: 60 }
-          })
-        }
+          // Cache GET requests to /auth/v1/user for 30 seconds
+          const urlString = url.toString()
+          if (urlString.includes('/auth/v1/user') && (!options.method || options.method === 'GET')) {
+            return fetch(url, {
+              ...options,
+              next: { revalidate: 30 }
+            })
+          }
+          // Don't cache token refresh or other auth operations
+          return fetch(url, options)
+        },
       },
     }
   )

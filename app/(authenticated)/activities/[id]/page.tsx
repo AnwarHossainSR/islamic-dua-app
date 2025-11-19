@@ -7,6 +7,8 @@ import { and, eq, inArray } from 'drizzle-orm'
 import { notFound } from 'next/navigation'
 import ActivityDetailsPageClient from './activity-details-client'
 
+export const dynamic = 'force-dynamic'
+
 interface Props {
   params: Promise<{
     id: string

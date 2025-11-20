@@ -43,7 +43,7 @@ import {
 } from 'lucide-react'
 
 import Link from 'next/link'
-import React, { useCallback, useEffect, useMemo, useState, useTransition } from 'react'
+import React, { useCallback, useEffect, useMemo, useState, useTransition, Activity } from 'react'
 
 import { Challenge, RecentLog } from '@/lib/types/challenges'
 
@@ -450,48 +450,51 @@ export default function ChallengesClient({
             <CardContent>
               {/* Challenges List */}
               <div className="space-y-4">
-                {isPending || completionLoading
-                  ? // Skeleton loading state
-                    Array.from({ length: 3 }).map((_, i) => (
-                      <div key={i} className="border rounded-lg p-6">
-                        <div className="flex flex-col md:flex-row gap-6">
-                          <div className="flex-1 space-y-4">
-                            <div className="flex items-start gap-3">
-                              <Skeleton className="h-14 w-14 rounded-lg" />
-                              <div className="flex-1 space-y-2">
-                                <Skeleton className="h-6 w-3/4" />
-                                <Skeleton className="h-4 w-1/2" />
-                                <Skeleton className="h-4 w-2/3" />
-                              </div>
-                            </div>
-                            <div className="flex gap-2">
-                              <Skeleton className="h-6 w-16" />
-                              <Skeleton className="h-6 w-20" />
+                <Activity mode={isPending || completionLoading ? 'visible' : 'hidden'}>
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="border rounded-lg p-6">
+                      <div className="flex flex-col md:flex-row gap-6">
+                        <div className="flex-1 space-y-4">
+                          <div className="flex items-start gap-3">
+                            <Skeleton className="h-14 w-14 rounded-lg" />
+                            <div className="flex-1 space-y-2">
+                              <Skeleton className="h-6 w-3/4" />
+                              <Skeleton className="h-4 w-1/2" />
+                              <Skeleton className="h-4 w-2/3" />
                             </div>
                           </div>
-                          <div className="md:w-72 space-y-3">
-                            <div className="grid grid-cols-2 gap-3">
-                              <Skeleton className="h-16 rounded-lg" />
-                              <Skeleton className="h-16 rounded-lg" />
-                            </div>
-                            <Skeleton className="h-12 rounded-lg" />
-                            <Skeleton className="h-9 w-full" />
+                          <div className="flex gap-2">
+                            <Skeleton className="h-6 w-16" />
+                            <Skeleton className="h-6 w-20" />
                           </div>
                         </div>
+                        <div className="md:w-72 space-y-3">
+                          <div className="grid grid-cols-2 gap-3">
+                            <Skeleton className="h-16 rounded-lg" />
+                            <Skeleton className="h-16 rounded-lg" />
+                          </div>
+                          <Skeleton className="h-12 rounded-lg" />
+                          <Skeleton className="h-9 w-full" />
+                        </div>
                       </div>
-                    ))
-                  : paginatedChallenges.map((challenge: Challenge) => (
-                      <ChallengeCard
-                        key={challenge.id}
-                        challenge={challenge}
-                        actionLoading={actionLoading}
-                        onStartChallenge={handleStartChallenge}
-                        onRestartChallenge={handleRestartChallenge}
-                        onShowCompletedDialog={() => setShowCompletedDialog(true)}
-                      />
-                    ))}
+                    </div>
+                  ))}
+                </Activity>
+                
+                <Activity mode={!isPending && !completionLoading ? 'visible' : 'hidden'}>
+                  {paginatedChallenges.map((challenge: Challenge) => (
+                    <ChallengeCard
+                      key={challenge.id}
+                      challenge={challenge}
+                      actionLoading={actionLoading}
+                      onStartChallenge={handleStartChallenge}
+                      onRestartChallenge={handleRestartChallenge}
+                      onShowCompletedDialog={() => setShowCompletedDialog(true)}
+                    />
+                  ))}
+                </Activity>
 
-                {!isPending && !completionLoading && filteredChallenges.length === 0 && (
+                <Activity mode={!isPending && !completionLoading && filteredChallenges.length === 0 ? 'visible' : 'hidden'}>
                   <div className="flex flex-col items-center justify-center py-16">
                     <Target className="mb-4 h-16 w-16 text-muted-foreground" />
                     <p className="mb-2 text-lg font-semibold">No challenges found</p>
@@ -499,7 +502,7 @@ export default function ChallengesClient({
                       Try adjusting your filters or search query
                     </p>
                   </div>
-                )}
+                </Activity>
               </div>
 
               {/* Pagination */}

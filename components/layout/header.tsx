@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button'
 import { isUserAdmin } from '@/lib/actions/admin'
 import { getUser } from '@/lib/actions/auth'
 import Link from 'next/link'
+import { Activity } from 'react'
 import { ThemeToggle } from './theme-toggle'
 import { UserMenu } from './user-menu'
 
@@ -29,16 +30,15 @@ export async function Header() {
 
         <nav className="flex items-center gap-2">
           <ThemeToggle />
-          {user ? (
-            <>
-              <NotificationDropdown />
-              <UserMenu user={user} isAdmin={isAdmin} />
-            </>
-          ) : (
+          <Activity mode={user ? 'visible' : 'hidden'}>
+            <NotificationDropdown />
+            <UserMenu user={user!} isAdmin={isAdmin} />
+          </Activity>
+          <Activity mode={!user ? 'visible' : 'hidden'}>
             <Button asChild>
               <Link href="/login">Sign In</Link>
             </Button>
-          )}
+          </Activity>
         </nav>
       </div>
     </header>

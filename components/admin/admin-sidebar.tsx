@@ -9,7 +9,10 @@ import {
   BookOpen,
   Brain,
   Calendar,
+  ChevronDown,
+  ChevronRight,
   LayoutDashboard,
+  LogOut,
   Logs,
   Menu,
   Settings,
@@ -20,48 +23,59 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Activity as ReactActivity } from 'react'
 import { Route } from 'next'
+import { signOut } from '@/lib/actions/auth'
 
-const allNavigation = [
-  { name: 'Dashboard', href: '/', icon: LayoutDashboard, permission: PERMISSIONS.DASHBOARD_READ },
+const navigationGroups = [
   {
-    name: 'Challenges',
-    href: '/challenges',
-    icon: Target,
-    permission: PERMISSIONS.CHALLENGES_READ,
+    name: 'Overview',
+    icon: LayoutDashboard,
+    items: [
+      { name: 'Dashboard', href: '/', icon: LayoutDashboard, permission: PERMISSIONS.DASHBOARD_READ },
+      { name: 'AI Assistant', href: '/ai', icon: Brain, permission: PERMISSIONS.DASHBOARD_READ },
+    ]
   },
   {
-    name: 'Missed Challenges',
-    href: '/missed-challenges',
-    icon: Calendar,
-    permission: PERMISSIONS.CHALLENGES_READ,
+    name: 'Content',
+    icon: BookOpen,
+    items: [
+      { name: 'Challenges', href: '/challenges', icon: Target, permission: PERMISSIONS.CHALLENGES_READ },
+      { name: 'Missed Challenges', href: '/missed-challenges', icon: Calendar, permission: PERMISSIONS.CHALLENGES_READ },
+      { name: 'Duas', href: '/duas', icon: BookOpen, permission: PERMISSIONS.DUAS_READ },
+      { name: 'Activities', href: '/activities', icon: Activity, permission: PERMISSIONS.ACTIVITIES_READ },
+    ]
   },
-  { name: 'Duas', href: '/duas', icon: BookOpen, permission: PERMISSIONS.DUAS_READ },
   {
-    name: 'Activities',
-    href: '/activities',
-    icon: Activity,
-    permission: PERMISSIONS.ACTIVITIES_READ,
-  },
-  { name: 'AI Assistant', href: '/ai', icon: Brain, permission: PERMISSIONS.DASHBOARD_READ },
-  { name: 'Users', href: '/users', icon: Users, permission: PERMISSIONS.USERS_READ },
-  {
-    name: 'Permissions',
-    href: '/users/permissions',
-    icon: Shield,
-    permission: PERMISSIONS.ADMIN_USERS_READ,
-  },
-  { name: 'Logs', href: '/logs', icon: Logs, permission: PERMISSIONS.LOGS_READ },
-  { name: 'Settings', href: '/settings', icon: Settings, permission: PERMISSIONS.SETTINGS_READ },
+    name: 'Management',
+    icon: Users,
+    items: [
+      { name: 'Users', href: '/users', icon: Users, permission: PERMISSIONS.USERS_READ },
+      { name: 'Permissions', href: '/users/permissions', icon: Shield, permission: PERMISSIONS.ADMIN_USERS_READ },
+      { name: 'Logs', href: '/logs', icon: Logs, permission: PERMISSIONS.LOGS_READ },
+      { name: 'Settings', href: '/settings', icon: Settings, permission: PERMISSIONS.SETTINGS_READ },
+    ]
+  }
 ]
 
 export function AdminSidebar() {
   const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
+  const [expandedGroups, setExpandedGroups] = useState<string[]>([])
   const { hasPermission, role } = usePermissions()
 
-  const navigation = allNavigation.filter(item => hasPermission(item.permission))
+  const filteredGroups = navigationGroups.map(group => ({
+    ...group,
+    items: group.items.filter(item => hasPermission(item.permission))
+  })).filter(group => group.items.length > 0)
+
+  const toggleGroup = (groupName: string) => {
+    setExpandedGroups(prev => 
+      prev.includes(groupName) 
+        ? prev.filter(name => name !== groupName)
+        : [...prev, groupName]
+    )
+  }
 
   // Close sidebar when route changes on mobile
   useEffect(() => {
@@ -116,25 +130,67 @@ export function AdminSidebar() {
               {role === 'super_admin' ? 'System Management' : 'Your Islamic Journey'}
             </p>
           </div>
-          <nav className="space-y-1">
-            {navigation.map(item => {
-              const isActive = pathname === item.href
+          <nav className="space-y-2">
+            {filteredGroups.map(group => {
+              const isExpanded = expandedGroups.includes(group.name)
+              const hasActiveItem = group.items.some(item => pathname === item.href)
+              
               return (
-                <Link
-                  key={item.name}
-                  href={item.href as Route}
-                  className={cn(
-                    'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-                    isActive
-                      ? 'bg-primary text-primary-foreground'
-                      : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
-                  )}
-                >
-                  <item.icon className="h-4 w-4" />
-                  {item.name}
-                </Link>
+                <div key={group.name} className="space-y-1">
+                  <button
+                    onClick={() => toggleGroup(group.name)}
+                    className={cn(
+                      'flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-medium transition-colors cursor-pointer',
+                      hasActiveItem
+                        ? 'bg-primary/10 text-primary'
+                        : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                    )}
+                  >
+                    <div className="flex items-center gap-3">
+                      <group.icon className="h-4 w-4" />
+                      {group.name}
+                    </div>
+                    {isExpanded ? (
+                      <ChevronDown className="h-4 w-4" />
+                    ) : (
+                      <ChevronRight className="h-4 w-4" />
+                    )}
+                  </button>
+                  
+                  <ReactActivity mode={isExpanded ? 'visible' : 'hidden'}>
+                    <div className="ml-4 space-y-1 border-l border-border pl-4">
+                      {group.items.map(item => {
+                        const isActive = pathname === item.href
+                        return (
+                          <Link
+                            key={item.name}
+                            href={item.href as Route}
+                            className={cn(
+                              'flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors cursor-pointer',
+                              isActive
+                                ? 'bg-primary text-primary-foreground'
+                                : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                            )}
+                          >
+                            <item.icon className="h-3 w-3" />
+                            {item.name}
+                          </Link>
+                        )
+                      })}
+                    </div>
+                  </ReactActivity>
+                </div>
               )
             })}
+            
+            {/* Logout Button */}
+            <button
+              onClick={() => signOut(pathname)}
+              className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors cursor-pointer text-destructive hover:bg-destructive/10"
+            >
+              <LogOut className="h-4 w-4" />
+              Sign Out
+            </button>
           </nav>
 
           {/* Role Badge */}

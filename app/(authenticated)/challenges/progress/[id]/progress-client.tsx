@@ -35,7 +35,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState, Activity } from 'react'
 import { createPortal } from 'react-dom'
 
 interface UserChallengeProgressClientProps {
@@ -600,7 +600,7 @@ export default function UserChallengeProgressClient({
             </div>
 
             {/* Counter Input/Button */}
-            {inputMode ? (
+            <Activity mode={inputMode ? 'visible' : 'hidden'}>
               <div className="space-y-3">
                 <div className="flex gap-2">
                   <Input
@@ -625,7 +625,9 @@ export default function UserChallengeProgressClient({
                   Enter a number between 0 and {target}
                 </p>
               </div>
-            ) : (
+            </Activity>
+
+            <Activity mode={!inputMode ? 'visible' : 'hidden'}>
               <Button
                 type="button"
                 size="lg"
@@ -645,7 +647,7 @@ export default function UserChallengeProgressClient({
                   </>
                 )}
               </Button>
-            )}
+            </Activity>
 
             {/* Action Buttons */}
             <div className="grid gap-2 sm:grid-cols-2 sm:gap-3">

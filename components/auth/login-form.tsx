@@ -15,7 +15,7 @@ import { Label } from '@/components/ui/label'
 import { loginAction } from '@/lib/actions/forms'
 import { resendConfirmationEmail } from '@/lib/actions/auth'
 import Link from 'next/link'
-import { useActionState, useState } from 'react'
+import { useActionState, useState, Activity } from 'react'
 import { useFormStatus } from 'react-dom'
 import { BiometricLogin } from './biometric-login'
 
@@ -62,16 +62,16 @@ export function LoginForm({ returnUrl }: { returnUrl?: string }) {
       </CardHeader>
       <form action={formAction}>
         <CardContent className="space-y-4 pb-5">
-          {state.error && (
+          <Activity mode={state.error ? 'visible' : 'hidden'}>
             <Alert variant="destructive">
               <AlertDescription>{state.error}</AlertDescription>
             </Alert>
-          )}
-          {success && (
+          </Activity>
+          <Activity mode={success ? 'visible' : 'hidden'}>
             <Alert>
               <AlertDescription>{success}</AlertDescription>
             </Alert>
-          )}
+          </Activity>
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
@@ -109,7 +109,7 @@ export function LoginForm({ returnUrl }: { returnUrl?: string }) {
             onError={() => {}}
             onSuccess={() => setSuccess('Signed in successfully!')}
           />
-          {needsEmailConfirmation && (
+          <Activity mode={needsEmailConfirmation ? 'visible' : 'hidden'}>
             <Button
               type="button"
               variant="outline"
@@ -119,7 +119,7 @@ export function LoginForm({ returnUrl }: { returnUrl?: string }) {
             >
               {resendingEmail ? 'Sending...' : 'Resend Confirmation Email'}
             </Button>
-          )}
+          </Activity>
           <p className="text-center text-sm text-muted-foreground">
             Don't have an account?{' '}
             <Link href="/signup" className="text-primary hover:underline">

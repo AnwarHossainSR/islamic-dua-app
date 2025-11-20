@@ -14,7 +14,7 @@ import { signOut } from '@/lib/actions/auth'
 import type { User } from '@supabase/supabase-js'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useState } from 'react'
+import { useState, Activity } from 'react'
 import { Route } from 'next'
 
 export function UserMenu({ user, isAdmin }: { user: User; isAdmin: boolean }) {
@@ -47,16 +47,14 @@ export function UserMenu({ user, isAdmin }: { user: User; isAdmin: boolean }) {
         <DropdownMenuItem asChild>
           <Link href="/settings">Settings</Link>
         </DropdownMenuItem>
-        {isAdmin && (
-          <>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Link href="/" className="text-primary font-medium">
-                User Panel
-              </Link>
-            </DropdownMenuItem>
-          </>
-        )}
+        <Activity mode={isAdmin ? 'visible' : 'hidden'}>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem asChild>
+            <Link href="/" className="text-primary font-medium">
+              User Panel
+            </Link>
+          </DropdownMenuItem>
+        </Activity>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           className="text-destructive focus:text-destructive"

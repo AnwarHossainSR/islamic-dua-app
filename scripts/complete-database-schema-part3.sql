@@ -419,32 +419,74 @@ CREATE POLICY "Users can manage their own chat messages"
 -- MISSED CHALLENGES TRACKING FUNCTION
 -- ============================================
 
+-- Migration: Fix missed challenges tracking to include incomplete challenges
+-- Date: 2025-11-20
+-- Description: Updates the track_missed_challenges() function to properly detect
+--              all missed challenges, including those that were started but not completed
+--              Also ensures the unique constraint exists on the table
+
+-- First, ensure the unique constraint exists
+-- Drop it if it exists and recreate to make sure it's properly defined
+DO $$
+BEGIN
+  -- Check if constraint exists and drop it
+  IF EXISTS (
+    SELECT 1 FROM pg_constraint 
+    WHERE conname = 'user_missed_challenges_user_id_challenge_id_missed_date_key'
+  ) THEN
+    ALTER TABLE user_missed_challenges 
+    DROP CONSTRAINT user_missed_challenges_user_id_challenge_id_missed_date_key;
+  END IF;
+  
+  -- Recreate the constraint
+  ALTER TABLE user_missed_challenges 
+  ADD CONSTRAINT user_missed_challenges_user_id_challenge_id_missed_date_key 
+  UNIQUE (user_id, challenge_id, missed_date);
+EXCEPTION
+  WHEN duplicate_table THEN
+    NULL; -- Constraint already exists, ignore
+  WHEN others THEN
+    RAISE NOTICE 'Error creating constraint: %', SQLERRM;
+END $$;
+
+-- Now update the function
 CREATE OR REPLACE FUNCTION track_missed_challenges()
 RETURNS void AS $$
 DECLARE
   target_date DATE;
   user_record RECORD;
   challenge_record RECORD;
-  daily_log_record RECORD;
+  is_challenge_completed BOOLEAN;
 BEGIN
+  -- Track missed challenges for yesterday
   target_date := CURRENT_DATE - INTERVAL '1 day';
   
+  -- Loop through all users with active challenges
   FOR user_record IN 
     SELECT DISTINCT user_id FROM user_challenge_progress WHERE status = 'active'
   LOOP
+    -- Loop through all active challenges for this user
     FOR challenge_record IN
       SELECT ucp.challenge_id, ucp.user_id
       FROM user_challenge_progress ucp
       JOIN challenge_templates ct ON ucp.challenge_id = ct.id
-      WHERE ucp.user_id = user_record.user_id AND ucp.status = 'active' AND ct.is_active = true
+      WHERE ucp.user_id = user_record.user_id 
+        AND ucp.status = 'active' 
+        AND ct.is_active = true
     LOOP
-      SELECT * INTO daily_log_record
-      FROM user_challenge_daily_logs
-      WHERE user_id = challenge_record.user_id
-      AND challenge_id = challenge_record.challenge_id
-      AND completion_date = target_date AND is_completed = true;
+      -- Check if the challenge was completed on the target date
+      -- A challenge is completed ONLY if a log exists with is_completed = true
+      SELECT EXISTS (
+        SELECT 1
+        FROM user_challenge_daily_logs
+        WHERE user_id = challenge_record.user_id
+          AND challenge_id = challenge_record.challenge_id
+          AND completion_date = target_date
+          AND is_completed = true
+      ) INTO is_challenge_completed;
       
-      IF NOT FOUND THEN
+      -- If not completed, record as missed
+      IF NOT is_challenge_completed THEN
         INSERT INTO user_missed_challenges (user_id, challenge_id, missed_date, reason, was_active)
         VALUES (challenge_record.user_id, challenge_record.challenge_id, target_date, 'not_completed', true)
         ON CONFLICT (user_id, challenge_id, missed_date) DO NOTHING;
@@ -453,3 +495,6 @@ BEGIN
   END LOOP;
 END;
 $$ LANGUAGE plpgsql;
+
+-- Test the function (optional - comment out if you don't want to run immediately)
+-- SELECT track_missed_challenges();

@@ -14,7 +14,6 @@ interface Props {
   }>
 }
 
-
 export async function generateMetadata({ params }: Props) {
   const resolvedParams = await params
   const activity = await getActivityWithChallenges(resolvedParams.id)
@@ -37,6 +36,7 @@ export async function generateMetadata({ params }: Props) {
 }
 
 async function getUserDailyLogsForActivity(activityId: string, userId: string) {
+  'use cache'
   try {
     // Get challenges linked to this activity through mapping table
     const linkedChallenges = await db

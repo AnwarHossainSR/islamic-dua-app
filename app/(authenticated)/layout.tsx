@@ -5,7 +5,15 @@ import { PERMISSIONS } from '@/lib/permissions'
 import type React from 'react'
 import { Suspense } from 'react'
 
-export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <Suspense fallback={<div className="min-h-[calc(100vh-113px)] flex items-center justify-center">Loading...</div>}>
+      <AuthenticatedContent>{children}</AuthenticatedContent>
+    </Suspense>
+  )
+}
+
+async function AuthenticatedContent({ children }: { children: React.ReactNode }) {
   await checkAdminAccess()
 
   return (

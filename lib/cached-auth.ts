@@ -61,7 +61,14 @@ export async function getCachedUser() {
       authToken = cookieStore.get('sb-access-token')?.value
       refreshToken = cookieStore.get('sb-refresh-token')?.value
     } catch (error) {
-      // Cookies not available, continue without tokens
+      pendingUserRequest = null
+      return null
+    }
+    
+    // If no tokens, return null immediately
+    if (!authToken || !refreshToken) {
+      pendingUserRequest = null
+      return null
     }
     
     const user = await getCachedUserData(authToken, refreshToken)

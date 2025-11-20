@@ -12,15 +12,17 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { signOut } from '@/lib/actions/auth'
 import type { User } from '@supabase/supabase-js'
+import { Route } from 'next'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useState, Activity } from 'react'
-import { Route } from 'next'
+import { Activity, useState } from 'react'
 
-export function UserMenu({ user, isAdmin }: { user: User; isAdmin: boolean }) {
-  const initials = user.email?.substring(0, 2).toUpperCase() || 'U'
+export function UserMenu({ user, isAdmin }: { user: User | null; isAdmin: boolean }) {
+  const initials = user?.email?.substring(0, 2).toUpperCase() || 'U'
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
+
+  if (!user) return null
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
@@ -37,12 +39,14 @@ export function UserMenu({ user, isAdmin }: { user: User; isAdmin: boolean }) {
         <DropdownMenuLabel>
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">My Account</p>
-            <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
+            <p className="text-xs leading-none text-muted-foreground">
+              {user?.email || 'No email'}
+            </p>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link href={"/bookmarks" as Route}>Bookmarks</Link>
+          <Link href={'/bookmarks' as Route}>Bookmarks</Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link href="/settings">Settings</Link>

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ChallengeCalendar } from '@/components/ui/challenge-calendar'
 import { useConfirm } from '@/components/ui/confirm'
+import { Input } from '@/components/ui/input'
 import { Progress } from '@/components/ui/progress'
 import {
   Select,
@@ -24,7 +25,7 @@ import {
   Calendar,
   Check,
   CheckCircle2,
-  Circle,
+  Edit3,
   Flame,
   Maximize2,
   Minimize2,
@@ -71,6 +72,8 @@ export default function UserChallengeProgressClient({
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [notes, setNotes] = useState('')
   const [mood, setMood] = useState('')
+  const [inputMode, setInputMode] = useState(false) // Toggle between tap and input
+  const [inputValue, setInputValue] = useState('')
 
   const { debouncedCallback: saveToLocalStorage, cancel: cancelSave } = useDebounce(
     (value: number) => {
@@ -110,7 +113,7 @@ export default function UserChallengeProgressClient({
   // Vibration feedback
   const vibrate = useCallback(() => {
     if ('vibrate' in navigator) {
-      navigator.vibrate(50)
+      navigator.vibrate(200)
     }
   }, [])
 
@@ -122,6 +125,21 @@ export default function UserChallengeProgressClient({
       saveToLocalStorage(newCount)
     }
   }, [count, target, vibrate, isAlreadyCompleted, setCount, saveToLocalStorage])
+
+  const handleInputSubmit = useCallback(() => {
+    const value = parseInt(inputValue)
+    if (!isNaN(value) && value >= 0 && value <= target && !isAlreadyCompleted) {
+      setCount(value)
+      saveToLocalStorage(value)
+      setInputValue('')
+      setInputMode(false)
+    }
+  }, [inputValue, target, isAlreadyCompleted, setCount, saveToLocalStorage])
+
+  const toggleInputMode = useCallback(() => {
+    setInputMode(!inputMode)
+    setInputValue(count.toString())
+  }, [inputMode, count])
 
   const handleReset = useCallback(async () => {
     const confirmed = await confirm({
@@ -567,26 +585,67 @@ export default function UserChallengeProgressClient({
               </div>
             </div>
 
-            {/* Main Counter Button */}
-            <Button
-              type="button"
-              size="lg"
-              className="h-24 w-full text-xl font-bold sm:h-32 sm:text-2xl bg-emerald-500 hover:bg-emerald-600"
-              onClick={handleIncrement}
-              disabled={count >= target}
-            >
-              {count >= target ? (
-                <>
-                  <Check className="mr-2 h-6 w-6 sm:h-8 sm:w-8" />
-                  Target Reached!
-                </>
-              ) : (
-                <>
-                  <Target className="mr-2 h-6 w-6 sm:h-8 sm:w-8" />
-                  Tap to Count
-                </>
-              )}
-            </Button>
+            {/* Toggle Button */}
+            <div className="flex justify-center mb-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={toggleInputMode}
+                disabled={count >= target}
+                className="text-xs"
+              >
+                <Edit3 className="mr-1 h-3 w-3" />
+                {inputMode ? 'Switch to Tap' : 'Direct Input'}
+              </Button>
+            </div>
+
+            {/* Counter Input/Button */}
+            {inputMode ? (
+              <div className="space-y-3">
+                <div className="flex gap-2">
+                  <Input
+                    type="number"
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    placeholder={`Enter count (0-${target})`}
+                    min="0"
+                    max={target}
+                    className="text-center text-lg font-bold"
+                    disabled={count >= target}
+                  />
+                  <Button
+                    onClick={handleInputSubmit}
+                    disabled={!inputValue || count >= target}
+                    className="bg-emerald-500 hover:bg-emerald-600"
+                  >
+                    <Check className="h-4 w-4" />
+                  </Button>
+                </div>
+                <p className="text-xs text-center text-muted-foreground">
+                  Enter a number between 0 and {target}
+                </p>
+              </div>
+            ) : (
+              <Button
+                type="button"
+                size="lg"
+                className="h-24 w-full text-xl font-bold sm:h-32 sm:text-2xl bg-emerald-500 hover:bg-emerald-600"
+                onClick={handleIncrement}
+                disabled={count >= target}
+              >
+                {count >= target ? (
+                  <>
+                    <Check className="mr-2 h-6 w-6 sm:h-8 sm:w-8" />
+                    Target Reached!
+                  </>
+                ) : (
+                  <>
+                    <Target className="mr-2 h-6 w-6 sm:h-8 sm:w-8" />
+                    Tap to Count
+                  </>
+                )}
+              </Button>
+            )}
 
             {/* Action Buttons */}
             <div className="grid gap-2 sm:grid-cols-2 sm:gap-3">

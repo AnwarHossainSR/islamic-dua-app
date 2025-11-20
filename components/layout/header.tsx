@@ -32,7 +32,7 @@ export async function Header() {
           <ThemeToggle />
           <Activity mode={user ? 'visible' : 'hidden'}>
             <NotificationDropdown />
-            <UserMenu user={user!} isAdmin={isAdmin} />
+            <UserMenu user={user} isAdmin={isAdmin} />
           </Activity>
           <Activity mode={!user ? 'visible' : 'hidden'}>
             <Button asChild>

@@ -1,12 +1,19 @@
 'use server'
 
+import {
+  checkAdminUser,
+  getActivityById,
+  getAllActivities,
+  getUserActivityStats,
+  getUserStats,
+  getUserTopActivities,
+} from '@/lib/db/queries/admin'
 import { apiLogger } from '@/lib/logger'
 import { PERMISSIONS } from '@/lib/permissions/constants'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { cache } from 'react'
 import { checkPermission, getUser } from './auth'
-import { checkAdminUser, getUserStats, getUserTopActivities, getAllActivities, getUserActivityStats, getActivityById } from '@/lib/db/queries/admin'
 
 export async function checkAdminAccess() {
   const supabase = await getSupabaseServerClient()
@@ -50,7 +57,7 @@ export const isUserAdmin = cache(isUserAdminUncached)
 export async function getAdminActivityStats(showGlobal = false) {
   await checkPermission(PERMISSIONS.ACTIVITIES_READ)
   const user = await getUser()
-  
+
   if (!user) {
     return {
       totalActivities: 0,
@@ -62,7 +69,7 @@ export async function getAdminActivityStats(showGlobal = false) {
       weekCompletions: 0,
     }
   }
-  
+
   try {
     if (showGlobal) {
       const { getGlobalStats } = await import('@/lib/db/queries/admin')
@@ -87,9 +94,9 @@ export async function getAdminActivityStats(showGlobal = false) {
 export async function getTopActivitiesAction(limit = 10, showGlobal = false) {
   await checkPermission(PERMISSIONS.ACTIVITIES_READ)
   const user = await getUser()
-  
+
   if (!user) return []
-  
+
   try {
     if (showGlobal) {
       const { getGlobalTopActivities } = await import('@/lib/db/queries/admin')
@@ -98,14 +105,19 @@ export async function getTopActivitiesAction(limit = 10, showGlobal = false) {
       return await getUserTopActivities(user.id, limit)
     }
   } catch (error) {
-    apiLogger.error('Error fetching activities with Drizzle', { error, userId: user.id, limit, showGlobal })
+    apiLogger.error('Error fetching activities with Drizzle', {
+      error,
+      userId: user.id,
+      limit,
+      showGlobal,
+    })
     return []
   }
 }
 
 export async function getAllActivitiesAction() {
   await checkPermission(PERMISSIONS.ACTIVITIES_READ)
-  
+
   try {
     return await getAllActivities()
   } catch (error) {
@@ -218,7 +230,7 @@ export async function updateActivityCount(activityId: string, newCount: number) 
     .from('activity_stats')
     .update({
       total_count: newCount,
-      updated_at: new Date().toISOString(),
+      updated_at: Date.now(),
     })
     .eq('id', activityId)
 
@@ -236,8 +248,8 @@ export async function updateActivityCount(activityId: string, newCount: number) 
     .from('user_activity_stats')
     .update({
       total_completed: newCount,
-      last_completed_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
+      last_completed_at: Date.now(),
+      updated_at: Date.now(),
     })
     .eq('activity_stat_id', activityId)
 

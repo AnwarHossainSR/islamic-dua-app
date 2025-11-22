@@ -1,18 +1,20 @@
-import type { Metadata, Viewport } from 'next'
-import { GeistSans } from 'geist/font/sans'
+import { Header } from '@/components/layout/header'
+import { PWARegister } from '@/components/pwa-register'
 import { ThemeProvider } from '@/components/theme-provider'
 import { Toaster } from '@/components/ui/toaster'
 import { Analytics } from '@vercel/analytics/react'
-import { Header } from '@/components/layout/header'
+import { GeistSans } from 'geist/font/sans'
+import type { Metadata, Viewport } from 'next'
 import { Suspense } from 'react'
 import './globals.css'
 
 export const metadata: Metadata = {
   title: {
     default: 'Heaven Rose Islamic - Your Spiritual Companion',
-    template: '%s | Heaven Rose Islamic'
+    template: '%s | Heaven Rose Islamic',
   },
-  description: 'A comprehensive Islamic application featuring daily duas, spiritual challenges, and community engagement tools.',
+  description:
+    'A comprehensive Islamic application featuring daily duas, spiritual challenges, and community engagement tools.',
   keywords: ['Islamic', 'Dua', 'Prayer', 'Spiritual', 'Muslim', 'Community', 'Challenges'],
   authors: [{ name: 'Heaven Rose Islamic Team' }],
   creator: 'Heaven Rose Islamic',
@@ -26,18 +28,35 @@ export const metadata: Metadata = {
   alternates: {
     canonical: '/',
   },
+  manifest: '/manifest.json',
+  icons: {
+    icon: [
+      { url: '/icon-16.jpg', sizes: '16x16', type: 'image/jpeg' },
+      { url: '/icon-32.jpg', sizes: '32x32', type: 'image/jpeg' },
+      { url: '/icon-64.jpg', sizes: '64x64', type: 'image/jpeg' },
+    ],
+    apple: [{ url: '/icon-192.jpg', sizes: '192x192', type: 'image/jpeg' }],
+    other: [{ rel: 'mask-icon', url: '/icon-512.jpg' }],
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'HR Islamic',
+  },
   openGraph: {
     type: 'website',
     locale: 'en_US',
     url: '/',
     title: 'Heaven Rose Islamic - Your Spiritual Companion',
-    description: 'A comprehensive Islamic application featuring daily duas, spiritual challenges, and community engagement tools.',
+    description:
+      'A comprehensive Islamic application featuring daily duas, spiritual challenges, and community engagement tools.',
     siteName: 'Heaven Rose Islamic',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Heaven Rose Islamic - Your Spiritual Companion',
-    description: 'A comprehensive Islamic application featuring daily duas, spiritual challenges, and community engagement tools.',
+    description:
+      'A comprehensive Islamic application featuring daily duas, spiritual challenges, and community engagement tools.',
   },
   robots: {
     index: true,
@@ -66,11 +85,7 @@ export const viewport: Viewport = {
   ],
 }
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={GeistSans.className}>
@@ -86,6 +101,7 @@ export default function RootLayout({
           {children}
           <Toaster />
           <Analytics />
+          <PWARegister />
         </ThemeProvider>
       </body>
     </html>

@@ -2,9 +2,9 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
+  getLastSyncTimeAction,
   getMissedChallenges,
   getMissedChallengesSummaryData,
-  getLastSyncTimeAction,
 } from '@/lib/actions/missed-challenges'
 import { formatDateTime, formatTimeAgo } from '@/lib/utils'
 import { AlertTriangle, ArrowLeft, Calendar, TrendingDown } from 'lucide-react'
@@ -17,8 +17,6 @@ export default async function MissedChallengesPage() {
     getMissedChallengesSummaryData(),
     getLastSyncTimeAction(),
   ])
-
-
 
   // Group by date
   const groupedByDate = missedChallenges.reduce((acc, challenge) => {
@@ -127,25 +125,25 @@ export default async function MissedChallengesPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
                   {groupedByDate[date].map(challenge => (
                     <div
                       key={`${challenge.challenge_id}-${challenge.missed_date}`}
-                      className="flex items-center gap-3 p-3 rounded-lg border bg-red-50 dark:bg-red-950/20"
+                      className="flex items-start gap-3 p-3 rounded-lg border bg-red-50 dark:bg-red-950/20"
                     >
                       <div
-                        className="flex h-10 w-10 items-center justify-center rounded-lg text-lg"
+                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-lg"
                         style={{ backgroundColor: (challenge.challenge_color || '#ef4444') + '20' }}
                       >
                         {challenge.challenge_icon || '📿'}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium truncate">{challenge.challenge_title_bn}</p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <Badge variant="outline" className="text-xs">
+                        <p className="font-medium break-words">{challenge.challenge_title_bn}</p>
+                        <div className="flex flex-wrap items-center gap-2 mt-1">
+                          <Badge variant="outline" className="text-xs shrink-0">
                             {challenge.reason === 'not_completed' ? 'Not Done' : challenge.reason}
                           </Badge>
-                          <span className="text-xs text-muted-foreground">
+                          <span className="text-xs text-muted-foreground whitespace-nowrap">
                             {challenge.days_ago} days ago
                           </span>
                         </div>

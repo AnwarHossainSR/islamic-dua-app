@@ -27,14 +27,33 @@ export default function ClearCachePage() {
           await Promise.all(registrations.map(reg => reg.unregister()))
         }
         
-        // Clear cookies (same-site only)
+        // Clear all cookies
         document.cookie.split(";").forEach(cookie => {
           const eqPos = cookie.indexOf("=")
-          const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie
+          const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim()
+          // Clear for current path
           document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`
+          // Clear for root domain
+          document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=${window.location.hostname}`
+          // Clear for parent domain
+          document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=.${window.location.hostname}`
         })
         
-        console.log('All cache and storage cleared')
+        // Clear IndexedDB
+        if ('indexedDB' in window) {
+          const databases = await indexedDB.databases()
+          await Promise.all(databases.map(db => {
+            if (db.name) {
+              const deleteReq = indexedDB.deleteDatabase(db.name)
+              return new Promise(resolve => {
+                deleteReq.onsuccess = () => resolve(true)
+                deleteReq.onerror = () => resolve(false)
+              })
+            }
+          }))
+        }
+        
+        console.log('All cache, storage, cookies, and databases cleared')
         
         // Navigate to login after clearing
         router.push('/login')

@@ -134,20 +134,30 @@ export async function resendConfirmationEmail(email: string) {
 }
 
 export async function signOut(currentPath?: string) {
-  const supabase = await getSupabaseServerClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  try {
+    const supabase = await getSupabaseServerClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
 
-  await supabase.auth.signOut()
+    await supabase.auth.signOut()
 
-  const cookieStore = await cookies()
-  cookieStore.delete('sb-access-token')
-  cookieStore.delete('sb-refresh-token')
+    const cookieStore = await cookies()
+    cookieStore.delete('sb-access-token')
+    cookieStore.delete('sb-refresh-token')
 
-  revalidatePath('/', 'layout')
+    // Clear all cache
+    revalidatePath('/', 'layout')
+    revalidatePath('/login')
+    revalidatePath('/challenges')
+    revalidatePath('/duas')
 
-  // Redirect to login with return URL if provided
+    apiLogger.info('User signed out successfully', { userId: user?.id })
+  } catch (error) {
+    apiLogger.error('Error during sign out', { error })
+  }
+
+  // Always redirect regardless of errors
   const redirectUrl = currentPath ? `/login?returnUrl=${encodeURIComponent(currentPath)}` : '/login'
   redirect(redirectUrl as Route)
 }

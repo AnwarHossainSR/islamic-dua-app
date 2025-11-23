@@ -1,4 +1,4 @@
-const CACHE_NAME = 'islamic-dua-app-v1'
+const CACHE_NAME = 'islamic-dua-app-v2'
 const STATIC_CACHE = [
   '/',
   '/offline',
@@ -36,8 +36,10 @@ self.addEventListener('fetch', (event) => {
   // Skip non-GET requests
   if (event.request.method !== 'GET') return
 
-  // Skip API calls
+  // Skip API calls and server actions
   if (event.request.url.includes('/api/')) return
+  if (event.request.url.includes('/_next/')) return
+  if (event.request.headers.get('Next-Action')) return
 
   event.respondWith(
     caches.match(event.request)

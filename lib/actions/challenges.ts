@@ -2,7 +2,6 @@
 
 import { and, desc, eq, sql } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
-import { cache } from 'react'
 import { db } from '../db'
 import {
   getChallengeById as getChallengeByIdQuery,
@@ -132,7 +131,7 @@ export async function getFeaturedChallenges() {
   }
 }
 
-const getChallengeByIdUncached = async (id: string) => {
+export async function getChallengeById(id: string) {
   try {
     return await getChallengeByIdQuery(id)
   } catch (error) {
@@ -140,8 +139,6 @@ const getChallengeByIdUncached = async (id: string) => {
     return null
   }
 }
-
-export const getChallengeById = cache(getChallengeByIdUncached)
 
 // ============================================
 // USER PROGRESS QUERIES

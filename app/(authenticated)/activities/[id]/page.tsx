@@ -36,7 +36,6 @@ export async function generateMetadata({ params }: Props) {
 }
 
 async function getUserDailyLogsForActivity(activityId: string, userId: string) {
-  'use cache'
   try {
     // Get challenges linked to this activity through mapping table
     const linkedChallenges = await db

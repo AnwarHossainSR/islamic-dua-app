@@ -6,7 +6,6 @@ import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { Route } from 'next'
-import { cache } from 'react'
 
 export async function signUp(email: string, password: string) {
   const supabase = await getSupabaseServerClient()
@@ -162,15 +161,10 @@ export async function signOut(currentPath?: string) {
   redirect(redirectUrl as Route)
 }
 
-// Cache user data to reduce redundant calls
-const getCachedUser = cache(async () => {
+export async function getUser() {
   const supabase = await getSupabaseServerClient()
   const { data: { user } } = await supabase.auth.getUser()
   return user
-})
-
-export async function getUser() {
-  return getCachedUser()
 }
 
 export async function checkAdminStatus() {

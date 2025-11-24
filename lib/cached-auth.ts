@@ -1,12 +1,20 @@
 import { cookies } from 'next/headers'
 import { createClient } from '@supabase/supabase-js'
 
-// Request deduplication
-let pendingUserRequest: Promise<any> | null = null
-
-// Cached auth functions that accept tokens as parameters
-async function getCachedUserData(authToken?: string, refreshToken?: string) {
-  'use cache'
+export async function getCachedUser() {
+  let authToken, refreshToken
+  
+  try {
+    const cookieStore = await cookies()
+    authToken = cookieStore.get('sb-access-token')?.value
+    refreshToken = cookieStore.get('sb-refresh-token')?.value
+  } catch (error) {
+    return null
+  }
+  
+  if (!authToken || !refreshToken) {
+    return null
+  }
   
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -34,55 +42,16 @@ async function getCachedUserData(authToken?: string, refreshToken?: string) {
   return user
 }
 
-async function getCachedAdminStatus(userId: string) {
-  'use cache'
-  
-  try {
-    const { checkAdminUser } = await import('@/lib/db/queries/admin')
-    return await checkAdminUser(userId)
-  } catch (error) {
-    console.error('Error checking admin status:', error)
-    return null
-  }
-}
-
-// Wrapper functions that handle cookies outside cache scope
-export async function getCachedUser() {
-  // Deduplicate simultaneous requests
-  if (pendingUserRequest) {
-    return pendingUserRequest
-  }
-  
-  pendingUserRequest = (async () => {
-    let authToken, refreshToken
-    
-    try {
-      const cookieStore = await cookies()
-      authToken = cookieStore.get('sb-access-token')?.value
-      refreshToken = cookieStore.get('sb-refresh-token')?.value
-    } catch (error) {
-      pendingUserRequest = null
-      return null
-    }
-    
-    // If no tokens, return null immediately
-    if (!authToken || !refreshToken) {
-      pendingUserRequest = null
-      return null
-    }
-    
-    const user = await getCachedUserData(authToken, refreshToken)
-    pendingUserRequest = null // Clear after completion
-    return user
-  })()
-  
-  return pendingUserRequest
-}
-
 export async function getCachedUserRole() {
   const user = await getCachedUser()
   if (!user) return 'user'
   
-  const adminData = await getCachedAdminStatus(user.id)
-  return adminData?.role || 'user'
+  try {
+    const { checkAdminUser } = await import('@/lib/db/queries/admin')
+    const adminData = await checkAdminUser(user.id)
+    return adminData?.role || 'user'
+  } catch (error) {
+    console.error('Error checking admin status:', error)
+    return 'user'
+  }
 }

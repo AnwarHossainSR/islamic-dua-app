@@ -5,6 +5,8 @@ import { Plus, Settings, Shield, Users } from 'lucide-react'
 import { PermissionsManagementClient } from './permissions-client'
 import { RolesManagementClient } from './roles-client'
 
+export const dynamic = 'force-dynamic'
+
 export default async function PermissionsManagementPage() {
   const [permissions, rolesWithPermissions] = await Promise.all([
     getAllPermissions(),

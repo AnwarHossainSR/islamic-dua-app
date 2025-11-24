@@ -13,7 +13,7 @@ const nextConfig: NextConfig = {
       allowedOrigins: ['islamic-dua-app.vercel.app', 'localhost:3000'],
     },
   },
-  cacheComponents: true,
+  cacheComponents: false,
   reactCompiler: true,
   typedRoutes: true,
   compiler: {

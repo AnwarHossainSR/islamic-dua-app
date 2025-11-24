@@ -12,7 +12,6 @@ import { apiLogger } from '@/lib/logger'
 import { PERMISSIONS } from '@/lib/permissions/constants'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { cache } from 'react'
 import { checkPermission, getUser } from './auth'
 
 export async function checkAdminAccess() {
@@ -34,7 +33,7 @@ export async function checkAdminAccess() {
   return adminUser
 }
 
-const isUserAdminUncached = async () => {
+export async function isUserAdmin() {
   const supabase = await getSupabaseServerClient()
   const {
     data: { user },
@@ -47,8 +46,6 @@ const isUserAdminUncached = async () => {
   const adminUser = await checkAdminUser(user.id)
   return !!adminUser
 }
-
-export const isUserAdmin = cache(isUserAdminUncached)
 
 // ============================================
 // ACTIVITY STATS FUNCTIONS

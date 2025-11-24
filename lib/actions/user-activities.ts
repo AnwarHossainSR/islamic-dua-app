@@ -1,8 +1,12 @@
 'use server'
 
 import { getUser } from '@/lib/actions/auth'
+import {
+  getUserActivityStats,
+  getUserChallengeProgressStats,
+  getUserRecentActivityLogs,
+} from '@/lib/db/queries/user-activities'
 import { apiLogger } from '@/lib/logger'
-import { getUserActivityStats, getUserChallengeProgressStats, getUserRecentActivityLogs } from '@/lib/db/queries/user-activities'
 
 export async function getUserActivities() {
   const user = await getUser()
@@ -27,7 +31,7 @@ export async function getUserChallengeStats() {
       totalCompleted: 0,
       totalActive: 0,
       totalDaysCompleted: 0,
-      longestStreak: 0
+      longestStreak: 0,
     }
   }
 
@@ -39,7 +43,7 @@ export async function getUserChallengeStats() {
       totalCompleted: 0,
       totalActive: 0,
       totalDaysCompleted: 0,
-      longestStreak: 0
+      longestStreak: 0,
     }
   }
 }
@@ -59,10 +63,14 @@ export async function getUserRecentLogs(limit: number = 10) {
       count_completed: log.count_completed ?? 0,
       completed_at: log.completed_at ?? '',
       is_completed: log.is_completed ?? false,
-      user_progress: log.userProgress
+      user_progress: log.userProgress,
     }))
   } catch (error) {
-    apiLogger.error('Error fetching user recent logs with Drizzle', { error, userId: user.id, limit })
+    apiLogger.error('Error fetching user recent logs with Drizzle', {
+      error,
+      userId: user.id,
+      limit,
+    })
     return []
   }
 }

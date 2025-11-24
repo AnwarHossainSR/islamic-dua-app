@@ -43,7 +43,7 @@ import {
 } from 'lucide-react'
 
 import Link from 'next/link'
-import React, { useCallback, useEffect, useMemo, useState, useTransition, Activity } from 'react'
+import React, { Activity, useCallback, useEffect, useMemo, useState, useTransition } from 'react'
 
 import { Challenge, RecentLog } from '@/lib/types/challenges'
 
@@ -218,456 +218,473 @@ export default function ChallengesClient({
     return filteredChallenges.slice(startIndex, endIndex)
   }, [filteredChallenges, currentPage, itemsPerPage])
 
-
-
   return (
     <>
       <title>Daily Islamic Challenges - Track Your Spiritual Journey</title>
-      <meta name="description" content="Complete daily Islamic challenges and track your spiritual progress with dhikr and duas." />
-      <meta name="keywords" content="Islamic challenges, dhikr, dua, spiritual progress, daily habits" />
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <div className="mb-4">
-          <h1 className="mb-2 text-4xl font-bold">Challenge Management</h1>
-          <p className="text-muted-foreground">
-            Manage daily dhikr challenges and track user progress
-          </p>
+      <meta
+        name="description"
+        content="Complete daily Islamic challenges and track your spiritual progress with dhikr and duas."
+      />
+      <meta
+        name="keywords"
+        content="Islamic challenges, dhikr, dua, spiritual progress, daily habits"
+      />
+      <div className="space-y-6">
+        {/* Header */}
+        <div>
+          <div className="mb-4">
+            <h1 className="mb-2 text-4xl font-bold">Challenge Management</h1>
+            <p className="text-muted-foreground">
+              Manage daily dhikr challenges and track user progress
+            </p>
+          </div>
+          <Button asChild size="lg">
+            <Link href="/challenges/new">
+              <Plus className="mr-2 h-4 w-4" />
+              Create Challenge
+            </Link>
+          </Button>
         </div>
-        <Button asChild size="lg">
-          <Link href="/challenges/new">
-            <Plus className="mr-2 h-4 w-4" />
-            Create Challenge
-          </Link>
-        </Button>
-      </div>
 
-      {/* Quick Stats Cards */}
-      <div>
-        <div className="md:hidden mb-4">
-          <details className="group">
-            <summary className="flex items-center justify-between cursor-pointer p-4 bg-muted/50 rounded-lg hover:bg-muted transition-colors">
-              <span className="font-semibold text-sm">Quick Stats</span>
-              <ChevronDown className="h-4 w-4 group-open:rotate-180 transition-transform" />
-            </summary>
-            <div className="grid gap-4 md:grid-cols-4 mt-4">
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-muted-foreground">Total Challenges</p>
-                      <p className="text-3xl font-bold">{stats.total}</p>
+        {/* Quick Stats Cards */}
+        <div>
+          <div className="md:hidden mb-4">
+            <details className="group">
+              <summary className="flex items-center justify-between cursor-pointer p-4 bg-muted/50 rounded-lg hover:bg-muted transition-colors">
+                <span className="font-semibold text-sm">Quick Stats</span>
+                <ChevronDown className="h-4 w-4 group-open:rotate-180 transition-transform" />
+              </summary>
+              <div className="grid gap-4 md:grid-cols-4 mt-4">
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-muted-foreground">Total Challenges</p>
+                        <p className="text-3xl font-bold">{stats.total}</p>
+                      </div>
+                      <Target className="h-8 w-8 text-emerald-500" />
                     </div>
-                    <Target className="h-8 w-8 text-emerald-500" />
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-muted-foreground">Today Completed</p>
+                        <p className="text-3xl font-bold">{stats.todayCompleted}</p>
+                      </div>
+                      <Check className="h-8 w-8 text-emerald-500" />
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-muted-foreground">Remain Today</p>
+                        <p className="text-3xl font-bold">{todayRemaining.length}</p>
+                      </div>
+                      <ClockAlert className="h-8 w-8 text-amber-500" />
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-muted-foreground">Today Average</p>
+                        <p className="text-3xl font-bold">{todayStats.percentage}%</p>
+                      </div>
+                      <TrendingUp className="h-8 w-8 text-purple-500" />
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </details>
+          </div>
+
+          <div className="hidden md:grid gap-4 md:grid-cols-4">
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Total Challenges</p>
+                    <p className="text-3xl font-bold">{stats.total}</p>
+                  </div>
+                  <Target className="h-8 w-8 text-emerald-500" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Today Completed</p>
+                    <p className="text-3xl font-bold">{stats.todayCompleted}</p>
+                  </div>
+                  <Check className="h-8 w-8 text-emerald-500" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Remain Today</p>
+                    <p className="text-3xl font-bold">{todayRemaining.length}</p>
+                  </div>
+                  <ClockAlert className="h-8 w-8 text-amber-500" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Today Average</p>
+                    <p className="text-3xl font-bold">{todayStats.percentage}%</p>
+                  </div>
+                  <TrendingUp className="h-8 w-8 text-purple-500" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* Main Tabs */}
+        <Tabs defaultValue="all" className="space-y-6">
+          <div className="overflow-x-auto">
+            <TabsList className="inline-flex w-auto grid-cols-4 gap-2">
+              <TabsTrigger className="cursor-pointer text-xs md:text-sm py-2 shrink-0" value="all">
+                All Challenges
+              </TabsTrigger>
+              <TabsTrigger
+                className="cursor-pointer text-xs md:text-sm py-2 shrink-0"
+                value="active"
+              >
+                Active Users
+              </TabsTrigger>
+              <TabsTrigger
+                className="cursor-pointer text-xs md:text-sm py-2 shrink-0"
+                value="history"
+              >
+                History
+              </TabsTrigger>
+              <TabsTrigger
+                className="cursor-pointer text-xs md:text-sm py-2 shrink-0"
+                value="stats"
+              >
+                Analytics
+              </TabsTrigger>
+            </TabsList>
+          </div>
+
+          {/* All Challenges Tab */}
+          <TabsContent value="all" className="space-y-4">
+            {/* Filters */}
+            <Card>
+              <CardHeader>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div className="flex items-center gap-2">
+                    <Target className="h-5 w-5" />
+                    <CardTitle>Challenges</CardTitle>
+                  </div>
+                  <div className="flex gap-1 shrink-0 flex-wrap">
+                    <Select value={completionFilter} onValueChange={handleCompletionChange}>
+                      <SelectTrigger className="w-[130px] md:w-[160px] text-xs md:text-sm">
+                        <SelectValue placeholder="Completion" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Challenges</SelectItem>
+                        <SelectItem value="pending">Not Done Today</SelectItem>
+                        <SelectItem value="completed">Done Today</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Select value={difficultyFilter} onValueChange={handleDifficultyChange}>
+                      <SelectTrigger className="w-[140px] md:w-[160px] text-xs md:text-sm">
+                        <SelectValue placeholder="Difficulty" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Difficulty</SelectItem>
+                        <SelectItem value="easy">Easy</SelectItem>
+                        <SelectItem value="medium">Medium</SelectItem>
+                        <SelectItem value="hard">Hard</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Select value={statusFilter} onValueChange={handleStatusChange}>
+                      <SelectTrigger className="w-[140px] md:w-[160px] text-xs md:text-sm">
+                        <SelectValue placeholder="Status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Status</SelectItem>
+                        <SelectItem value="active">Active</SelectItem>
+                        <SelectItem value="inactive">Inactive</SelectItem>
+                        <SelectItem value="featured">Featured</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                  <div className="flex-1 relative">
+                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      placeholder="Search challenges..."
+                      className="pl-10 text-xs md:text-sm w-full"
+                      value={searchQuery}
+                      onChange={e => handleSearchChange(e.target.value)}
+                      disabled={isPending}
+                    />
+                    {(isPending || completionLoading) && (
+                      <Skeleton className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2" />
+                    )}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    <span className="hidden sm:inline">
+                      Total: {filteredChallenges.length} challenges | Showing{' '}
+                      {(currentPage - 1) * itemsPerPage + 1} to{' '}
+                      {Math.min(currentPage * itemsPerPage, filteredChallenges.length)} of{' '}
+                      {filteredChallenges.length}
+                    </span>
+                    <span className="sm:hidden">
+                      {filteredChallenges.length} challenges | Page {currentPage}
+                    </span>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {/* Challenges List */}
+                <div className="space-y-4">
+                  <Activity mode={isPending || completionLoading ? 'visible' : 'hidden'}>
+                    {Array.from({ length: 3 }).map((_, i) => (
+                      <div key={i} className="border rounded-lg p-6">
+                        <div className="flex flex-col md:flex-row gap-6">
+                          <div className="flex-1 space-y-4">
+                            <div className="flex items-start gap-3">
+                              <Skeleton className="h-14 w-14 rounded-lg" />
+                              <div className="flex-1 space-y-2">
+                                <Skeleton className="h-6 w-3/4" />
+                                <Skeleton className="h-4 w-1/2" />
+                                <Skeleton className="h-4 w-2/3" />
+                              </div>
+                            </div>
+                            <div className="flex gap-2">
+                              <Skeleton className="h-6 w-16" />
+                              <Skeleton className="h-6 w-20" />
+                            </div>
+                          </div>
+                          <div className="md:w-72 space-y-3">
+                            <div className="grid grid-cols-2 gap-3">
+                              <Skeleton className="h-16 rounded-lg" />
+                              <Skeleton className="h-16 rounded-lg" />
+                            </div>
+                            <Skeleton className="h-12 rounded-lg" />
+                            <Skeleton className="h-9 w-full" />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </Activity>
+
+                  <Activity mode={!isPending && !completionLoading ? 'visible' : 'hidden'}>
+                    {paginatedChallenges.map((challenge: Challenge) => (
+                      <ChallengeCard
+                        key={challenge.id}
+                        challenge={challenge}
+                        actionLoading={actionLoading}
+                        onStartChallenge={handleStartChallenge}
+                        onRestartChallenge={handleRestartChallenge}
+                        onShowCompletedDialog={() => setShowCompletedDialog(true)}
+                      />
+                    ))}
+                  </Activity>
+
+                  <Activity
+                    mode={
+                      !isPending && !completionLoading && filteredChallenges.length === 0
+                        ? 'visible'
+                        : 'hidden'
+                    }
+                  >
+                    <div className="flex flex-col items-center justify-center py-16">
+                      <Target className="mb-4 h-16 w-16 text-muted-foreground" />
+                      <p className="mb-2 text-lg font-semibold">No challenges found</p>
+                      <p className="mb-4 text-sm text-muted-foreground">
+                        Try adjusting your filters or search query
+                      </p>
+                    </div>
+                  </Activity>
+                </div>
+
+                {/* Pagination */}
+                <Pagination
+                  currentPage={currentPage}
+                  totalItems={filteredChallenges.length}
+                  itemsPerPage={itemsPerPage}
+                  onPageChange={setCurrentPage}
+                  showInfo={false}
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Other Tabs - Placeholder */}
+          <TabsContent value="active" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Active Participants</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">Coming soon...</p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="history" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Activity</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {initialRecentLogs && initialRecentLogs.length > 0 ? (
+                  <div className="space-y-3">
+                    {initialRecentLogs.map((log: RecentLog) => (
+                      <div
+                        key={log.id}
+                        className="flex items-center justify-between rounded-lg border p-3"
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <span className="text-xl shrink-0">
+                            {log.user_progress?.challenge?.icon || '📿'}
+                          </span>
+                          <div className="min-w-0">
+                            <p className="text-sm font-medium truncate">
+                              {log.user_progress?.challenge?.title_bn || 'Unknown'}
+                            </p>
+                            <p className="text-xs text-muted-foreground truncate">
+                              Day {log.day_number} • {log.count_completed} reps •{' '}
+                              {log.completed_at
+                                ? format(
+                                    new Date(log.completed_at).toLocaleString('en-US', {
+                                      timeZone: 'Asia/Dhaka',
+                                    }),
+                                    'PPpp'
+                                  )
+                                : 'No date'}
+                            </p>
+                          </div>
+                        </div>
+                        <Badge variant={log.is_completed ? 'default' : 'secondary'}>
+                          {log.is_completed ? '✓' : 'In Progress'}
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-center text-sm text-muted-foreground">No activity</p>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="stats" className="space-y-4">
+            <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Top Performing</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {challenges
+                      .filter(c => (c.total_participants || 0) > 0)
+                      .sort((a, b) => {
+                        const rateA = ((a.total_completed_days || 0) / (a.total_days || 1)) * 100
+                        const rateB = ((b.total_completed_days || 0) / (b.total_days || 1)) * 100
+                        return rateB - rateA
+                      })
+                      .slice(0, 5)
+                      .map(challenge => {
+                        const rate = Math.round(
+                          ((challenge.total_completed_days || 0) / (challenge.total_days || 1)) *
+                            100
+                        )
+                        return (
+                          <div key={challenge.id} className="flex items-center gap-2 min-w-0">
+                            <span className="text-xl shrink-0">{challenge.icon || '📿'}</span>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium truncate">{challenge.title_bn}</p>
+                              <div className="mt-1 h-2 overflow-hidden rounded-full bg-muted">
+                                <div
+                                  className="h-full"
+                                  style={{
+                                    width: `${rate}%`,
+                                    backgroundColor: 'rgb(16 185 129)',
+                                  }}
+                                />
+                              </div>
+                            </div>
+                            <span className="text-sm font-bold shrink-0">{rate}%</span>
+                          </div>
+                        )
+                      })}
                   </div>
                 </CardContent>
               </Card>
 
               <Card>
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-muted-foreground">Today Completed</p>
-                      <p className="text-3xl font-bold">{stats.todayCompleted}</p>
-                    </div>
-                    <Check className="h-8 w-8 text-emerald-500" />
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-muted-foreground">Remain Today</p>
-                      <p className="text-3xl font-bold">{todayRemaining.length}</p>
-                    </div>
-                    <ClockAlert className="h-8 w-8 text-amber-500" />
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-muted-foreground">Today Average</p>
-                      <p className="text-3xl font-bold">{todayStats.percentage}%</p>
-                    </div>
-                    <TrendingUp className="h-8 w-8 text-purple-500" />
+                <CardHeader>
+                  <CardTitle className="text-base">Most Popular</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {challenges
+                      .sort((a, b) => (b.total_participants || 0) - (a.total_participants || 0))
+                      .slice(0, 5)
+                      .map(challenge => (
+                        <div
+                          key={challenge.id}
+                          className="flex items-center justify-between gap-2 min-w-0"
+                        >
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="text-xl shrink-0">{challenge.icon || '📿'}</span>
+                            <p className="text-sm font-medium truncate">{challenge.title_bn}</p>
+                          </div>
+                          <Badge variant="secondary" className="shrink-0 text-xs">
+                            {challenge.total_participants || 0}
+                          </Badge>
+                        </div>
+                      ))}
                   </div>
                 </CardContent>
               </Card>
             </div>
-          </details>
-        </div>
+          </TabsContent>
+        </Tabs>
 
-        <div className="hidden md:grid gap-4 md:grid-cols-4">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Challenges</p>
-                  <p className="text-3xl font-bold">{stats.total}</p>
-                </div>
-                <Target className="h-8 w-8 text-emerald-500" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Today Completed</p>
-                  <p className="text-3xl font-bold">{stats.todayCompleted}</p>
-                </div>
-                <Check className="h-8 w-8 text-emerald-500" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Remain Today</p>
-                  <p className="text-3xl font-bold">{todayRemaining.length}</p>
-                </div>
-                <ClockAlert className="h-8 w-8 text-amber-500" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Today Average</p>
-                  <p className="text-3xl font-bold">{todayStats.percentage}%</p>
-                </div>
-                <TrendingUp className="h-8 w-8 text-purple-500" />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        {/* Completed Today Dialog */}
+        <Dialog open={showCompletedDialog} onOpenChange={setShowCompletedDialog}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+                Challenge Completed Today!
+              </DialogTitle>
+              <DialogDescription className="text-center py-4">
+                You have already completed this challenge today. Please come back tomorrow to
+                continue your journey.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex justify-center">
+              <Button onClick={() => setShowCompletedDialog(false)}>Got it!</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
-
-      {/* Main Tabs */}
-      <Tabs defaultValue="all" className="space-y-6">
-        <div className="overflow-x-auto">
-          <TabsList className="inline-flex w-auto grid-cols-4 gap-2">
-            <TabsTrigger className="cursor-pointer text-xs md:text-sm py-2 shrink-0" value="all">
-              All Challenges
-            </TabsTrigger>
-            <TabsTrigger className="cursor-pointer text-xs md:text-sm py-2 shrink-0" value="active">
-              Active Users
-            </TabsTrigger>
-            <TabsTrigger
-              className="cursor-pointer text-xs md:text-sm py-2 shrink-0"
-              value="history"
-            >
-              History
-            </TabsTrigger>
-            <TabsTrigger className="cursor-pointer text-xs md:text-sm py-2 shrink-0" value="stats">
-              Analytics
-            </TabsTrigger>
-          </TabsList>
-        </div>
-
-        {/* All Challenges Tab */}
-        <TabsContent value="all" className="space-y-4">
-          {/* Filters */}
-          <Card>
-            <CardHeader>
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div className="flex items-center gap-2">
-                  <Target className="h-5 w-5" />
-                  <CardTitle>Challenges</CardTitle>
-                </div>
-                <div className="flex gap-1 shrink-0 flex-wrap">
-                  <Select value={completionFilter} onValueChange={handleCompletionChange}>
-                    <SelectTrigger className="w-[130px] md:w-[160px] text-xs md:text-sm">
-                      <SelectValue placeholder="Completion" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Challenges</SelectItem>
-                      <SelectItem value="pending">Not Done Today</SelectItem>
-                      <SelectItem value="completed">Done Today</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Select value={difficultyFilter} onValueChange={handleDifficultyChange}>
-                    <SelectTrigger className="w-[140px] md:w-[160px] text-xs md:text-sm">
-                      <SelectValue placeholder="Difficulty" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Difficulty</SelectItem>
-                      <SelectItem value="easy">Easy</SelectItem>
-                      <SelectItem value="medium">Medium</SelectItem>
-                      <SelectItem value="hard">Hard</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Select value={statusFilter} onValueChange={handleStatusChange}>
-                    <SelectTrigger className="w-[140px] md:w-[160px] text-xs md:text-sm">
-                      <SelectValue placeholder="Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Status</SelectItem>
-                      <SelectItem value="active">Active</SelectItem>
-                      <SelectItem value="inactive">Inactive</SelectItem>
-                      <SelectItem value="featured">Featured</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                <div className="flex-1 relative">
-                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    placeholder="Search challenges..."
-                    className="pl-10 text-xs md:text-sm w-full"
-                    value={searchQuery}
-                    onChange={e => handleSearchChange(e.target.value)}
-                    disabled={isPending}
-                  />
-                  {(isPending || completionLoading) && (
-                    <Skeleton className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2" />
-                  )}
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  <span className="hidden sm:inline">
-                    Total: {filteredChallenges.length} challenges | Showing{' '}
-                    {(currentPage - 1) * itemsPerPage + 1} to{' '}
-                    {Math.min(currentPage * itemsPerPage, filteredChallenges.length)} of{' '}
-                    {filteredChallenges.length}
-                  </span>
-                  <span className="sm:hidden">
-                    {filteredChallenges.length} challenges | Page {currentPage}
-                  </span>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {/* Challenges List */}
-              <div className="space-y-4">
-                <Activity mode={isPending || completionLoading ? 'visible' : 'hidden'}>
-                  {Array.from({ length: 3 }).map((_, i) => (
-                    <div key={i} className="border rounded-lg p-6">
-                      <div className="flex flex-col md:flex-row gap-6">
-                        <div className="flex-1 space-y-4">
-                          <div className="flex items-start gap-3">
-                            <Skeleton className="h-14 w-14 rounded-lg" />
-                            <div className="flex-1 space-y-2">
-                              <Skeleton className="h-6 w-3/4" />
-                              <Skeleton className="h-4 w-1/2" />
-                              <Skeleton className="h-4 w-2/3" />
-                            </div>
-                          </div>
-                          <div className="flex gap-2">
-                            <Skeleton className="h-6 w-16" />
-                            <Skeleton className="h-6 w-20" />
-                          </div>
-                        </div>
-                        <div className="md:w-72 space-y-3">
-                          <div className="grid grid-cols-2 gap-3">
-                            <Skeleton className="h-16 rounded-lg" />
-                            <Skeleton className="h-16 rounded-lg" />
-                          </div>
-                          <Skeleton className="h-12 rounded-lg" />
-                          <Skeleton className="h-9 w-full" />
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </Activity>
-                
-                <Activity mode={!isPending && !completionLoading ? 'visible' : 'hidden'}>
-                  {paginatedChallenges.map((challenge: Challenge) => (
-                    <ChallengeCard
-                      key={challenge.id}
-                      challenge={challenge}
-                      actionLoading={actionLoading}
-                      onStartChallenge={handleStartChallenge}
-                      onRestartChallenge={handleRestartChallenge}
-                      onShowCompletedDialog={() => setShowCompletedDialog(true)}
-                    />
-                  ))}
-                </Activity>
-
-                <Activity mode={!isPending && !completionLoading && filteredChallenges.length === 0 ? 'visible' : 'hidden'}>
-                  <div className="flex flex-col items-center justify-center py-16">
-                    <Target className="mb-4 h-16 w-16 text-muted-foreground" />
-                    <p className="mb-2 text-lg font-semibold">No challenges found</p>
-                    <p className="mb-4 text-sm text-muted-foreground">
-                      Try adjusting your filters or search query
-                    </p>
-                  </div>
-                </Activity>
-              </div>
-
-              {/* Pagination */}
-              <Pagination
-                currentPage={currentPage}
-                totalItems={filteredChallenges.length}
-                itemsPerPage={itemsPerPage}
-                onPageChange={setCurrentPage}
-                showInfo={false}
-              />
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Other Tabs - Placeholder */}
-        <TabsContent value="active" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Active Participants</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">Coming soon...</p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="history" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Activity</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {initialRecentLogs && initialRecentLogs.length > 0 ? (
-                <div className="space-y-3">
-                  {initialRecentLogs.map((log: RecentLog) => (
-                    <div
-                      key={log.id}
-                      className="flex items-center justify-between rounded-lg border p-3"
-                    >
-                      <div className="flex items-center gap-3 min-w-0">
-                        <span className="text-xl shrink-0">
-                          {log.user_progress?.challenge?.icon || '📿'}
-                        </span>
-                        <div className="min-w-0">
-                          <p className="text-sm font-medium truncate">
-                            {log.user_progress?.challenge?.title_bn || 'Unknown'}
-                          </p>
-                          <p className="text-xs text-muted-foreground truncate">
-                            Day {log.day_number} • {log.count_completed} reps •{' '}
-                            {log.completed_at
-                              ? format(
-                                  new Date(log.completed_at).toLocaleString('en-US', {
-                                    timeZone: 'Asia/Dhaka',
-                                  }),
-                                  'PPpp'
-                                )
-                              : 'No date'}
-                          </p>
-                        </div>
-                      </div>
-                      <Badge variant={log.is_completed ? 'default' : 'secondary'}>
-                        {log.is_completed ? '✓' : 'In Progress'}
-                      </Badge>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-center text-sm text-muted-foreground">No activity</p>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="stats" className="space-y-4">
-          <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Top Performing</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {challenges
-                    .filter(c => (c.total_participants || 0) > 0)
-                    .sort((a, b) => {
-                      const rateA = ((a.total_completed_days || 0) / (a.total_days || 1)) * 100
-                      const rateB = ((b.total_completed_days || 0) / (b.total_days || 1)) * 100
-                      return rateB - rateA
-                    })
-                    .slice(0, 5)
-                    .map(challenge => {
-                      const rate = Math.round(
-                        ((challenge.total_completed_days || 0) / (challenge.total_days || 1)) * 100
-                      )
-                      return (
-                        <div key={challenge.id} className="flex items-center gap-2 min-w-0">
-                          <span className="text-xl shrink-0">{challenge.icon || '📿'}</span>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium truncate">{challenge.title_bn}</p>
-                            <div className="mt-1 h-2 overflow-hidden rounded-full bg-muted">
-                              <div
-                                className="h-full"
-                                style={{
-                                  width: `${rate}%`,
-                                  backgroundColor: 'rgb(16 185 129)',
-                                }}
-                              />
-                            </div>
-                          </div>
-                          <span className="text-sm font-bold shrink-0">{rate}%</span>
-                        </div>
-                      )
-                    })}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Most Popular</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {challenges
-                    .sort((a, b) => (b.total_participants || 0) - (a.total_participants || 0))
-                    .slice(0, 5)
-                    .map(challenge => (
-                      <div
-                        key={challenge.id}
-                        className="flex items-center justify-between gap-2 min-w-0"
-                      >
-                        <div className="flex items-center gap-2 min-w-0">
-                          <span className="text-xl shrink-0">{challenge.icon || '📿'}</span>
-                          <p className="text-sm font-medium truncate">{challenge.title_bn}</p>
-                        </div>
-                        <Badge variant="secondary" className="shrink-0 text-xs">
-                          {challenge.total_participants || 0}
-                        </Badge>
-                      </div>
-                    ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-      </Tabs>
-
-      {/* Completed Today Dialog */}
-      <Dialog open={showCompletedDialog} onOpenChange={setShowCompletedDialog}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <CheckCircle2 className="h-5 w-5 text-emerald-500" />
-              Challenge Completed Today!
-            </DialogTitle>
-            <DialogDescription className="text-center py-4">
-              You have already completed this challenge today. Please come back tomorrow to continue
-              your journey.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex justify-center">
-            <Button onClick={() => setShowCompletedDialog(false)}>Got it!</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-    </div>
     </>
   )
 }

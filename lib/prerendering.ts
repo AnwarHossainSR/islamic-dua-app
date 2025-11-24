@@ -1,19 +1,12 @@
-import { cacheLife } from 'next/cache'
 import { db } from '@/lib/db'
 import { challengeTemplates, activityStats } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
 
-// Cached challenge data for prerendering
 export async function getCachedChallenges() {
-  'use cache'
-  cacheLife('hours')
   return await db.select().from(challengeTemplates).where(eq(challengeTemplates.is_active, true))
 }
 
-// Cached activity stats for prerendering
 export async function getCachedActivities() {
-  'use cache'
-  cacheLife('minutes')
   return await db.select().from(activityStats)
 }
 

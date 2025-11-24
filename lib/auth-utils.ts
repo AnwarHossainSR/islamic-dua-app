@@ -1,8 +1,6 @@
-import { cache } from 'react'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 
-// Optimized auth utilities with caching
-export const getAuthUser = cache(async () => {
+export async function getAuthUser() {
   try {
     const supabase = await getSupabaseServerClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -11,21 +9,20 @@ export const getAuthUser = cache(async () => {
     console.error('Auth error:', error)
     return null
   }
-})
+}
 
 export async function getCachedAuthUser() {
-  'use cache'
   const supabase = await getSupabaseServerClient()
   const { data: { user } } = await supabase.auth.getUser()
   return user
 }
 
-export const checkAuthStatus = cache(async () => {
+export async function checkAuthStatus() {
   const user = await getAuthUser()
   return !!user
-})
+}
 
-export const getAuthSession = cache(async () => {
+export async function getAuthSession() {
   try {
     const supabase = await getSupabaseServerClient()
     const { data: { session } } = await supabase.auth.getSession()
@@ -34,4 +31,4 @@ export const getAuthSession = cache(async () => {
     console.error('Session error:', error)
     return null
   }
-})
+}

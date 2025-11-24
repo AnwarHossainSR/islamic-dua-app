@@ -5,7 +5,6 @@ import { apiLogger } from '@/lib/logger'
 import { PERMISSIONS } from '@/lib/permissions'
 import { Dua, DuaCategory, DuaCategoryFromDB, DuaFromDB } from '@/lib/types/duas'
 import { revalidatePath } from 'next/cache'
-import { cache } from 'react'
 import { checkPermission, getUser } from './auth'
 
 // Helper function to convert DB types to client types
@@ -62,7 +61,7 @@ export async function getDuas(filters?: {
   }
 }
 
-const getDuaByIdUncached = async (id: string): Promise<Dua | null> => {
+export async function getDuaById(id: string): Promise<Dua | null> {
   try {
     const dua = await getDuaByIdQuery(id)
     if (!dua) return null
@@ -72,8 +71,6 @@ const getDuaByIdUncached = async (id: string): Promise<Dua | null> => {
     return null
   }
 }
-
-export const getDuaById = cache(getDuaByIdUncached)
 
 export async function createDua(
   duaData: Omit<Dua, 'id' | 'created_at' | 'updated_at' | 'created_by'>

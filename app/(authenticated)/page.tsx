@@ -11,6 +11,8 @@ import { formatNumber } from '@/lib/utils'
 import { Activity, Brain, Flame, Target, TrendingUp, Trophy, Users } from 'lucide-react'
 import Link from 'next/link'
 
+export const dynamic = 'force-dynamic'
+
 async function DashboardContent() {
   const stats = await getAdminActivityStats()
   const topActivities = await getTopActivitiesAction(5)

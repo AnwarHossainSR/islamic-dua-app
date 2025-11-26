@@ -20,16 +20,9 @@ export async function updateSession(request: NextRequest) {
   }
 
   const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-    auth: { persistSession: false, autoRefreshToken: false },
+    auth: { persistSession: false, autoRefreshToken: true },
     global: {
       headers: { Authorization: `Bearer ${accessToken}` },
-      fetch: (url, options = {}) => {
-        return fetch(url, {
-          ...options,
-          cache: 'force-cache',
-          next: { revalidate: 30 }
-        })
-      }
     },
   })
 

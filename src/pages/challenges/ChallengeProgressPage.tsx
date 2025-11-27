@@ -693,7 +693,7 @@ export default function ChallengeProgressPage() {
         <ChallengeCalendar
           challenge={challenge}
           progress={progress}
-          dailyLogs={progress.daily_logs}
+          dailyLogs={progress.daily_logs || []}
         />
       )}
 

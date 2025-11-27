@@ -24,11 +24,28 @@ export const logsApi = {
   },
 
   clearAllLogs: async () => {
-    const { error } = await supabaseAdmin
-      .from("api_logs")
-      .delete()
-      .gte("timestamp", 0);
+    try {
+      const { apiLogger } = await import("@/lib/logger");
+      apiLogger.info("Clearing all logs", { timestamp: Date.now() });
 
-    if (error) throw error;
+      const { data, error } = await supabaseAdmin
+        .from("api_logs")
+        .delete()
+        .lt("timestamp", Date.now() + 1000000);
+
+      if (error) {
+        apiLogger.error("Failed to clear logs", {
+          error: error.message,
+          code: error.code,
+        });
+        throw error;
+      }
+
+      apiLogger.info("Logs cleared successfully", { deletedCount: data });
+    } catch (error: any) {
+      const { apiLogger } = await import("@/lib/logger");
+      apiLogger.error("Clear logs exception", { error: error.message });
+      throw error;
+    }
   },
 };

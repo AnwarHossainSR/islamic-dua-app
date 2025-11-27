@@ -80,7 +80,7 @@ export const missedChallengesApi = {
       last_30_days: last30.count || 0,
       most_missed_challenge: mostMissedChallenge
         ? {
-            title_bn: mostMissedChallenge.challenge?.title_bn,
+            title_bn: (mostMissedChallenge.challenge as any)?.title_bn,
             count: mostMissedId![1],
           }
         : null,

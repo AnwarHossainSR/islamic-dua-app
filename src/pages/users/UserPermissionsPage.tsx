@@ -1,14 +1,15 @@
 import { permissionsApi } from "@/api/permissions.api";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "@/components/ui/Card";
 import { Checkbox } from "@/components/ui/Checkbox";
+import { apiLogger } from "@/lib/logger";
 import { ArrowLeft, Settings, Shield } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
@@ -46,8 +47,9 @@ export default function UserPermissionsPage() {
     try {
       const data = await permissionsApi.getUserPermissions(id);
       setUser(data);
-    } catch (error) {
+    } catch (error: any) {
       toast.error("Failed to load user permissions");
+      apiLogger.error("Error loading user permissions:", error);
     } finally {
       setLoading(false);
     }

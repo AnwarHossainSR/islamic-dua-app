@@ -154,8 +154,8 @@ Remember: You're not guessing - you have direct access to their actual data. Use
         for (const toolCall of toolCalls) {
           try {
             if (toolCall.type === 'function') {
-              const functionName = toolCall.function.name
-              const functionArgs = JSON.parse(toolCall.function.arguments || '{}')
+              const functionName = (toolCall as any).function.name
+              const functionArgs = JSON.parse((toolCall as any).function.arguments || '{}')
 
               console.log(`[AI-MCP] Calling function: ${functionName}`, functionArgs)
 
@@ -171,7 +171,7 @@ Remember: You're not guessing - you have direct access to their actual data. Use
             }
           } catch (error: any) {
             const { apiLogger } = await import('@/lib/logger')
-            apiLogger.error('MCP function execution failed', { functionName: toolCall.function.name, error: error.message })
+            apiLogger.error('MCP function execution failed', { functionName: (toolCall as any).function.name, error: error.message })
             messages.push({
               role: 'tool',
               tool_call_id: toolCall.id,

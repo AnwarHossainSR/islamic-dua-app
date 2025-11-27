@@ -12,8 +12,10 @@ export default function ChallengeDetailPage() {
   const [challenge, setChallenge] = useState<any>(null)
 
   useEffect(() => {
-    challengesApi.getById(id!, user!.id).then(setChallenge)
-  }, [id, user])
+    if (id) {
+      challengesApi.getById(id).then(setChallenge)
+    }
+  }, [id])
 
   if (!challenge) return <div className="max-w-4xl mx-auto px-4 py-8">Loading...</div>
 

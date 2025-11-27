@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/ui/Button'
 import { authenticateCredential, isWebAuthnSupported } from '@/lib/webauthn/client'
 import { Fingerprint } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'

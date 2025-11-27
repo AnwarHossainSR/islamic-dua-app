@@ -158,7 +158,7 @@ export class EnhancedMCPServer {
       throw error
     }
 
-    return data?.map(item => ({
+    return data?.map((item: any) => ({
       id: item.id,
       challengeTitle: item.challenge_templates?.title_bn,
       challengeTitleEn: item.challenge_templates?.title_en,
@@ -208,7 +208,7 @@ export class EnhancedMCPServer {
       throw error
     }
 
-    return data?.map(dua => ({
+    return data?.map((dua: any) => ({
       id: dua.id,
       titleBn: dua.title_bn,
       titleEn: dua.title_en,
@@ -248,9 +248,9 @@ export class EnhancedMCPServer {
       }
 
       return {
-        challengeTitle: data.challenge_templates?.title_bn,
+        challengeTitle: (data as any).challenge_templates?.title_bn,
         currentDay: data.current_day,
-        totalDays: data.challenge_templates?.total_days,
+        totalDays: (data as any).challenge_templates?.total_days,
         completedDays: data.total_completed_days,
         missedDays: data.missed_days,
         currentStreak: data.current_streak,
@@ -311,7 +311,7 @@ export class EnhancedMCPServer {
       throw error
     }
 
-    const challenges = data?.map(item => ({
+    const challenges = data?.map((item: any) => ({
       title: item.challenge_templates?.title_bn,
       currentStreak: item.current_streak,
       longestStreak: item.longest_streak,

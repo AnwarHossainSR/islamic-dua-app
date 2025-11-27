@@ -2,6 +2,7 @@ import { missedChallengesApi } from "@/api/missed-challenges.api";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import { Loader } from "@/components/ui";
 import { useAuth } from "@/hooks/useAuth";
 import { formatDateTime, formatTimeAgo } from "@/lib/utils";
 import {
@@ -80,7 +81,7 @@ export default function MissedChallengesPage() {
     (a, b) => new Date(b).getTime() - new Date(a).getTime()
   );
 
-  if (loading) return <div className="p-6">Loading...</div>;
+  if (loading) return <div className="p-6 flex justify-center"><Loader size="lg" /></div>;
 
   return (
     <div className="space-y-6">

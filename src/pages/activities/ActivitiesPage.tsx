@@ -1,48 +1,57 @@
-import { activitiesApi } from '@/api/activities.api'
-import { Badge } from '@/components/ui/Badge'
-import { Button } from '@/components/ui/Button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
-import { Input } from '@/components/ui/Input'
-import { useAuth } from '@/hooks/useAuth'
-import { formatNumber, formatDateTime } from '@/lib/utils'
-import { Activity, ArrowLeft, Search, TrendingUp, Users } from 'lucide-react'
-import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { activitiesApi } from "@/api/activities.api";
+import { Loader } from "@/components/ui";
+import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import { Input } from "@/components/ui/Input";
+import { useAuth } from "@/hooks/useAuth";
+import { formatDateTime, formatNumber } from "@/lib/utils";
+import { Activity, ArrowLeft, Search, TrendingUp, Users } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 export default function ActivitiesPage() {
-  const { user } = useAuth()
-  const [userActivities, setUserActivities] = useState<any[]>([])
+  const { user } = useAuth();
+  const [userActivities, setUserActivities] = useState<any[]>([]);
   const [challengeStats, setChallengeStats] = useState({
     totalCompleted: 0,
     totalActive: 0,
     longestStreak: 0,
     totalDaysCompleted: 0,
-  })
-  const [loading, setLoading] = useState(true)
+  });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user) loadData()
-  }, [user])
+    if (user) loadData();
+  }, [user]);
 
   const loadData = async () => {
-    if (!user) return
+    if (!user) return;
     try {
       const [activities, stats] = await Promise.all([
         activitiesApi.getUserActivities(user.id),
         activitiesApi.getUserChallengeStats(user.id),
-      ])
-      setUserActivities(activities)
-      setChallengeStats(stats)
+      ]);
+      setUserActivities(activities);
+      setChallengeStats(stats);
     } catch (error) {
-      console.error('Error loading activities:', error)
+      console.error("Error loading activities:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
-  const totalCompletions = userActivities.reduce((sum, a) => sum + (a?.total_completed || 0), 0)
+  const totalCompletions = userActivities.reduce(
+    (sum, a) => sum + (a?.total_completed || 0),
+    0
+  );
 
-  if (loading) return <div className="p-6">Loading...</div>
+  if (loading)
+    return (
+      <div className="p-6 flex justify-center">
+        <Loader size="lg" />
+      </div>
+    );
 
   return (
     <div className="space-y-6">
@@ -66,7 +75,9 @@ export default function ActivitiesPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">My Completions</p>
-                <p className="text-3xl font-bold">{formatNumber(totalCompletions)}</p>
+                <p className="text-3xl font-bold">
+                  {formatNumber(totalCompletions)}
+                </p>
               </div>
               <TrendingUp className="h-8 w-8 text-emerald-500" />
             </div>
@@ -78,7 +89,9 @@ export default function ActivitiesPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Days Completed</p>
-                <p className="text-3xl font-bold">{challengeStats.totalDaysCompleted}</p>
+                <p className="text-3xl font-bold">
+                  {challengeStats.totalDaysCompleted}
+                </p>
               </div>
               <TrendingUp className="h-8 w-8 text-blue-500" />
             </div>
@@ -90,7 +103,9 @@ export default function ActivitiesPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Longest Streak</p>
-                <p className="text-3xl font-bold">{challengeStats.longestStreak}</p>
+                <p className="text-3xl font-bold">
+                  {challengeStats.longestStreak}
+                </p>
               </div>
               <Activity className="h-8 w-8 text-orange-500" />
             </div>
@@ -113,8 +128,8 @@ export default function ActivitiesPage() {
 
       <div className="space-y-4">
         {userActivities.map((userActivity, index) => {
-          const activity = userActivity?.activity
-          if (!activity) return null
+          const activity = userActivity?.activity;
+          if (!activity) return null;
 
           return (
             <Card key={activity.id} className="overflow-hidden">
@@ -123,13 +138,17 @@ export default function ActivitiesPage() {
                   <div className="flex items-start gap-3">
                     <div
                       className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg text-2xl"
-                      style={{ backgroundColor: (activity?.color || '#10b981') + '20' }}
+                      style={{
+                        backgroundColor: (activity?.color || "#10b981") + "20",
+                      }}
                     >
-                      {activity?.icon || '📿'}
+                      {activity?.icon || "📿"}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1 flex-wrap">
-                        <h3 className="text-xl font-bold truncate">{activity?.name_bn || 'Unknown Activity'}</h3>
+                        <h3 className="text-xl font-bold truncate">
+                          {activity?.name_bn || "Unknown Activity"}
+                        </h3>
                         <Badge variant="outline" className="text-xs">
                           #{index + 1}
                         </Badge>
@@ -140,22 +159,27 @@ export default function ActivitiesPage() {
                         </p>
                       )}
                       {activity?.name_en && (
-                        <p className="text-sm text-muted-foreground">{activity.name_en}</p>
-                      )}
-                      {activity?.arabic_text && activity.arabic_text !== 'none' && (
-                        <p className="arabic-text text-lg mt-2 text-emerald-700 dark:text-emerald-400 line-clamp-2">
-                          {activity.arabic_text}
+                        <p className="text-sm text-muted-foreground">
+                          {activity.name_en}
                         </p>
                       )}
+                      {activity?.arabic_text &&
+                        activity.arabic_text !== "none" && (
+                          <p className="arabic-text text-lg mt-2 text-emerald-700 dark:text-emerald-400 line-clamp-2">
+                            {activity.arabic_text}
+                          </p>
+                        )}
                     </div>
                   </div>
 
                   <div className="flex flex-wrap gap-3 text-sm">
-                    <Badge variant="secondary">{activity?.activity_type || 'dhikr'}</Badge>
+                    <Badge variant="secondary">
+                      {activity?.activity_type || "dhikr"}
+                    </Badge>
                     <div className="flex items-center gap-1.5">
                       <span className="text-muted-foreground">Slug:</span>
                       <code className="text-xs bg-muted px-2 py-1 rounded">
-                        {activity?.unique_slug || 'unknown'}
+                        {activity?.unique_slug || "unknown"}
                       </code>
                     </div>
                   </div>
@@ -176,29 +200,40 @@ export default function ActivitiesPage() {
                           {userActivity?.longest_streak || 0}
                         </span>
                       </div>
-                      <p className="text-xs text-muted-foreground">Best Streak</p>
+                      <p className="text-xs text-muted-foreground">
+                        Best Streak
+                      </p>
                     </div>
                   </div>
 
-                  <div className="rounded-lg border bg-gradient-to-r from-emerald-50 to-blue-50 dark:from-emerald-950 dark:to-blue-950 p-3">
+                  <div className="rounded-lg border bg-linear-to-r from-emerald-50 to-blue-50 dark:from-emerald-950 dark:to-blue-950 p-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-medium">Last Completed</span>
+                      <span className="text-xs font-medium">
+                        Last Completed
+                      </span>
                       <span className="text-sm font-medium">
-                        {userActivity?.last_completed_at 
-                          ? formatDateTime(new Date(userActivity.last_completed_at), 'date')
-                          : 'Never'
-                        }
+                        {userActivity?.last_completed_at
+                          ? formatDateTime(
+                              new Date(userActivity.last_completed_at),
+                              "date"
+                            )
+                          : "Never"}
                       </span>
                     </div>
                   </div>
 
-                  <Button variant="outline" size="sm" asChild className="w-full">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    asChild
+                    className="w-full"
+                  >
                     <Link to={`/activities/${activity.id}`}>View Details</Link>
                   </Button>
                 </div>
               </div>
             </Card>
-          )
+          );
         })}
 
         {userActivities.length === 0 && (
@@ -223,14 +258,21 @@ export default function ActivitiesPage() {
         </CardHeader>
         <CardContent className="text-sm text-blue-800 dark:text-blue-200">
           <ul className="list-disc list-inside space-y-1">
-            <li>Your personal activity stats are updated when you complete daily challenges</li>
+            <li>
+              Your personal activity stats are updated when you complete daily
+              challenges
+            </li>
             <li>Stats show your individual progress and achievements</li>
-            <li>Track your completion counts, streaks, and progress over time</li>
+            <li>
+              Track your completion counts, streaks, and progress over time
+            </li>
             <li>My Count shows your total completions for each activity</li>
-            <li>Best Streak shows your longest consecutive completion streak</li>
+            <li>
+              Best Streak shows your longest consecutive completion streak
+            </li>
           </ul>
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

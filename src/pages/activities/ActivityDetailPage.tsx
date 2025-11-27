@@ -2,6 +2,7 @@ import { activitiesApi } from '@/api/activities.api'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
+import { Loader } from '@/components/ui'
 import { useAuth } from '@/hooks/useAuth'
 import { formatNumber } from '@/lib/utils'
 import { ArrowLeft, Calendar, Flame, RotateCcw, Trophy, Users } from 'lucide-react'
@@ -38,7 +39,7 @@ export default function ActivityDetailPage() {
     }
   }
 
-  if (loading) return <div className="p-6">Loading...</div>
+  if (loading) return <div className="p-6 flex justify-center"><Loader size="lg" /></div>
   if (!activity) return <div className="p-6">Activity not found</div>
 
   const avgPerUser = activity.total_users > 0 ? Math.round(activity.total_count / activity.total_users) : 0

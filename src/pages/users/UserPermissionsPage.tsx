@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/Card";
 import { Checkbox } from "@/components/ui/Checkbox";
+import { Loader } from "@/components/ui";
 import { apiLogger } from "@/lib/logger";
 import { ArrowLeft, Settings, Shield } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -76,7 +77,7 @@ export default function UserPermissionsPage() {
   };
 
   if (loading) {
-    return <div className="text-center py-8">Loading...</div>;
+    return <div className="text-center py-8"><Loader size="lg" /></div>;
   }
 
   if (!user) {

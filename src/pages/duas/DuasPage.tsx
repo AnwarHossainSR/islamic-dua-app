@@ -1,7 +1,9 @@
 import { duasApi } from "@/api/duas.api";
+import { Loader } from "@/components/ui";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
+import { useConfirm } from "@/components/ui/Confirm";
 import { Input } from "@/components/ui/Input";
 import {
   Select,
@@ -25,7 +27,6 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { useConfirm } from "@/components/ui/Confirm";
 
 export default function DuasPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -33,12 +34,21 @@ export default function DuasPage() {
   const { confirm, ConfirmDialog } = useConfirm();
   const [duas, setDuas] = useState<Dua[]>([]);
   const [categories, setCategories] = useState<DuaCategory[]>([]);
-  const [stats, setStats] = useState<DuaStats>({ total: 0, important: 0, byCategory: {} });
+  const [stats, setStats] = useState<DuaStats>({
+    total: 0,
+    important: 0,
+    byCategory: {},
+  });
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || "");
-  const [categoryFilter, setCategoryFilter] = useState(searchParams.get("category") || "all");
-  const [importantFilter, setImportantFilter] = useState(searchParams.get("important") === "true");
-
+  const [searchQuery, setSearchQuery] = useState(
+    searchParams.get("search") || ""
+  );
+  const [categoryFilter, setCategoryFilter] = useState(
+    searchParams.get("category") || "all"
+  );
+  const [importantFilter, setImportantFilter] = useState(
+    searchParams.get("important") === "true"
+  );
 
   useEffect(() => {
     if (!user) return;
@@ -89,7 +99,8 @@ export default function DuasPage() {
       if (value) params.set("important", "true");
     }
 
-    if (categoryFilter !== "all" && key !== "category") params.set("category", categoryFilter);
+    if (categoryFilter !== "all" && key !== "category")
+      params.set("category", categoryFilter);
     if (importantFilter && key !== "important") params.set("important", "true");
 
     setSearchParams(params);
@@ -97,11 +108,12 @@ export default function DuasPage() {
 
   const handleDelete = async (id: string) => {
     const confirmed = await confirm({
-      title: 'Delete Dua',
-      description: 'Are you sure you want to delete this dua? This action cannot be undone.',
-      confirmText: 'Delete',
-      confirmVariant: 'destructive',
-      icon: 'warning'
+      title: "Delete Dua",
+      description:
+        "Are you sure you want to delete this dua? This action cannot be undone.",
+      confirmText: "Delete",
+      confirmVariant: "destructive",
+      icon: "warning",
     });
     if (confirmed) {
       await duasApi.delete(id);
@@ -110,7 +122,11 @@ export default function DuasPage() {
   };
 
   if (loading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader size="lg" />
+      </div>
+    );
   }
 
   return (
@@ -118,7 +134,9 @@ export default function DuasPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold">Duas Management</h1>
-          <p className="text-muted-foreground">Manage Islamic duas and supplications</p>
+          <p className="text-muted-foreground">
+            Manage Islamic duas and supplications
+          </p>
         </div>
         <Button asChild className="w-full sm:w-auto">
           <Link to="/duas/add">
@@ -158,7 +176,9 @@ export default function DuasPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Categories</p>
-                <p className="text-2xl font-bold">{Object.keys(stats.byCategory).length}</p>
+                <p className="text-2xl font-bold">
+                  {Object.keys(stats.byCategory).length}
+                </p>
               </div>
               <BarChart3 className="h-8 w-8 text-green-500" />
             </div>
@@ -193,7 +213,12 @@ export default function DuasPage() {
                     onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                   />
                 </div>
-                <Select value={categoryFilter} onValueChange={(value) => handleFilterChange("category", value)}>
+                <Select
+                  value={categoryFilter}
+                  onValueChange={(value) =>
+                    handleFilterChange("category", value)
+                  }
+                >
                   <SelectTrigger className="w-48">
                     <SelectValue placeholder="Category" />
                   </SelectTrigger>
@@ -208,7 +233,9 @@ export default function DuasPage() {
                 </Select>
                 <Button
                   variant={importantFilter ? "default" : "outline"}
-                  onClick={() => handleFilterChange("important", !importantFilter)}
+                  onClick={() =>
+                    handleFilterChange("important", !importantFilter)
+                  }
                 >
                   <Star className="mr-2 h-4 w-4" />
                   Important Only
@@ -220,12 +247,17 @@ export default function DuasPage() {
 
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {duas.map((dua) => (
-              <Card key={dua.id} className="group hover:shadow-lg transition-shadow">
+              <Card
+                key={dua.id}
+                className="group hover:shadow-lg transition-shadow"
+              >
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
-                        <h3 className="font-semibold text-lg line-clamp-1">{dua.title_bn}</h3>
+                        <h3 className="font-semibold text-lg line-clamp-1">
+                          {dua.title_bn}
+                        </h3>
                         {dua.is_important && (
                           <Badge variant="secondary" className="shrink-0">
                             <Star className="h-3 w-3" />
@@ -233,13 +265,15 @@ export default function DuasPage() {
                         )}
                       </div>
                       {dua.title_en && (
-                        <p className="text-sm text-muted-foreground line-clamp-1">{dua.title_en}</p>
+                        <p className="text-sm text-muted-foreground line-clamp-1">
+                          {dua.title_en}
+                        </p>
                       )}
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20 p-4 rounded-lg border">
+                  <div className="bg-linear-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20 p-4 rounded-lg border">
                     <p className="text-right arabic-text text-lg leading-relaxed line-clamp-3">
                       {dua.dua_text_ar}
                     </p>
@@ -247,8 +281,12 @@ export default function DuasPage() {
 
                   {dua.translation_bn && (
                     <div className="space-y-1">
-                      <p className="text-xs font-medium text-muted-foreground">বাংলা অনুবাদ</p>
-                      <p className="text-sm line-clamp-2">{dua.translation_bn}</p>
+                      <p className="text-xs font-medium text-muted-foreground">
+                        বাংলা অনুবাদ
+                      </p>
+                      <p className="text-sm line-clamp-2">
+                        {dua.translation_bn}
+                      </p>
                     </div>
                   )}
 
@@ -258,7 +296,9 @@ export default function DuasPage() {
                         {dua.category}
                       </Badge>
                       {dua.tags && dua.tags.length > 0 && (
-                        <span className="text-xs text-muted-foreground">+{dua.tags.length} tags</span>
+                        <span className="text-xs text-muted-foreground">
+                          +{dua.tags.length} tags
+                        </span>
                       )}
                     </div>
                     <div className="flex gap-1">
@@ -320,7 +360,9 @@ export default function DuasPage() {
                     <div className="flex-1">
                       <h3 className="font-semibold">{category.name_bn}</h3>
                       {category.name_en && (
-                        <p className="text-sm text-muted-foreground">{category.name_en}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {category.name_en}
+                        </p>
                       )}
                       <p className="text-sm text-muted-foreground">
                         {stats.byCategory[category.id] || 0} duas
@@ -341,32 +383,43 @@ export default function DuasPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {Object.entries(stats.byCategory).map(([categoryId, count]) => {
-                    const category = categories.find((c) => c.id === categoryId);
-                    const percentage = Math.round((count / stats.total) * 100);
-                    return (
-                      <div key={categoryId} className="flex items-center gap-3">
-                        <span className="text-lg">{category?.icon || "📿"}</span>
-                        <div className="flex-1">
-                          <div className="flex justify-between text-sm">
-                            <span>{category?.name_bn || categoryId}</span>
-                            <span>
-                              {count} ({percentage}%)
-                            </span>
-                          </div>
-                          <div className="mt-1 h-2 bg-muted rounded-full overflow-hidden">
-                            <div
-                              className="h-full rounded-full"
-                              style={{
-                                width: `${percentage}%`,
-                                backgroundColor: category?.color || "#10b981",
-                              }}
-                            />
+                  {Object.entries(stats.byCategory).map(
+                    ([categoryId, count]) => {
+                      const category = categories.find(
+                        (c) => c.id === categoryId
+                      );
+                      const percentage = Math.round(
+                        (count / stats.total) * 100
+                      );
+                      return (
+                        <div
+                          key={categoryId}
+                          className="flex items-center gap-3"
+                        >
+                          <span className="text-lg">
+                            {category?.icon || "📿"}
+                          </span>
+                          <div className="flex-1">
+                            <div className="flex justify-between text-sm">
+                              <span>{category?.name_bn || categoryId}</span>
+                              <span>
+                                {count} ({percentage}%)
+                              </span>
+                            </div>
+                            <div className="mt-1 h-2 bg-muted rounded-full overflow-hidden">
+                              <div
+                                className="h-full rounded-full"
+                                style={{
+                                  width: `${percentage}%`,
+                                  backgroundColor: category?.color || "#10b981",
+                                }}
+                              />
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    }
+                  )}
                 </div>
               </CardContent>
             </Card>

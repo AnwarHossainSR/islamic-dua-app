@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { dashboardApi } from '@/api/dashboard.api'
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, Badge, Button } from '@/components/ui'
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, Badge, Button, Loader } from '@/components/ui'
 import { DashboardToggle } from '@/components/DashboardToggle'
 import { ROUTES } from '@/config/routes'
 import { formatNumber } from '@/lib/utils'
@@ -41,7 +41,7 @@ export default function DashboardPage() {
     loadData(showGlobal)
   }
 
-  if (!stats) return <div className="p-8">Loading...</div>
+  if (!stats) return <div className="p-8 flex justify-center"><Loader size="lg" /></div>
 
   return (
     <div className="space-y-8">

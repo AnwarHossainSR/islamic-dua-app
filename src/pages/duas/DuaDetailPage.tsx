@@ -1,4 +1,5 @@
 import { duasApi } from "@/api/duas.api";
+import { Loader } from "@/components/ui";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
@@ -30,11 +31,19 @@ export default function DuaDetailPage() {
   }, [id]);
 
   if (loading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader size="lg" />
+      </div>
+    );
   }
 
   if (!dua) {
-    return <div className="flex items-center justify-center min-h-screen">Dua not found</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        Dua not found
+      </div>
+    );
   }
 
   return (
@@ -66,56 +75,74 @@ export default function DuaDetailPage() {
                   </Badge>
                 )}
               </div>
-              {dua.title_en && <p className="text-lg text-muted-foreground">{dua.title_en}</p>}
+              {dua.title_en && (
+                <p className="text-lg text-muted-foreground">{dua.title_en}</p>
+              )}
               {dua.title_ar && (
-                <p className="text-lg text-muted-foreground arabic-text">{dua.title_ar}</p>
+                <p className="text-lg text-muted-foreground arabic-text">
+                  {dua.title_ar}
+                </p>
               )}
             </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20 p-6 rounded-lg border">
-            <p className="text-right arabic-text text-2xl leading-loose">{dua.dua_text_ar}</p>
+          <div className="bg-linear-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20 p-6 rounded-lg border">
+            <p className="text-right arabic-text text-2xl leading-loose">
+              {dua.dua_text_ar}
+            </p>
           </div>
 
           {dua.transliteration && (
             <div className="space-y-2">
-              <h3 className="font-semibold text-sm text-muted-foreground">Transliteration</h3>
+              <h3 className="font-semibold text-sm text-muted-foreground">
+                Transliteration
+              </h3>
               <p className="text-lg italic">{dua.transliteration}</p>
             </div>
           )}
 
           {dua.translation_bn && (
             <div className="space-y-2">
-              <h3 className="font-semibold text-sm text-muted-foreground">বাংলা অনুবাদ</h3>
+              <h3 className="font-semibold text-sm text-muted-foreground">
+                বাংলা অনুবাদ
+              </h3>
               <p className="text-lg">{dua.translation_bn}</p>
             </div>
           )}
 
           {dua.translation_en && (
             <div className="space-y-2">
-              <h3 className="font-semibold text-sm text-muted-foreground">English Translation</h3>
+              <h3 className="font-semibold text-sm text-muted-foreground">
+                English Translation
+              </h3>
               <p className="text-lg">{dua.translation_en}</p>
             </div>
           )}
 
           {dua.benefits && (
             <div className="space-y-2">
-              <h3 className="font-semibold text-sm text-muted-foreground">Benefits</h3>
+              <h3 className="font-semibold text-sm text-muted-foreground">
+                Benefits
+              </h3>
               <p className="text-base">{dua.benefits}</p>
             </div>
           )}
 
           {dua.source && (
             <div className="space-y-2">
-              <h3 className="font-semibold text-sm text-muted-foreground">Source</h3>
+              <h3 className="font-semibold text-sm text-muted-foreground">
+                Source
+              </h3>
               <p className="text-base">{dua.source}</p>
             </div>
           )}
 
           {dua.reference && (
             <div className="space-y-2">
-              <h3 className="font-semibold text-sm text-muted-foreground">Reference</h3>
+              <h3 className="font-semibold text-sm text-muted-foreground">
+                Reference
+              </h3>
               <p className="text-base">{dua.reference}</p>
             </div>
           )}

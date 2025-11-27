@@ -1,22 +1,23 @@
-import { challengesApi } from '@/api/challenges.api'
-import { ChallengeCalendar } from '@/components/ChallengeCalendar'
-import { Badge } from '@/components/ui/Badge'
-import { Button } from '@/components/ui/Button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
-import { useConfirm } from '@/components/ui/Confirm'
-import { Input } from '@/components/ui/Input'
-import { Progress } from '@/components/ui/Progress'
+import { challengesApi } from "@/api/challenges.api";
+import { ChallengeCalendar } from "@/components/ChallengeCalendar";
+import { Loader } from "@/components/ui";
+import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import { useConfirm } from "@/components/ui/Confirm";
+import { Input } from "@/components/ui/Input";
+import { Progress } from "@/components/ui/Progress";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/Select'
-import { Textarea } from '@/components/ui/Textarea'
-import { useAuth } from '@/hooks/useAuth'
-import { useLocalStorage } from '@/hooks/useLocalStorage'
-import { cn } from '@/lib/utils/cn'
+} from "@/components/ui/Select";
+import { Textarea } from "@/components/ui/Textarea";
+import { useAuth } from "@/hooks/useAuth";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { cn } from "@/lib/utils/cn";
 import {
   ArrowLeft,
   Calendar as CalendarIcon,
@@ -29,119 +30,123 @@ import {
   RotateCcw,
   Target,
   Trophy,
-} from 'lucide-react'
-import { Activity, useCallback, useEffect, useMemo, useState } from 'react'
-import { createPortal } from 'react-dom'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+} from "lucide-react";
+import { Activity, useCallback, useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 export default function ChallengeProgressPage() {
-  const { id } = useParams<{ id: string }>()
-  const navigate = useNavigate()
-  const { user } = useAuth()
-  const { confirm, ConfirmDialog } = useConfirm()
-  const [progress, setProgress] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
-  const [isCompleting, setIsCompleting] = useState(false)
-  const [showSuccessModal, setShowSuccessModal] = useState(false)
-  const [isFullscreen, setIsFullscreen] = useState(false)
-  const [notes, setNotes] = useState('')
-  const [mood, setMood] = useState('')
-  const [inputMode, setInputMode] = useState(false)
-  const [inputValue, setInputValue] = useState('0')
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { confirm, ConfirmDialog } = useConfirm();
+  const [progress, setProgress] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [isCompleting, setIsCompleting] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [notes, setNotes] = useState("");
+  const [mood, setMood] = useState("");
+  const [inputMode, setInputMode] = useState(false);
+  const [inputValue, setInputValue] = useState("0");
 
   useEffect(() => {
-    if (!id || !user) return
+    if (!id || !user) return;
 
     const loadProgress = async () => {
       try {
-        const data = await challengesApi.getProgress(id)
-        setProgress(data)
+        const data = await challengesApi.getProgress(id);
+        setProgress(data);
       } catch (error) {
-        console.error('Error loading progress:', error)
+        console.error("Error loading progress:", error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    loadProgress()
-  }, [id, user])
+    loadProgress();
+  }, [id, user]);
 
-  const challenge = progress?.challenge
-  const target = challenge?.daily_target_count || 0
-  const today = new Date().toISOString().split('T')[0]
+  const challenge = progress?.challenge;
+  const target = challenge?.daily_target_count || 0;
+  const today = new Date().toISOString().split("T")[0];
   const todayLog = progress?.daily_logs?.find(
-    (log: any) => log.completion_date === today && log.day_number === progress?.current_day
-  )
-  const isAlreadyCompleted = todayLog?.is_completed
+    (log: any) =>
+      log.completion_date === today && log.day_number === progress?.current_day
+  );
+  const isAlreadyCompleted = todayLog?.is_completed;
 
-  const storageKey = progress ? `challenge_${progress.id}_day_${progress.current_day}_count` : null
+  const storageKey = progress
+    ? `challenge_${progress.id}_day_${progress.current_day}_count`
+    : null;
 
   const [count, setCount, removeCount, isHydrated] = useLocalStorage(
     storageKey || `temp_${id}`,
     0
-  )
+  );
 
-  const dailyProgress = useMemo(() => (count / target) * 100, [count, target])
-  const remaining = useMemo(() => Math.max(0, target - count), [target, count])
+  const dailyProgress = useMemo(() => (count / target) * 100, [count, target]);
+  const remaining = useMemo(() => Math.max(0, target - count), [target, count]);
   const overallProgress = useMemo(
     () => ((progress?.current_day - 1) / (challenge?.total_days || 1)) * 100,
     [progress?.current_day, challenge?.total_days]
-  )
+  );
 
   const vibrate = useCallback(() => {
-    if ('vibrate' in navigator) {
-      navigator.vibrate(50)
+    if ("vibrate" in navigator) {
+      navigator.vibrate(50);
     }
-  }, [])
+  }, []);
 
   const handleIncrement = useCallback(() => {
     if (count < target && !isAlreadyCompleted) {
-      const newCount = count + 1
-      setCount(newCount)
-      vibrate()
+      const newCount = count + 1;
+      setCount(newCount);
+      vibrate();
     }
-  }, [count, target, isAlreadyCompleted, vibrate, setCount])
+  }, [count, target, isAlreadyCompleted, vibrate, setCount]);
 
   const toggleInputMode = useCallback(() => {
-    setInputMode(!inputMode)
-    setInputValue(count.toString())
-  }, [inputMode, count])
+    setInputMode(!inputMode);
+    setInputValue(count.toString());
+  }, [inputMode, count]);
 
   const handleInputSubmit = useCallback(() => {
-    const value = parseInt(inputValue)
+    const value = parseInt(inputValue);
     if (!isNaN(value) && value >= 0 && value <= target && !isAlreadyCompleted) {
-      setCount(value)
-      setInputValue('')
-      setInputMode(false)
+      setCount(value);
+      setInputValue("");
+      setInputMode(false);
     }
-  }, [inputValue, target, isAlreadyCompleted, setCount])
+  }, [inputValue, target, isAlreadyCompleted, setCount]);
 
   const handleReset = useCallback(async () => {
     const confirmed = await confirm({
-      title: 'Reset Counter?',
-      description: 'Are you sure you want to reset the counter? This action cannot be undone.',
-      confirmText: 'Reset',
-      confirmVariant: 'destructive',
-      icon: 'warning'
+      title: "Reset Counter?",
+      description:
+        "Are you sure you want to reset the counter? This action cannot be undone.",
+      confirmText: "Reset",
+      confirmVariant: "destructive",
+      icon: "warning",
     });
     if (confirmed) {
       setCount(0);
     }
-  }, [setCount, confirm])
+  }, [setCount, confirm]);
 
   const handleComplete = useCallback(async () => {
     if (count < target) {
       const confirmed = await confirm({
-        title: 'Target Not Reached',
+        title: "Target Not Reached",
         description: `You haven't reached the target count of ${target} yet. Do you want to complete anyway?`,
-        confirmText: 'Complete Anyway',
-        confirmVariant: 'default',
-        icon: 'warning'
+        confirmText: "Complete Anyway",
+        confirmVariant: "default",
+        icon: "warning",
       });
-      if (!confirmed) return
+      if (!confirmed) return;
     }
 
-    setIsCompleting(true)
+    setIsCompleting(true);
     try {
       await challengesApi.complete(
         id!,
@@ -152,73 +157,80 @@ export default function ChallengeProgressPage() {
         target,
         notes,
         mood
-      )
+      );
 
-      removeCount()
+      removeCount();
 
-      const updatedProgress = await challengesApi.getProgress(id!)
-      setProgress(updatedProgress)
+      const updatedProgress = await challengesApi.getProgress(id!);
+      setProgress(updatedProgress);
 
-      setShowSuccessModal(true)
+      setShowSuccessModal(true);
     } catch (error: any) {
-      console.error('Error completing challenge:', error)
-      const { toast } = await import('sonner')
-      toast.error(error.message || 'Failed to save progress')
+      console.error("Error completing challenge:", error);
+      const { toast } = await import("sonner");
+      toast.error(error.message || "Failed to save progress");
     } finally {
-      setIsCompleting(false)
+      setIsCompleting(false);
     }
-  }, [count, target, id, user, challenge, progress, notes, mood, removeCount])
+  }, [count, target, id, user, challenge, progress, notes, mood, removeCount]);
 
   useEffect(() => {
-    if (isAlreadyCompleted) return
+    if (isAlreadyCompleted) return;
 
     const handleKeyPress = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement
-      const isInputField = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA'
+      const target = e.target as HTMLElement;
+      const isInputField =
+        target.tagName === "INPUT" || target.tagName === "TEXTAREA";
 
-      if (e.code === 'Space' && !isInputField) {
-        e.preventDefault()
-        handleIncrement()
+      if (e.code === "Space" && !isInputField) {
+        e.preventDefault();
+        handleIncrement();
       }
-      if (e.code === 'KeyF' && e.ctrlKey) {
-        e.preventDefault()
-        setIsFullscreen((prev) => !prev)
+      if (e.code === "KeyF" && e.ctrlKey) {
+        e.preventDefault();
+        setIsFullscreen((prev) => !prev);
       }
-    }
+    };
 
-    document.addEventListener('keydown', handleKeyPress)
-    return () => document.removeEventListener('keydown', handleKeyPress)
-  }, [handleIncrement, isAlreadyCompleted])
+    document.addEventListener("keydown", handleKeyPress);
+    return () => document.removeEventListener("keydown", handleKeyPress);
+  }, [handleIncrement, isAlreadyCompleted]);
 
   useEffect(() => {
     if (isFullscreen) {
-      document.body.style.overflow = 'hidden'
+      document.body.style.overflow = "hidden";
       return () => {
-        document.body.style.overflow = 'unset'
-      }
+        document.body.style.overflow = "unset";
+      };
     }
-  }, [isFullscreen])
+  }, [isFullscreen]);
 
-  if (loading || !progress) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>
-  }
-
-  if (!isHydrated) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>
+  if (loading || !progress || !isHydrated) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader size="lg" />
+      </div>
+    );
   }
 
   if (!progress || !challenge) {
-    return <div className="flex items-center justify-center min-h-screen">Progress not found</div>
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        Progress not found
+      </div>
+    );
   }
 
   const fullscreenContent = isFullscreen && !isAlreadyCompleted && (
-    <div className="fixed inset-0 z-[9999] overflow-y-auto bg-gradient-to-br from-emerald-500/20 via-emerald-500/10 to-white/95 backdrop-blur-sm">
+    <div className="fixed inset-0 z-9999 overflow-y-auto bg-linear-to-br from-emerald-500/20 via-emerald-500/10 to-white/95 backdrop-blur-sm">
       <div className="flex items-center justify-between p-4">
         <div className="flex items-center gap-3">
-          <span className="text-2xl">{challenge.icon || '📿'}</span>
+          <span className="text-2xl">{challenge.icon || "📿"}</span>
           <div>
             <h1 className="text-lg font-bold">{challenge.title_bn}</h1>
-            <p className="text-sm text-muted-foreground">Day {progress.current_day}</p>
+            <p className="text-sm text-muted-foreground">
+              Day {progress.current_day}
+            </p>
           </div>
         </div>
         <Button
@@ -246,7 +258,9 @@ export default function ChallengeProgressPage() {
             </div>
           )}
           <div className="rounded-lg bg-background/95 p-4 text-center shadow-sm border">
-            <p className="text-lg leading-relaxed md:text-xl">{challenge.translation_bn}</p>
+            <p className="text-lg leading-relaxed md:text-xl">
+              {challenge.translation_bn}
+            </p>
           </div>
         </div>
 
@@ -254,8 +268,11 @@ export default function ChallengeProgressPage() {
           <div className="mx-auto max-w-md space-y-4">
             <div className="text-center">
               <Badge
-                variant={count >= target ? 'default' : 'secondary'}
-                className={cn('mb-2 text-lg', count >= target && 'bg-emerald-500')}
+                variant={count >= target ? "default" : "secondary"}
+                className={cn(
+                  "mb-2 text-lg",
+                  count >= target && "bg-emerald-500"
+                )}
               >
                 {count} / {target}
               </Badge>
@@ -266,7 +283,9 @@ export default function ChallengeProgressPage() {
                 />
               </div>
               <p className="mt-2 text-sm text-muted-foreground">
-                {remaining > 0 ? `${remaining} more to go!` : 'Target reached! 🎉'}
+                {remaining > 0
+                  ? `${remaining} more to go!`
+                  : "Target reached! 🎉"}
               </p>
             </div>
             <div className="text-center">
@@ -298,7 +317,11 @@ export default function ChallengeProgressPage() {
             </p>
             {count >= target && (
               <div className="flex gap-2">
-                <Button variant="outline" onClick={() => setIsFullscreen(false)} className="flex-1">
+                <Button
+                  variant="outline"
+                  onClick={() => setIsFullscreen(false)}
+                  className="flex-1"
+                >
                   <Minimize2 className="mr-2 h-4 w-4" />
                   Exit Fullscreen
                 </Button>
@@ -308,7 +331,7 @@ export default function ChallengeProgressPage() {
                   className="flex-1 bg-emerald-500 hover:bg-emerald-600"
                 >
                   <Check className="mr-2 h-4 w-4" />
-                  {isCompleting ? 'Saving...' : 'Complete'}
+                  {isCompleting ? "Saving..." : "Complete"}
                 </Button>
               </div>
             )}
@@ -316,20 +339,29 @@ export default function ChallengeProgressPage() {
         </div>
       </div>
     </div>
-  )
+  );
 
   return (
     <>
       <div className="mx-auto max-w-4xl space-y-4 px-4 pb-20 pt-4 sm:space-y-6 sm:px-6">
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="shrink-0">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate(-1)}
+            className="shrink-0"
+          >
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div className="min-w-0 flex-1">
             <div className="flex items-start gap-2">
-              <span className="shrink-0 text-2xl sm:text-3xl">{challenge.icon || '📿'}</span>
+              <span className="shrink-0 text-2xl sm:text-3xl">
+                {challenge.icon || "📿"}
+              </span>
               <div className="min-w-0 flex-1">
-                <h1 className="truncate text-xl font-bold sm:text-2xl">{challenge.title_bn}</h1>
+                <h1 className="truncate text-xl font-bold sm:text-2xl">
+                  {challenge.title_bn}
+                </h1>
                 <p className="text-xs text-muted-foreground sm:text-sm">
                   Day {progress.current_day} of {challenge.total_days}
                 </p>
@@ -343,7 +375,9 @@ export default function ChallengeProgressPage() {
             <CardContent className="pt-4 sm:pt-6">
               <div className="flex flex-col items-center text-center">
                 <CalendarIcon className="mb-1 h-4 w-4 text-blue-500 sm:mb-2 sm:h-5 sm:w-5" />
-                <p className="text-xl font-bold sm:text-2xl">{progress.current_day}</p>
+                <p className="text-xl font-bold sm:text-2xl">
+                  {progress.current_day}
+                </p>
                 <p className="text-xs text-muted-foreground">Current Day</p>
               </div>
             </CardContent>
@@ -352,7 +386,9 @@ export default function ChallengeProgressPage() {
             <CardContent className="pt-4 sm:pt-6">
               <div className="flex flex-col items-center text-center">
                 <Flame className="mb-1 h-4 w-4 text-orange-500 sm:mb-2 sm:h-5 sm:w-5" />
-                <p className="text-xl font-bold sm:text-2xl">{progress.current_streak}</p>
+                <p className="text-xl font-bold sm:text-2xl">
+                  {progress.current_streak}
+                </p>
                 <p className="text-xs text-muted-foreground">Streak</p>
               </div>
             </CardContent>
@@ -361,7 +397,9 @@ export default function ChallengeProgressPage() {
             <CardContent className="pt-4 sm:pt-6">
               <div className="flex flex-col items-center text-center">
                 <Trophy className="mb-1 h-4 w-4 text-amber-500 sm:mb-2 sm:h-5 sm:w-5" />
-                <p className="text-xl font-bold sm:text-2xl">{progress.total_completed_days}</p>
+                <p className="text-xl font-bold sm:text-2xl">
+                  {progress.total_completed_days}
+                </p>
                 <p className="text-xs text-muted-foreground">Completed</p>
               </div>
             </CardContent>
@@ -383,7 +421,9 @@ export default function ChallengeProgressPage() {
           <CardContent className="pt-4 sm:pt-6">
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-medium sm:text-sm">Overall Progress</span>
+                <span className="text-xs font-medium sm:text-sm">
+                  Overall Progress
+                </span>
                 <span className="text-xs text-muted-foreground sm:text-sm">
                   {progress.current_day - 1}/{challenge.total_days} days
                 </span>
@@ -418,7 +458,7 @@ export default function ChallengeProgressPage() {
                 <span>Today's Count</span>
                 <div className="flex items-center gap-2">
                   <Badge
-                    variant={count >= target ? 'default' : 'secondary'}
+                    variant={count >= target ? "default" : "secondary"}
                     className="text-sm sm:text-base"
                   >
                     {count} / {target}
@@ -444,7 +484,9 @@ export default function ChallengeProgressPage() {
                   />
                 </div>
                 <p className="text-center text-xs text-muted-foreground sm:text-sm">
-                  {remaining > 0 ? `${remaining} more to go!` : 'Target reached! 🎉'}
+                  {remaining > 0
+                    ? `${remaining} more to go!`
+                    : "Target reached! 🎉"}
                 </p>
               </div>
 
@@ -468,11 +510,11 @@ export default function ChallengeProgressPage() {
                   className="text-xs"
                 >
                   <Edit3 className="mr-1 h-3 w-3" />
-                  {inputMode ? 'Switch to Tap' : 'Direct Input'}
+                  {inputMode ? "Switch to Tap" : "Direct Input"}
                 </Button>
               </div>
 
-              <Activity mode={inputMode ? 'visible' : 'hidden'}>
+              <Activity mode={inputMode ? "visible" : "hidden"}>
                 <div className="space-y-3">
                   <div className="flex gap-2">
                     <Input
@@ -499,7 +541,7 @@ export default function ChallengeProgressPage() {
                 </div>
               </Activity>
 
-              <Activity mode={!inputMode ? 'visible' : 'hidden'}>
+              <Activity mode={!inputMode ? "visible" : "hidden"}>
                 <Button
                   type="button"
                   size="lg"
@@ -538,7 +580,7 @@ export default function ChallengeProgressPage() {
                   className="text-sm sm:text-base bg-emerald-500 hover:bg-emerald-600"
                 >
                   <Check className="mr-2 h-4 w-4" />
-                  {isCompleting ? 'Saving...' : 'Complete Today'}
+                  {isCompleting ? "Saving..." : "Complete Today"}
                 </Button>
               </div>
 
@@ -560,7 +602,9 @@ export default function ChallengeProgressPage() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-medium sm:text-sm">Notes (Optional)</label>
+                  <label className="text-xs font-medium sm:text-sm">
+                    Notes (Optional)
+                  </label>
                   <Textarea
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
@@ -600,7 +644,9 @@ export default function ChallengeProgressPage() {
                 </div>
               </div>
               <div>
-                <h2 className="mb-2 text-2xl font-bold sm:text-3xl">Well Done!</h2>
+                <h2 className="mb-2 text-2xl font-bold sm:text-3xl">
+                  Well Done!
+                </h2>
                 <p className="text-base text-muted-foreground sm:text-lg">
                   Day {progress.current_day} completed successfully
                 </p>
@@ -617,7 +663,7 @@ export default function ChallengeProgressPage() {
         </div>
       )}
 
-      {typeof window !== 'undefined' &&
+      {typeof window !== "undefined" &&
         fullscreenContent &&
         createPortal(fullscreenContent, document.body)}
 
@@ -631,5 +677,5 @@ export default function ChallengeProgressPage() {
 
       <ConfirmDialog />
     </>
-  )
+  );
 }

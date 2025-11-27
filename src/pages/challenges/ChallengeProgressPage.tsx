@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
+import { useDebounce } from "@/hooks/use-debounce";
 import { useAuth } from "@/hooks/useAuth";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { cn } from "@/lib/utils/cn";
@@ -34,6 +35,7 @@ import {
 import { Activity, useCallback, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { toast } from "sonner";
 
 export default function ChallengeProgressPage() {
   const { id } = useParams<{ id: string }>();
@@ -76,14 +78,26 @@ export default function ChallengeProgressPage() {
   );
   const isAlreadyCompleted = todayLog?.is_completed;
 
-  const storageKey = progress
-    ? `challenge_${progress.id}_day_${progress.current_day}_count`
-    : null;
-
-  const [count, setCount, removeCount, isHydrated] = useLocalStorage(
-    storageKey || `temp_${id}`,
-    0
+  // Generate unique localStorage key for this challenge and day
+  const storageKey = useMemo(
+    () => `challenge_${progress.id}_day_${progress.current_day}_count`,
+    [progress.id, progress.current_day]
   );
+
+  // Use custom localStorage hook with hydration fix
+  const [count, setCount, removeCount, isHydrated] = useLocalStorage(
+    storageKey,
+    isAlreadyCompleted ? todayLog?.count_completed || 0 : 0
+  );
+
+  const { debouncedCallback: saveToLocalStorage, cancel: cancelSave } =
+    useDebounce(
+      (value: number) => {
+        setCount(value);
+      },
+      10000,
+      []
+    );
 
   const dailyProgress = useMemo(() => (count / target) * 100, [count, target]);
   const remaining = useMemo(() => Math.max(0, target - count), [target, count]);
@@ -103,8 +117,16 @@ export default function ChallengeProgressPage() {
       const newCount = count + 1;
       setCount(newCount);
       vibrate();
+      saveToLocalStorage(newCount);
     }
-  }, [count, target, isAlreadyCompleted, vibrate, setCount]);
+  }, [
+    count,
+    target,
+    vibrate,
+    isAlreadyCompleted,
+    setCount,
+    saveToLocalStorage,
+  ]);
 
   const toggleInputMode = useCallback(() => {
     setInputMode(!inputMode);
@@ -115,10 +137,11 @@ export default function ChallengeProgressPage() {
     const value = parseInt(inputValue);
     if (!isNaN(value) && value >= 0 && value <= target && !isAlreadyCompleted) {
       setCount(value);
+      saveToLocalStorage(value);
       setInputValue("");
       setInputMode(false);
     }
-  }, [inputValue, target, isAlreadyCompleted, setCount]);
+  }, [inputValue, target, isAlreadyCompleted, setCount, saveToLocalStorage]);
 
   const handleReset = useCallback(async () => {
     const confirmed = await confirm({
@@ -131,8 +154,9 @@ export default function ChallengeProgressPage() {
     });
     if (confirmed) {
       setCount(0);
+      cancelSave();
     }
-  }, [setCount, confirm]);
+  }, [setCount, confirm, cancelSave]);
 
   const handleComplete = useCallback(async () => {
     if (count < target) {
@@ -159,12 +183,13 @@ export default function ChallengeProgressPage() {
         mood
       );
 
-      removeCount();
-
       const updatedProgress = await challengesApi.getProgress(id!);
       setProgress(updatedProgress);
+      removeCount();
+      cancelSave();
 
       setShowSuccessModal(true);
+      toast.success(`Day ${progress.current_day} completed!`);
     } catch (error: any) {
       console.error("Error completing challenge:", error);
       const { toast } = await import("sonner");
@@ -172,7 +197,18 @@ export default function ChallengeProgressPage() {
     } finally {
       setIsCompleting(false);
     }
-  }, [count, target, id, user, challenge, progress, notes, mood, removeCount]);
+  }, [
+    count,
+    target,
+    id,
+    user,
+    challenge,
+    progress,
+    notes,
+    mood,
+    removeCount,
+    cancelSave,
+  ]);
 
   useEffect(() => {
     if (isAlreadyCompleted) return;

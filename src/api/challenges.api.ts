@@ -206,24 +206,47 @@ export const challengesApi = {
     notes?: string,
     mood?: string
   ) => {
-    const isCompleted = countCompleted >= targetCount
-    const now = new Date()
-    const bdTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Dhaka' }))
-    const completionDate = bdTime.toLocaleDateString('en-CA')
+    try {
+      const isCompleted = countCompleted >= targetCount
+      const now = new Date()
+      const bdTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Dhaka' }))
+      const completionDate = bdTime.toLocaleDateString('en-CA')
 
-    // Check if log exists
-    const { data: existingLog } = await supabase
-      .from('user_challenge_daily_logs')
-      .select('id')
-      .eq('user_progress_id', progressId)
-      .eq('day_number', dayNumber)
-      .single()
-
-    if (existingLog) {
-      // Update existing
-      await supabase
+      // Check if log exists
+      const { data: existingLog } = await supabase
         .from('user_challenge_daily_logs')
-        .update({
+        .select('id')
+        .eq('user_progress_id', progressId)
+        .eq('day_number', dayNumber)
+        .single()
+
+      console.log('DEBUG - Existing log found:', !!existingLog)
+      console.log('DEBUG - Progress ID:', progressId)
+      console.log('DEBUG - Day Number:', dayNumber)
+
+      if (existingLog) {
+        console.log('DEBUG - Updating existing log')
+        // Update existing
+        await supabase
+          .from('user_challenge_daily_logs')
+          .update({
+            count_completed: countCompleted,
+            target_count: targetCount,
+            is_completed: isCompleted,
+            completed_at: isCompleted ? Date.now() : null,
+            notes,
+            mood,
+          })
+          .eq('id', existingLog.id)
+      } else {
+        console.log('DEBUG - Creating new log')
+        // Insert new
+        await supabase.from('user_challenge_daily_logs').insert({
+          user_progress_id: progressId,
+          user_id: userId,
+          challenge_id: challengeId,
+          day_number: dayNumber,
+          completion_date: completionDate,
           count_completed: countCompleted,
           target_count: targetCount,
           is_completed: isCompleted,
@@ -231,77 +254,72 @@ export const challengesApi = {
           notes,
           mood,
         })
-        .eq('id', existingLog.id)
-    } else {
-      // Insert new
-      await supabase.from('user_challenge_daily_logs').insert({
-        user_progress_id: progressId,
-        user_id: userId,
-        challenge_id: challengeId,
-        day_number: dayNumber,
-        completion_date: completionDate,
-        count_completed: countCompleted,
-        target_count: targetCount,
-        is_completed: isCompleted,
-        completed_at: isCompleted ? Date.now() : null,
-        notes,
-        mood,
-      })
+      }
+
+      // Get current progress
+      const { data: progress } = await supabase
+        .from('user_challenge_progress')
+        .select('*, challenge:challenge_templates(*)')
+        .eq('id', progressId)
+        .single()
+
+      if (!progress) {
+        return { error: 'Progress not found' }
+      }
+
+      // Calculate updates
+      const newStreak = isCompleted ? (progress.current_streak || 0) + 1 : 0
+      const newLongestStreak = Math.max(progress.longest_streak || 0, newStreak)
+      const newTotalCompleted = (progress.total_completed_days || 0) + (isCompleted ? 1 : 0)
+      const newMissedDays = (progress.missed_days || 0) + (isCompleted ? 0 : 1)
+      const newCurrentDay = dayNumber + 1
+      const isChallengeCompleted =
+        newCurrentDay > (progress.challenge.total_days || 21) &&
+        newTotalCompleted >= (progress.challenge.total_days || 21)
+
+      const updateData: any = {
+        current_day: newCurrentDay,
+        current_streak: newStreak,
+        longest_streak: newLongestStreak,
+        total_completed_days: newTotalCompleted,
+        missed_days: newMissedDays,
+      }
+
+      if (isCompleted) {
+        updateData.last_completed_at = Date.now()
+      }
+
+      if (isChallengeCompleted) {
+        updateData.status = 'completed'
+        updateData.completed_at = Date.now()
+      }
+
+      // Update progress
+      await supabase.from('user_challenge_progress').update(updateData).eq('id', progressId)
+
+      // Increment challenge completions
+      await supabase.rpc('increment_completions', { challenge_id: challengeId })
+
+      // Log challenge completion with challenge title
+      if (isCompleted) {
+        apiLogger.info('Challenge completed', {
+          userId,
+          challengeId,
+          challengeTitle: progress.challenge?.title_bn,
+          dayNumber,
+          countCompleted,
+          targetCount,
+          newStreak,
+          isChallengeCompleted,
+          completedAt: new Date().toISOString(),
+        })
+      }
+
+      return { success: true, isCompleted, isChallengeCompleted, newStreak }
+    } catch (error) {
+      apiLogger.error('Error completing daily challenge', { error })
+      return { error: 'Failed to complete daily challenge' }
     }
-
-    // Get current progress
-    const { data: progress } = await supabase
-      .from('user_challenge_progress')
-      .select('*, challenge:challenge_templates(*)')
-      .eq('id', progressId)
-      .single()
-
-    if (!progress) throw new Error('Progress not found')
-
-    // Calculate updates
-    const newStreak = isCompleted ? (progress.current_streak || 0) + 1 : 0
-    const newLongestStreak = Math.max(progress.longest_streak || 0, newStreak)
-    const newTotalCompleted = (progress.total_completed_days || 0) + (isCompleted ? 1 : 0)
-    const newMissedDays = (progress.missed_days || 0) + (isCompleted ? 0 : 1)
-    const newCurrentDay = dayNumber + 1
-    const isChallengeCompleted =
-      newCurrentDay > (progress.challenge.total_days || 21) &&
-      newTotalCompleted >= (progress.challenge.total_days || 21)
-
-    const updateData: any = {
-      current_day: newCurrentDay,
-      current_streak: newStreak,
-      longest_streak: newLongestStreak,
-      total_completed_days: newTotalCompleted,
-      missed_days: newMissedDays,
-    }
-
-    if (isCompleted) {
-      updateData.last_completed_at = Date.now()
-    }
-
-    if (isChallengeCompleted) {
-      updateData.status = 'completed'
-      updateData.completed_at = Date.now()
-    }
-
-    // Update progress
-    await supabase.from('user_challenge_progress').update(updateData).eq('id', progressId)
-
-    // Increment challenge completions
-    await supabase.rpc('increment_completions', { challenge_id: challengeId })
-
-    apiLogger.info('Challenge completed', {
-      userId,
-      challengeId,
-      dayNumber,
-      countCompleted,
-      targetCount,
-      isCompleted,
-      completedAt: new Date().toISOString(),
-    })
-
-    return { success: true, isCompleted, isChallengeCompleted, newStreak }
   },
 
   delete: async (challengeId: string) => {

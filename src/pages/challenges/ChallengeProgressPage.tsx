@@ -77,11 +77,11 @@ export default function ChallengeProgressPage() {
       log.completion_date === today && log.day_number === progress?.current_day
   );
   const isAlreadyCompleted = todayLog?.is_completed;
-
+  console.log("Today Log progress:", progress);
   // Generate unique localStorage key for this challenge and day
   const storageKey = useMemo(
-    () => `challenge_${progress.id}_day_${progress.current_day}_count`,
-    [progress.id, progress.current_day]
+    () => `challenge_${progress?.id}_day_${progress?.current_day}_count`,
+    [progress?.id, progress?.current_day]
   );
 
   // Use custom localStorage hook with hydration fix

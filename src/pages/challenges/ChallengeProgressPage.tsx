@@ -90,6 +90,8 @@ export default function ChallengeProgressPage() {
     isAlreadyCompleted ? todayLog?.count_completed || 0 : 0
   );
 
+  console.log("storageKey", storageKey, "count", count);
+
   const { debouncedCallback: saveToLocalStorage, cancel: cancelSave } =
     useDebounce(
       (value: number) => {
@@ -108,7 +110,7 @@ export default function ChallengeProgressPage() {
 
   const vibrate = useCallback(() => {
     if ("vibrate" in navigator) {
-      navigator.vibrate(50);
+      navigator.vibrate(200);
     }
   }, []);
 

@@ -1,12 +1,17 @@
-import { useEffect, useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
-import { Label } from '@/components/ui/Label';
-import { Alert, AlertDescription } from '@/components/ui/Alert';
-import { Fingerprint, Monitor, Plus, Trash2 } from 'lucide-react';
-import { settingsApi } from '@/api/settings.api';
-import { toast } from 'sonner';
+import { settingsApi } from "@/api/settings.api";
+import { Button } from "@/components/ui/Button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/Card";
+import { Input } from "@/components/ui/Input";
+import { Label } from "@/components/ui/Label";
+import { Fingerprint, Monitor, Plus, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 interface Credential {
   id: string;
@@ -17,35 +22,44 @@ interface Credential {
 }
 
 export function BiometricManager() {
-  const [isSupported, setIsSupported] = useState(false);
+  const [isSupported] = useState(() => "credentials" in navigator && "PublicKeyCredential" in window);
   const [credentials, setCredentials] = useState<Credential[]>([]);
   const [isAdding, setIsAdding] = useState(false);
-  const [deviceName, setDeviceName] = useState('');
+  const [deviceName, setDeviceName] = useState("");
   const [loading] = useState(false);
-
-  useEffect(() => {
-    setIsSupported('credentials' in navigator && 'PublicKeyCredential' in window);
-    fetchCredentials();
-  }, []);
 
   const fetchCredentials = async () => {
     try {
       const data = await settingsApi.getCredentials();
       setCredentials(data);
     } catch (error) {
-      console.error('Failed to fetch credentials:', error);
+      console.error("Failed to fetch credentials:", error);
     }
   };
 
+  useEffect(() => {
+    let mounted = true;
+    const loadCredentials = async () => {
+      try {
+        const data = await settingsApi.getCredentials();
+        if (mounted) setCredentials(data);
+      } catch (error) {
+        console.error("Failed to fetch credentials:", error);
+      }
+    };
+    loadCredentials();
+    return () => { mounted = false; };
+  }, []);
+
   const handleDeleteCredential = async (credentialId: string) => {
-    if (!confirm('Are you sure you want to remove this device?')) return;
+    if (!confirm("Are you sure you want to remove this device?")) return;
 
     try {
       await settingsApi.deleteCredential(credentialId);
-      toast.success('Device removed successfully');
+      toast.success("Device removed successfully");
       fetchCredentials();
     } catch (error: any) {
-      toast.error(error.message || 'Failed to remove device');
+      toast.error(error.message || "Failed to remove device");
     }
   };
 
@@ -85,13 +99,18 @@ export function BiometricManager() {
                 id="deviceName"
                 placeholder="e.g., iPhone, MacBook, Windows PC"
                 value={deviceName}
-                onChange={e => setDeviceName(e.target.value)}
+                onChange={(e) => setDeviceName(e.target.value)}
               />
             </div>
             <div className="flex gap-2">
-              <Button onClick={() => toast.info('WebAuthn registration not implemented')} disabled={loading}>
+              <Button
+                onClick={() =>
+                  toast.info("WebAuthn registration not implemented")
+                }
+                disabled={loading}
+              >
                 <Fingerprint className="mr-2 h-4 w-4" />
-                {loading ? 'Adding...' : 'Add Device'}
+                {loading ? "Adding..." : "Add Device"}
               </Button>
               <Button variant="outline" onClick={() => setIsAdding(false)}>
                 Cancel
@@ -108,7 +127,7 @@ export function BiometricManager() {
         {credentials.length > 0 && (
           <div className="space-y-2">
             <h4 className="font-medium">Registered Devices</h4>
-            {credentials.map(credential => (
+            {credentials.map((credential) => (
               <div
                 key={credential.id}
                 className="flex items-center justify-between p-3 border rounded-lg"
@@ -118,10 +137,13 @@ export function BiometricManager() {
                   <div>
                     <div className="font-medium">{credential.device_name}</div>
                     <div className="text-sm text-muted-foreground">
-                      Added {new Date(credential.created_at).toLocaleDateString()}
+                      Added{" "}
+                      {new Date(credential.created_at).toLocaleDateString()}
                       {credential.last_used_at && (
                         <span>
-                          {' '}• Last used {new Date(credential.last_used_at).toLocaleString()}
+                          {" "}
+                          • Last used{" "}
+                          {new Date(credential.last_used_at).toLocaleString()}
                         </span>
                       )}
                     </div>
@@ -130,7 +152,9 @@ export function BiometricManager() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => handleDeleteCredential(credential.credential_id)}
+                  onClick={() =>
+                    handleDeleteCredential(credential.credential_id)
+                  }
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>

@@ -1,3 +1,4 @@
+import { supabaseAdmin } from "@/lib/supabase/admin";
 import { supabase } from "@/lib/supabase/client";
 import type { Challenge, UserChallengeProgress } from "@/lib/types";
 const { apiLogger } = await import("@/lib/logger");
@@ -173,13 +174,24 @@ export const challengesApi = {
 
       if (error) throw error;
 
-      await supabase
+      // Clear existing daily logs
+      await supabaseAdmin
         .from("user_challenge_daily_logs")
         .delete()
         .eq("user_progress_id", progressId);
-      await supabase.rpc("increment_completions", {
-        challenge_id: challengeId,
-      });
+      // Increment completions
+      const { data: challenge } = await supabase
+        .from("challenge_templates")
+        .select("total_completions")
+        .eq("id", challengeId)
+        .single();
+      
+      if (challenge) {
+        await supabase
+          .from("challenge_templates")
+          .update({ total_completions: (challenge.total_completions || 0) + 1 })
+          .eq("id", challengeId);
+      }
       apiLogger.info("Challenge restarted", { progressId, challengeId });
 
       return { success: true };

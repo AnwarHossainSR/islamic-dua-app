@@ -632,72 +632,72 @@ export default function ChallengeProgressPage() {
             </CardContent>
           </Card>
         )}
-      </div>
 
-      {showSuccessModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <Card className="w-full max-w-md animate-in fade-in zoom-in duration-300">
-            <CardContent className="space-y-4 pt-6 text-center sm:space-y-6">
-              <div className="flex justify-center">
-                <div className="rounded-full p-4 sm:p-6 bg-emerald-500/10">
-                  <CheckCircle2 className="h-12 w-12 sm:h-16 sm:w-16 text-emerald-500" />
-                </div>
-              </div>
-
-              <div>
-                <h2 className="mb-2 text-2xl font-bold sm:text-3xl">
-                  Well Done!
-                </h2>
-                <p className="text-base text-muted-foreground sm:text-lg">
-                  Day {progress.current_day} completed successfully
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center justify-between rounded-lg bg-muted p-3">
-                  <span className="text-sm">Count</span>
-                  <span className="font-bold">{target}</span>
-                </div>
-                {progress.current_streak >= 0 && (
-                  <div className="flex items-center justify-between rounded-lg bg-muted p-3">
-                    <span className="text-sm">Streak</span>
-                    <span className="flex items-center gap-1 font-bold">
-                      <Flame className="h-4 w-4 text-orange-500" />
-                      {progress.current_streak + 1} days
-                    </span>
+        {showSuccessModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+            <Card className="w-full max-w-md animate-in fade-in zoom-in duration-300">
+              <CardContent className="space-y-4 pt-6 text-center sm:space-y-6">
+                <div className="flex justify-center">
+                  <div className="rounded-full p-4 sm:p-6 bg-emerald-500/10">
+                    <CheckCircle2 className="h-12 w-12 sm:h-16 sm:w-16 text-emerald-500" />
                   </div>
-                )}
-              </div>
+                </div>
 
-              <p className="text-sm font-medium text-muted-foreground">
-                See you tomorrow for Day {progress.current_day + 1}!
-              </p>
+                <div>
+                  <h2 className="mb-2 text-2xl font-bold sm:text-3xl">
+                    Well Done!
+                  </h2>
+                  <p className="text-base text-muted-foreground sm:text-lg">
+                    Day {progress.current_day} completed successfully
+                  </p>
+                </div>
 
-              <div className="pt-4">
-                <Link to="/challenges">
-                  <Button className="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-600">
-                    Go to Challenges
-                  </Button>
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between rounded-lg bg-muted p-3">
+                    <span className="text-sm">Count</span>
+                    <span className="font-bold">{target}</span>
+                  </div>
+                  {progress.current_streak >= 0 && (
+                    <div className="flex items-center justify-between rounded-lg bg-muted p-3">
+                      <span className="text-sm">Streak</span>
+                      <span className="flex items-center gap-1 font-bold">
+                        <Flame className="h-4 w-4 text-orange-500" />
+                        {progress.current_streak + 1} days
+                      </span>
+                    </div>
+                  )}
+                </div>
 
-      {typeof window !== "undefined" &&
-        fullscreenContent &&
-        createPortal(fullscreenContent, document.body)}
+                <p className="text-sm font-medium text-muted-foreground">
+                  See you tomorrow for Day {progress.current_day + 1}!
+                </p>
 
-      {progress.daily_logs && progress.daily_logs.length > 0 && (
-        <ChallengeCalendar
-          challenge={challenge}
-          progress={progress}
-          dailyLogs={progress.daily_logs || []}
-        />
-      )}
+                <div className="pt-4">
+                  <Link to="/challenges">
+                    <Button className="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-600">
+                      Go to Challenges
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
-      <ConfirmDialog />
+        {typeof window !== "undefined" &&
+          fullscreenContent &&
+          createPortal(fullscreenContent, document.body)}
+
+        {progress.daily_logs && progress.daily_logs.length > 0 && (
+          <ChallengeCalendar
+            challenge={challenge}
+            progress={progress}
+            dailyLogs={progress.daily_logs || []}
+          />
+        )}
+
+        <ConfirmDialog />
+      </div>
     </>
   );
 }

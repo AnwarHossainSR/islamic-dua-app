@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { challengesApi } from '@/api'
 import { StartChallengeButton } from '@/features/challenges/StartChallengeButton'
 import { ROUTES } from '@/config/routes'
+import { Loader } from '@/components/ui'
 
 export default function ChallengeDetailPage() {
   const { id } = useParams()
@@ -17,7 +18,7 @@ export default function ChallengeDetailPage() {
     }
   }, [id])
 
-  if (!challenge) return <div className="max-w-4xl mx-auto px-4 py-8">Loading...</div>
+  if (!challenge) return <div className="max-w-4xl mx-auto px-4 py-8 flex justify-center"><Loader size="lg" /></div>
 
   const progress = challenge.user_challenge_progress?.[0]
 

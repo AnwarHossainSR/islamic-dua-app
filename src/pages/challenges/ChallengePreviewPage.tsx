@@ -2,6 +2,7 @@ import { challengesApi } from "@/api/challenges.api";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import { Loader } from "@/components/ui";
 import { useAuth } from "@/hooks/useAuth";
 import type { Challenge } from "@/types";
 import {
@@ -78,7 +79,7 @@ export default function ChallengePreviewPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        Loading...
+        <Loader size="lg" />
       </div>
     );
   }

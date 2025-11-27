@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { adminApi } from '@/api/admin.api'
+import { Loader } from '@/components/ui'
 
 export default function LogsPage() {
   const [logs, setLogs] = useState<any[]>([])
@@ -12,7 +13,7 @@ export default function LogsPage() {
     })
   }, [])
 
-  if (loading) return <div className="max-w-7xl mx-auto px-4 py-8">Loading...</div>
+  if (loading) return <div className="max-w-7xl mx-auto px-4 py-8 flex justify-center"><Loader size="lg" /></div>
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">

@@ -185,14 +185,18 @@ export const challengesApi = {
         .select("total_completions")
         .eq("id", challengeId)
         .single();
-      
+
       if (challenge) {
         await supabase
           .from("challenge_templates")
           .update({ total_completions: (challenge.total_completions || 0) + 1 })
           .eq("id", challengeId);
       }
-      apiLogger.info("Challenge restarted", { progressId, challengeId });
+      apiLogger.info("Challenge restarted", {
+        progressId,
+        challengeId,
+        challenge,
+      });
 
       return { success: true };
     } catch (error: any) {

@@ -1,13 +1,21 @@
-import { useEffect, useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Badge } from '@/components/ui/Badge';
-import { Button } from '@/components/ui/Button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
-import { ArrowLeft, BookOpen, Calendar, Clock, Star, Target, Trophy, Users } from 'lucide-react';
-import { challengesApi } from '@/api/challenges.api';
-import { authApi } from '@/api/auth.api';
-import { useAuth } from '@/hooks/useAuth';
-import type { Challenge } from '@/types';
+import { challengesApi } from "@/api/challenges.api";
+import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import { useAuth } from "@/hooks/useAuth";
+import type { Challenge } from "@/types";
+import {
+  ArrowLeft,
+  BookOpen,
+  Calendar,
+  Clock,
+  Star,
+  Target,
+  Trophy,
+  Users,
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 export default function ChallengePreviewPage() {
   const { id } = useParams<{ id: string }>();
@@ -25,18 +33,21 @@ export default function ChallengePreviewPage() {
     const loadChallenge = async () => {
       try {
         const data = await challengesApi.getById(id);
-        setChallenge(data);
+        setChallenge(data as any);
 
         // Check if user has active challenge
         if (user) {
-          const { data: existing } = await challengesApi.checkActiveProgress(user.id, id);
+          const { data: existing } = await challengesApi.checkActiveProgress(
+            user.id,
+            id
+          );
           if (existing) {
             setHasActiveChallenge(true);
             setActiveProgressId(existing.id);
           }
         }
       } catch (error) {
-        console.error('Error loading challenge:', error);
+        console.error("Error loading challenge:", error);
       } finally {
         setLoading(false);
       }
@@ -58,25 +69,35 @@ export default function ChallengePreviewPage() {
         navigate(`/challenges/progress/${result.data.id}`);
       }
     } catch (error) {
-      console.error('Error starting challenge:', error);
+      console.error("Error starting challenge:", error);
     } finally {
       setStarting(false);
     }
   };
 
   if (loading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        Loading...
+      </div>
+    );
   }
 
   if (!challenge) {
-    return <div className="flex items-center justify-center min-h-screen">Challenge not found</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        Challenge not found
+      </div>
+    );
   }
 
-  const timeLabel = challenge.recommended_time
-    ?.replace(/_/g, ' ')
-    .replace(/\b\w/g, (l: string) => l.toUpperCase());
+  const timeLabel =
+    challenge.recommended_time
+      ?.replace(/_/g, " ")
+      .replace(/\b\w/g, (l: string) => l.toUpperCase()) || "";
   const prayerLabel =
-    challenge.recommended_prayer?.charAt(0).toUpperCase() + challenge.recommended_prayer?.slice(1);
+    (challenge.recommended_prayer?.charAt(0).toUpperCase() || "") +
+    (challenge.recommended_prayer?.slice(1) || "");
 
   return (
     <>
@@ -88,11 +109,13 @@ export default function ChallengePreviewPage() {
           </Button>
           <div className="flex-1">
             <div className="flex items-center gap-2">
-              <span className="text-4xl">{challenge.icon || '📿'}</span>
+              <span className="text-4xl">{challenge.icon || "📿"}</span>
               <div>
                 <h1 className="text-3xl font-bold">{challenge.title_bn}</h1>
                 {challenge.title_ar && (
-                  <p className="arabic-text text-lg text-muted-foreground">{challenge.title_ar}</p>
+                  <p className="arabic-text text-lg text-muted-foreground">
+                    {challenge.title_ar}
+                  </p>
                 )}
               </div>
             </div>
@@ -100,11 +123,11 @@ export default function ChallengePreviewPage() {
           <div className="flex items-center gap-2">
             <Badge
               variant={
-                challenge.difficulty_level === 'easy'
-                  ? 'secondary'
-                  : challenge.difficulty_level === 'hard'
-                  ? 'destructive'
-                  : 'default'
+                challenge.difficulty_level === "easy"
+                  ? "secondary"
+                  : challenge.difficulty_level === "hard"
+                  ? "destructive"
+                  : "default"
               }
               className="text-base"
             >
@@ -119,7 +142,9 @@ export default function ChallengePreviewPage() {
             <CardContent className="pt-6">
               <div className="flex flex-col items-center text-center">
                 <Target className="mb-2 h-6 w-6 text-emerald-500" />
-                <p className="text-2xl font-bold">{challenge.daily_target_count}x</p>
+                <p className="text-2xl font-bold">
+                  {challenge.daily_target_count}x
+                </p>
                 <p className="text-xs text-muted-foreground">Per Day</p>
               </div>
             </CardContent>
@@ -139,7 +164,9 @@ export default function ChallengePreviewPage() {
             <CardContent className="pt-6">
               <div className="flex flex-col items-center text-center">
                 <Users className="mb-2 h-6 w-6 text-purple-500" />
-                <p className="text-2xl font-bold">{challenge.total_participants || 0}</p>
+                <p className="text-2xl font-bold">
+                  {challenge.total_participants || 0}
+                </p>
                 <p className="text-xs text-muted-foreground">Participants</p>
               </div>
             </CardContent>
@@ -149,7 +176,9 @@ export default function ChallengePreviewPage() {
             <CardContent className="pt-6">
               <div className="flex flex-col items-center text-center">
                 <Trophy className="mb-2 h-6 w-6 text-amber-500" />
-                <p className="text-2xl font-bold">{challenge.total_completions || 0}</p>
+                <p className="text-2xl font-bold">
+                  {challenge.total_completions || 0}
+                </p>
                 <p className="text-xs text-muted-foreground">Completed</p>
               </div>
             </CardContent>
@@ -175,7 +204,9 @@ export default function ChallengePreviewPage() {
                 {challenge.recommended_prayer && (
                   <div className="flex items-center gap-2">
                     <span className="text-muted-foreground">🕌</span>
-                    <span className="text-sm font-medium">After {prayerLabel} Prayer</span>
+                    <span className="text-sm font-medium">
+                      After {prayerLabel} Prayer
+                    </span>
                   </div>
                 )}
               </div>
@@ -197,14 +228,22 @@ export default function ChallengePreviewPage() {
 
             {challenge.transliteration_bn && (
               <div>
-                <h3 className="mb-2 font-semibold text-muted-foreground">Transliteration</h3>
-                <p className="text-lg leading-relaxed">{challenge.transliteration_bn}</p>
+                <h3 className="mb-2 font-semibold text-muted-foreground">
+                  Transliteration
+                </h3>
+                <p className="text-lg leading-relaxed">
+                  {challenge.transliteration_bn}
+                </p>
               </div>
             )}
 
             <div>
-              <h3 className="mb-2 font-semibold text-muted-foreground">Translation</h3>
-              <p className="text-lg leading-relaxed">{challenge.translation_bn}</p>
+              <h3 className="mb-2 font-semibold text-muted-foreground">
+                Translation
+              </h3>
+              <p className="text-lg leading-relaxed">
+                {challenge.translation_bn}
+              </p>
             </div>
 
             {challenge.reference && (
@@ -212,7 +251,9 @@ export default function ChallengePreviewPage() {
                 <BookOpen className="mt-1 h-4 w-4 text-muted-foreground" />
                 <div>
                   <p className="text-sm font-medium">Reference</p>
-                  <p className="text-sm text-muted-foreground">{challenge.reference}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {challenge.reference}
+                  </p>
                 </div>
               </div>
             )}
@@ -246,8 +287,9 @@ export default function ChallengePreviewPage() {
                   1
                 </span>
                 <span>
-                  Start the challenge and commit to reading this dhikr{' '}
-                  <strong>{challenge.daily_target_count} times</strong> every day
+                  Start the challenge and commit to reading this dhikr{" "}
+                  <strong>{challenge.daily_target_count} times</strong> every
+                  day
                 </span>
               </li>
               <li className="flex gap-3">
@@ -255,7 +297,7 @@ export default function ChallengePreviewPage() {
                   2
                 </span>
                 <span>
-                  Complete your daily goal for{' '}
+                  Complete your daily goal for{" "}
                   <strong>{challenge.total_days} consecutive days</strong>
                 </span>
               </li>
@@ -263,7 +305,9 @@ export default function ChallengePreviewPage() {
                 <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-sm font-bold text-white">
                   3
                 </span>
-                <span>Track your progress, build streaks, and earn achievements</span>
+                <span>
+                  Track your progress, build streaks, and earn achievements
+                </span>
               </li>
               <li className="flex gap-3">
                 <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-sm font-bold text-white">
@@ -277,17 +321,20 @@ export default function ChallengePreviewPage() {
       </div>
 
       {/* Fixed Bottom Action Bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="fixed bottom-0 left-0 right-0 z-50 border-t bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
         <div className="container mx-auto max-w-4xl p-4">
           {user ? (
             <Card className="border-2">
               <CardContent className="flex items-center justify-between gap-4 p-4">
                 <div>
                   <p className="font-semibold">
-                    {hasActiveChallenge ? 'Continue Your Challenge' : 'Ready to begin?'}
+                    {hasActiveChallenge
+                      ? "Continue Your Challenge"
+                      : "Ready to begin?"}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {challenge.total_days} days • {challenge.daily_target_count}x per day
+                    {challenge.total_days} days • {challenge.daily_target_count}
+                    x per day
                   </p>
                 </div>
                 {hasActiveChallenge ? (
@@ -297,8 +344,12 @@ export default function ChallengePreviewPage() {
                     </Link>
                   </Button>
                 ) : (
-                  <Button size="lg" onClick={handleStartChallenge} disabled={starting}>
-                    {starting ? 'Starting...' : 'Start Challenge'}
+                  <Button
+                    size="lg"
+                    onClick={handleStartChallenge}
+                    disabled={starting}
+                  >
+                    {starting ? "Starting..." : "Start Challenge"}
                   </Button>
                 )}
               </CardContent>
@@ -313,7 +364,9 @@ export default function ChallengePreviewPage() {
                   </p>
                 </div>
                 <Button size="lg" asChild>
-                  <Link to={`/login?redirect=/challenges/${id}/preview`}>Login</Link>
+                  <Link to={`/login?redirect=/challenges/${id}/preview`}>
+                    Login
+                  </Link>
                 </Button>
               </CardContent>
             </Card>

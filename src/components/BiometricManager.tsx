@@ -21,7 +21,7 @@ export function BiometricManager() {
   const [credentials, setCredentials] = useState<Credential[]>([]);
   const [isAdding, setIsAdding] = useState(false);
   const [deviceName, setDeviceName] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
 
   useEffect(() => {
     setIsSupported('credentials' in navigator && 'PublicKeyCredential' in window);

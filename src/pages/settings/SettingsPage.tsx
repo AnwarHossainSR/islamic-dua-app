@@ -1,16 +1,40 @@
-import { useEffect, useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
-import { Badge } from '@/components/ui/Badge';
-import { Button } from '@/components/ui/Button';
-import { Progress } from '@/components/ui/Progress';
-import { Database, HardDrive, Activity, FileText, Server, Archive, RefreshCw, Calendar, FileDown, Trash2, Settings, Globe, Shield, Palette, Bell, Download, Upload } from 'lucide-react';
-import { settingsApi } from '@/api/settings.api';
-import { DynamicSettings } from '@/components/DynamicSettings';
-import { BiometricManager } from '@/components/BiometricManager';
-import { NotificationSettings } from '@/components/NotificationSettings';
-import { supabase } from '@/lib/supabase/client';
-import { toast } from 'sonner';
+import { settingsApi } from "@/api/settings.api";
+import { BiometricManager } from "@/components/BiometricManager";
+import { DynamicSettings } from "@/components/DynamicSettings";
+import { NotificationSettings } from "@/components/NotificationSettings";
+import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/Card";
+import { Progress } from "@/components/ui/Progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/Tabs";
+import { apiLogger } from "@/lib/logger";
+import { supabase } from "@/lib/supabase/client";
+import {
+  Activity,
+  Archive,
+  Calendar,
+  Database,
+  Download,
+  FileDown,
+  FileText,
+  Globe,
+  HardDrive,
+  Palette,
+  RefreshCw,
+  Server,
+  Settings,
+  Shield,
+  Trash2,
+  Upload,
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export default function SettingsPage() {
   const [dbStats, setDbStats] = useState<any>(null);
@@ -28,7 +52,7 @@ export default function SettingsPage() {
       const data = await settingsApi.getDbStats();
       setDbStats(data);
     } catch (error) {
-      console.error('Failed to fetch database stats:', error);
+      console.error("Failed to fetch database stats:", error);
     }
   }
 
@@ -37,7 +61,7 @@ export default function SettingsPage() {
       const data = await settingsApi.getBackups();
       setBackups(data);
     } catch (error) {
-      console.error('Failed to fetch backups:', error);
+      console.error("Failed to fetch backups:", error);
     }
   }
 
@@ -45,28 +69,28 @@ export default function SettingsPage() {
     try {
       const blob = await settingsApi.downloadBackup(filename);
       const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
       link.download = filename;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
-      toast.success('Backup downloaded successfully');
+      toast.success("Backup downloaded successfully");
     } catch (error: any) {
-      toast.error(error.message || 'Failed to download backup');
+      toast.error(error.message || "Failed to download backup");
     }
   }
 
   async function handleDeleteBackup(filename: string) {
-    if (!confirm('Are you sure you want to delete this backup?')) return;
-    
+    if (!confirm("Are you sure you want to delete this backup?")) return;
+
     try {
       await settingsApi.deleteBackup(filename);
-      toast.success('Backup deleted successfully');
+      toast.success("Backup deleted successfully");
       fetchBackups();
     } catch (error: any) {
-      toast.error(error.message || 'Failed to delete backup');
+      toast.error(error.message || "Failed to delete backup");
     }
   }
 
@@ -74,23 +98,25 @@ export default function SettingsPage() {
     setBackupLoading(true);
     try {
       const result = await settingsApi.createBackup(storeInSupabase);
-      
+
       if (storeInSupabase) {
-        toast.success('Backup stored in Supabase successfully');
+        toast.success("Backup stored in Supabase successfully");
         fetchBackups();
       } else {
         const url = URL.createObjectURL(result as Blob);
-        const link = document.createElement('a');
+        const link = document.createElement("a");
         link.href = url;
-        link.download = `islamic-dua-app-backup-${new Date().toISOString().split('T')[0]}.sql`;
+        link.download = `islamic-dua-app-backup-${
+          new Date().toISOString().split("T")[0]
+        }.sql`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
-        toast.success('Database backup downloaded successfully');
+        toast.success("Database backup downloaded successfully");
       }
     } catch (error: any) {
-      toast.error(error.message || 'Failed to backup database');
+      toast.error(error.message || "Failed to backup database");
     } finally {
       setBackupLoading(false);
     }
@@ -100,10 +126,10 @@ export default function SettingsPage() {
     setLoading(true);
     try {
       await settingsApi.optimizeDatabase();
-      toast.success('Database optimized successfully');
+      toast.success("Database optimized successfully");
       fetchDbStats();
     } catch (error: any) {
-      toast.error(error.message || 'Failed to optimize database');
+      toast.error(error.message || "Failed to optimize database");
     } finally {
       setLoading(false);
     }
@@ -113,18 +139,50 @@ export default function SettingsPage() {
     <div className="space-y-8">
       <div>
         <h1 className="mb-2 text-4xl font-bold">Settings</h1>
-        <p className="text-muted-foreground">Configure your app settings and manage your database</p>
+        <p className="text-muted-foreground">
+          Configure your app settings and manage your database
+        </p>
       </div>
 
       <Tabs defaultValue="general" className="space-y-6">
         <div className="overflow-x-auto">
           <TabsList className="inline-flex w-auto min-w-full">
-            <TabsTrigger className="cursor-pointer text-xs md:text-sm px-2 md:px-4" value="general">General</TabsTrigger>
-            <TabsTrigger className="cursor-pointer text-xs md:text-sm px-2 md:px-4" value="localization">Language</TabsTrigger>
-            <TabsTrigger className="cursor-pointer text-xs md:text-sm px-2 md:px-4" value="security">Security</TabsTrigger>
-            <TabsTrigger className="cursor-pointer text-xs md:text-sm px-2 md:px-4" value="appearance">Appearance</TabsTrigger>
-            <TabsTrigger className="cursor-pointer text-xs md:text-sm px-2 md:px-4" value="notifications">Notifications</TabsTrigger>
-            <TabsTrigger className="cursor-pointer text-xs md:text-sm px-2 md:px-4" value="database">Database</TabsTrigger>
+            <TabsTrigger
+              className="cursor-pointer text-xs md:text-sm px-2 md:px-4"
+              value="general"
+            >
+              General
+            </TabsTrigger>
+            <TabsTrigger
+              className="cursor-pointer text-xs md:text-sm px-2 md:px-4"
+              value="localization"
+            >
+              Language
+            </TabsTrigger>
+            <TabsTrigger
+              className="cursor-pointer text-xs md:text-sm px-2 md:px-4"
+              value="security"
+            >
+              Security
+            </TabsTrigger>
+            <TabsTrigger
+              className="cursor-pointer text-xs md:text-sm px-2 md:px-4"
+              value="appearance"
+            >
+              Appearance
+            </TabsTrigger>
+            <TabsTrigger
+              className="cursor-pointer text-xs md:text-sm px-2 md:px-4"
+              value="notifications"
+            >
+              Notifications
+            </TabsTrigger>
+            <TabsTrigger
+              className="cursor-pointer text-xs md:text-sm px-2 md:px-4"
+              value="database"
+            >
+              Database
+            </TabsTrigger>
           </TabsList>
         </div>
 
@@ -179,7 +237,9 @@ export default function SettingsPage() {
                   <Database className="h-5 w-5 text-primary" />
                   <CardTitle>Database Overview</CardTitle>
                 </div>
-                <CardDescription>Monitor your database health and statistics</CardDescription>
+                <CardDescription>
+                  Monitor your database health and statistics
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 {dbStats ? (
@@ -187,34 +247,48 @@ export default function SettingsPage() {
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
                         <HardDrive className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm font-medium">Total Records</span>
+                        <span className="text-sm font-medium">
+                          Total Records
+                        </span>
                       </div>
-                      <div className="text-2xl font-bold">{dbStats.totalRecords || 0}</div>
+                      <div className="text-2xl font-bold">
+                        {dbStats.totalRecords || 0}
+                      </div>
                     </div>
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
                         <Activity className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm font-medium">Active Users</span>
+                        <span className="text-sm font-medium">
+                          Active Users
+                        </span>
                       </div>
-                      <div className="text-2xl font-bold">{dbStats.activeUsers || 0}</div>
+                      <div className="text-2xl font-bold">
+                        {dbStats.activeUsers || 0}
+                      </div>
                     </div>
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
                         <FileText className="h-4 w-4 text-muted-foreground" />
                         <span className="text-sm font-medium">Duas Count</span>
                       </div>
-                      <div className="text-2xl font-bold">{dbStats.duasCount || 0}</div>
+                      <div className="text-2xl font-bold">
+                        {dbStats.duasCount || 0}
+                      </div>
                     </div>
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
                         <Server className="h-4 w-4 text-muted-foreground" />
                         <span className="text-sm font-medium">DB Size</span>
                       </div>
-                      <div className="text-2xl font-bold">{dbStats.dbSize || 'N/A'}</div>
+                      <div className="text-2xl font-bold">
+                        {dbStats.dbSize || "N/A"}
+                      </div>
                     </div>
                   </div>
                 ) : (
-                  <div className="text-center py-4">Loading database statistics...</div>
+                  <div className="text-center py-4">
+                    Loading database statistics...
+                  </div>
                 )}
               </CardContent>
             </Card>
@@ -225,38 +299,40 @@ export default function SettingsPage() {
                   <Archive className="h-5 w-5 text-primary" />
                   <CardTitle>Database Management</CardTitle>
                 </div>
-                <CardDescription>Backup, restore, and optimize your database</CardDescription>
+                <CardDescription>
+                  Backup, restore, and optimize your database
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid gap-4 md:grid-cols-3">
-                  <Button 
-                    onClick={() => handleBackupDatabase(false)} 
+                  <Button
+                    onClick={() => handleBackupDatabase(false)}
                     disabled={backupLoading}
                     className="w-full"
                   >
                     <Download className="mr-2 h-4 w-4" />
-                    {backupLoading ? 'Creating...' : 'Download Backup'}
+                    {backupLoading ? "Creating..." : "Download Backup"}
                   </Button>
-                  <Button 
+                  <Button
                     variant="outline"
-                    onClick={() => handleBackupDatabase(true)} 
+                    onClick={() => handleBackupDatabase(true)}
                     disabled={backupLoading}
                     className="w-full"
                   >
                     <Archive className="mr-2 h-4 w-4" />
-                    {backupLoading ? 'Storing...' : 'Store in Cloud'}
+                    {backupLoading ? "Storing..." : "Store in Cloud"}
                   </Button>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     onClick={handleOptimizeDatabase}
                     disabled={loading}
                     className="w-full"
                   >
                     <RefreshCw className="mr-2 h-4 w-4" />
-                    {loading ? 'Optimizing...' : 'Optimize Database'}
+                    {loading ? "Optimizing..." : "Optimize Database"}
                   </Button>
                 </div>
-                
+
                 <div className="rounded-lg bg-muted/50 p-4">
                   <h4 className="font-medium mb-2">Database Health</h4>
                   <div className="space-y-2">
@@ -266,7 +342,8 @@ export default function SettingsPage() {
                     </div>
                     <Progress value={85} className="h-2" />
                     <p className="text-xs text-muted-foreground">
-                      Database is running optimally. Last optimization: 2 days ago
+                      Database is running optimally. Last optimization: 2 days
+                      ago
                     </p>
                   </div>
                 </div>
@@ -279,17 +356,23 @@ export default function SettingsPage() {
                   <Calendar className="h-5 w-5 text-primary" />
                   <CardTitle>Backup History</CardTitle>
                 </div>
-                <CardDescription>Manage your stored database backups</CardDescription>
+                <CardDescription>
+                  Manage your stored database backups
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 {backups.length > 0 ? (
                   <div className="space-y-2">
                     {backups.map((backup) => (
-                      <div key={backup.name} className="flex items-center justify-between p-3 border rounded-lg">
+                      <div
+                        key={backup.name}
+                        className="flex items-center justify-between p-3 border rounded-lg"
+                      >
                         <div className="flex-1">
                           <div className="font-medium">{backup.name}</div>
                           <div className="text-sm text-muted-foreground">
-                            {new Date(backup.created_at).toLocaleString()} • {Math.round(backup.size / 1024)} KB
+                            {new Date(backup.created_at).toLocaleString()} •{" "}
+                            {Math.round(backup.size / 1024)} KB
                           </div>
                         </div>
                         <div className="flex gap-2">
@@ -325,68 +408,100 @@ export default function SettingsPage() {
                   <Upload className="h-5 w-5 text-primary" />
                   <CardTitle>Data Export</CardTitle>
                 </div>
-                <CardDescription>Export your data for backup or migration</CardDescription>
+                <CardDescription>
+                  Export your data for backup or migration
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  <Button variant="outline" onClick={async () => {
-                    try {
-                      const { data } = await supabase.from('challenge_templates').select('*');
-                      const jsonString = JSON.stringify(data, null, 2);
-                      const blob = new Blob([jsonString], { type: 'application/json' });
-                      const url = URL.createObjectURL(blob);
-                      const link = document.createElement('a');
-                      link.href = url;
-                      link.download = `challenges-${new Date().toISOString().split('T')[0]}.json`;
-                      document.body.appendChild(link);
-                      link.click();
-                      document.body.removeChild(link);
-                      URL.revokeObjectURL(url);
-                      toast.success('Challenges exported successfully');
-                    } catch (error) {
-                      toast.error('Failed to export challenges');
-                    }
-                  }}>
+                  <Button
+                    variant="outline"
+                    onClick={async () => {
+                      try {
+                        const { data } = await supabase
+                          .from("challenge_templates")
+                          .select("*");
+                        const jsonString = JSON.stringify(data, null, 2);
+                        const blob = new Blob([jsonString], {
+                          type: "application/json",
+                        });
+                        const url = URL.createObjectURL(blob);
+                        const link = document.createElement("a");
+                        link.href = url;
+                        link.download = `challenges-${
+                          new Date().toISOString().split("T")[0]
+                        }.json`;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        URL.revokeObjectURL(url);
+                        toast.success("Challenges exported successfully");
+                      } catch (error: any) {
+                        toast.error("Failed to export challenges");
+                        apiLogger.error("Export Challenges Error:", error);
+                      }
+                    }}
+                  >
                     Export Challenges
                   </Button>
-                  <Button variant="outline" onClick={async () => {
-                    try {
-                      const { data } = await supabase.from('duas').select('*');
-                      const jsonString = JSON.stringify(data, null, 2);
-                      const blob = new Blob([jsonString], { type: 'application/json' });
-                      const url = URL.createObjectURL(blob);
-                      const link = document.createElement('a');
-                      link.href = url;
-                      link.download = `duas-${new Date().toISOString().split('T')[0]}.json`;
-                      document.body.appendChild(link);
-                      link.click();
-                      document.body.removeChild(link);
-                      URL.revokeObjectURL(url);
-                      toast.success('Duas exported successfully');
-                    } catch (error) {
-                      toast.error('Failed to export duas');
-                    }
-                  }}>
+                  <Button
+                    variant="outline"
+                    onClick={async () => {
+                      try {
+                        const { data } = await supabase
+                          .from("duas")
+                          .select("*");
+                        const jsonString = JSON.stringify(data, null, 2);
+                        const blob = new Blob([jsonString], {
+                          type: "application/json",
+                        });
+                        const url = URL.createObjectURL(blob);
+                        const link = document.createElement("a");
+                        link.href = url;
+                        link.download = `duas-${
+                          new Date().toISOString().split("T")[0]
+                        }.json`;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        URL.revokeObjectURL(url);
+                        toast.success("Duas exported successfully");
+                      } catch (error) {
+                        toast.error("Failed to export duas");
+                        apiLogger.error("Export Duas Error:", error);
+                      }
+                    }}
+                  >
                     Export Duas
                   </Button>
-                  <Button variant="outline" onClick={async () => {
-                    try {
-                      const { data } = await supabase.from('app_settings').select('*');
-                      const jsonString = JSON.stringify(data, null, 2);
-                      const blob = new Blob([jsonString], { type: 'application/json' });
-                      const url = URL.createObjectURL(blob);
-                      const link = document.createElement('a');
-                      link.href = url;
-                      link.download = `settings-${new Date().toISOString().split('T')[0]}.json`;
-                      document.body.appendChild(link);
-                      link.click();
-                      document.body.removeChild(link);
-                      URL.revokeObjectURL(url);
-                      toast.success('Settings exported successfully');
-                    } catch (error) {
-                      toast.error('Failed to export settings');
-                    }
-                  }}>
+                  <Button
+                    variant="outline"
+                    onClick={async () => {
+                      try {
+                        const { data } = await supabase
+                          .from("app_settings")
+                          .select("*");
+                        const jsonString = JSON.stringify(data, null, 2);
+                        const blob = new Blob([jsonString], {
+                          type: "application/json",
+                        });
+                        const url = URL.createObjectURL(blob);
+                        const link = document.createElement("a");
+                        link.href = url;
+                        link.download = `settings-${
+                          new Date().toISOString().split("T")[0]
+                        }.json`;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        URL.revokeObjectURL(url);
+                        toast.success("Settings exported successfully");
+                      } catch (error) {
+                        toast.error("Failed to export settings");
+                        apiLogger.error("Export Settings Error:", error);
+                      }
+                    }}
+                  >
                     Export Settings
                   </Button>
                 </div>

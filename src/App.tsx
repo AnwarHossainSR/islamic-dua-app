@@ -26,14 +26,7 @@ import { AppProviders } from "@/providers";
 import { Suspense } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Toaster } from "sonner";
-
-function Loading() {
-  return (
-    <div className="min-h-screen flex items-center justify-center">
-      Loading...
-    </div>
-  );
-}
+import { FullPageLoader } from "@/components/ui";
 
 export default function App() {
   return (
@@ -41,7 +34,7 @@ export default function App() {
       <Toaster richColors position="top-right" />
       <BrowserRouter>
         <Header />
-        <Suspense fallback={<Loading />}>
+        <Suspense fallback={<FullPageLoader />}>
           <Routes>
             <Route path={ROUTES.LOGIN} element={<LoginPage />} />
             <Route path={ROUTES.SIGNUP} element={<SignupPage />} />

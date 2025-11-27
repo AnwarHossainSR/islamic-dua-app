@@ -9,3 +9,4 @@ export { Select, SelectGroup, SelectValue, SelectTrigger, SelectContent, SelectI
 export { Tabs, TabsList, TabsTrigger, TabsContent } from './Tabs'
 export { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './Dialog'
 export { Skeleton } from './Skeleton'
+export { Loader, FullPageLoader } from './loader'

@@ -1,48 +1,63 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from "react";
 
 export function useLocalStorage<T>(key: string, initialValue: T) {
   const [storedValue, setStoredValue] = useState<T>(() => {
-    if (typeof window === 'undefined') {
-      return initialValue
+    if (typeof window === "undefined") {
+      return initialValue;
     }
     try {
-      const item = window.localStorage.getItem(key)
-      return item ? JSON.parse(item) : initialValue
+      const item = window.localStorage.getItem(key);
+      return item ? JSON.parse(item) : initialValue;
     } catch (error) {
-      console.warn(`Error reading localStorage key "${key}":`, error)
-      return initialValue
+      console.warn(`Error reading localStorage key "${key}":`, error);
+      return initialValue;
     }
-  })
+  });
 
-  const [isHydrated, setIsHydrated] = useState(false)
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  // Re-sync when key changes
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    try {
+      const item = window.localStorage.getItem(key);
+      const newValue = item ? JSON.parse(item) : initialValue;
+      setStoredValue(newValue);
+    } catch (error) {
+      console.warn(`Error reading localStorage key "${key}":`, error);
+      setStoredValue(initialValue);
+    }
+  }, [key, initialValue]);
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsHydrated(true), 0)
-    return () => clearTimeout(timer)
-  }, [])
+    const timer = setTimeout(() => setIsHydrated(true), 0);
+    return () => clearTimeout(timer);
+  }, []);
 
   const setValue = (value: T | ((val: T) => T)) => {
     try {
-      const valueToStore = value instanceof Function ? value(storedValue) : value
-      setStoredValue(valueToStore)
-      if (typeof window !== 'undefined') {
-        window.localStorage.setItem(key, JSON.stringify(valueToStore))
+      const valueToStore =
+        value instanceof Function ? value(storedValue) : value;
+      setStoredValue(valueToStore);
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem(key, JSON.stringify(valueToStore));
       }
     } catch (error) {
-      console.warn(`Error setting localStorage key "${key}":`, error)
+      console.warn(`Error setting localStorage key "${key}":`, error);
     }
-  }
+  };
 
   const removeValue = () => {
     try {
-      if (typeof window !== 'undefined') {
-        window.localStorage.removeItem(key)
+      if (typeof window !== "undefined") {
+        window.localStorage.removeItem(key);
       }
-      setStoredValue(initialValue)
+      setStoredValue(initialValue);
     } catch (error) {
-      console.warn(`Error removing localStorage key "${key}":`, error)
+      console.warn(`Error removing localStorage key "${key}":`, error);
     }
-  }
+  };
 
-  return [storedValue, setValue, removeValue, isHydrated] as const
+  return [storedValue, setValue, removeValue, isHydrated] as const;
 }

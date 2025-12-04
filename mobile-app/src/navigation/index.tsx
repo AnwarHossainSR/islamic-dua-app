@@ -11,6 +11,7 @@ import ActivitiesScreen from "@/screens/ActivitiesScreen";
 import ActivityDetailScreen from "@/screens/ActivityDetailScreen";
 import LoginScreen from "@/screens/auth/LoginScreen";
 import SignupScreen from "@/screens/auth/SignupScreen";
+import ChallengePreviewScreen from "@/screens/ChallengePreviewScreen";
 import ChallengeProgressScreen from "@/screens/ChallengeProgressScreen";
 import ChallengesScreen from "@/screens/ChallengesScreen";
 import DashboardScreen from "@/screens/DashboardScreen";
@@ -135,6 +136,11 @@ function MainStack() {
         name={ROUTES.CHALLENGE_PROGRESS}
         component={ChallengeProgressScreen}
         options={{ title: "Challenge Progress" }}
+      />
+      <Stack.Screen
+        name={ROUTES.CHALLENGE_PREVIEW}
+        component={ChallengePreviewScreen}
+        options={{ title: "Challenge Preview" }}
       />
       <Stack.Screen
         name={ROUTES.ACTIVITY_DETAIL}

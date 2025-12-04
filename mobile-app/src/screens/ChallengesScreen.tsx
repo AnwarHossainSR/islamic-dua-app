@@ -655,96 +655,102 @@ export default function ChallengesScreen() {
                   {/* Primary Action */}
                   <View style={styles.primaryActions}>
                     {challenge.user_status === "not_started" && (
-                      <Button
+                      <Pressable
                         onPress={() => handleStartChallenge(challenge.id)}
-                        style={[
-                          styles.primaryButton,
-                          { backgroundColor: "#22c55e" },
-                        ]}
                         disabled={actionLoading === challenge.id}
+                        style={({ pressed }) => [
+                          styles.primaryButton,
+                          {
+                            backgroundColor: "#22c55e",
+                            opacity: pressed ? 0.8 : 1,
+                          },
+                        ]}
                       >
                         <Play color="#fff" size={14} />
                         <Text style={styles.buttonText}>Start</Text>
-                      </Button>
+                      </Pressable>
                     )}
                     {challenge.user_status === "active" && (
-                      <Button
+                      <Pressable
                         onPress={() =>
                           navigation.navigate(ROUTES.CHALLENGE_PROGRESS, {
                             progressId: challenge.progress_id,
                           })
                         }
-                        style={[
+                        style={({ pressed }) => [
                           styles.primaryButton,
-                          { backgroundColor: colors.primary },
+                          {
+                            backgroundColor: "#22c55e",
+                            opacity: pressed ? 0.8 : 1,
+                          },
                         ]}
                       >
                         <Target color="#fff" size={14} />
                         <Text style={styles.buttonText}>Continue</Text>
-                      </Button>
+                      </Pressable>
                     )}
                     {challenge.user_status === "completed" && (
-                      <Button
+                      <Pressable
                         onPress={() => handleRestartChallenge(challenge)}
-                        style={[
-                          styles.primaryButton,
-                          { backgroundColor: "#f59e0b" },
-                        ]}
                         disabled={actionLoading === challenge.progress_id}
+                        style={({ pressed }) => [
+                          styles.primaryButton,
+                          {
+                            backgroundColor: "#f59e0b",
+                            opacity: pressed ? 0.8 : 1,
+                          },
+                        ]}
                       >
                         <RotateCcw color="#fff" size={14} />
                         <Text style={styles.buttonText}>Restart</Text>
-                      </Button>
+                      </Pressable>
                     )}
                   </View>
 
                   {/* Icon Actions */}
                   <View style={styles.iconActions}>
-                    {/* Preview Button - Blue */}
+                    {/* Preview Button */}
                     <Button
+                      variant="outline"
+                      size="icon"
                       onPress={() =>
                         navigation.navigate(ROUTES.CHALLENGE_PREVIEW, {
                           challengeId: challenge.id,
                         })
                       }
-                      style={[
-                        styles.iconButton,
-                        { backgroundColor: "#3b82f6" },
-                      ]}
+                      style={styles.iconButton}
                     >
-                      <Eye color="#fff" size={16} />
+                      <Eye color={colors.foreground} size={16} />
                     </Button>
 
-                    {/* Edit Button - Purple */}
+                    {/* Edit Button */}
                     <Button
+                      variant="outline"
+                      size="icon"
                       onPress={() =>
                         navigation.navigate(ROUTES.CHALLENGE_FORM, {
                           challengeId: challenge.id,
                         })
                       }
-                      style={[
-                        styles.iconButton,
-                        { backgroundColor: "#8b5cf6" },
-                      ]}
+                      style={styles.iconButton}
                     >
-                      <Edit color="#fff" size={16} />
+                      <Edit color={colors.foreground} size={16} />
                     </Button>
 
-                    {/* Delete Button - Red */}
+                    {/* Delete Button */}
                     <Button
+                      variant="outline"
+                      size="icon"
                       onPress={() =>
                         setDeleteConfirm({
                           visible: true,
                           challengeId: challenge.id,
                         })
                       }
-                      style={[
-                        styles.iconButton,
-                        { backgroundColor: "#ef4444" },
-                      ]}
+                      style={styles.iconButton}
                       disabled={actionLoading === challenge.id}
                     >
-                      <Trash2 color="#fff" size={16} />
+                      <Trash2 color="#ef4444" size={16} />
                     </Button>
                   </View>
                 </View>

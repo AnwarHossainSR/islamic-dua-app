@@ -1,11 +1,18 @@
 import { useTheme } from "@/hooks/useTheme";
 import React from "react";
-import { StyleSheet, Text, TextStyle, View, ViewStyle } from "react-native";
+import {
+  StyleProp,
+  StyleSheet,
+  Text,
+  TextStyle,
+  View,
+  ViewStyle,
+} from "react-native";
 
 interface BadgeProps {
   children: React.ReactNode;
   variant?: "default" | "secondary" | "destructive" | "outline";
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
   textStyle?: TextStyle;
 }
 

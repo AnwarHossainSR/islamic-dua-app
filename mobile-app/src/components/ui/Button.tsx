@@ -43,9 +43,9 @@ export function Button({
     if (disabled) return colors.muted;
     switch (variant) {
       case "default":
-        return colors.primary;
+        return "#22c55e"; // Always use solid green
       case "destructive":
-        return colors.destructive;
+        return "#ef4444"; // Solid red
       case "secondary":
         return colors.secondary;
       case "outline":
@@ -55,7 +55,7 @@ export function Button({
       case "link":
         return "transparent";
       default:
-        return colors.primary;
+        return "#22c55e";
     }
   };
 
@@ -162,6 +162,11 @@ export function Button({
     });
   };
 
+  // Flatten the passed style to extract values
+  const flattenedStyle = style ? StyleSheet.flatten(style) : ({} as ViewStyle);
+  const { backgroundColor: customBgColor, ...restStyle } =
+    flattenedStyle as ViewStyle & { backgroundColor?: string };
+
   return (
     <Pressable
       onPress={onPress}
@@ -169,14 +174,14 @@ export function Button({
       style={({ pressed }) => [
         styles.button,
         {
-          backgroundColor: getBackgroundColor(),
+          backgroundColor: customBgColor || getBackgroundColor(),
           borderColor: getBorderColor(),
           borderWidth: variant === "outline" ? 1 : 0,
           height: getHeight(),
           paddingHorizontal: getPadding(),
           opacity: pressed ? 0.8 : 1,
         },
-        style,
+        restStyle,
       ]}
     >
       {renderContent()}

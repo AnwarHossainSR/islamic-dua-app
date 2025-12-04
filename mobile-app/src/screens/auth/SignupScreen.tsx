@@ -12,6 +12,7 @@ import {
   Text,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 
 export default function SignupScreen() {
@@ -72,85 +73,97 @@ export default function SignupScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={[styles.container, { backgroundColor: colors.background }]}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    <SafeAreaView
+      style={[styles.safeArea, { backgroundColor: colors.background }]}
     >
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        <View style={styles.header}>
-          <View
-            style={[styles.logoContainer, { backgroundColor: colors.primary }]}
-          >
-            <Text style={styles.logoText}>🕌</Text>
-          </View>
-          <Text style={[styles.title, { color: colors.foreground }]}>
-            Create Account
-          </Text>
-          <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>
-            Join {APP_NAME} today
-          </Text>
-        </View>
-
-        <View style={styles.form}>
-          <Input
-            label="Email"
-            placeholder="Enter your email"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoCorrect={false}
-            value={email}
-            onChangeText={setEmail}
-            error={errors.email}
-          />
-
-          <Input
-            label="Password"
-            placeholder="Create a password"
-            secureTextEntry
-            value={password}
-            onChangeText={setPassword}
-            error={errors.password}
-          />
-
-          <Input
-            label="Confirm Password"
-            placeholder="Confirm your password"
-            secureTextEntry
-            value={confirmPassword}
-            onChangeText={setConfirmPassword}
-            error={errors.confirmPassword}
-          />
-
-          <Button
-            onPress={handleSignup}
-            loading={loading}
-            style={styles.signupButton}
-          >
-            Create Account
-          </Button>
-
-          <View style={styles.loginRow}>
-            <Text style={[styles.loginText, { color: colors.mutedForeground }]}>
-              Already have an account?{" "}
-            </Text>
-            <Button
-              variant="link"
-              onPress={() => navigation.navigate(ROUTES.LOGIN)}
-              style={styles.loginLink}
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={styles.header}>
+            <View
+              style={[
+                styles.logoContainer,
+                { backgroundColor: colors.primary },
+              ]}
             >
-              Sign In
-            </Button>
+              <Text style={styles.logoText}>🕌</Text>
+            </View>
+            <Text style={[styles.title, { color: colors.foreground }]}>
+              Create Account
+            </Text>
+            <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>
+              Join {APP_NAME} today
+            </Text>
           </View>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+
+          <View style={styles.form}>
+            <Input
+              label="Email"
+              placeholder="Enter your email"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              value={email}
+              onChangeText={setEmail}
+              error={errors.email}
+            />
+
+            <Input
+              label="Password"
+              placeholder="Create a password"
+              secureTextEntry
+              value={password}
+              onChangeText={setPassword}
+              error={errors.password}
+            />
+
+            <Input
+              label="Confirm Password"
+              placeholder="Confirm your password"
+              secureTextEntry
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              error={errors.confirmPassword}
+            />
+
+            <Button
+              onPress={handleSignup}
+              loading={loading}
+              style={styles.signupButton}
+            >
+              Create Account
+            </Button>
+
+            <View style={styles.loginRow}>
+              <Text
+                style={[styles.loginText, { color: colors.mutedForeground }]}
+              >
+                Already have an account?
+              </Text>
+              <Button
+                variant="link"
+                onPress={() => navigation.navigate(ROUTES.LOGIN)}
+                style={styles.loginLink}
+              >
+                Sign In
+              </Button>
+            </View>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
   container: {
     flex: 1,
   },

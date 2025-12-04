@@ -7,23 +7,61 @@ import {
   CardHeader,
   CardTitle,
   Loader,
+  Pagination,
   Progress,
 } from "@/components/ui";
 import { ROUTES } from "@/config/routes";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/hooks/useTheme";
 import { useNavigation } from "@react-navigation/native";
-import { CheckCircle, Play, Target } from "lucide-react-native";
-import React, { useEffect, useState } from "react";
 import {
+  Check,
+  CheckCircle,
+  Clock,
+  Play,
+  Search,
+  Target,
+  TrendingUp,
+} from "lucide-react-native";
+import React, { useEffect, useMemo, useState } from "react";
+import {
+  Pressable,
   RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
+
+function isCurrentDay(timestamp: number | string | null): boolean {
+  if (!timestamp) return false;
+  const date = new Date(timestamp);
+  const today = new Date();
+  return date.toDateString() === today.toDateString();
+}
+
+function formatLastCompleted(timestamp: number | string | null): string {
+  if (!timestamp) return "Not started";
+  const date = new Date(timestamp);
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  if (date.toDateString() === today.toDateString()) {
+    return `Today at ${date.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    })}`;
+  } else if (date.toDateString() === yesterday.toDateString()) {
+    return "Yesterday";
+  } else {
+    return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  }
+}
 
 export default function ChallengesScreen() {
   const navigation = useNavigation<any>();
@@ -32,10 +70,19 @@ export default function ChallengesScreen() {
   const [challenges, setChallenges] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [completionFilter, setCompletionFilter] = useState("pending"); // all, pending, completed
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     loadChallenges();
   }, []);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, completionFilter]);
 
   const loadChallenges = async (isRefresh = false) => {
     if (isRefresh) {
@@ -58,6 +105,48 @@ export default function ChallengesScreen() {
       setRefreshing(false);
     }
   };
+
+  // Calculate stats
+  const stats = useMemo(() => {
+    const total = challenges.length;
+    const todayCompleted = challenges.filter((c) =>
+      isCurrentDay(c.last_completed_at)
+    ).length;
+    const todayRemaining = total - todayCompleted;
+    const todayPercentage =
+      total > 0 ? Math.round((todayCompleted / total) * 100) : 0;
+    return { total, todayCompleted, todayRemaining, todayPercentage };
+  }, [challenges]);
+
+  // Filter challenges
+  const filteredChallenges = useMemo(() => {
+    let filtered = [...challenges];
+
+    // Search filter
+    if (searchQuery) {
+      filtered = filtered.filter(
+        (c) =>
+          c.title_bn?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          c.title_ar?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          c.description_bn?.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    // Completion filter
+    if (completionFilter === "completed") {
+      filtered = filtered.filter((c) => isCurrentDay(c.last_completed_at));
+    } else if (completionFilter === "pending") {
+      filtered = filtered.filter((c) => !isCurrentDay(c.last_completed_at));
+    }
+
+    return filtered;
+  }, [challenges, searchQuery, completionFilter]);
+
+  // Paginated challenges
+  const paginatedChallenges = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return filteredChallenges.slice(startIndex, startIndex + itemsPerPage);
+  }, [filteredChallenges, currentPage, itemsPerPage]);
 
   const handleStartChallenge = async (challengeId: string) => {
     if (!user) return;
@@ -125,6 +214,7 @@ export default function ChallengesScreen() {
           />
         }
       >
+        {/* Header */}
         <View style={styles.header}>
           <Text style={[styles.title, { color: colors.foreground }]}>
             Challenges
@@ -134,8 +224,210 @@ export default function ChallengesScreen() {
           </Text>
         </View>
 
+        {/* Stats Cards */}
+        <View style={styles.statsGrid}>
+          <Card style={styles.statCard}>
+            <CardContent style={styles.statCardContent}>
+              <View style={styles.statRow}>
+                <View>
+                  <Text
+                    style={[
+                      styles.statLabel,
+                      { color: colors.mutedForeground },
+                    ]}
+                  >
+                    Total
+                  </Text>
+                  <Text
+                    style={[styles.statValue, { color: colors.foreground }]}
+                  >
+                    {stats.total}
+                  </Text>
+                </View>
+                <Target color="#10b981" size={24} />
+              </View>
+            </CardContent>
+          </Card>
+
+          <Card style={styles.statCard}>
+            <CardContent style={styles.statCardContent}>
+              <View style={styles.statRow}>
+                <View>
+                  <Text
+                    style={[
+                      styles.statLabel,
+                      { color: colors.mutedForeground },
+                    ]}
+                  >
+                    Done Today
+                  </Text>
+                  <Text
+                    style={[styles.statValue, { color: colors.foreground }]}
+                  >
+                    {stats.todayCompleted}
+                  </Text>
+                </View>
+                <Check color="#10b981" size={24} />
+              </View>
+            </CardContent>
+          </Card>
+
+          <Card style={styles.statCard}>
+            <CardContent style={styles.statCardContent}>
+              <View style={styles.statRow}>
+                <View>
+                  <Text
+                    style={[
+                      styles.statLabel,
+                      { color: colors.mutedForeground },
+                    ]}
+                  >
+                    Remaining
+                  </Text>
+                  <Text
+                    style={[styles.statValue, { color: colors.foreground }]}
+                  >
+                    {stats.todayRemaining}
+                  </Text>
+                </View>
+                <Clock color="#f59e0b" size={24} />
+              </View>
+            </CardContent>
+          </Card>
+
+          <Card style={styles.statCard}>
+            <CardContent style={styles.statCardContent}>
+              <View style={styles.statRow}>
+                <View>
+                  <Text
+                    style={[
+                      styles.statLabel,
+                      { color: colors.mutedForeground },
+                    ]}
+                  >
+                    Progress
+                  </Text>
+                  <Text
+                    style={[styles.statValue, { color: colors.foreground }]}
+                  >
+                    {stats.todayPercentage}%
+                  </Text>
+                </View>
+                <TrendingUp color="#8b5cf6" size={24} />
+              </View>
+            </CardContent>
+          </Card>
+        </View>
+
+        {/* Search Bar */}
+        <View
+          style={[
+            styles.searchContainer,
+            { backgroundColor: colors.secondary },
+          ]}
+        >
+          <Search color={colors.mutedForeground} size={18} />
+          <TextInput
+            style={[styles.searchInput, { color: colors.foreground }]}
+            placeholder="Search challenges..."
+            placeholderTextColor={colors.mutedForeground}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+        </View>
+
+        {/* Filter Tabs */}
+        <View style={styles.filterTabs}>
+          <Pressable
+            style={[
+              styles.filterTab,
+              completionFilter === "all" && {
+                backgroundColor: colors.primary,
+              },
+              completionFilter !== "all" && {
+                backgroundColor: colors.secondary,
+              },
+            ]}
+            onPress={() => setCompletionFilter("all")}
+          >
+            <Text
+              style={[
+                styles.filterTabText,
+                {
+                  color:
+                    completionFilter === "all"
+                      ? colors.primaryForeground
+                      : colors.foreground,
+                },
+              ]}
+            >
+              All ({challenges.length})
+            </Text>
+          </Pressable>
+
+          <Pressable
+            style={[
+              styles.filterTab,
+              completionFilter === "pending" && {
+                backgroundColor: colors.primary,
+              },
+              completionFilter !== "pending" && {
+                backgroundColor: colors.secondary,
+              },
+            ]}
+            onPress={() => setCompletionFilter("pending")}
+          >
+            <Text
+              style={[
+                styles.filterTabText,
+                {
+                  color:
+                    completionFilter === "pending"
+                      ? colors.primaryForeground
+                      : colors.foreground,
+                },
+              ]}
+            >
+              Pending ({stats.todayRemaining})
+            </Text>
+          </Pressable>
+
+          <Pressable
+            style={[
+              styles.filterTab,
+              completionFilter === "completed" && {
+                backgroundColor: colors.primary,
+              },
+              completionFilter !== "completed" && {
+                backgroundColor: colors.secondary,
+              },
+            ]}
+            onPress={() => setCompletionFilter("completed")}
+          >
+            <Text
+              style={[
+                styles.filterTabText,
+                {
+                  color:
+                    completionFilter === "completed"
+                      ? colors.primaryForeground
+                      : colors.foreground,
+                },
+              ]}
+            >
+              Done ({stats.todayCompleted})
+            </Text>
+          </Pressable>
+        </View>
+
+        {/* Results Count */}
+        <Text style={[styles.resultsCount, { color: colors.mutedForeground }]}>
+          {filteredChallenges.length} challenges found
+        </Text>
+
+        {/* Challenges List */}
         <View style={styles.challengesList}>
-          {challenges.map((challenge) => (
+          {paginatedChallenges.map((challenge) => (
             <Card key={challenge.id} style={styles.challengeCard}>
               <CardHeader>
                 <View style={styles.cardHeaderRow}>
@@ -146,7 +438,9 @@ export default function ChallengesScreen() {
                         { backgroundColor: colors.primary + "20" },
                       ]}
                     >
-                      <Target color={colors.primary} size={20} />
+                      <Text style={styles.challengeIcon}>
+                        {challenge.icon || "📿"}
+                      </Text>
                     </View>
                     <View style={styles.titleContainer}>
                       <CardTitle>{challenge.title_bn}</CardTitle>
@@ -162,20 +456,43 @@ export default function ChallengesScreen() {
                       )}
                     </View>
                   </View>
-                  <Badge
-                    variant={
-                      challenge.user_status === "active"
-                        ? "default"
-                        : "secondary"
-                    }
-                    style={{
-                      backgroundColor:
-                        getStatusColor(challenge.user_status) + "20",
-                    }}
-                    textStyle={{ color: getStatusColor(challenge.user_status) }}
-                  >
-                    {getStatusLabel(challenge.user_status)}
-                  </Badge>
+                  <View style={styles.badgeColumn}>
+                    <Badge
+                      variant={
+                        challenge.user_status === "active"
+                          ? "default"
+                          : "secondary"
+                      }
+                      style={{
+                        backgroundColor:
+                          getStatusColor(challenge.user_status) + "20",
+                      }}
+                      textStyle={{
+                        color: getStatusColor(challenge.user_status),
+                      }}
+                    >
+                      {getStatusLabel(challenge.user_status)}
+                    </Badge>
+                    {challenge.last_completed_at && (
+                      <Badge
+                        variant="secondary"
+                        style={{
+                          backgroundColor: isCurrentDay(
+                            challenge.last_completed_at
+                          )
+                            ? "#22c55e20"
+                            : colors.secondary,
+                        }}
+                        textStyle={{
+                          color: isCurrentDay(challenge.last_completed_at)
+                            ? "#22c55e"
+                            : colors.mutedForeground,
+                        }}
+                      >
+                        {formatLastCompleted(challenge.last_completed_at)}
+                      </Badge>
+                    )}
+                  </View>
                 </View>
               </CardHeader>
 
@@ -192,46 +509,55 @@ export default function ChallengesScreen() {
                   </Text>
                 )}
 
-                <View style={styles.statsRow}>
-                  <View style={styles.stat}>
+                <View style={styles.challengeStatsRow}>
+                  <View style={styles.challengeStat}>
                     <Text
-                      style={[styles.statValue, { color: colors.foreground }]}
+                      style={[
+                        styles.challengeStatValue,
+                        { color: colors.foreground },
+                      ]}
                     >
                       {challenge.daily_target_count}
                     </Text>
                     <Text
                       style={[
-                        styles.statLabel,
+                        styles.challengeStatLabel,
                         { color: colors.mutedForeground },
                       ]}
                     >
                       Daily
                     </Text>
                   </View>
-                  <View style={styles.stat}>
+                  <View style={styles.challengeStat}>
                     <Text
-                      style={[styles.statValue, { color: colors.foreground }]}
+                      style={[
+                        styles.challengeStatValue,
+                        { color: colors.foreground },
+                      ]}
                     >
                       {challenge.total_days}
                     </Text>
                     <Text
                       style={[
-                        styles.statLabel,
+                        styles.challengeStatLabel,
                         { color: colors.mutedForeground },
                       ]}
                     >
                       Days
                     </Text>
                   </View>
-                  <View style={styles.stat}>
+                  <View style={styles.challengeStat}>
                     <Text
-                      style={[styles.statValue, { color: colors.foreground }]}
+                      style={[
+                        styles.challengeStatValue,
+                        { color: colors.foreground },
+                      ]}
                     >
                       {challenge.total_participants || 0}
                     </Text>
                     <Text
                       style={[
-                        styles.statLabel,
+                        styles.challengeStatLabel,
                         { color: colors.mutedForeground },
                       ]}
                     >
@@ -322,19 +648,30 @@ export default function ChallengesScreen() {
             </Card>
           ))}
 
-          {challenges.length === 0 && (
+          {filteredChallenges.length === 0 && (
             <View style={styles.emptyState}>
               <Target color={colors.mutedForeground} size={48} />
               <Text style={[styles.emptyTitle, { color: colors.foreground }]}>
-                No Challenges Available
+                No Challenges Found
               </Text>
               <Text
                 style={[styles.emptyText, { color: colors.mutedForeground }]}
               >
-                Check back later for new spiritual challenges.
+                {searchQuery
+                  ? "Try a different search term"
+                  : "Check back later for new challenges"}
               </Text>
             </View>
           )}
+
+          {/* Pagination */}
+          <Pagination
+            currentPage={currentPage}
+            totalItems={filteredChallenges.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+            showInfo={true}
+          />
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -353,7 +690,7 @@ const styles = StyleSheet.create({
     paddingBottom: 32,
   },
   header: {
-    marginBottom: 20,
+    marginBottom: 16,
   },
   title: {
     fontSize: 28,
@@ -362,6 +699,66 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 14,
+  },
+  statsGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
+    marginBottom: 16,
+  },
+  statCard: {
+    width: "48%",
+    flexGrow: 1,
+  },
+  statCardContent: {
+    paddingVertical: 12,
+  },
+  statRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  statLabel: {
+    fontSize: 12,
+    marginBottom: 2,
+  },
+  statValue: {
+    fontSize: 22,
+    fontWeight: "700",
+  },
+  searchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 10,
+    gap: 10,
+    marginBottom: 12,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 14,
+    padding: 0,
+  },
+  filterTabs: {
+    flexDirection: "row",
+    gap: 8,
+    marginBottom: 12,
+  },
+  filterTab: {
+    flex: 1,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  filterTabText: {
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  resultsCount: {
+    fontSize: 13,
+    marginBottom: 12,
   },
   challengesList: {
     gap: 16,
@@ -385,8 +782,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  challengeIcon: {
+    fontSize: 20,
+  },
   titleContainer: {
     flex: 1,
+  },
+  badgeColumn: {
+    gap: 4,
+    alignItems: "flex-end",
   },
   arabicTitle: {
     fontSize: 14,
@@ -397,20 +801,20 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     marginBottom: 16,
   },
-  statsRow: {
+  challengeStatsRow: {
     flexDirection: "row",
     justifyContent: "space-around",
     paddingVertical: 12,
     marginBottom: 12,
   },
-  stat: {
+  challengeStat: {
     alignItems: "center",
   },
-  statValue: {
+  challengeStatValue: {
     fontSize: 20,
     fontWeight: "700",
   },
-  statLabel: {
+  challengeStatLabel: {
     fontSize: 12,
     marginTop: 2,
   },

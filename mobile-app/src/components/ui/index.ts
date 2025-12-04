@@ -13,6 +13,7 @@ export {
 export { Input } from "./Input";
 export { Label } from "./Label";
 export { FullPageLoader, Loader } from "./Loader";
+export { Pagination } from "./Pagination";
 export { Progress } from "./Progress";
 export { Skeleton } from "./Skeleton";
 export { StatCard } from "./StatCard";

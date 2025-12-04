@@ -20,6 +20,7 @@ import {
   Target,
   TrendingUp,
   Trophy,
+  User,
   Users,
 } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
@@ -100,57 +101,42 @@ export default function DashboardScreen() {
       >
         {/* Header */}
         <View style={styles.header}>
-          <View>
+          <View style={styles.headerTop}>
             <Text style={[styles.title, { color: colors.foreground }]}>
               Your Dashboard
             </Text>
-            <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>
-              Track your spiritual journey
-            </Text>
-          </View>
-          {/* Toggle */}
-          <View style={[styles.toggle, { backgroundColor: colors.secondary }]}>
-            <Pressable
-              style={[
-                styles.toggleBtn,
-                !showGlobalStats && { backgroundColor: colors.primary },
-              ]}
-              onPress={() => handleToggle(false)}
-            >
-              <Text
+            {/* Toggle */}
+            <View style={styles.toggleContainer}>
+              <User color={colors.mutedForeground} size={16} />
+              <Pressable
                 style={[
-                  styles.toggleText,
+                  styles.switchTrack,
                   {
-                    color: !showGlobalStats
-                      ? colors.primaryForeground
-                      : colors.mutedForeground,
+                    backgroundColor: showGlobalStats
+                      ? colors.primary
+                      : colors.muted,
                   },
                 ]}
+                onPress={() => handleToggle(!showGlobalStats)}
               >
-                My Stats
-              </Text>
-            </Pressable>
-            <Pressable
-              style={[
-                styles.toggleBtn,
-                showGlobalStats && { backgroundColor: colors.primary },
-              ]}
-              onPress={() => handleToggle(true)}
-            >
-              <Text
-                style={[
-                  styles.toggleText,
-                  {
-                    color: showGlobalStats
-                      ? colors.primaryForeground
-                      : colors.mutedForeground,
-                  },
-                ]}
-              >
-                Global
-              </Text>
-            </Pressable>
+                <View
+                  style={[
+                    styles.switchThumb,
+                    {
+                      backgroundColor: colors.background,
+                      transform: [{ translateX: showGlobalStats ? 18 : 2 }],
+                    },
+                  ]}
+                />
+              </Pressable>
+              <Users color={colors.mutedForeground} size={16} />
+            </View>
           </View>
+          <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>
+            {showGlobalStats
+              ? "Global statistics"
+              : "Track your spiritual journey"}
+          </Text>
         </View>
 
         {/* Stats Grid */}
@@ -318,6 +304,84 @@ export default function DashboardScreen() {
           </CardContent>
         </Card>
 
+        {/* Today's Progress and This Week */}
+        <View style={styles.progressGrid}>
+          <Card style={styles.progressCard}>
+            <CardHeader>
+              <View style={styles.progressHeader}>
+                <Flame color="#f97316" size={20} />
+                <CardTitle style={styles.progressTitle}>
+                  {showGlobalStats ? "Today's Activity" : "Today's Progress"}
+                </CardTitle>
+              </View>
+              <CardDescription>
+                {showGlobalStats
+                  ? "Completions in the last 24 hours"
+                  : "Your completions today"}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Text
+                style={[styles.progressValue, { color: colors.foreground }]}
+              >
+                {formatNumber(stats?.todayCompletions || 0)}
+              </Text>
+              {stats?.todayCompletions > (stats?.yesterdayCompletions || 0) ? (
+                <View style={styles.trendRow}>
+                  <TrendingUp color="#10b981" size={14} />
+                  <Text style={[styles.trendText, { color: "#10b981" }]}>
+                    {(
+                      ((stats.todayCompletions -
+                        (stats.yesterdayCompletions || 0)) /
+                        Math.max(stats.yesterdayCompletions || 1, 1)) *
+                      100
+                    ).toFixed(0)}
+                    % increase from yesterday
+                  </Text>
+                </View>
+              ) : (
+                <Text
+                  style={[
+                    styles.progressSubtext,
+                    { color: colors.mutedForeground },
+                  ]}
+                >
+                  Keep up the good work!
+                </Text>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card style={styles.progressCard}>
+            <CardHeader>
+              <View style={styles.progressHeader}>
+                <Trophy color="#f59e0b" size={20} />
+                <CardTitle style={styles.progressTitle}>This Week</CardTitle>
+              </View>
+              <CardDescription>
+                {showGlobalStats
+                  ? "Completions in the last 7 days"
+                  : "Your weekly progress"}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Text
+                style={[styles.progressValue, { color: colors.foreground }]}
+              >
+                {formatNumber(stats?.weekCompletions || 0)}
+              </Text>
+              <Text
+                style={[
+                  styles.progressSubtext,
+                  { color: colors.mutedForeground },
+                ]}
+              >
+                Average {Math.round((stats?.weekCompletions || 0) / 7)} per day
+              </Text>
+            </CardContent>
+          </Card>
+        </View>
+
         {/* Quick Actions */}
         <Card style={styles.quickActions}>
           <CardHeader>
@@ -391,10 +455,13 @@ const styles = StyleSheet.create({
     paddingBottom: 32,
   },
   header: {
+    marginBottom: 8,
+  },
+  headerTop: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: 8,
+    alignItems: "center",
+    marginBottom: 4,
   },
   title: {
     fontSize: 28,
@@ -417,6 +484,31 @@ const styles = StyleSheet.create({
   toggleText: {
     fontSize: 12,
     fontWeight: "500",
+  },
+  toggleContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  toggleLabel: {
+    fontSize: 12,
+    fontWeight: "500",
+  },
+  switchTrack: {
+    width: 40,
+    height: 22,
+    borderRadius: 11,
+    justifyContent: "center",
+  },
+  switchThumb: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 1,
+    elevation: 2,
   },
   statsGrid: {
     flexDirection: "row",
@@ -499,5 +591,37 @@ const styles = StyleSheet.create({
   actionText: {
     fontSize: 14,
     fontWeight: "500",
+  },
+  progressGrid: {
+    gap: 12,
+  },
+  progressCard: {
+    flex: 1,
+  },
+  progressHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 4,
+  },
+  progressTitle: {
+    fontSize: 16,
+  },
+  progressValue: {
+    fontSize: 28,
+    fontWeight: "700",
+  },
+  progressSubtext: {
+    fontSize: 12,
+    marginTop: 4,
+  },
+  trendRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    marginTop: 4,
+  },
+  trendText: {
+    fontSize: 12,
   },
 });

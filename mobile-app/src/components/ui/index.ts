@@ -10,6 +10,7 @@ export {
   CardHeader,
   CardTitle,
 } from "./Card";
+export { ConfirmationModal } from "./ConfirmationModal";
 export { Input } from "./Input";
 export { Label } from "./Label";
 export { FullPageLoader, Loader } from "./Loader";

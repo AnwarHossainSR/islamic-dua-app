@@ -6,6 +6,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  ConfirmationModal,
   Loader,
   Pagination,
   Progress,
@@ -16,11 +17,14 @@ import { useTheme } from "@/hooks/useTheme";
 import { useNavigation } from "@react-navigation/native";
 import {
   Check,
-  CheckCircle,
   Clock,
+  Edit,
+  Eye,
   Play,
+  RotateCcw,
   Search,
   Target,
+  Trash2,
   TrendingUp,
 } from "lucide-react-native";
 import React, { useEffect, useMemo, useState } from "react";
@@ -73,6 +77,14 @@ export default function ChallengesScreen() {
   const [searchQuery, setSearchQuery] = useState("");
   const [completionFilter, setCompletionFilter] = useState("pending"); // all, pending, completed
   const [currentPage, setCurrentPage] = useState(1);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{
+    visible: boolean;
+    challengeId: string | null;
+  }>({
+    visible: false,
+    challengeId: null,
+  });
   const itemsPerPage = 10;
 
   useEffect(() => {
@@ -150,6 +162,7 @@ export default function ChallengesScreen() {
 
   const handleStartChallenge = async (challengeId: string) => {
     if (!user) return;
+    setActionLoading(challengeId);
     try {
       const { error } = await challengesApi.start(user.id, challengeId);
       if (error) throw error;
@@ -165,6 +178,53 @@ export default function ChallengesScreen() {
         text1: "Error",
         text2: error.message || "Failed to start challenge",
       });
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleRestartChallenge = async (challenge: any) => {
+    if (!challenge.progress_id) return;
+    setActionLoading(challenge.progress_id);
+    try {
+      await challengesApi.restart(challenge.progress_id, challenge.id);
+      Toast.show({
+        type: "success",
+        text1: "Challenge Restarted!",
+        text2: "Your progress has been reset.",
+      });
+      loadChallenges();
+    } catch (error: any) {
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: error.message || "Failed to restart challenge",
+      });
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleDeleteChallenge = async () => {
+    if (!deleteConfirm.challengeId) return;
+    setActionLoading(deleteConfirm.challengeId);
+    try {
+      await challengesApi.delete(deleteConfirm.challengeId);
+      Toast.show({
+        type: "success",
+        text1: "Challenge Deleted",
+        text2: "The challenge has been removed.",
+      });
+      loadChallenges();
+    } catch (error: any) {
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: error.message || "Failed to delete challenge",
+      });
+    } finally {
+      setActionLoading(null);
+      setDeleteConfirm({ visible: false, challengeId: null });
     }
   };
 
@@ -590,59 +650,103 @@ export default function ChallengesScreen() {
                   </View>
                 )}
 
+                {/* Action Buttons Row */}
                 <View style={styles.actionRow}>
-                  {challenge.user_status === "not_started" ? (
-                    <Button
-                      onPress={() => handleStartChallenge(challenge.id)}
-                      style={styles.actionButton}
-                    >
-                      <Play color={colors.primaryForeground} size={16} />
-                      <Text
-                        style={{
-                          color: colors.primaryForeground,
-                          fontWeight: "500",
-                        }}
+                  {/* Primary Action */}
+                  <View style={styles.primaryActions}>
+                    {challenge.user_status === "not_started" && (
+                      <Button
+                        onPress={() => handleStartChallenge(challenge.id)}
+                        style={[
+                          styles.primaryButton,
+                          { backgroundColor: "#22c55e" },
+                        ]}
+                        disabled={actionLoading === challenge.id}
                       >
-                        Start Challenge
-                      </Text>
-                    </Button>
-                  ) : challenge.user_status === "active" ? (
+                        <Play color="#fff" size={14} />
+                        <Text style={styles.buttonText}>Start</Text>
+                      </Button>
+                    )}
+                    {challenge.user_status === "active" && (
+                      <Button
+                        onPress={() =>
+                          navigation.navigate(ROUTES.CHALLENGE_PROGRESS, {
+                            progressId: challenge.progress_id,
+                          })
+                        }
+                        style={[
+                          styles.primaryButton,
+                          { backgroundColor: colors.primary },
+                        ]}
+                      >
+                        <Target color="#fff" size={14} />
+                        <Text style={styles.buttonText}>Continue</Text>
+                      </Button>
+                    )}
+                    {challenge.user_status === "completed" && (
+                      <Button
+                        onPress={() => handleRestartChallenge(challenge)}
+                        style={[
+                          styles.primaryButton,
+                          { backgroundColor: "#f59e0b" },
+                        ]}
+                        disabled={actionLoading === challenge.progress_id}
+                      >
+                        <RotateCcw color="#fff" size={14} />
+                        <Text style={styles.buttonText}>Restart</Text>
+                      </Button>
+                    )}
+                  </View>
+
+                  {/* Icon Actions */}
+                  <View style={styles.iconActions}>
+                    {/* Preview Button - Blue */}
                     <Button
                       onPress={() =>
-                        navigation.navigate(ROUTES.CHALLENGE_PROGRESS, {
-                          progressId: challenge.progress_id,
+                        navigation.navigate(ROUTES.CHALLENGE_PREVIEW, {
+                          challengeId: challenge.id,
                         })
                       }
-                      style={styles.actionButton}
+                      style={[
+                        styles.iconButton,
+                        { backgroundColor: "#3b82f6" },
+                      ]}
                     >
-                      <Target color={colors.primaryForeground} size={16} />
-                      <Text
-                        style={{
-                          color: colors.primaryForeground,
-                          fontWeight: "500",
-                        }}
-                      >
-                        Continue
-                      </Text>
+                      <Eye color="#fff" size={16} />
                     </Button>
-                  ) : challenge.user_status === "completed" ? (
+
+                    {/* Edit Button - Purple */}
                     <Button
-                      variant="outline"
                       onPress={() =>
-                        navigation.navigate(ROUTES.CHALLENGE_PROGRESS, {
-                          progressId: challenge.progress_id,
+                        navigation.navigate(ROUTES.CHALLENGE_FORM, {
+                          challengeId: challenge.id,
                         })
                       }
-                      style={styles.actionButton}
+                      style={[
+                        styles.iconButton,
+                        { backgroundColor: "#8b5cf6" },
+                      ]}
                     >
-                      <CheckCircle color={colors.foreground} size={16} />
-                      <Text
-                        style={{ color: colors.foreground, fontWeight: "500" }}
-                      >
-                        View Progress
-                      </Text>
+                      <Edit color="#fff" size={16} />
                     </Button>
-                  ) : null}
+
+                    {/* Delete Button - Red */}
+                    <Button
+                      onPress={() =>
+                        setDeleteConfirm({
+                          visible: true,
+                          challengeId: challenge.id,
+                        })
+                      }
+                      style={[
+                        styles.iconButton,
+                        { backgroundColor: "#ef4444" },
+                      ]}
+                      disabled={actionLoading === challenge.id}
+                    >
+                      <Trash2 color="#fff" size={16} />
+                    </Button>
+                  </View>
                 </View>
               </CardContent>
             </Card>
@@ -674,6 +778,20 @@ export default function ChallengesScreen() {
           />
         </View>
       </ScrollView>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmationModal
+        visible={deleteConfirm.visible}
+        title="Delete Challenge"
+        description="Are you sure you want to delete this challenge? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        confirmVariant="destructive"
+        icon="warning"
+        isLoading={actionLoading === deleteConfirm.challengeId}
+        onCancel={() => setDeleteConfirm({ visible: false, challengeId: null })}
+        onConfirm={handleDeleteChallenge}
+      />
     </SafeAreaView>
   );
 }
@@ -834,7 +952,41 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   actionRow: {
-    marginTop: 4,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 8,
+    marginTop: 12,
+  },
+  primaryActions: {
+    flex: 1,
+  },
+  iconActions: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  primaryButton: {
+    flexDirection: "row",
+    gap: 6,
+    borderRadius: 8,
+  },
+  secondaryButton: {
+    flexDirection: "row",
+    gap: 6,
+    borderRadius: 8,
+  },
+  iconButton: {
+    width: 36,
+    height: 36,
+    paddingHorizontal: 0,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 8,
+  },
+  buttonText: {
+    color: "#fff",
+    fontWeight: "500",
+    fontSize: 13,
   },
   actionButton: {
     flexDirection: "row",

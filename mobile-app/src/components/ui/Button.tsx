@@ -3,6 +3,7 @@ import React from "react";
 import {
   ActivityIndicator,
   Pressable,
+  StyleProp,
   StyleSheet,
   Text,
   TextStyle,
@@ -22,7 +23,7 @@ interface ButtonProps {
   size?: "default" | "sm" | "lg" | "icon";
   disabled?: boolean;
   loading?: boolean;
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
   textStyle?: TextStyle;
 }
 

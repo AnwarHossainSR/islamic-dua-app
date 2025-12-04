@@ -1,10 +1,4 @@
 {
-  "crons": [
-    {
-      "path": "/api/cron/missed-challenges",
-      "schedule": "1 18 * * *"
-    }
-  ],
   "rewrites": [
     {
       "source": "/(.*)",

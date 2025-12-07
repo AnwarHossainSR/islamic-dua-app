@@ -559,10 +559,16 @@ export default function ChallengeProgressPage() {
                       type="number"
                       value={inputValue}
                       onChange={(e) => setInputValue(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          handleInputSubmit();
+                        }
+                      }}
                       placeholder={`Enter count (0-${target})`}
                       min="0"
                       max={target}
-                      className="text-center text-lg font-bold"
+                      className="text-center text-lg font-bold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       disabled={count >= target}
                     />
                     <Button
@@ -574,7 +580,8 @@ export default function ChallengeProgressPage() {
                     </Button>
                   </div>
                   <p className="text-xs text-center text-muted-foreground">
-                    Enter a number between 0 and {target}
+                    Enter a number between 0 and {target} (Press Enter to
+                    submit)
                   </p>
                 </div>
               </Activity>

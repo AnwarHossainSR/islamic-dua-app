@@ -1,6 +1,7 @@
 import { Header } from "@/components/Header";
 import { Layout } from "@/components/Layout";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { FullPageLoader } from "@/components/ui";
 import { ROUTES } from "@/config/routes";
 import ActivitiesPage from "@/pages/activities/ActivitiesPage";
 import ActivityDetailPage from "@/pages/activities/ActivityDetailPage";
@@ -26,12 +27,11 @@ import { AppProviders } from "@/providers";
 import { Suspense } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Toaster } from "sonner";
-import { FullPageLoader } from "@/components/ui";
 
 export default function App() {
   return (
     <AppProviders>
-      <Toaster richColors position="top-right" />
+      <Toaster position="top-right" />
       <BrowserRouter>
         <Header />
         <Suspense fallback={<FullPageLoader />}>

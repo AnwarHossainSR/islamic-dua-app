@@ -21,6 +21,7 @@ async function loginAction(_: any, formData: FormData) {
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
     await authApi.signIn(email, password);
+    toast.success("Signed in successfully!");
     return { success: true };
   } catch (error: any) {
     return { error: error.message };

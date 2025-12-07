@@ -1,43 +1,55 @@
-import { useActionState, useState } from 'react'
-import { authApi } from '@/api'
-import { Eye, EyeOff } from 'lucide-react'
-import { cn } from '@/lib/utils/cn'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui'
-import { Link } from 'react-router-dom'
-import { ROUTES } from '@/config/routes'
+import { authApi } from "@/api";
+import {
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui";
+import { ROUTES } from "@/config/routes";
+import { cn } from "@/lib/utils/cn";
+import { Eye, EyeOff } from "lucide-react";
+import { useActionState, useState } from "react";
+import { Link } from "react-router-dom";
 
 async function signupAction(_: any, formData: FormData) {
   try {
-    const email = formData.get('email') as string
-    const password = formData.get('password') as string
-    const confirmPassword = formData.get('confirmPassword') as string
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+    const confirmPassword = formData.get("confirmPassword") as string;
 
     if (password !== confirmPassword) {
-      return { error: 'Passwords do not match' }
+      return { error: "Passwords do not match" };
     }
 
-    await authApi.signUp(email, password)
-    return { success: true }
+    await authApi.signUp(email, password);
+    return { success: true };
   } catch (error: any) {
-    return { error: error.message }
+    return { error: error.message };
   }
 }
 
 export function SignupForm() {
-  const [state, formAction, isPending] = useActionState(signupAction, null)
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [state, formAction, isPending] = useActionState(signupAction, null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Create Account</CardTitle>
-        <CardDescription>Sign up to start your spiritual journey</CardDescription>
+        <CardDescription>
+          Sign up to start your spiritual journey
+        </CardDescription>
       </CardHeader>
       <form action={formAction}>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 pb-5">
           {state?.error && (
-            <div className="bg-destructive/10 text-destructive p-3 rounded border border-destructive/20">{state.error}</div>
+            <div className="bg-destructive/10 text-destructive p-3 rounded border border-destructive/20">
+              {state.error}
+            </div>
           )}
           {state?.success && (
             <div className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-500 p-3 rounded border border-emerald-500/20">
@@ -56,8 +68,8 @@ export function SignupForm() {
               placeholder="your@email.com"
               required
               className={cn(
-                'block w-full px-3 py-2 border border-input rounded-md bg-background',
-                'focus:outline-none focus:ring-2 focus:ring-ring'
+                "block w-full px-3 py-2 border border-input rounded-md bg-background",
+                "focus:outline-none focus:ring-2 focus:ring-ring"
               )}
             />
           </div>
@@ -70,12 +82,12 @@ export function SignupForm() {
               <input
                 id="password"
                 name="password"
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "text" : "password"}
                 placeholder="••••••••"
                 required
                 className={cn(
-                  'block w-full px-3 py-2 pr-10 border border-input rounded-md bg-background',
-                  'focus:outline-none focus:ring-2 focus:ring-ring'
+                  "block w-full px-3 py-2 pr-10 border border-input rounded-md bg-background",
+                  "focus:outline-none focus:ring-2 focus:ring-ring"
                 )}
               />
               <button
@@ -83,7 +95,11 @@ export function SignupForm() {
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
               >
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
               </button>
             </div>
           </div>
@@ -96,12 +112,12 @@ export function SignupForm() {
               <input
                 id="confirmPassword"
                 name="confirmPassword"
-                type={showConfirmPassword ? 'text' : 'password'}
+                type={showConfirmPassword ? "text" : "password"}
                 placeholder="••••••••"
                 required
                 className={cn(
-                  'block w-full px-3 py-2 pr-10 border border-input rounded-md bg-background',
-                  'focus:outline-none focus:ring-2 focus:ring-ring'
+                  "block w-full px-3 py-2 pr-10 border border-input rounded-md bg-background",
+                  "focus:outline-none focus:ring-2 focus:ring-ring"
                 )}
               />
               <button
@@ -109,24 +125,21 @@ export function SignupForm() {
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
               >
-                {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                {showConfirmPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
               </button>
             </div>
           </div>
         </CardContent>
         <CardFooter className="flex flex-col gap-4">
-          <button
-            type="submit"
-            disabled={isPending}
-            className={cn(
-              'w-full py-2 px-4 bg-primary text-primary-foreground rounded-md',
-              'hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed'
-            )}
-          >
-            {isPending ? 'Creating account...' : 'Sign Up'}
-          </button>
+          <Button type="submit" disabled={isPending} className="w-full">
+            {isPending ? "Creating account..." : "Sign Up"}
+          </Button>
           <p className="text-center text-sm text-muted-foreground">
-            Already have an account?{' '}
+            Already have an account?{" "}
             <Link to={ROUTES.LOGIN} className="text-primary hover:underline">
               Sign in
             </Link>
@@ -134,5 +147,5 @@ export function SignupForm() {
         </CardFooter>
       </form>
     </Card>
-  )
+  );
 }

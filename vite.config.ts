@@ -4,10 +4,7 @@ import path from "path";
 import { defineConfig } from "vite";
 
 export default defineConfig({
-  plugins: [
-    react(),
-    tailwindcss(),
-  ],
+  plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
@@ -15,5 +12,8 @@ export default defineConfig({
   },
   server: {
     port: 3000,
+  },
+  esbuild: {
+    drop: ["console", "debugger"],
   },
 });

@@ -1,3 +1,28 @@
+import { useNavigation } from "@react-navigation/native";
+import {
+  Check,
+  Clock,
+  Edit,
+  Eye,
+  Play,
+  RotateCcw,
+  Search,
+  Target,
+  Trash2,
+  TrendingUp,
+} from "lucide-react-native";
+import { useEffect, useMemo, useState } from "react";
+import {
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import Toast from "react-native-toast-message";
 import { challengesApi } from "@/api/challenges.api";
 import {
   Badge,
@@ -14,31 +39,6 @@ import {
 import { ROUTES } from "@/config/routes";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/hooks/useTheme";
-import { useNavigation } from "@react-navigation/native";
-import {
-  Check,
-  Clock,
-  Edit,
-  Eye,
-  Play,
-  RotateCcw,
-  Search,
-  Target,
-  Trash2,
-  TrendingUp,
-} from "lucide-react-native";
-import React, { useEffect, useMemo, useState } from "react";
-import {
-  Pressable,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import Toast from "react-native-toast-message";
 
 function isCurrentDay(timestamp: number | string | null): boolean {
   if (!timestamp) return false;
@@ -121,12 +121,9 @@ export default function ChallengesScreen() {
   // Calculate stats
   const stats = useMemo(() => {
     const total = challenges.length;
-    const todayCompleted = challenges.filter((c) =>
-      isCurrentDay(c.last_completed_at)
-    ).length;
+    const todayCompleted = challenges.filter((c) => isCurrentDay(c.last_completed_at)).length;
     const todayRemaining = total - todayCompleted;
-    const todayPercentage =
-      total > 0 ? Math.round((todayCompleted / total) * 100) : 0;
+    const todayPercentage = total > 0 ? Math.round((todayCompleted / total) * 100) : 0;
     return { total, todayCompleted, todayRemaining, todayPercentage };
   }, [challenges]);
 
@@ -259,10 +256,7 @@ export default function ChallengesScreen() {
   }
 
   return (
-    <SafeAreaView
-      style={[styles.safeArea, { backgroundColor: colors.background }]}
-      edges={["top"]}
-    >
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]} edges={["top"]}>
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.content}
@@ -276,9 +270,7 @@ export default function ChallengesScreen() {
       >
         {/* Header */}
         <View style={styles.header}>
-          <Text style={[styles.title, { color: colors.foreground }]}>
-            Challenges
-          </Text>
+          <Text style={[styles.title, { color: colors.foreground }]}>Challenges</Text>
           <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>
             Join spiritual challenges to strengthen your practice
           </Text>
@@ -290,17 +282,8 @@ export default function ChallengesScreen() {
             <CardContent style={styles.statCardContent}>
               <View style={styles.statRow}>
                 <View>
-                  <Text
-                    style={[
-                      styles.statLabel,
-                      { color: colors.mutedForeground },
-                    ]}
-                  >
-                    Total
-                  </Text>
-                  <Text
-                    style={[styles.statValue, { color: colors.foreground }]}
-                  >
+                  <Text style={[styles.statLabel, { color: colors.mutedForeground }]}>Total</Text>
+                  <Text style={[styles.statValue, { color: colors.foreground }]}>
                     {stats.total}
                   </Text>
                 </View>
@@ -313,17 +296,10 @@ export default function ChallengesScreen() {
             <CardContent style={styles.statCardContent}>
               <View style={styles.statRow}>
                 <View>
-                  <Text
-                    style={[
-                      styles.statLabel,
-                      { color: colors.mutedForeground },
-                    ]}
-                  >
+                  <Text style={[styles.statLabel, { color: colors.mutedForeground }]}>
                     Done Today
                   </Text>
-                  <Text
-                    style={[styles.statValue, { color: colors.foreground }]}
-                  >
+                  <Text style={[styles.statValue, { color: colors.foreground }]}>
                     {stats.todayCompleted}
                   </Text>
                 </View>
@@ -336,17 +312,10 @@ export default function ChallengesScreen() {
             <CardContent style={styles.statCardContent}>
               <View style={styles.statRow}>
                 <View>
-                  <Text
-                    style={[
-                      styles.statLabel,
-                      { color: colors.mutedForeground },
-                    ]}
-                  >
+                  <Text style={[styles.statLabel, { color: colors.mutedForeground }]}>
                     Remaining
                   </Text>
-                  <Text
-                    style={[styles.statValue, { color: colors.foreground }]}
-                  >
+                  <Text style={[styles.statValue, { color: colors.foreground }]}>
                     {stats.todayRemaining}
                   </Text>
                 </View>
@@ -359,17 +328,10 @@ export default function ChallengesScreen() {
             <CardContent style={styles.statCardContent}>
               <View style={styles.statRow}>
                 <View>
-                  <Text
-                    style={[
-                      styles.statLabel,
-                      { color: colors.mutedForeground },
-                    ]}
-                  >
+                  <Text style={[styles.statLabel, { color: colors.mutedForeground }]}>
                     Progress
                   </Text>
-                  <Text
-                    style={[styles.statValue, { color: colors.foreground }]}
-                  >
+                  <Text style={[styles.statValue, { color: colors.foreground }]}>
                     {stats.todayPercentage}%
                   </Text>
                 </View>
@@ -380,12 +342,7 @@ export default function ChallengesScreen() {
         </View>
 
         {/* Search Bar */}
-        <View
-          style={[
-            styles.searchContainer,
-            { backgroundColor: colors.secondary },
-          ]}
-        >
+        <View style={[styles.searchContainer, { backgroundColor: colors.secondary }]}>
           <Search color={colors.mutedForeground} size={18} />
           <TextInput
             style={[styles.searchInput, { color: colors.foreground }]}
@@ -414,10 +371,7 @@ export default function ChallengesScreen() {
               style={[
                 styles.filterTabText,
                 {
-                  color:
-                    completionFilter === "all"
-                      ? colors.primaryForeground
-                      : colors.foreground,
+                  color: completionFilter === "all" ? colors.primaryForeground : colors.foreground,
                 },
               ]}
             >
@@ -442,9 +396,7 @@ export default function ChallengesScreen() {
                 styles.filterTabText,
                 {
                   color:
-                    completionFilter === "pending"
-                      ? colors.primaryForeground
-                      : colors.foreground,
+                    completionFilter === "pending" ? colors.primaryForeground : colors.foreground,
                 },
               ]}
             >
@@ -469,9 +421,7 @@ export default function ChallengesScreen() {
                 styles.filterTabText,
                 {
                   color:
-                    completionFilter === "completed"
-                      ? colors.primaryForeground
-                      : colors.foreground,
+                    completionFilter === "completed" ? colors.primaryForeground : colors.foreground,
                 },
               ]}
             >
@@ -493,24 +443,14 @@ export default function ChallengesScreen() {
                 <View style={styles.cardHeaderRow}>
                   <View style={styles.cardTitleRow}>
                     <View
-                      style={[
-                        styles.iconContainer,
-                        { backgroundColor: colors.primary + "20" },
-                      ]}
+                      style={[styles.iconContainer, { backgroundColor: `${colors.primary}20` }]}
                     >
-                      <Text style={styles.challengeIcon}>
-                        {challenge.icon || "📿"}
-                      </Text>
+                      <Text style={styles.challengeIcon}>{challenge.icon || "📿"}</Text>
                     </View>
                     <View style={styles.titleContainer}>
                       <CardTitle>{challenge.title_bn}</CardTitle>
                       {challenge.title_ar && (
-                        <Text
-                          style={[
-                            styles.arabicTitle,
-                            { color: colors.mutedForeground },
-                          ]}
-                        >
+                        <Text style={[styles.arabicTitle, { color: colors.mutedForeground }]}>
                           {challenge.title_ar}
                         </Text>
                       )}
@@ -518,14 +458,9 @@ export default function ChallengesScreen() {
                   </View>
                   <View style={styles.badgeColumn}>
                     <Badge
-                      variant={
-                        challenge.user_status === "active"
-                          ? "default"
-                          : "secondary"
-                      }
+                      variant={challenge.user_status === "active" ? "default" : "secondary"}
                       style={{
-                        backgroundColor:
-                          getStatusColor(challenge.user_status) + "20",
+                        backgroundColor: `${getStatusColor(challenge.user_status)}20`,
                       }}
                       textStyle={{
                         color: getStatusColor(challenge.user_status),
@@ -537,9 +472,7 @@ export default function ChallengesScreen() {
                       <Badge
                         variant="secondary"
                         style={{
-                          backgroundColor: isCurrentDay(
-                            challenge.last_completed_at
-                          )
+                          backgroundColor: isCurrentDay(challenge.last_completed_at)
                             ? "#22c55e20"
                             : colors.secondary,
                         }}
@@ -559,10 +492,7 @@ export default function ChallengesScreen() {
               <CardContent>
                 {challenge.description_bn && (
                   <Text
-                    style={[
-                      styles.description,
-                      { color: colors.mutedForeground },
-                    ]}
+                    style={[styles.description, { color: colors.mutedForeground }]}
                     numberOfLines={2}
                   >
                     {challenge.description_bn}
@@ -571,56 +501,26 @@ export default function ChallengesScreen() {
 
                 <View style={styles.challengeStatsRow}>
                   <View style={styles.challengeStat}>
-                    <Text
-                      style={[
-                        styles.challengeStatValue,
-                        { color: colors.foreground },
-                      ]}
-                    >
+                    <Text style={[styles.challengeStatValue, { color: colors.foreground }]}>
                       {challenge.daily_target_count}
                     </Text>
-                    <Text
-                      style={[
-                        styles.challengeStatLabel,
-                        { color: colors.mutedForeground },
-                      ]}
-                    >
+                    <Text style={[styles.challengeStatLabel, { color: colors.mutedForeground }]}>
                       Daily
                     </Text>
                   </View>
                   <View style={styles.challengeStat}>
-                    <Text
-                      style={[
-                        styles.challengeStatValue,
-                        { color: colors.foreground },
-                      ]}
-                    >
+                    <Text style={[styles.challengeStatValue, { color: colors.foreground }]}>
                       {challenge.total_days}
                     </Text>
-                    <Text
-                      style={[
-                        styles.challengeStatLabel,
-                        { color: colors.mutedForeground },
-                      ]}
-                    >
+                    <Text style={[styles.challengeStatLabel, { color: colors.mutedForeground }]}>
                       Days
                     </Text>
                   </View>
                   <View style={styles.challengeStat}>
-                    <Text
-                      style={[
-                        styles.challengeStatValue,
-                        { color: colors.foreground },
-                      ]}
-                    >
+                    <Text style={[styles.challengeStatValue, { color: colors.foreground }]}>
                       {challenge.total_participants || 0}
                     </Text>
-                    <Text
-                      style={[
-                        styles.challengeStatLabel,
-                        { color: colors.mutedForeground },
-                      ]}
-                    >
+                    <Text style={[styles.challengeStatLabel, { color: colors.mutedForeground }]}>
                       Joined
                     </Text>
                   </View>
@@ -629,20 +529,10 @@ export default function ChallengesScreen() {
                 {challenge.user_status !== "not_started" && (
                   <View style={styles.progressContainer}>
                     <View style={styles.progressHeader}>
-                      <Text
-                        style={[
-                          styles.progressLabel,
-                          { color: colors.mutedForeground },
-                        ]}
-                      >
+                      <Text style={[styles.progressLabel, { color: colors.mutedForeground }]}>
                         Day {challenge.current_day} of {challenge.total_days}
                       </Text>
-                      <Text
-                        style={[
-                          styles.progressPercent,
-                          { color: colors.primary },
-                        ]}
-                      >
+                      <Text style={[styles.progressPercent, { color: colors.primary }]}>
                         {challenge.completion_percentage}%
                       </Text>
                     </View>
@@ -764,9 +654,7 @@ export default function ChallengesScreen() {
               <Text style={[styles.emptyTitle, { color: colors.foreground }]}>
                 No Challenges Found
               </Text>
-              <Text
-                style={[styles.emptyText, { color: colors.mutedForeground }]}
-              >
+              <Text style={[styles.emptyText, { color: colors.mutedForeground }]}>
                 {searchQuery
                   ? "Try a different search term"
                   : "Check back later for new challenges"}

@@ -1,33 +1,10 @@
-import {
-  Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui";
-import { useAuth } from "@/hooks/useAuth";
-import { useTheme } from "@/hooks/useTheme";
-import {
-  Bell,
-  Check,
-  LogOut,
-  Moon,
-  Smartphone,
-  Sun,
-  User,
-} from "lucide-react-native";
-import React from "react";
-import {
-  Alert,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Bell, Check, LogOut, Moon, Smartphone, Sun, User } from "lucide-react-native";
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
+import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui";
+import { useAuth } from "@/hooks/useAuth";
+import { useTheme } from "@/hooks/useTheme";
 
 export default function SettingsScreen() {
   const { colors, themeMode, setThemeMode } = useTheme();
@@ -60,24 +37,13 @@ export default function SettingsScreen() {
   };
 
   return (
-    <SafeAreaView
-      style={[styles.safeArea, { backgroundColor: colors.background }]}
-      edges={["top"]}
-    >
-      <ScrollView
-        style={styles.container}
-        contentContainerStyle={styles.content}
-      >
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]} edges={["top"]}>
+      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
         {/* Account Section */}
         <Card>
           <CardHeader>
             <View style={styles.headerRow}>
-              <View
-                style={[
-                  styles.avatarContainer,
-                  { backgroundColor: colors.primary },
-                ]}
-              >
+              <View style={[styles.avatarContainer, { backgroundColor: colors.primary }]}>
                 <User color={colors.primaryForeground} size={24} />
               </View>
               <View style={styles.headerInfo}>
@@ -87,11 +53,7 @@ export default function SettingsScreen() {
             </View>
           </CardHeader>
           <CardContent>
-            <Button
-              variant="destructive"
-              onPress={handleLogout}
-              style={styles.logoutButton}
-            >
+            <Button variant="destructive" onPress={handleLogout} style={styles.logoutButton}>
               <LogOut color={colors.destructiveForeground} size={18} />
               <Text
                 style={{
@@ -118,75 +80,42 @@ export default function SettingsScreen() {
                 style={[
                   styles.themeOption,
                   {
-                    borderColor:
-                      themeMode === "light" ? colors.primary : colors.border,
+                    borderColor: themeMode === "light" ? colors.primary : colors.border,
                   },
                 ]}
               >
-                <Sun
-                  color={
-                    themeMode === "light" ? colors.primary : colors.foreground
-                  }
-                  size={20}
-                />
-                <Text
-                  style={[styles.themeOptionText, { color: colors.foreground }]}
-                >
-                  Light
-                </Text>
-                {themeMode === "light" && (
-                  <Check color={colors.primary} size={16} />
-                )}
+                <Sun color={themeMode === "light" ? colors.primary : colors.foreground} size={20} />
+                <Text style={[styles.themeOptionText, { color: colors.foreground }]}>Light</Text>
+                {themeMode === "light" && <Check color={colors.primary} size={16} />}
               </Pressable>
               <Pressable
                 onPress={() => setThemeMode("dark")}
                 style={[
                   styles.themeOption,
                   {
-                    borderColor:
-                      themeMode === "dark" ? colors.primary : colors.border,
+                    borderColor: themeMode === "dark" ? colors.primary : colors.border,
                   },
                 ]}
               >
-                <Moon
-                  color={
-                    themeMode === "dark" ? colors.primary : colors.foreground
-                  }
-                  size={20}
-                />
-                <Text
-                  style={[styles.themeOptionText, { color: colors.foreground }]}
-                >
-                  Dark
-                </Text>
-                {themeMode === "dark" && (
-                  <Check color={colors.primary} size={16} />
-                )}
+                <Moon color={themeMode === "dark" ? colors.primary : colors.foreground} size={20} />
+                <Text style={[styles.themeOptionText, { color: colors.foreground }]}>Dark</Text>
+                {themeMode === "dark" && <Check color={colors.primary} size={16} />}
               </Pressable>
               <Pressable
                 onPress={() => setThemeMode("system")}
                 style={[
                   styles.themeOption,
                   {
-                    borderColor:
-                      themeMode === "system" ? colors.primary : colors.border,
+                    borderColor: themeMode === "system" ? colors.primary : colors.border,
                   },
                 ]}
               >
                 <Smartphone
-                  color={
-                    themeMode === "system" ? colors.primary : colors.foreground
-                  }
+                  color={themeMode === "system" ? colors.primary : colors.foreground}
                   size={20}
                 />
-                <Text
-                  style={[styles.themeOptionText, { color: colors.foreground }]}
-                >
-                  System
-                </Text>
-                {themeMode === "system" && (
-                  <Check color={colors.primary} size={16} />
-                )}
+                <Text style={[styles.themeOptionText, { color: colors.foreground }]}>System</Text>
+                {themeMode === "system" && <Check color={colors.primary} size={16} />}
               </Pressable>
             </View>
           </CardContent>
@@ -202,15 +131,11 @@ export default function SettingsScreen() {
             <View style={styles.settingRow}>
               <View style={styles.settingInfo}>
                 <Bell color={colors.foreground} size={20} />
-                <Text
-                  style={[styles.settingLabel, { color: colors.foreground }]}
-                >
+                <Text style={[styles.settingLabel, { color: colors.foreground }]}>
                   Push Notifications
                 </Text>
               </View>
-              <Text
-                style={[styles.settingValue, { color: colors.mutedForeground }]}
-              >
+              <Text style={[styles.settingValue, { color: colors.mutedForeground }]}>
                 Coming Soon
               </Text>
             </View>
@@ -224,24 +149,14 @@ export default function SettingsScreen() {
           </CardHeader>
           <CardContent>
             <View style={styles.aboutRow}>
-              <Text
-                style={[styles.aboutLabel, { color: colors.mutedForeground }]}
-              >
+              <Text style={[styles.aboutLabel, { color: colors.mutedForeground }]}>
                 App Version
               </Text>
-              <Text style={[styles.aboutValue, { color: colors.foreground }]}>
-                1.0.0
-              </Text>
+              <Text style={[styles.aboutValue, { color: colors.foreground }]}>1.0.0</Text>
             </View>
             <View style={styles.aboutRow}>
-              <Text
-                style={[styles.aboutLabel, { color: colors.mutedForeground }]}
-              >
-                Developer
-              </Text>
-              <Text style={[styles.aboutValue, { color: colors.foreground }]}>
-                Heaven Rose
-              </Text>
+              <Text style={[styles.aboutLabel, { color: colors.mutedForeground }]}>Developer</Text>
+              <Text style={[styles.aboutValue, { color: colors.foreground }]}>Heaven Rose</Text>
             </View>
           </CardContent>
         </Card>

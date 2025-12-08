@@ -1,13 +1,12 @@
-import { useTheme } from "@/hooks/useTheme";
-import React from "react";
 import {
   StyleSheet,
   Text,
   TextInput,
-  TextInputProps,
+  type TextInputProps,
   View,
-  ViewStyle,
+  type ViewStyle,
 } from "react-native";
+import { useTheme } from "@/hooks/useTheme";
 
 interface TextareaProps extends TextInputProps {
   label?: string;
@@ -28,11 +27,7 @@ export function Textarea({
 
   return (
     <View style={[styles.container, containerStyle]}>
-      {label && (
-        <Text style={[styles.label, { color: colors.foreground }]}>
-          {label}
-        </Text>
-      )}
+      {label && <Text style={[styles.label, { color: colors.foreground }]}>{label}</Text>}
       <TextInput
         multiline
         numberOfLines={rows}
@@ -50,11 +45,7 @@ export function Textarea({
         placeholderTextColor={colors.mutedForeground}
         {...props}
       />
-      {error && (
-        <Text style={[styles.error, { color: colors.destructive }]}>
-          {error}
-        </Text>
-      )}
+      {error && <Text style={[styles.error, { color: colors.destructive }]}>{error}</Text>}
     </View>
   );
 }

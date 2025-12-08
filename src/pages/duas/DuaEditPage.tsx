@@ -1,13 +1,13 @@
+import { ArrowLeft } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { toast } from "sonner";
 import { duasApi } from "@/api/duas.api";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
 import { Textarea } from "@/components/ui/Textarea";
-import { ArrowLeft } from "lucide-react";
-import { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import { toast } from "sonner";
 
 interface DuaFormData {
   title_bn: string;
@@ -70,7 +70,7 @@ export default function DuaEditPage() {
           is_important: dua?.is_important || false,
           audio_url: dua?.audio_url || "",
         });
-      } catch (error) {
+      } catch (_error) {
         toast.error("Failed to load dua");
         navigate("/duas");
       }

@@ -1,3 +1,6 @@
+import { Eye, EyeOff } from "lucide-react";
+import { useActionState, useState } from "react";
+import { Link } from "react-router-dom";
 import { authApi } from "@/api";
 import {
   Button,
@@ -10,9 +13,6 @@ import {
 } from "@/components/ui";
 import { ROUTES } from "@/config/routes";
 import { cn } from "@/lib/utils/cn";
-import { Eye, EyeOff } from "lucide-react";
-import { useActionState, useState } from "react";
-import { Link } from "react-router-dom";
 
 async function signupAction(_: any, formData: FormData) {
   try {
@@ -40,9 +40,7 @@ export function SignupForm() {
     <Card>
       <CardHeader>
         <CardTitle>Create Account</CardTitle>
-        <CardDescription>
-          Sign up to start your spiritual journey
-        </CardDescription>
+        <CardDescription>Sign up to start your spiritual journey</CardDescription>
       </CardHeader>
       <form action={formAction}>
         <CardContent className="space-y-4 pb-5">
@@ -95,11 +93,7 @@ export function SignupForm() {
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
               >
-                {showPassword ? (
-                  <EyeOff className="h-4 w-4" />
-                ) : (
-                  <Eye className="h-4 w-4" />
-                )}
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
           </div>
@@ -125,11 +119,7 @@ export function SignupForm() {
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
               >
-                {showConfirmPassword ? (
-                  <EyeOff className="h-4 w-4" />
-                ) : (
-                  <Eye className="h-4 w-4" />
-                )}
+                {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
           </div>

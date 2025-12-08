@@ -1,47 +1,63 @@
-import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
-import { useAuth } from '@/hooks/useAuth'
-import { dashboardApi } from '@/api/dashboard.api'
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, Badge, Button, Loader } from '@/components/ui'
-import { DashboardToggle } from '@/components/DashboardToggle'
-import { ROUTES } from '@/config/routes'
-import { formatNumber } from '@/lib/utils'
-import { Activity, Flame, Target, TrendingUp, Trophy, Users } from 'lucide-react'
+import { Activity, Flame, Target, TrendingUp, Trophy, Users } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { dashboardApi } from "@/api/dashboard.api";
+import { DashboardToggle } from "@/components/DashboardToggle";
+import {
+  Badge,
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Loader,
+} from "@/components/ui";
+import { ROUTES } from "@/config/routes";
+import { useAuth } from "@/hooks/useAuth";
+import { formatNumber } from "@/lib/utils";
 
 export default function DashboardPage() {
-  const { user } = useAuth()
-  const [showGlobalStats, setShowGlobalStats] = useState(false)
-  const [stats, setStats] = useState<any>(null)
-  const [topActivities, setTopActivities] = useState<any[]>([])
-  const [loading, setLoading] = useState(false)
+  const { user } = useAuth();
+  const [showGlobalStats, setShowGlobalStats] = useState(false);
+  const [stats, setStats] = useState<any>(null);
+  const [topActivities, setTopActivities] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (user) loadData(false)
-  }, [user])
+    if (user) loadData(false);
+  }, [user]);
 
   const loadData = async (showGlobal: boolean) => {
-    if (!user) return
-    setLoading(true)
+    if (!user) return;
+    setLoading(true);
     try {
       const [statsData, activitiesData] = await Promise.all([
         showGlobal ? dashboardApi.getGlobalStats() : dashboardApi.getUserStats(user.id),
-        showGlobal ? dashboardApi.getGlobalTopActivities(5) : dashboardApi.getUserTopActivities(user.id, 5),
-      ])
-      setStats(statsData)
-      setTopActivities(activitiesData)
+        showGlobal
+          ? dashboardApi.getGlobalTopActivities(5)
+          : dashboardApi.getUserTopActivities(user.id, 5),
+      ]);
+      setStats(statsData);
+      setTopActivities(activitiesData);
     } catch (error) {
-      console.error('Error loading dashboard:', error)
+      console.error("Error loading dashboard:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleToggle = (showGlobal: boolean) => {
-    setShowGlobalStats(showGlobal)
-    loadData(showGlobal)
-  }
+    setShowGlobalStats(showGlobal);
+    loadData(showGlobal);
+  };
 
-  if (!stats) return <div className="p-8 flex justify-center"><Loader size="lg" /></div>
+  if (!stats)
+    return (
+      <div className="p-8 flex justify-center">
+        <Loader size="lg" />
+      </div>
+    );
 
   return (
     <div className="space-y-8">
@@ -54,7 +70,9 @@ export default function DashboardPage() {
       </div>
 
       {/* Stats Grid */}
-      <div className={`grid gap-6 sm:grid-cols-2 lg:grid-cols-4 ${loading ? 'opacity-50 pointer-events-none' : ''}`}>
+      <div
+        className={`grid gap-6 sm:grid-cols-2 lg:grid-cols-4 ${loading ? "opacity-50 pointer-events-none" : ""}`}
+      >
         <Card className="relative">
           {loading && (
             <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-10 rounded-lg">
@@ -63,14 +81,14 @@ export default function DashboardPage() {
           )}
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              {showGlobalStats ? 'Total Activities' : 'Your Activities'}
+              {showGlobalStats ? "Total Activities" : "Your Activities"}
             </CardTitle>
             <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.totalActivities}</div>
             <p className="text-xs text-muted-foreground">
-              {showGlobalStats ? 'System-wide activities' : 'Activities completed'}
+              {showGlobalStats ? "System-wide activities" : "Activities completed"}
             </p>
           </CardContent>
         </Card>
@@ -83,14 +101,14 @@ export default function DashboardPage() {
           )}
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              {showGlobalStats ? 'Total Completions' : 'Your Completions'}
+              {showGlobalStats ? "Total Completions" : "Your Completions"}
             </CardTitle>
             <Trophy className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{formatNumber(stats.totalCompletions)}</div>
             <p className="text-xs text-muted-foreground">
-              {showGlobalStats ? 'All-time completions' : 'Total dhikr completed'}
+              {showGlobalStats ? "All-time completions" : "Total dhikr completed"}
             </p>
           </CardContent>
         </Card>
@@ -103,14 +121,14 @@ export default function DashboardPage() {
           )}
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              {showGlobalStats ? 'Active Users' : 'Streak Days'}
+              {showGlobalStats ? "Active Users" : "Streak Days"}
             </CardTitle>
             <Flame className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.totalActiveUsers}</div>
             <p className="text-xs text-muted-foreground">
-              {showGlobalStats ? 'Participating users' : 'Days active'}
+              {showGlobalStats ? "Participating users" : "Days active"}
             </p>
           </CardContent>
         </Card>
@@ -123,14 +141,14 @@ export default function DashboardPage() {
           )}
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              {showGlobalStats ? 'Active Challenges' : 'Your Challenges'}
+              {showGlobalStats ? "Active Challenges" : "Your Challenges"}
             </CardTitle>
             <Target className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.activeChallenges}</div>
             <p className="text-xs text-muted-foreground">
-              {showGlobalStats ? 'Ongoing challenges' : 'Challenges joined'}
+              {showGlobalStats ? "Ongoing challenges" : "Challenges joined"}
             </p>
           </CardContent>
         </Card>
@@ -146,11 +164,11 @@ export default function DashboardPage() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>
-                {showGlobalStats ? 'Top Activities' : 'Your Top Activities'}
-              </CardTitle>
+              <CardTitle>{showGlobalStats ? "Top Activities" : "Your Top Activities"}</CardTitle>
               <CardDescription>
-                {showGlobalStats ? 'Most completed dhikr and prayers' : 'Your most practiced dhikr and prayers'}
+                {showGlobalStats
+                  ? "Most completed dhikr and prayers"
+                  : "Your most practiced dhikr and prayers"}
               </CardDescription>
             </div>
             <Button asChild variant="outline">
@@ -216,7 +234,7 @@ export default function DashboardPage() {
               {showGlobalStats ? "Today's Activity" : "Today's Progress"}
             </CardTitle>
             <CardDescription>
-              {showGlobalStats ? 'Completions in the last 24 hours' : 'Your completions today'}
+              {showGlobalStats ? "Completions in the last 24 hours" : "Your completions today"}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -251,7 +269,7 @@ export default function DashboardPage() {
               This Week
             </CardTitle>
             <CardDescription>
-              {showGlobalStats ? 'Completions in the last 7 days' : 'Your weekly progress'}
+              {showGlobalStats ? "Completions in the last 7 days" : "Your weekly progress"}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -293,5 +311,5 @@ export default function DashboardPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

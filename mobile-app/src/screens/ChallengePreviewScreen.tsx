@@ -1,31 +1,14 @@
-import { challengesApi } from "@/api/challenges.api";
-import {
-  Badge,
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  Loader,
-} from "@/components/ui";
-import { ROUTES } from "@/config/routes";
-import { useAuth } from "@/hooks/useAuth";
-import { useTheme } from "@/hooks/useTheme";
 import { useNavigation, useRoute } from "@react-navigation/native";
-import {
-  BookOpen,
-  Calendar,
-  Clock,
-  Play,
-  Star,
-  Target,
-  Trophy,
-  Users,
-} from "lucide-react-native";
-import React, { useEffect, useState } from "react";
+import { BookOpen, Calendar, Clock, Play, Star, Target, Trophy, Users } from "lucide-react-native";
+import { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
+import { challengesApi } from "@/api/challenges.api";
+import { Badge, Button, Card, CardContent, CardHeader, CardTitle, Loader } from "@/components/ui";
+import { ROUTES } from "@/config/routes";
+import { useAuth } from "@/hooks/useAuth";
+import { useTheme } from "@/hooks/useTheme";
 
 export default function ChallengePreviewScreen() {
   const route = useRoute<any>();
@@ -50,10 +33,7 @@ export default function ChallengePreviewScreen() {
       setChallenge(data);
 
       if (user) {
-        const { data: existing } = await challengesApi.checkActiveProgress(
-          user.id,
-          challengeId
-        );
+        const { data: existing } = await challengesApi.checkActiveProgress(user.id, challengeId);
         if (existing) {
           setHasActiveChallenge(true);
           setActiveProgressId(existing.id);
@@ -112,9 +92,7 @@ export default function ChallengePreviewScreen() {
 
   if (!challenge) {
     return (
-      <SafeAreaView
-        style={[styles.container, { backgroundColor: colors.background }]}
-      >
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
         <View style={styles.center}>
           <Text style={{ color: colors.foreground }}>Challenge not found</Text>
         </View>
@@ -156,26 +134,14 @@ export default function ChallengePreviewScreen() {
           <Text style={styles.icon}>{challenge.icon || "📿"}</Text>
           <View style={styles.headerContent}>
             <View style={styles.titleInfo}>
-              <Text style={[styles.title, { color: colors.foreground }]}>
-                {challenge.title_bn}
-              </Text>
+              <Text style={[styles.title, { color: colors.foreground }]}>{challenge.title_bn}</Text>
               {challenge.title_ar && (
-                <Text
-                  style={[
-                    styles.arabicTitle,
-                    { color: colors.mutedForeground },
-                  ]}
-                >
+                <Text style={[styles.arabicTitle, { color: colors.mutedForeground }]}>
                   {challenge.title_ar}
                 </Text>
               )}
             </View>
-            <Badge
-              style={[
-                styles.difficultyBadge,
-                { backgroundColor: getDifficultyColor() },
-              ]}
-            >
+            <Badge style={[styles.difficultyBadge, { backgroundColor: getDifficultyColor() }]}>
               <Text style={styles.badgeText}>
                 {challenge.difficulty_level?.toUpperCase() || "MEDIUM"}
               </Text>
@@ -190,36 +156,28 @@ export default function ChallengePreviewScreen() {
             <Text style={[styles.statValue, { color: colors.foreground }]}>
               {challenge.daily_target_count}x
             </Text>
-            <Text style={[styles.statLabel, { color: colors.mutedForeground }]}>
-              Per Day
-            </Text>
+            <Text style={[styles.statLabel, { color: colors.mutedForeground }]}>Per Day</Text>
           </View>
           <View style={[styles.statCard, { backgroundColor: colors.card }]}>
             <Calendar color="#3b82f6" size={20} />
             <Text style={[styles.statValue, { color: colors.foreground }]}>
               {challenge.total_days}
             </Text>
-            <Text style={[styles.statLabel, { color: colors.mutedForeground }]}>
-              Days
-            </Text>
+            <Text style={[styles.statLabel, { color: colors.mutedForeground }]}>Days</Text>
           </View>
           <View style={[styles.statCard, { backgroundColor: colors.card }]}>
             <Users color="#8b5cf6" size={20} />
             <Text style={[styles.statValue, { color: colors.foreground }]}>
               {challenge.total_participants || 0}
             </Text>
-            <Text style={[styles.statLabel, { color: colors.mutedForeground }]}>
-              Joined
-            </Text>
+            <Text style={[styles.statLabel, { color: colors.mutedForeground }]}>Joined</Text>
           </View>
           <View style={[styles.statCard, { backgroundColor: colors.card }]}>
             <Trophy color="#f59e0b" size={20} />
             <Text style={[styles.statValue, { color: colors.foreground }]}>
               {challenge.total_completions || 0}
             </Text>
-            <Text style={[styles.statLabel, { color: colors.mutedForeground }]}>
-              Done
-            </Text>
+            <Text style={[styles.statLabel, { color: colors.mutedForeground }]}>Done</Text>
           </View>
         </View>
 
@@ -233,21 +191,11 @@ export default function ChallengePreviewScreen() {
               {challenge.description_bn}
             </Text>
             {(challenge.recommended_time || challenge.recommended_prayer) && (
-              <View
-                style={[
-                  styles.recommendations,
-                  { backgroundColor: colors.secondary },
-                ]}
-              >
+              <View style={[styles.recommendations, { backgroundColor: colors.secondary }]}>
                 {challenge.recommended_time && (
                   <View style={styles.recommendItem}>
                     <Clock color={colors.mutedForeground} size={16} />
-                    <Text
-                      style={[
-                        styles.recommendText,
-                        { color: colors.foreground },
-                      ]}
-                    >
+                    <Text style={[styles.recommendText, { color: colors.foreground }]}>
                       {timeLabel}
                     </Text>
                   </View>
@@ -255,12 +203,7 @@ export default function ChallengePreviewScreen() {
                 {challenge.recommended_prayer && (
                   <View style={styles.recommendItem}>
                     <Text style={{ fontSize: 16 }}>🕌</Text>
-                    <Text
-                      style={[
-                        styles.recommendText,
-                        { color: colors.foreground },
-                      ]}
-                    >
+                    <Text style={[styles.recommendText, { color: colors.foreground }]}>
                       After {prayerLabel} Prayer
                     </Text>
                   </View>
@@ -290,25 +233,16 @@ export default function ChallengePreviewScreen() {
             )}
             {challenge.transliteration_bn && (
               <View style={styles.section}>
-                <Text
-                  style={[
-                    styles.sectionLabel,
-                    { color: colors.mutedForeground },
-                  ]}
-                >
+                <Text style={[styles.sectionLabel, { color: colors.mutedForeground }]}>
                   Transliteration
                 </Text>
-                <Text
-                  style={[styles.sectionText, { color: colors.foreground }]}
-                >
+                <Text style={[styles.sectionText, { color: colors.foreground }]}>
                   {challenge.transliteration_bn}
                 </Text>
               </View>
             )}
             <View style={styles.section}>
-              <Text
-                style={[styles.sectionLabel, { color: colors.mutedForeground }]}
-              >
+              <Text style={[styles.sectionLabel, { color: colors.mutedForeground }]}>
                 Translation
               </Text>
               <Text style={[styles.sectionText, { color: colors.foreground }]}>
@@ -316,28 +250,13 @@ export default function ChallengePreviewScreen() {
               </Text>
             </View>
             {challenge.reference && (
-              <View
-                style={[
-                  styles.referenceBox,
-                  { backgroundColor: colors.secondary },
-                ]}
-              >
+              <View style={[styles.referenceBox, { backgroundColor: colors.secondary }]}>
                 <BookOpen color={colors.mutedForeground} size={16} />
                 <View>
-                  <Text
-                    style={[
-                      styles.referenceLabel,
-                      { color: colors.foreground },
-                    ]}
-                  >
+                  <Text style={[styles.referenceLabel, { color: colors.foreground }]}>
                     Reference
                   </Text>
-                  <Text
-                    style={[
-                      styles.referenceText,
-                      { color: colors.mutedForeground },
-                    ]}
-                  >
+                  <Text style={[styles.referenceText, { color: colors.mutedForeground }]}>
                     {challenge.reference}
                   </Text>
                 </View>
@@ -377,17 +296,10 @@ export default function ChallengePreviewScreen() {
                 "Complete and experience the benefits!",
               ].map((step, index) => (
                 <View key={index} style={styles.stepRow}>
-                  <View
-                    style={[
-                      styles.stepNumber,
-                      { backgroundColor: colors.primary },
-                    ]}
-                  >
+                  <View style={[styles.stepNumber, { backgroundColor: colors.primary }]}>
                     <Text style={styles.stepNumberText}>{index + 1}</Text>
                   </View>
-                  <Text style={[styles.stepText, { color: colors.foreground }]}>
-                    {step}
-                  </Text>
+                  <Text style={[styles.stepText, { color: colors.foreground }]}>{step}</Text>
                 </View>
               ))}
             </View>
@@ -399,23 +311,15 @@ export default function ChallengePreviewScreen() {
 
       {/* Fixed Bottom Action Bar */}
       <View
-        style={[
-          styles.actionBar,
-          { backgroundColor: colors.card, borderTopColor: colors.border },
-        ]}
+        style={[styles.actionBar, { backgroundColor: colors.card, borderTopColor: colors.border }]}
       >
         <View style={styles.actionBarContent}>
           <View>
             <Text style={[styles.actionTitle, { color: colors.foreground }]}>
-              {hasActiveChallenge
-                ? "Continue Your Challenge"
-                : "Ready to begin?"}
+              {hasActiveChallenge ? "Continue Your Challenge" : "Ready to begin?"}
             </Text>
-            <Text
-              style={[styles.actionSubtitle, { color: colors.mutedForeground }]}
-            >
-              {challenge.total_days} days • {challenge.daily_target_count}x per
-              day
+            <Text style={[styles.actionSubtitle, { color: colors.mutedForeground }]}>
+              {challenge.total_days} days • {challenge.daily_target_count}x per day
             </Text>
           </View>
           {hasActiveChallenge ? (

@@ -1,17 +1,11 @@
-import { activitiesApi } from "@/api/activities.api";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  Loader,
-} from "@/components/ui";
-import { useTheme } from "@/hooks/useTheme";
-import { formatNumber } from "@/lib/utils";
 import { useRoute } from "@react-navigation/native";
 import { Activity, Trophy, Users } from "lucide-react-native";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { activitiesApi } from "@/api/activities.api";
+import { Card, CardContent, CardHeader, CardTitle, Loader } from "@/components/ui";
+import { useTheme } from "@/hooks/useTheme";
+import { formatNumber } from "@/lib/utils";
 
 export default function ActivityDetailScreen() {
   const route = useRoute<any>();
@@ -42,13 +36,7 @@ export default function ActivityDetailScreen() {
 
   if (!activity) {
     return (
-      <View
-        style={[
-          styles.container,
-          styles.center,
-          { backgroundColor: colors.background },
-        ]}
-      >
+      <View style={[styles.container, styles.center, { backgroundColor: colors.background }]}>
         <Text style={{ color: colors.foreground }}>Activity not found</Text>
       </View>
     );
@@ -62,30 +50,18 @@ export default function ActivityDetailScreen() {
       <Card>
         <CardHeader>
           <View style={styles.headerRow}>
-            <View
-              style={[
-                styles.iconContainer,
-                { backgroundColor: colors.primary + "20" },
-              ]}
-            >
+            <View style={[styles.iconContainer, { backgroundColor: `${colors.primary}20` }]}>
               <Activity color={colors.primary} size={28} />
             </View>
             <View style={styles.headerInfo}>
               <CardTitle>{activity.name_bn}</CardTitle>
               {activity.name_ar && (
-                <Text
-                  style={[styles.arabicName, { color: colors.mutedForeground }]}
-                >
+                <Text style={[styles.arabicName, { color: colors.mutedForeground }]}>
                   {activity.name_ar}
                 </Text>
               )}
               {activity.name_en && (
-                <Text
-                  style={[
-                    styles.englishName,
-                    { color: colors.mutedForeground },
-                  ]}
-                >
+                <Text style={[styles.englishName, { color: colors.mutedForeground }]}>
                   {activity.name_en}
                 </Text>
               )}
@@ -94,29 +70,21 @@ export default function ActivityDetailScreen() {
         </CardHeader>
         <CardContent>
           <View style={styles.statsGrid}>
-            <View
-              style={[styles.statBox, { backgroundColor: colors.secondary }]}
-            >
+            <View style={[styles.statBox, { backgroundColor: colors.secondary }]}>
               <Trophy color="#eab308" size={24} />
               <Text style={[styles.statValue, { color: colors.foreground }]}>
                 {formatNumber(activity.total_count || 0)}
               </Text>
-              <Text
-                style={[styles.statLabel, { color: colors.mutedForeground }]}
-              >
+              <Text style={[styles.statLabel, { color: colors.mutedForeground }]}>
                 Total Completions
               </Text>
             </View>
-            <View
-              style={[styles.statBox, { backgroundColor: colors.secondary }]}
-            >
+            <View style={[styles.statBox, { backgroundColor: colors.secondary }]}>
               <Users color={colors.primary} size={24} />
               <Text style={[styles.statValue, { color: colors.foreground }]}>
                 {formatNumber(activity.total_users || 0)}
               </Text>
-              <Text
-                style={[styles.statLabel, { color: colors.mutedForeground }]}
-              >
+              <Text style={[styles.statLabel, { color: colors.mutedForeground }]}>
                 Participants
               </Text>
             </View>

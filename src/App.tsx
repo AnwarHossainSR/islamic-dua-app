@@ -1,12 +1,12 @@
+import { Suspense } from "react";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { Toaster } from "sonner";
 import { Header } from "@/components/Header";
 import { RouteWrapper } from "@/components/RouteWrapper";
 import { FullPageLoader } from "@/components/ui";
 import { ROUTES } from "@/config/routes";
 import { routes } from "@/config/routes.config";
 import { AppProviders } from "@/providers";
-import { Suspense } from "react";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import { Toaster } from "sonner";
 
 export default function App() {
   return (
@@ -22,28 +22,20 @@ export default function App() {
         <Suspense fallback={<FullPageLoader />}>
           <Routes>
             {/* Redirect home to dashboard */}
-            <Route
-              path={ROUTES.HOME}
-              element={<Navigate to={ROUTES.DASHBOARD} replace />}
-            />
+            <Route path={ROUTES.HOME} element={<Navigate to={ROUTES.DASHBOARD} replace />} />
 
             {/* Dynamic routes from configuration */}
-            {routes.map(
-              ({ path, component: Component, requireAuth, requireLayout }) => (
-                <Route
-                  key={path}
-                  path={path}
-                  element={
-                    <RouteWrapper
-                      requireAuth={requireAuth}
-                      requireLayout={requireLayout}
-                    >
-                      <Component />
-                    </RouteWrapper>
-                  }
-                />
-              )
-            )}
+            {routes.map(({ path, component: Component, requireAuth, requireLayout }) => (
+              <Route
+                key={path}
+                path={path}
+                element={
+                  <RouteWrapper requireAuth={requireAuth} requireLayout={requireLayout}>
+                    <Component />
+                  </RouteWrapper>
+                }
+              />
+            ))}
           </Routes>
         </Suspense>
       </BrowserRouter>

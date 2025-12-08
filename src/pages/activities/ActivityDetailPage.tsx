@@ -1,48 +1,54 @@
-import { activitiesApi } from '@/api/activities.api'
-import { Badge } from '@/components/ui/Badge'
-import { Button } from '@/components/ui/Button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
-import { Loader } from '@/components/ui'
-import { useAuth } from '@/hooks/useAuth'
-import { formatNumber } from '@/lib/utils'
-import { ArrowLeft, Calendar, Flame, RotateCcw, Trophy, Users } from 'lucide-react'
-import { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { ArrowLeft, Calendar, Flame, RotateCcw, Trophy, Users } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import { activitiesApi } from "@/api/activities.api";
+import { Loader } from "@/components/ui";
+import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
+import { useAuth } from "@/hooks/useAuth";
+import { formatNumber } from "@/lib/utils";
 
 export default function ActivityDetailPage() {
-  const { id } = useParams<{ id: string }>()
-  const { user } = useAuth()
-  const [activity, setActivity] = useState<any>(null)
-  const [topUsers, setTopUsers] = useState<any[]>([])
-  const [userDailyLogs, setUserDailyLogs] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
+  const { id } = useParams<{ id: string }>();
+  const { user } = useAuth();
+  const [activity, setActivity] = useState<any>(null);
+  const [topUsers, setTopUsers] = useState<any[]>([]);
+  const [userDailyLogs, setUserDailyLogs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (id && user) loadData()
-  }, [id, user])
+    if (id && user) loadData();
+  }, [id, user]);
 
   const loadData = async () => {
-    if (!id || !user) return
+    if (!id || !user) return;
     try {
       const [activityData, topUsersData, logsData] = await Promise.all([
         activitiesApi.getActivityById(id),
         activitiesApi.getTopUsers(id, 10),
         activitiesApi.getUserDailyLogs(id, user.id),
-      ])
-      setActivity(activityData)
-      setTopUsers(topUsersData)
-      setUserDailyLogs(logsData)
+      ]);
+      setActivity(activityData);
+      setTopUsers(topUsersData);
+      setUserDailyLogs(logsData);
     } catch (error) {
-      console.error('Error loading activity:', error)
+      console.error("Error loading activity:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
-  if (loading) return <div className="p-6 flex justify-center"><Loader size="lg" /></div>
-  if (!activity) return <div className="p-6">Activity not found</div>
+  if (loading)
+    return (
+      <div className="p-6 flex justify-center">
+        <Loader size="lg" />
+      </div>
+    );
+  if (!activity) return <div className="p-6">Activity not found</div>;
 
-  const avgPerUser = activity.total_users > 0 ? Math.round(activity.total_count / activity.total_users) : 0
+  const avgPerUser =
+    activity.total_users > 0 ? Math.round(activity.total_count / activity.total_users) : 0;
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 pb-20">
@@ -108,13 +114,13 @@ export default function ActivityDetailPage() {
           <div className="flex items-center gap-3">
             <div
               className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg text-3xl"
-              style={{ backgroundColor: (activity.color || '#10b981') + '20' }}
+              style={{ backgroundColor: `${activity.color || "#10b981"}20` }}
             >
-              {activity.icon || '📿'}
+              {activity.icon || "📿"}
             </div>
             <div>
               <Badge variant="secondary" className="mb-2">
-                {activity.activity_type || 'dhikr'}
+                {activity.activity_type || "dhikr"}
               </Badge>
               <p className="text-sm text-muted-foreground">
                 Slug: <code className="bg-muted px-2 py-1 rounded">{activity.unique_slug}</code>
@@ -122,7 +128,7 @@ export default function ActivityDetailPage() {
             </div>
           </div>
 
-          {activity.arabic_text && activity.arabic_text !== 'none' && (
+          {activity.arabic_text && activity.arabic_text !== "none" && (
             <div className="rounded-lg border-2 border-emerald-200 bg-emerald-50 p-6 dark:border-emerald-900 dark:bg-emerald-950">
               <p className="arabic-text text-center text-3xl leading-loose">
                 {activity.arabic_text}
@@ -173,15 +179,17 @@ export default function ActivityDetailPage() {
                         <h4 className="font-medium">Day {log.day_number}</h4>
                         {log.mood && (
                           <Badge variant="outline" className="text-xs">
-                            {log.mood === 'great' && '😊 Great'}
-                            {log.mood === 'good' && '🙂 Good'}
-                            {log.mood === 'okay' && '😐 Okay'}
-                            {log.mood === 'difficult' && '😓 Difficult'}
+                            {log.mood === "great" && "😊 Great"}
+                            {log.mood === "good" && "🙂 Good"}
+                            {log.mood === "okay" && "😐 Okay"}
+                            {log.mood === "difficult" && "😓 Difficult"}
                           </Badge>
                         )}
                       </div>
                       <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        <span>Completed: {log.count_completed}/{log.target_count}</span>
+                        <span>
+                          Completed: {log.count_completed}/{log.target_count}
+                        </span>
                         <span>{new Date(log.completion_date).toLocaleDateString()}</span>
                       </div>
                       {log.notes && (
@@ -192,9 +200,7 @@ export default function ActivityDetailPage() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-2xl font-bold text-emerald-600">
-                      {log.count_completed}
-                    </div>
+                    <div className="text-2xl font-bold text-emerald-600">{log.count_completed}</div>
                     <div className="text-xs text-muted-foreground">count</div>
                   </div>
                 </div>
@@ -222,7 +228,7 @@ export default function ActivityDetailPage() {
                 >
                   <div className="flex items-center gap-3">
                     <Badge
-                      variant={index < 3 ? 'default' : 'outline'}
+                      variant={index < 3 ? "default" : "outline"}
                       className="h-8 w-8 flex items-center justify-center rounded-full text-sm font-bold shrink-0"
                     >
                       #{index + 1}
@@ -261,5 +267,5 @@ export default function ActivityDetailPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

@@ -1,25 +1,19 @@
-import { useTheme } from "@/hooks/useTheme";
 import React from "react";
 import {
   ActivityIndicator,
   Pressable,
-  StyleProp,
+  type StyleProp,
   StyleSheet,
   Text,
-  TextStyle,
-  ViewStyle,
+  type TextStyle,
+  type ViewStyle,
 } from "react-native";
+import { useTheme } from "@/hooks/useTheme";
 
 interface ButtonProps {
   children: React.ReactNode;
   onPress?: () => void;
-  variant?:
-    | "default"
-    | "destructive"
-    | "outline"
-    | "secondary"
-    | "ghost"
-    | "link";
+  variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
   size?: "default" | "sm" | "lg" | "icon";
   disabled?: boolean;
   loading?: boolean;
@@ -164,8 +158,9 @@ export function Button({
 
   // Flatten the passed style to extract values
   const flattenedStyle = style ? StyleSheet.flatten(style) : ({} as ViewStyle);
-  const { backgroundColor: customBgColor, ...restStyle } =
-    flattenedStyle as ViewStyle & { backgroundColor?: string };
+  const { backgroundColor: customBgColor, ...restStyle } = flattenedStyle as ViewStyle & {
+    backgroundColor?: string;
+  };
 
   return (
     <Pressable

@@ -46,10 +46,7 @@ export const duasApi = {
     }
 
     if (filters?.offset) {
-      query = query.range(
-        filters.offset,
-        filters.offset + (filters.limit || 20) - 1
-      );
+      query = query.range(filters.offset, filters.offset + (filters.limit || 20) - 1);
     }
 
     const { data, error } = await query;

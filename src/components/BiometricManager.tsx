@@ -1,17 +1,11 @@
-import { settingsApi } from "@/api/settings.api";
-import { Button } from "@/components/ui/Button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/Card";
-import { Input } from "@/components/ui/Input";
-import { Label } from "@/components/ui/Label";
 import { Fingerprint, Monitor, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { settingsApi } from "@/api/settings.api";
+import { Button } from "@/components/ui/Button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
+import { Input } from "@/components/ui/Input";
+import { Label } from "@/components/ui/Label";
 
 interface Credential {
   id: string;
@@ -22,7 +16,9 @@ interface Credential {
 }
 
 export function BiometricManager() {
-  const [isSupported] = useState(() => "credentials" in navigator && "PublicKeyCredential" in window);
+  const [isSupported] = useState(
+    () => "credentials" in navigator && "PublicKeyCredential" in window
+  );
   const [credentials, setCredentials] = useState<Credential[]>([]);
   const [isAdding, setIsAdding] = useState(false);
   const [deviceName, setDeviceName] = useState("");
@@ -48,7 +44,9 @@ export function BiometricManager() {
       }
     };
     loadCredentials();
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const handleDeleteCredential = async (credentialId: string) => {
@@ -104,9 +102,7 @@ export function BiometricManager() {
             </div>
             <div className="flex gap-2">
               <Button
-                onClick={() =>
-                  toast.info("WebAuthn registration not implemented")
-                }
+                onClick={() => toast.info("WebAuthn registration not implemented")}
                 disabled={loading}
               >
                 <Fingerprint className="mr-2 h-4 w-4" />
@@ -137,13 +133,11 @@ export function BiometricManager() {
                   <div>
                     <div className="font-medium">{credential.device_name}</div>
                     <div className="text-sm text-muted-foreground">
-                      Added{" "}
-                      {new Date(credential.created_at).toLocaleDateString()}
+                      Added {new Date(credential.created_at).toLocaleDateString()}
                       {credential.last_used_at && (
                         <span>
                           {" "}
-                          • Last used{" "}
-                          {new Date(credential.last_used_at).toLocaleString()}
+                          • Last used {new Date(credential.last_used_at).toLocaleString()}
                         </span>
                       )}
                     </div>
@@ -152,9 +146,7 @@ export function BiometricManager() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() =>
-                    handleDeleteCredential(credential.credential_id)
-                  }
+                  onClick={() => handleDeleteCredential(credential.credential_id)}
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>

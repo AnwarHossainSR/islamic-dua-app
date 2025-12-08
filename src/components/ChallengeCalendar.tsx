@@ -1,9 +1,5 @@
 "use client";
 
-import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
-import { cn } from "@/lib/utils";
 import {
   Calendar,
   CheckCircle2,
@@ -15,6 +11,10 @@ import {
   X,
 } from "lucide-react";
 import { useMemo, useState } from "react";
+import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import { cn } from "@/lib/utils";
 
 interface DailyLog {
   day_number: number;
@@ -68,11 +68,7 @@ export function ChallengeCalendar({
     > = [];
 
     // Get first day of month and calculate calendar grid
-    const firstDay = new Date(
-      currentMonth.getFullYear(),
-      currentMonth.getMonth(),
-      1
-    );
+    const firstDay = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
 
     const startCalendar = new Date(firstDay);
     startCalendar.setDate(startCalendar.getDate() - firstDay.getDay());
@@ -88,16 +84,9 @@ export function ChallengeCalendar({
           (date.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
         );
         const dayNumber =
-          daysSinceStart >= 0 && daysSinceStart < challenge.total_days
-            ? daysSinceStart + 1
-            : null;
+          daysSinceStart >= 0 && daysSinceStart < challenge.total_days ? daysSinceStart + 1 : null;
 
-        let status:
-          | "completed"
-          | "current"
-          | "missed"
-          | "upcoming"
-          | "outside" = "outside";
+        let status: "completed" | "current" | "missed" | "upcoming" | "outside" = "outside";
         let log: DailyLog | null = null;
 
         if (dayNumber) {
@@ -209,8 +198,7 @@ export function ChallengeCalendar({
               <ChevronLeft className="h-3 w-3 sm:h-4 sm:w-4" />
             </Button>
             <span className="min-w-20 sm:min-w-[120px] text-center text-xs sm:text-sm font-medium">
-              {monthNames[currentMonth.getMonth()].slice(0, 3)}{" "}
-              {currentMonth.getFullYear()}
+              {monthNames[currentMonth.getMonth()].slice(0, 3)} {currentMonth.getFullYear()}
             </span>
             <Button
               variant="outline"
@@ -232,9 +220,7 @@ export function ChallengeCalendar({
                 {progress.total_completed_days}
               </span>
             </div>
-            <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
-              Done
-            </p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground truncate">Done</p>
           </div>
           <div className="text-center">
             <div className="flex items-center justify-center gap-1">
@@ -243,9 +229,7 @@ export function ChallengeCalendar({
                 {progress.current_streak}
               </span>
             </div>
-            <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
-              Streak
-            </p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground truncate">Streak</p>
           </div>
           <div className="text-center">
             <div className="flex items-center justify-center gap-1">
@@ -254,9 +238,7 @@ export function ChallengeCalendar({
                 {progress.missed_days}
               </span>
             </div>
-            <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
-              Miss
-            </p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground truncate">Miss</p>
           </div>
         </div>
       </CardHeader>
@@ -267,10 +249,7 @@ export function ChallengeCalendar({
           {/* Day headers */}
           <div className="grid grid-cols-7 gap-1 sm:gap-2">
             {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-              <div
-                key={day}
-                className="p-2 text-center text-xs font-medium text-muted-foreground"
-              >
+              <div key={day} className="p-2 text-center text-xs font-medium text-muted-foreground">
                 {day}
               </div>
             ))}
@@ -302,12 +281,9 @@ export function ChallengeCalendar({
                       </span>
                     </>
                   )}
-                  {!day.dayNumber &&
-                    day.date.getMonth() === currentMonth.getMonth() && (
-                      <span className="text-xs text-muted-foreground/50">
-                        {day.date.getDate()}
-                      </span>
-                    )}
+                  {!day.dayNumber && day.date.getMonth() === currentMonth.getMonth() && (
+                    <span className="text-xs text-muted-foreground/50">{day.date.getDate()}</span>
+                  )}
                 </button>
               ))}
             </div>
@@ -339,14 +315,8 @@ export function ChallengeCalendar({
           <Card className="border-2 border-blue-500/20 bg-blue-500/5">
             <CardContent className="pt-4">
               <div className="flex items-center justify-between mb-3">
-                <h4 className="font-medium">
-                  Day {selectedDay.day_number} Details
-                </h4>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setSelectedDay(null)}
-                >
+                <h4 className="font-medium">Day {selectedDay.day_number} Details</h4>
+                <Button variant="ghost" size="sm" onClick={() => setSelectedDay(null)}>
                   <X className="h-4 w-4" />
                 </Button>
               </div>
@@ -369,9 +339,7 @@ export function ChallengeCalendar({
                 <div className="flex justify-between">
                   <span className="text-sm text-muted-foreground">Status:</span>
                   <Badge
-                    variant={
-                      selectedDay.is_completed ? "default" : "destructive"
-                    }
+                    variant={selectedDay.is_completed ? "default" : "destructive"}
                     className="text-xs"
                   >
                     {selectedDay.is_completed ? "Completed" : "Incomplete"}

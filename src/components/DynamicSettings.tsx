@@ -1,11 +1,11 @@
-import { useEffect, useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
-import { Label } from '@/components/ui/Label';
-import { Switch } from '@/components/ui/Switch';
-import { settingsApi } from '@/api/settings.api';
-import { toast } from 'sonner';
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { settingsApi } from "@/api/settings.api";
+import { Button } from "@/components/ui/Button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
+import { Input } from "@/components/ui/Input";
+import { Label } from "@/components/ui/Label";
+import { Switch } from "@/components/ui/Switch";
 
 interface Setting {
   id: string;
@@ -48,7 +48,7 @@ export function DynamicSettings({ category, title, description, icon }: DynamicS
       });
       setValues(initialValues);
     } catch (error) {
-      console.error('Failed to fetch settings:', error);
+      console.error("Failed to fetch settings:", error);
     } finally {
       setLoading(false);
     }
@@ -60,9 +60,9 @@ export function DynamicSettings({ category, title, description, icon }: DynamicS
       await Promise.all(
         Object.entries(values).map(([key, value]) => settingsApi.update(key, value))
       );
-      toast.success('Settings saved successfully');
+      toast.success("Settings saved successfully");
     } catch (error: any) {
-      toast.error(error.message || 'Failed to save settings');
+      toast.error(error.message || "Failed to save settings");
     } finally {
       setSaving(false);
     }
@@ -72,28 +72,30 @@ export function DynamicSettings({ category, title, description, icon }: DynamicS
     const value = values[setting.key];
 
     switch (setting.type) {
-      case 'boolean':
+      case "boolean":
         return (
           <Switch
             checked={value}
-            onCheckedChange={checked => setValues(prev => ({ ...prev, [setting.key]: checked }))}
+            onCheckedChange={(checked) =>
+              setValues((prev) => ({ ...prev, [setting.key]: checked }))
+            }
           />
         );
-      case 'number':
+      case "number":
         return (
           <Input
             type="number"
-            value={value || ''}
-            onChange={e =>
-              setValues(prev => ({ ...prev, [setting.key]: parseInt(e.target.value) || 0 }))
+            value={value || ""}
+            onChange={(e) =>
+              setValues((prev) => ({ ...prev, [setting.key]: parseInt(e.target.value, 10) || 0 }))
             }
           />
         );
       default:
         return (
           <Input
-            value={value || ''}
-            onChange={e => setValues(prev => ({ ...prev, [setting.key]: e.target.value }))}
+            value={value || ""}
+            onChange={(e) => setValues((prev) => ({ ...prev, [setting.key]: e.target.value }))}
           />
         );
     }
@@ -130,34 +132,34 @@ export function DynamicSettings({ category, title, description, icon }: DynamicS
             No settings found for this category. Please run the database seed script.
           </div>
         ) : (
-          settings.map(setting => (
-          <div key={setting.id} className="space-y-2">
-            {setting.type === 'boolean' ? (
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label>{setting.label}</Label>
+          settings.map((setting) => (
+            <div key={setting.id} className="space-y-2">
+              {setting.type === "boolean" ? (
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label>{setting.label}</Label>
+                    {setting.description && (
+                      <p className="text-sm text-muted-foreground">{setting.description}</p>
+                    )}
+                  </div>
+                  {renderInput(setting)}
+                </div>
+              ) : (
+                <>
+                  <Label htmlFor={setting.key}>{setting.label}</Label>
                   {setting.description && (
                     <p className="text-sm text-muted-foreground">{setting.description}</p>
                   )}
-                </div>
-                {renderInput(setting)}
-              </div>
-            ) : (
-              <>
-                <Label htmlFor={setting.key}>{setting.label}</Label>
-                {setting.description && (
-                  <p className="text-sm text-muted-foreground">{setting.description}</p>
-                )}
-                {renderInput(setting)}
-              </>
-            )}
-          </div>
-        ))
+                  {renderInput(setting)}
+                </>
+              )}
+            </div>
+          ))
         )}
 
         {settings.length > 0 && (
           <Button onClick={handleSave} disabled={saving} className="w-full">
-            {saving ? 'Saving...' : 'Save Settings'}
+            {saving ? "Saving..." : "Save Settings"}
           </Button>
         )}
       </CardContent>

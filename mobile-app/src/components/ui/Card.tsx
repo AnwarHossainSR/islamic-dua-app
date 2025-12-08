@@ -1,6 +1,6 @@
+import type React from "react";
+import { StyleSheet, Text, type TextStyle, View, type ViewStyle } from "react-native";
 import { useTheme } from "@/hooks/useTheme";
-import React from "react";
-import { StyleSheet, Text, TextStyle, View, ViewStyle } from "react-native";
 
 interface CardProps {
   children: React.ReactNode;
@@ -42,9 +42,7 @@ interface CardTitleProps {
 export function CardTitle({ children, style }: CardTitleProps) {
   const { colors } = useTheme();
   return (
-    <Text style={[styles.cardTitle, { color: colors.cardForeground }, style]}>
-      {children}
-    </Text>
+    <Text style={[styles.cardTitle, { color: colors.cardForeground }, style]}>{children}</Text>
   );
 }
 
@@ -56,9 +54,7 @@ interface CardDescriptionProps {
 export function CardDescription({ children, style }: CardDescriptionProps) {
   const { colors } = useTheme();
   return (
-    <Text
-      style={[styles.cardDescription, { color: colors.mutedForeground }, style]}
-    >
+    <Text style={[styles.cardDescription, { color: colors.mutedForeground }, style]}>
       {children}
     </Text>
   );

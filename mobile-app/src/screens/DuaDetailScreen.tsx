@@ -1,18 +1,11 @@
-import { duasApi } from "@/api/duas.api";
-import {
-  Badge,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  Loader,
-} from "@/components/ui";
-import { useTheme } from "@/hooks/useTheme";
-import type { Dua } from "@/types";
 import { useRoute } from "@react-navigation/native";
 import { Book, Info, Star } from "lucide-react-native";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { duasApi } from "@/api/duas.api";
+import { Badge, Card, CardContent, CardHeader, CardTitle, Loader } from "@/components/ui";
+import { useTheme } from "@/hooks/useTheme";
+import type { Dua } from "@/types";
 
 export default function DuaDetailScreen() {
   const route = useRoute<any>();
@@ -43,13 +36,7 @@ export default function DuaDetailScreen() {
 
   if (!dua) {
     return (
-      <View
-        style={[
-          styles.container,
-          styles.center,
-          { backgroundColor: colors.background },
-        ]}
-      >
+      <View style={[styles.container, styles.center, { backgroundColor: colors.background }]}>
         <Text style={{ color: colors.foreground }}>Dua not found</Text>
       </View>
     );
@@ -64,28 +51,16 @@ export default function DuaDetailScreen() {
       <Card>
         <CardHeader>
           <View style={styles.headerRow}>
-            <View
-              style={[
-                styles.iconContainer,
-                { backgroundColor: colors.primary + "20" },
-              ]}
-            >
+            <View style={[styles.iconContainer, { backgroundColor: `${colors.primary}20` }]}>
               <Book color={colors.primary} size={24} />
             </View>
             <View style={styles.headerInfo}>
               <View style={styles.titleRow}>
                 <CardTitle style={styles.title}>{dua.title_bn}</CardTitle>
-                {dua.is_important && (
-                  <Star color="#eab308" size={18} fill="#eab308" />
-                )}
+                {dua.is_important && <Star color="#eab308" size={18} fill="#eab308" />}
               </View>
               {dua.title_ar && (
-                <Text
-                  style={[
-                    styles.arabicTitle,
-                    { color: colors.mutedForeground },
-                  ]}
-                >
+                <Text style={[styles.arabicTitle, { color: colors.mutedForeground }]}>
                   {dua.title_ar}
                 </Text>
               )}
@@ -106,12 +81,7 @@ export default function DuaDetailScreen() {
             <CardTitle style={styles.sectionTitle}>দোয়া (আরবি)</CardTitle>
           </CardHeader>
           <CardContent>
-            <View
-              style={[
-                styles.arabicContainer,
-                { backgroundColor: colors.secondary },
-              ]}
-            >
+            <View style={[styles.arabicContainer, { backgroundColor: colors.secondary }]}>
               <Text style={[styles.arabicText, { color: colors.foreground }]}>
                 {dua.dua_text_ar}
               </Text>
@@ -127,9 +97,7 @@ export default function DuaDetailScreen() {
             <CardTitle style={styles.sectionTitle}>উচ্চারণ</CardTitle>
           </CardHeader>
           <CardContent>
-            <Text
-              style={[styles.transliteration, { color: colors.foreground }]}
-            >
+            <Text style={[styles.transliteration, { color: colors.foreground }]}>
               {dua.transliteration}
             </Text>
           </CardContent>
@@ -157,9 +125,7 @@ export default function DuaDetailScreen() {
             <CardTitle style={styles.sectionTitle}>ফযীলত</CardTitle>
           </CardHeader>
           <CardContent>
-            <Text style={[styles.benefits, { color: colors.foreground }]}>
-              {dua.benefits}
-            </Text>
+            <Text style={[styles.benefits, { color: colors.foreground }]}>{dua.benefits}</Text>
           </CardContent>
         </Card>
       )}

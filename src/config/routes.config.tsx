@@ -1,3 +1,4 @@
+import type { ComponentType } from "react";
 import { ROUTES } from "@/config/routes";
 import ActivitiesPage from "@/pages/activities/ActivitiesPage";
 import ActivityDetailPage from "@/pages/activities/ActivityDetailPage";
@@ -19,7 +20,6 @@ import SettingsPage from "@/pages/settings/SettingsPage";
 import PermissionsManagementPage from "@/pages/users/PermissionsManagementPage";
 import UserPermissionsPage from "@/pages/users/UserPermissionsPage";
 import UsersPage from "@/pages/users/UsersPage";
-import { ComponentType } from "react";
 
 export interface RouteConfig {
   path: string;

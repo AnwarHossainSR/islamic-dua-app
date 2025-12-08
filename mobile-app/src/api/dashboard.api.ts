@@ -27,8 +27,7 @@ export const dashboardApi = {
       .eq("user_id", userId);
 
     const totalActivities = userActivities?.length || 0;
-    const totalCompletions =
-      userActivities?.reduce((sum, a) => sum + a.total_completed, 0) || 0;
+    const totalCompletions = userActivities?.reduce((sum, a) => sum + a.total_completed, 0) || 0;
 
     const { count: activeChallenges } = await supabase
       .from("user_challenge_progress")
@@ -71,12 +70,9 @@ export const dashboardApi = {
       .from("activity_stats")
       .select("*", { count: "exact", head: true });
 
-    const { data: activities } = await supabase
-      .from("activity_stats")
-      .select("total_count");
+    const { data: activities } = await supabase.from("activity_stats").select("total_count");
 
-    const totalCompletions =
-      activities?.reduce((sum, a) => sum + a.total_count, 0) || 0;
+    const totalCompletions = activities?.reduce((sum, a) => sum + a.total_count, 0) || 0;
 
     const { count: totalActiveUsers } = await supabase
       .from("user_activity_stats")
@@ -152,9 +148,7 @@ export const dashboardApi = {
   async getGlobalTopActivities(limit = 10) {
     const { data } = await supabase
       .from("activity_stats")
-      .select(
-        "id, name_bn, name_ar, name_en, total_count, total_users, icon, color"
-      )
+      .select("id, name_bn, name_ar, name_en, total_count, total_users, icon, color")
       .order("total_count", { ascending: false })
       .limit(limit);
 

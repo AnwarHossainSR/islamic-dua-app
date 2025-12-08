@@ -1,12 +1,5 @@
+import { Switch as RNSwitch, StyleSheet, Text, View, type ViewStyle } from "react-native";
 import { useTheme } from "@/hooks/useTheme";
-import React from "react";
-import {
-  Switch as RNSwitch,
-  StyleSheet,
-  Text,
-  View,
-  ViewStyle,
-} from "react-native";
 
 interface SwitchProps {
   value: boolean;
@@ -16,22 +9,12 @@ interface SwitchProps {
   style?: ViewStyle;
 }
 
-export function Switch({
-  value,
-  onValueChange,
-  label,
-  disabled = false,
-  style,
-}: SwitchProps) {
+export function Switch({ value, onValueChange, label, disabled = false, style }: SwitchProps) {
   const { colors } = useTheme();
 
   return (
     <View style={[styles.container, style]}>
-      {label && (
-        <Text style={[styles.label, { color: colors.foreground }]}>
-          {label}
-        </Text>
-      )}
+      {label && <Text style={[styles.label, { color: colors.foreground }]}>{label}</Text>}
       <RNSwitch
         value={value}
         onValueChange={onValueChange}

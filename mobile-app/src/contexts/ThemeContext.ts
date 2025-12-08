@@ -1,5 +1,5 @@
-import { colors } from "@/lib/theme";
 import { createContext } from "react";
+import type { colors } from "@/lib/theme";
 
 type ThemeMode = "light" | "dark" | "system";
 
@@ -11,6 +11,4 @@ export interface ThemeContextType {
   toggleTheme: () => void;
 }
 
-export const ThemeContext = createContext<ThemeContextType | undefined>(
-  undefined
-);
+export const ThemeContext = createContext<ThemeContextType | undefined>(undefined);

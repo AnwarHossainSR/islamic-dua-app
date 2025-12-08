@@ -1,11 +1,6 @@
-import { duasApi } from "@/api/duas.api";
-import { Badge, Card, CardContent, Loader } from "@/components/ui";
-import { ROUTES } from "@/config/routes";
-import { useTheme } from "@/hooks/useTheme";
-import type { Dua } from "@/types";
 import { useNavigation } from "@react-navigation/native";
 import { Book, ChevronRight, Search, Star } from "lucide-react-native";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Pressable,
   RefreshControl,
@@ -16,6 +11,11 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { duasApi } from "@/api/duas.api";
+import { Badge, Card, CardContent, Loader } from "@/components/ui";
+import { ROUTES } from "@/config/routes";
+import { useTheme } from "@/hooks/useTheme";
+import type { Dua } from "@/types";
 
 export default function DuasScreen() {
   const navigation = useNavigation<any>();
@@ -70,18 +70,12 @@ export default function DuasScreen() {
   }
 
   return (
-    <SafeAreaView
-      style={[styles.safeArea, { backgroundColor: colors.background }]}
-      edges={["top"]}
-    >
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]} edges={["top"]}>
       <View style={styles.container}>
         {/* Search and Filter */}
         <View style={styles.filterSection}>
           <View
-            style={[
-              styles.searchBox,
-              { backgroundColor: colors.card, borderColor: colors.border },
-            ]}
+            style={[styles.searchBox, { backgroundColor: colors.card, borderColor: colors.border }]}
           >
             <Search color={colors.mutedForeground} size={20} />
             <TextInput
@@ -104,10 +98,7 @@ export default function DuasScreen() {
               style={[
                 styles.categoryChip,
                 {
-                  backgroundColor:
-                    selectedCategory === "all"
-                      ? colors.primary
-                      : colors.secondary,
+                  backgroundColor: selectedCategory === "all" ? colors.primary : colors.secondary,
                 },
               ]}
             >
@@ -116,9 +107,7 @@ export default function DuasScreen() {
                   styles.categoryText,
                   {
                     color:
-                      selectedCategory === "all"
-                        ? colors.primaryForeground
-                        : colors.foreground,
+                      selectedCategory === "all" ? colors.primaryForeground : colors.foreground,
                   },
                 ]}
               >
@@ -133,9 +122,7 @@ export default function DuasScreen() {
                   styles.categoryChip,
                   {
                     backgroundColor:
-                      selectedCategory === cat.name_bn
-                        ? colors.primary
-                        : colors.secondary,
+                      selectedCategory === cat.name_bn ? colors.primary : colors.secondary,
                   },
                 ]}
               >
@@ -171,9 +158,7 @@ export default function DuasScreen() {
           {duas.map((dua) => (
             <Pressable
               key={dua.id}
-              onPress={() =>
-                navigation.navigate(ROUTES.DUA_DETAIL, { duaId: dua.id })
-              }
+              onPress={() => navigation.navigate(ROUTES.DUA_DETAIL, { duaId: dua.id })}
             >
               <Card style={styles.duaCard}>
                 <CardContent style={styles.duaContent}>
@@ -181,17 +166,12 @@ export default function DuasScreen() {
                     <View style={styles.duaInfo}>
                       <View style={styles.duaTitleRow}>
                         <Text
-                          style={[
-                            styles.duaTitle,
-                            { color: colors.foreground },
-                          ]}
+                          style={[styles.duaTitle, { color: colors.foreground }]}
                           numberOfLines={1}
                         >
                           {dua.title_bn}
                         </Text>
-                        {dua.is_important && (
-                          <Star color="#eab308" size={16} fill="#eab308" />
-                        )}
+                        {dua.is_important && <Star color="#eab308" size={16} fill="#eab308" />}
                       </View>
                       {dua.category && (
                         <Badge variant="secondary" style={styles.categoryBadge}>
@@ -213,10 +193,7 @@ export default function DuasScreen() {
 
                   {dua.translation_bn && (
                     <Text
-                      style={[
-                        styles.translation,
-                        { color: colors.mutedForeground },
-                      ]}
+                      style={[styles.translation, { color: colors.mutedForeground }]}
                       numberOfLines={2}
                     >
                       {dua.translation_bn}
@@ -230,12 +207,8 @@ export default function DuasScreen() {
           {duas.length === 0 && (
             <View style={styles.emptyState}>
               <Book color={colors.mutedForeground} size={48} />
-              <Text style={[styles.emptyTitle, { color: colors.foreground }]}>
-                No Duas Found
-              </Text>
-              <Text
-                style={[styles.emptyText, { color: colors.mutedForeground }]}
-              >
+              <Text style={[styles.emptyTitle, { color: colors.foreground }]}>No Duas Found</Text>
+              <Text style={[styles.emptyText, { color: colors.mutedForeground }]}>
                 {search ? "Try a different search term" : "No duas available"}
               </Text>
             </View>

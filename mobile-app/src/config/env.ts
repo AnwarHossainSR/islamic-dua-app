@@ -19,8 +19,6 @@ export const ENV = {
 
 export function validateEnv() {
   if (!env.supabase.url || !env.supabase.anonKey) {
-    console.warn(
-      "Missing required environment variables - check your .env file"
-    );
+    console.warn("Missing required environment variables - check your .env file");
   }
 }

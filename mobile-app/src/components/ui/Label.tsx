@@ -1,6 +1,6 @@
+import type React from "react";
+import { StyleSheet, Text, type TextStyle } from "react-native";
 import { useTheme } from "@/hooks/useTheme";
-import React from "react";
-import { StyleSheet, Text, TextStyle } from "react-native";
 
 interface LabelProps {
   children: React.ReactNode;

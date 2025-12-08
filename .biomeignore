@@ -1,0 +1,3 @@
+# Biome ignore file
+# Exclude mobile-app folder from Biome checks
+mobile-app/

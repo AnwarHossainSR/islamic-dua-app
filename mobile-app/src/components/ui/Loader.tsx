@@ -1,6 +1,5 @@
-import { useTheme } from "@/hooks/useTheme";
-import React from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
+import { useTheme } from "@/hooks/useTheme";
 
 interface LoaderProps {
   size?: "small" | "large";
@@ -8,11 +7,7 @@ interface LoaderProps {
   fullScreen?: boolean;
 }
 
-export function Loader({
-  size = "large",
-  color,
-  fullScreen = false,
-}: LoaderProps) {
+export function Loader({ size = "large", color, fullScreen = false }: LoaderProps) {
   const { colors } = useTheme();
 
   if (fullScreen) {

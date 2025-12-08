@@ -1,13 +1,13 @@
-import { useTheme } from "@/hooks/useTheme";
-import React from "react";
+import type React from "react";
 import {
-  StyleProp,
+  type StyleProp,
   StyleSheet,
   Text,
-  TextStyle,
+  type TextStyle,
   View,
-  ViewStyle,
+  type ViewStyle,
 } from "react-native";
+import { useTheme } from "@/hooks/useTheme";
 
 interface BadgeProps {
   children: React.ReactNode;
@@ -16,12 +16,7 @@ interface BadgeProps {
   textStyle?: TextStyle;
 }
 
-export function Badge({
-  children,
-  variant = "default",
-  style,
-  textStyle,
-}: BadgeProps) {
+export function Badge({ children, variant = "default", style, textStyle }: BadgeProps) {
   const { colors } = useTheme();
 
   const getBackgroundColor = () => {
@@ -67,9 +62,7 @@ export function Badge({
       ]}
     >
       {typeof children === "string" ? (
-        <Text style={[styles.text, { color: getTextColor() }, textStyle]}>
-          {children}
-        </Text>
+        <Text style={[styles.text, { color: getTextColor() }, textStyle]}>{children}</Text>
       ) : (
         children
       )}

@@ -1,11 +1,11 @@
-import { ROUTES } from "@/config/routes";
-import { useAuth } from "@/hooks/useAuth";
-import { useTheme } from "@/hooks/useTheme";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import React from "react";
-
+// Icons
+import { Activity, Book, Home, Settings, Target } from "lucide-react-native";
+import { ROUTES } from "@/config/routes";
+import { useAuth } from "@/hooks/useAuth";
+import { useTheme } from "@/hooks/useTheme";
 // Screens
 import ActivitiesScreen from "@/screens/ActivitiesScreen";
 import ActivityDetailScreen from "@/screens/ActivityDetailScreen";
@@ -18,9 +18,6 @@ import DashboardScreen from "@/screens/DashboardScreen";
 import DuaDetailScreen from "@/screens/DuaDetailScreen";
 import DuasScreen from "@/screens/DuasScreen";
 import SettingsScreen from "@/screens/SettingsScreen";
-
-// Icons
-import { Activity, Book, Home, Settings, Target } from "lucide-react-native";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -68,9 +65,7 @@ function TabNavigator() {
         component={ActivitiesScreen}
         options={{
           tabBarLabel: "Activities",
-          tabBarIcon: ({ color, size }) => (
-            <Activity color={color} size={size} />
-          ),
+          tabBarIcon: ({ color, size }) => <Activity color={color} size={size} />,
         }}
       />
       <Tab.Screen
@@ -86,9 +81,7 @@ function TabNavigator() {
         component={SettingsScreen}
         options={{
           tabBarLabel: "Settings",
-          tabBarIcon: ({ color, size }) => (
-            <Settings color={color} size={size} />
-          ),
+          tabBarIcon: ({ color, size }) => <Settings color={color} size={size} />,
         }}
       />
     </Tab.Navigator>
@@ -127,11 +120,7 @@ function MainStack() {
         contentStyle: { backgroundColor: colors.background },
       }}
     >
-      <Stack.Screen
-        name="MainTabs"
-        component={TabNavigator}
-        options={{ headerShown: false }}
-      />
+      <Stack.Screen name="MainTabs" component={TabNavigator} options={{ headerShown: false }} />
       <Stack.Screen
         name={ROUTES.CHALLENGE_PROGRESS}
         component={ChallengeProgressScreen}

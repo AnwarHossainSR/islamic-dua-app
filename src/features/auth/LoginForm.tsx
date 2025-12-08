@@ -1,3 +1,7 @@
+import { Eye, EyeOff } from "lucide-react";
+import { useActionState, useState } from "react";
+import { Link } from "react-router-dom";
+import { toast } from "sonner";
 import { authApi } from "@/api";
 import {
   Button,
@@ -10,10 +14,6 @@ import {
 } from "@/components/ui";
 import { ROUTES } from "@/config/routes";
 import { cn } from "@/lib/utils/cn";
-import { Eye, EyeOff } from "lucide-react";
-import { useActionState, useState } from "react";
-import { Link } from "react-router-dom";
-import { toast } from "sonner";
 import { BiometricLogin } from "./BiometricLogin";
 
 async function loginAction(_: any, formData: FormData) {
@@ -36,9 +36,7 @@ export function LoginForm() {
     <Card className="w-full">
       <CardHeader>
         <CardTitle>Sign In</CardTitle>
-        <CardDescription>
-          Enter your credentials to access your account
-        </CardDescription>
+        <CardDescription>Enter your credentials to access your account</CardDescription>
       </CardHeader>
       <form action={formAction}>
         <CardContent className="space-y-4 pb-5">
@@ -86,11 +84,7 @@ export function LoginForm() {
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
               >
-                {showPassword ? (
-                  <EyeOff className="h-4 w-4" />
-                ) : (
-                  <Eye className="h-4 w-4" />
-                )}
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
           </div>
@@ -105,9 +99,7 @@ export function LoginForm() {
               <span className="w-full border-t" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">
-                Or
-              </span>
+              <span className="bg-background px-2 text-muted-foreground">Or</span>
             </div>
           </div>
 

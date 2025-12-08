@@ -1,6 +1,6 @@
+import type { ReactNode } from "react";
 import { Layout } from "@/components/Layout";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { ReactNode } from "react";
 
 interface RouteWrapperProps {
   children: ReactNode;

@@ -1,5 +1,5 @@
-import React from 'react'
-import ReactMarkdown from 'react-markdown'
+import type React from "react";
+import ReactMarkdown from "react-markdown";
 
 export function renderMarkdown(text: string): React.ReactNode {
   return (
@@ -19,19 +19,17 @@ export function renderMarkdown(text: string): React.ReactNode {
             </blockquote>
           ),
           code: ({ children, className }) => {
-            const isInline = !className
+            const isInline = !className;
             if (isInline) {
               return (
-                <code className="bg-muted px-1.5 py-0.5 rounded text-sm font-mono">
-                  {children}
-                </code>
-              )
+                <code className="bg-muted px-1.5 py-0.5 rounded text-sm font-mono">{children}</code>
+              );
             }
             return (
               <pre className="bg-muted p-3 rounded my-2 overflow-x-auto">
                 <code className="text-sm">{children}</code>
               </pre>
-            )
+            );
           },
           strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
           em: ({ children }) => <em className="italic">{children}</em>,
@@ -50,5 +48,5 @@ export function renderMarkdown(text: string): React.ReactNode {
         {text}
       </ReactMarkdown>
     </div>
-  )
+  );
 }

@@ -1,3 +1,26 @@
+import { format } from "date-fns";
+import {
+  Calendar,
+  Check,
+  CheckCircle2,
+  ChevronDown,
+  ClockAlert,
+  Edit,
+  Eye,
+  Loader2,
+  Play,
+  Plus,
+  RotateCcw,
+  Search,
+  Target,
+  Trash2,
+  TrendingUp,
+  Trophy,
+  Users,
+} from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import { toast } from "sonner";
 import { activityApi } from "@/api/activity.api";
 import { challengesApi } from "@/api/challenges.api";
 import {
@@ -28,29 +51,6 @@ import { useConfirm } from "@/components/ui/Confirm";
 import { Pagination } from "@/components/ui/Pagination";
 import { useAuth } from "@/hooks/useAuth";
 import { formatNumber } from "@/lib/utils/format";
-import { format } from "date-fns";
-import {
-  Calendar,
-  Check,
-  CheckCircle2,
-  ChevronDown,
-  ClockAlert,
-  Edit,
-  Eye,
-  Loader2,
-  Play,
-  Plus,
-  RotateCcw,
-  Search,
-  Target,
-  Trash2,
-  TrendingUp,
-  Trophy,
-  Users,
-} from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
-import { toast } from "sonner";
 
 function isCurrentDay(timestamp: number | null): boolean {
   if (!timestamp) return false;
@@ -80,13 +80,7 @@ export default function ChallengesPage() {
       try {
         const data = await challengesApi.getAll();
         setChallenges(data);
-        applyFilters(
-          data,
-          searchQuery,
-          difficultyFilter,
-          statusFilter,
-          completionFilter
-        );
+        applyFilters(data, searchQuery, difficultyFilter, statusFilter, completionFilter);
       } catch (error) {
         console.error("Failed to load challenges:", error);
       } finally {
@@ -140,33 +134,17 @@ export default function ChallengesPage() {
 
     // Completion filter
     if (completion === "completed") {
-      filtered = filtered.filter((c) =>
-        isCurrentDay(c.last_completed_at || null)
-      );
+      filtered = filtered.filter((c) => isCurrentDay(c.last_completed_at || null));
     } else if (completion === "pending") {
-      filtered = filtered.filter(
-        (c) => !isCurrentDay(c.last_completed_at || null)
-      );
+      filtered = filtered.filter((c) => !isCurrentDay(c.last_completed_at || null));
     }
 
     setFilteredChallenges(filtered);
   };
 
   useEffect(() => {
-    applyFilters(
-      challenges,
-      searchQuery,
-      difficultyFilter,
-      statusFilter,
-      completionFilter
-    );
-  }, [
-    searchQuery,
-    difficultyFilter,
-    statusFilter,
-    completionFilter,
-    challenges,
-  ]);
+    applyFilters(challenges, searchQuery, difficultyFilter, statusFilter, completionFilter);
+  }, [searchQuery, difficultyFilter, statusFilter, completionFilter, challenges]);
 
   const stats = useMemo(() => {
     const total = challenges.length;
@@ -176,8 +154,7 @@ export default function ChallengesPage() {
     const todayRemaining = challenges.filter(
       (c) => !isCurrentDay(c.last_completed_at || null)
     ).length;
-    const todayPercentage =
-      total > 0 ? Math.round((todayCompleted / total) * 100) : 0;
+    const todayPercentage = total > 0 ? Math.round((todayCompleted / total) * 100) : 0;
     return { total, todayCompleted, todayRemaining, todayPercentage };
   }, [challenges]);
 
@@ -215,8 +192,7 @@ export default function ChallengesPage() {
   const handleDeleteChallenge = async (challengeId: string) => {
     const confirmed = await confirm({
       title: "Delete Challenge",
-      description:
-        "Are you sure you want to delete this challenge? This action cannot be undone.",
+      description: "Are you sure you want to delete this challenge? This action cannot be undone.",
       confirmText: "Delete",
       confirmVariant: "destructive",
       icon: "warning",
@@ -269,9 +245,7 @@ export default function ChallengesPage() {
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-muted-foreground">
-                        Total Challenges
-                      </p>
+                      <p className="text-sm text-muted-foreground">Total Challenges</p>
                       <p className="text-3xl font-bold">{stats.total}</p>
                     </div>
                     <Target className="h-8 w-8 text-emerald-500" />
@@ -282,12 +256,8 @@ export default function ChallengesPage() {
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-muted-foreground">
-                        Today Completed
-                      </p>
-                      <p className="text-3xl font-bold">
-                        {stats.todayCompleted}
-                      </p>
+                      <p className="text-sm text-muted-foreground">Today Completed</p>
+                      <p className="text-3xl font-bold">{stats.todayCompleted}</p>
                     </div>
                     <Check className="h-8 w-8 text-emerald-500" />
                   </div>
@@ -297,12 +267,8 @@ export default function ChallengesPage() {
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-muted-foreground">
-                        Remain Today
-                      </p>
-                      <p className="text-3xl font-bold">
-                        {stats.todayRemaining}
-                      </p>
+                      <p className="text-sm text-muted-foreground">Remain Today</p>
+                      <p className="text-3xl font-bold">{stats.todayRemaining}</p>
                     </div>
                     <ClockAlert className="h-8 w-8 text-amber-500" />
                   </div>
@@ -312,12 +278,8 @@ export default function ChallengesPage() {
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-muted-foreground">
-                        Today Average
-                      </p>
-                      <p className="text-3xl font-bold">
-                        {stats.todayPercentage}%
-                      </p>
+                      <p className="text-sm text-muted-foreground">Today Average</p>
+                      <p className="text-3xl font-bold">{stats.todayPercentage}%</p>
                     </div>
                     <TrendingUp className="h-8 w-8 text-purple-500" />
                   </div>
@@ -332,9 +294,7 @@ export default function ChallengesPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">
-                    Total Challenges
-                  </p>
+                  <p className="text-sm text-muted-foreground">Total Challenges</p>
                   <p className="text-3xl font-bold">{stats.total}</p>
                 </div>
                 <Target className="h-8 w-8 text-emerald-500" />
@@ -345,9 +305,7 @@ export default function ChallengesPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">
-                    Today Completed
-                  </p>
+                  <p className="text-sm text-muted-foreground">Today Completed</p>
                   <p className="text-3xl font-bold">{stats.todayCompleted}</p>
                 </div>
                 <Check className="h-8 w-8 text-emerald-500" />
@@ -382,16 +340,10 @@ export default function ChallengesPage() {
       <Tabs defaultValue="all" className="space-y-6">
         <div className="overflow-x-auto">
           <TabsList className="inline-flex w-auto grid-cols-4 gap-2">
-            <TabsTrigger
-              className="cursor-pointer text-xs md:text-sm py-2 shrink-0"
-              value="all"
-            >
+            <TabsTrigger className="cursor-pointer text-xs md:text-sm py-2 shrink-0" value="all">
               All Challenges
             </TabsTrigger>
-            <TabsTrigger
-              className="cursor-pointer text-xs md:text-sm py-2 shrink-0"
-              value="active"
-            >
+            <TabsTrigger className="cursor-pointer text-xs md:text-sm py-2 shrink-0" value="active">
               Active Users
             </TabsTrigger>
             <TabsTrigger
@@ -400,10 +352,7 @@ export default function ChallengesPage() {
             >
               History
             </TabsTrigger>
-            <TabsTrigger
-              className="cursor-pointer text-xs md:text-sm py-2 shrink-0"
-              value="stats"
-            >
+            <TabsTrigger className="cursor-pointer text-xs md:text-sm py-2 shrink-0" value="stats">
               Analytics
             </TabsTrigger>
           </TabsList>
@@ -418,10 +367,7 @@ export default function ChallengesPage() {
                   <CardTitle>Challenges</CardTitle>
                 </div>
                 <div className="flex gap-1 shrink-0 flex-wrap">
-                  <Select
-                    value={completionFilter}
-                    onValueChange={setCompletionFilter}
-                  >
+                  <Select value={completionFilter} onValueChange={setCompletionFilter}>
                     <SelectTrigger className="w-[130px] md:w-40 text-xs md:text-sm">
                       <SelectValue placeholder="Completion" />
                     </SelectTrigger>
@@ -431,10 +377,7 @@ export default function ChallengesPage() {
                       <SelectItem value="completed">Done Today</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Select
-                    value={difficultyFilter}
-                    onValueChange={setDifficultyFilter}
-                  >
+                  <Select value={difficultyFilter} onValueChange={setDifficultyFilter}>
                     <SelectTrigger className="w-[140px] md:w-40 text-xs md:text-sm">
                       <SelectValue placeholder="Difficulty" />
                     </SelectTrigger>
@@ -472,9 +415,7 @@ export default function ChallengesPage() {
                   <span className="hidden sm:inline">
                     Total: {filteredChallenges.length} challenges
                   </span>
-                  <span className="sm:hidden">
-                    {filteredChallenges.length} challenges
-                  </span>
+                  <span className="sm:hidden">{filteredChallenges.length} challenges</span>
                 </div>
               </div>
             </CardHeader>
@@ -494,9 +435,7 @@ export default function ChallengesPage() {
                 {filteredChallenges.length === 0 && (
                   <div className="flex flex-col items-center justify-center py-16">
                     <Target className="mb-4 h-16 w-16 text-muted-foreground" />
-                    <p className="mb-2 text-lg font-semibold">
-                      No challenges found
-                    </p>
+                    <p className="mb-2 text-lg font-semibold">No challenges found</p>
                   </div>
                 )}
               </div>
@@ -529,9 +468,7 @@ export default function ChallengesPage() {
             </CardHeader>
             <CardContent>
               {recentLogs.length === 0 ? (
-                <p className="text-center text-sm text-muted-foreground">
-                  No activity
-                </p>
+                <p className="text-center text-sm text-muted-foreground">No activity</p>
               ) : (
                 <div className="space-y-3">
                   {recentLogs.map((log) => (
@@ -545,8 +482,7 @@ export default function ChallengesPage() {
                         </span>
                         <div className="min-w-0">
                           <p className="text-sm font-medium truncate">
-                            {log.user_progress?.challenge?.title_bn ||
-                              "Unknown Challenge"}
+                            {log.user_progress?.challenge?.title_bn || "Unknown Challenge"}
                           </p>
                           <p className="text-xs text-muted-foreground">
                             Day {log.day_number} • {log.count_completed} reps
@@ -555,9 +491,7 @@ export default function ChallengesPage() {
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
                         <span className="text-xs text-muted-foreground">
-                          {new Date(
-                            log.completed_at || log.created_at
-                          ).toLocaleDateString("en-GB")}
+                          {new Date(log.completed_at || log.created_at).toLocaleDateString("en-GB")}
                         </span>
                         {log.is_completed && (
                           <Badge variant="default" className="bg-emerald-500">
@@ -584,33 +518,20 @@ export default function ChallengesPage() {
                   {challenges
                     .filter((c) => (c.total_participants || 0) > 0)
                     .sort((a, b) => {
-                      const rateA =
-                        ((a.total_completed_days || 0) / (a.total_days || 1)) *
-                        100;
-                      const rateB =
-                        ((b.total_completed_days || 0) / (b.total_days || 1)) *
-                        100;
+                      const rateA = ((a.total_completed_days || 0) / (a.total_days || 1)) * 100;
+                      const rateB = ((b.total_completed_days || 0) / (b.total_days || 1)) * 100;
                       return rateB - rateA;
                     })
                     .slice(0, 5)
                     .map((challenge) => {
                       const rate = Math.round(
-                        ((challenge.total_completed_days || 0) /
-                          (challenge.total_days || 1)) *
-                          100
+                        ((challenge.total_completed_days || 0) / (challenge.total_days || 1)) * 100
                       );
                       return (
-                        <div
-                          key={challenge.id}
-                          className="flex items-center gap-2 min-w-0"
-                        >
-                          <span className="text-xl shrink-0">
-                            {challenge.icon || "📿"}
-                          </span>
+                        <div key={challenge.id} className="flex items-center gap-2 min-w-0">
+                          <span className="text-xl shrink-0">{challenge.icon || "📿"}</span>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium truncate">
-                              {challenge.title_bn}
-                            </p>
+                            <p className="text-sm font-medium truncate">{challenge.title_bn}</p>
                             <div className="mt-1 h-2 overflow-hidden rounded-full bg-muted">
                               <div
                                 className="h-full"
@@ -621,9 +542,7 @@ export default function ChallengesPage() {
                               />
                             </div>
                           </div>
-                          <span className="text-sm font-bold shrink-0">
-                            {rate}%
-                          </span>
+                          <span className="text-sm font-bold shrink-0">{rate}%</span>
                         </div>
                       );
                     })}
@@ -638,11 +557,7 @@ export default function ChallengesPage() {
               <CardContent>
                 <div className="space-y-3">
                   {challenges
-                    .sort(
-                      (a, b) =>
-                        (b.total_participants || 0) -
-                        (a.total_participants || 0)
-                    )
+                    .sort((a, b) => (b.total_participants || 0) - (a.total_participants || 0))
                     .slice(0, 5)
                     .map((challenge) => (
                       <div
@@ -650,12 +565,8 @@ export default function ChallengesPage() {
                         className="flex items-center justify-between gap-2 min-w-0"
                       >
                         <div className="flex items-center gap-2 min-w-0">
-                          <span className="text-xl shrink-0">
-                            {challenge.icon || "📿"}
-                          </span>
-                          <p className="text-sm font-medium truncate">
-                            {challenge.title_bn}
-                          </p>
+                          <span className="text-xl shrink-0">{challenge.icon || "📿"}</span>
+                          <p className="text-sm font-medium truncate">{challenge.title_bn}</p>
                         </div>
                         <Badge variant="secondary" className="shrink-0 text-xs">
                           {challenge.total_participants || 0}
@@ -677,14 +588,12 @@ export default function ChallengesPage() {
               Challenge Completed Today!
             </DialogTitle>
             <DialogDescription className="text-center py-4">
-              You have already completed this challenge today. Please come back
-              tomorrow to continue your journey.
+              You have already completed this challenge today. Please come back tomorrow to continue
+              your journey.
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-center">
-            <Button onClick={() => setShowCompletedDialog(false)}>
-              Got it!
-            </Button>
+            <Button onClick={() => setShowCompletedDialog(false)}>Got it!</Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -708,14 +617,14 @@ function ChallengeCard({
     challenge.user_status === "completed"
       ? { variant: "default" as const, text: "Completed" }
       : challenge.user_status === "active"
-      ? { variant: "secondary" as const, text: "Active" }
-      : { variant: "outline" as const, text: "Not Started" };
+        ? { variant: "secondary" as const, text: "Active" }
+        : { variant: "outline" as const, text: "Not Started" };
   const difficultyVariant =
     challenge.difficulty_level === "easy"
       ? ("secondary" as const)
       : challenge.difficulty_level === "hard"
-      ? ("destructive" as const)
-      : ("default" as const);
+        ? ("destructive" as const)
+        : ("default" as const);
   const progressConfig =
     challenge.user_status === "completed"
       ? {
@@ -748,9 +657,7 @@ function ChallengeCard({
               </div>
               <div className="flex-1 min-w-0">
                 <div className="mb-1 flex items-center gap-2 flex-wrap">
-                  <h3 className="text-lg md:text-xl font-bold truncate">
-                    {challenge.title_bn}
-                  </h3>
+                  <h3 className="text-lg md:text-xl font-bold truncate">{challenge.title_bn}</h3>
                   {challenge.is_featured && (
                     <Badge variant="secondary" className="text-xs">
                       Featured
@@ -783,22 +690,16 @@ function ChallengeCard({
               ) : completedToday ? (
                 <Badge className="bg-emerald-500/10 text-emerald-700 border-emerald-200 flex items-center gap-1 text-xs">
                   <CheckCircle2 className="h-3 w-3" />
-                  Today at{" "}
-                  {format(new Date(challenge.last_completed_at), "h:mm a")}
+                  Today at {format(new Date(challenge.last_completed_at), "h:mm a")}
                 </Badge>
               ) : (
                 <Badge variant="secondary" className="text-xs">
-                  {format(
-                    new Date(challenge.last_completed_at),
-                    "MMM d, h:mm a"
-                  )}
+                  {format(new Date(challenge.last_completed_at), "MMM d, h:mm a")}
                 </Badge>
               )}
             </div>
           </div>
-          <p className="line-clamp-2 text-sm text-muted-foreground">
-            {challenge.description_bn}
-          </p>
+          <p className="line-clamp-2 text-sm text-muted-foreground">{challenge.description_bn}</p>
           <div className="flex flex-wrap gap-3 text-xs md:text-sm">
             <div className="flex items-center gap-2">
               <Target className="h-4 w-4 text-muted-foreground shrink-0" />
@@ -833,9 +734,7 @@ function ChallengeCard({
           </div>
           <div className="rounded-lg border bg-muted/50 p-3">
             <div className="mb-1 flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">
-                {progressConfig.label}
-              </span>
+              <span className="text-muted-foreground">{progressConfig.label}</span>
               <span className="font-bold">{progressConfig.percentage}</span>
             </div>
             <div className="h-2 overflow-hidden rounded-full bg-muted">
@@ -854,9 +753,7 @@ function ChallengeCard({
                 size="sm"
                 className="flex-1 text-xs md:text-sm"
                 onClick={() => onStartChallenge(challenge.id)}
-                disabled={
-                  !challenge.is_active || actionLoading === challenge.id
-                }
+                disabled={!challenge.is_active || actionLoading === challenge.id}
               >
                 {actionLoading === challenge.id ? (
                   <Loader2 className="mr-1 h-3 w-3 animate-spin" />
@@ -871,9 +768,7 @@ function ChallengeCard({
                 size="sm"
                 variant="outline"
                 className="flex-1 text-xs md:text-sm"
-                onClick={() =>
-                  challenge.progress_id && onRestartChallenge(challenge)
-                }
+                onClick={() => challenge.progress_id && onRestartChallenge(challenge)}
                 disabled={actionLoading === challenge.progress_id}
               >
                 {actionLoading === challenge.progress_id ? (
@@ -896,24 +791,14 @@ function ChallengeCard({
                 Preview
               </Button>
             ) : (
-              <Button
-                size="sm"
-                variant="outline"
-                asChild
-                className="text-xs md:text-sm"
-              >
+              <Button size="sm" variant="outline" asChild className="text-xs md:text-sm">
                 <Link to={`/challenges/${challenge.id}/preview`}>
                   <Eye className="mr-1 h-3 w-3" />
                   Preview
                 </Link>
               </Button>
             )}
-            <Button
-              size="sm"
-              variant="outline"
-              asChild
-              className="text-xs md:text-sm"
-            >
+            <Button size="sm" variant="outline" asChild className="text-xs md:text-sm">
               <Link to={`/challenges/${challenge.id}`}>
                 <Edit className="mr-1 h-3 w-3" />
                 Edit

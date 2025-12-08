@@ -1,3 +1,4 @@
+import { AlertTriangle } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -7,7 +8,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/AlertDialog";
-import { AlertTriangle } from "lucide-react";
 
 interface ConfirmationModalProps {
   open: boolean;
@@ -47,14 +47,24 @@ export function ConfirmationModal({
         <AlertDialogHeader>
           <div className="flex items-center gap-3 animate-in slide-in-from-left-4 fade-in-0 duration-300 delay-75">
             <div className="animate-pulse">
-              <AlertTriangle className={`h-6 w-6 ${iconClasses[icon]} animate-in zoom-in-50 duration-500`} />
+              <AlertTriangle
+                className={`h-6 w-6 ${iconClasses[icon]} animate-in zoom-in-50 duration-500`}
+              />
             </div>
-            <AlertDialogTitle className="animate-in slide-in-from-right-2 fade-in-0 duration-300 delay-100">{title}</AlertDialogTitle>
+            <AlertDialogTitle className="animate-in slide-in-from-right-2 fade-in-0 duration-300 delay-100">
+              {title}
+            </AlertDialogTitle>
           </div>
-          <AlertDialogDescription className="mt-2 text-sm animate-in fade-in-0 slide-in-from-bottom-2 duration-300 delay-150">{description}</AlertDialogDescription>
+          <AlertDialogDescription className="mt-2 text-sm animate-in fade-in-0 slide-in-from-bottom-2 duration-300 delay-150">
+            {description}
+          </AlertDialogDescription>
         </AlertDialogHeader>
         <div className="flex gap-3 justify-end pt-4 animate-in slide-in-from-bottom-3 fade-in-0 duration-300 delay-200">
-          <AlertDialogCancel onClick={onCancel} disabled={isLoading} className="transition-all hover:scale-105 active:scale-95">
+          <AlertDialogCancel
+            onClick={onCancel}
+            disabled={isLoading}
+            className="transition-all hover:scale-105 active:scale-95"
+          >
             {cancelText}
           </AlertDialogCancel>
           <AlertDialogAction

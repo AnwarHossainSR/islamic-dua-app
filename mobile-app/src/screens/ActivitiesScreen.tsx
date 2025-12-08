@@ -1,27 +1,14 @@
+import { useNavigation } from "@react-navigation/native";
+import { Activity, Flame, Trophy } from "lucide-react-native";
+import { useEffect, useState } from "react";
+import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { activitiesApi } from "@/api/activities.api";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  Loader,
-} from "@/components/ui";
+import { Card, CardContent, CardHeader, CardTitle, Loader } from "@/components/ui";
 import { ROUTES } from "@/config/routes";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/hooks/useTheme";
 import { formatNumber } from "@/lib/utils";
-import { useNavigation } from "@react-navigation/native";
-import { Activity, Flame, Trophy } from "lucide-react-native";
-import React, { useEffect, useState } from "react";
-import {
-  Pressable,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ActivitiesScreen() {
   const navigation = useNavigation<any>();
@@ -63,10 +50,7 @@ export default function ActivitiesScreen() {
   }
 
   return (
-    <SafeAreaView
-      style={[styles.safeArea, { backgroundColor: colors.background }]}
-      edges={["top"]}
-    >
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]} edges={["top"]}>
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.content}
@@ -79,9 +63,7 @@ export default function ActivitiesScreen() {
         }
       >
         <View style={styles.header}>
-          <Text style={[styles.title, { color: colors.foreground }]}>
-            Activities
-          </Text>
+          <Text style={[styles.title, { color: colors.foreground }]}>Activities</Text>
           <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>
             Your spiritual activities and progress
           </Text>
@@ -93,17 +75,10 @@ export default function ActivitiesScreen() {
             <Card style={styles.miniStat}>
               <View style={styles.miniStatContent}>
                 <Trophy color="#eab308" size={20} />
-                <Text
-                  style={[styles.miniStatValue, { color: colors.foreground }]}
-                >
+                <Text style={[styles.miniStatValue, { color: colors.foreground }]}>
                   {stats.totalCompleted}
                 </Text>
-                <Text
-                  style={[
-                    styles.miniStatLabel,
-                    { color: colors.mutedForeground },
-                  ]}
-                >
+                <Text style={[styles.miniStatLabel, { color: colors.mutedForeground }]}>
                   Completed
                 </Text>
               </View>
@@ -111,17 +86,10 @@ export default function ActivitiesScreen() {
             <Card style={styles.miniStat}>
               <View style={styles.miniStatContent}>
                 <Activity color={colors.primary} size={20} />
-                <Text
-                  style={[styles.miniStatValue, { color: colors.foreground }]}
-                >
+                <Text style={[styles.miniStatValue, { color: colors.foreground }]}>
                   {stats.totalActive}
                 </Text>
-                <Text
-                  style={[
-                    styles.miniStatLabel,
-                    { color: colors.mutedForeground },
-                  ]}
-                >
+                <Text style={[styles.miniStatLabel, { color: colors.mutedForeground }]}>
                   Active
                 </Text>
               </View>
@@ -129,17 +97,10 @@ export default function ActivitiesScreen() {
             <Card style={styles.miniStat}>
               <View style={styles.miniStatContent}>
                 <Flame color="#f97316" size={20} />
-                <Text
-                  style={[styles.miniStatValue, { color: colors.foreground }]}
-                >
+                <Text style={[styles.miniStatValue, { color: colors.foreground }]}>
                   {stats.longestStreak}
                 </Text>
-                <Text
-                  style={[
-                    styles.miniStatLabel,
-                    { color: colors.mutedForeground },
-                  ]}
-                >
+                <Text style={[styles.miniStatLabel, { color: colors.mutedForeground }]}>
                   Best Streak
                 </Text>
               </View>
@@ -170,29 +131,18 @@ export default function ActivitiesScreen() {
                 ]}
               >
                 <View style={styles.activityLeft}>
-                  <View
-                    style={[
-                      styles.activityIcon,
-                      { backgroundColor: colors.primary + "20" },
-                    ]}
-                  >
+                  <View style={[styles.activityIcon, { backgroundColor: `${colors.primary}20` }]}>
                     <Activity color={colors.primary} size={18} />
                   </View>
                   <View style={styles.activityInfo}>
                     <Text
-                      style={[
-                        styles.activityName,
-                        { color: colors.foreground },
-                      ]}
+                      style={[styles.activityName, { color: colors.foreground }]}
                       numberOfLines={1}
                     >
                       {item.activity?.name_bn}
                     </Text>
                     <Text
-                      style={[
-                        styles.activityArabic,
-                        { color: colors.mutedForeground },
-                      ]}
+                      style={[styles.activityArabic, { color: colors.mutedForeground }]}
                       numberOfLines={1}
                     >
                       {item.activity?.name_ar}
@@ -200,19 +150,12 @@ export default function ActivitiesScreen() {
                   </View>
                 </View>
                 <View style={styles.activityRight}>
-                  <Text
-                    style={[styles.activityCount, { color: colors.foreground }]}
-                  >
+                  <Text style={[styles.activityCount, { color: colors.foreground }]}>
                     {formatNumber(item.total_completed)}
                   </Text>
                   <View style={styles.streakRow}>
                     <Flame color="#f97316" size={12} />
-                    <Text
-                      style={[
-                        styles.streakText,
-                        { color: colors.mutedForeground },
-                      ]}
-                    >
+                    <Text style={[styles.streakText, { color: colors.mutedForeground }]}>
                       {item.current_streak}
                     </Text>
                   </View>
@@ -226,9 +169,7 @@ export default function ActivitiesScreen() {
                 <Text style={[styles.emptyTitle, { color: colors.foreground }]}>
                   No Activities Yet
                 </Text>
-                <Text
-                  style={[styles.emptyText, { color: colors.mutedForeground }]}
-                >
+                <Text style={[styles.emptyText, { color: colors.mutedForeground }]}>
                   Start a challenge to begin tracking your activities.
                 </Text>
               </View>

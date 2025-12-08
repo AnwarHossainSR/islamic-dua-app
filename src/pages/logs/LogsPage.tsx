@@ -1,13 +1,9 @@
+import { FileText, RefreshCw, Trash2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { logsApi } from "@/api/logs.api";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/Card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Confirm } from "@/components/ui/Confirm";
 import {
   Select,
@@ -17,8 +13,6 @@ import {
   SelectValue,
 } from "@/components/ui/Select";
 import { Skeleton } from "@/components/ui/Skeleton";
-import { FileText, RefreshCw, Trash2 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
 
 interface LogEntry {
   id: string;
@@ -96,9 +90,7 @@ export default function LogsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold">API Logs</h1>
-          <p className="text-muted-foreground">
-            Monitor system activity and debug issues
-          </p>
+          <p className="text-muted-foreground">Monitor system activity and debug issues</p>
         </div>
         <div className="flex gap-2">
           <Button onClick={fetchLogs} variant="outline" size="sm">
@@ -144,7 +136,7 @@ export default function LogsPage() {
               </Select>
               <Select
                 value={limit.toString()}
-                onValueChange={(value) => setLimit(parseInt(value))}
+                onValueChange={(value) => setLimit(parseInt(value, 10))}
               >
                 <SelectTrigger className="w-20">
                   <SelectValue />
@@ -159,9 +151,7 @@ export default function LogsPage() {
             </div>
           </div>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-            <CardDescription>
-              Real-time system logs and API activity
-            </CardDescription>
+            <CardDescription>Real-time system logs and API activity</CardDescription>
             <div className="text-sm text-muted-foreground">
               <span className="hidden sm:inline">
                 Total: {total} entries | Showing {(page - 1) * limit + 1} to{" "}
@@ -190,18 +180,14 @@ export default function LogsPage() {
               ))}
             </div>
           ) : logs.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              No logs found
-            </div>
+            <div className="text-center py-8 text-muted-foreground">No logs found</div>
           ) : (
             <div className="space-y-4">
               {logs.map((log) => (
                 <div key={log.id} className="border rounded-lg p-4 space-y-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <Badge variant={getLevelColor(log.level)}>
-                        {log.level.toUpperCase()}
-                      </Badge>
+                      <Badge variant={getLevelColor(log.level)}>{log.level.toUpperCase()}</Badge>
                       <span className="text-sm text-muted-foreground">
                         {new Date(log.timestamp).toLocaleString()}
                       </span>

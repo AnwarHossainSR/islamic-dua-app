@@ -1,11 +1,11 @@
+import { FileJson, Upload } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
 import { Textarea } from "@/components/ui/Textarea";
-import { FileJson, Upload } from "lucide-react";
-import { useRef, useState, useEffect } from "react";
-import { toast } from "sonner";
 
 export default function JsonImportClient() {
   const [jsonInput, setJsonInput] = useState("");
@@ -44,7 +44,7 @@ export default function JsonImportClient() {
       });
 
       toast.success("JSON data loaded successfully! ✅");
-    } catch (error) {
+    } catch (_error) {
       toast.error("Invalid JSON format. Please check and try again. ❌");
     }
   };
@@ -61,7 +61,9 @@ export default function JsonImportClient() {
           setTimeout(() => {
             const parsed = JSON.parse(content);
             Object.keys(parsed).forEach((key) => {
-              const element = document.getElementById(key) as HTMLInputElement | HTMLTextAreaElement;
+              const element = document.getElementById(key) as
+                | HTMLInputElement
+                | HTMLTextAreaElement;
               if (element) {
                 if (element.tagName === "INPUT" || element.tagName === "TEXTAREA") {
                   element.value = String(parsed[key] || "");
@@ -82,7 +84,7 @@ export default function JsonImportClient() {
 
             toast.success("JSON file loaded successfully! ✅");
           }, 100);
-        } catch (error) {
+        } catch (_error) {
           toast.error("Invalid JSON file. Please check and try again. ❌");
         }
       };

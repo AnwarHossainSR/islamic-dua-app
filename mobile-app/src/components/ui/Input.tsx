@@ -1,13 +1,12 @@
-import { useTheme } from "@/hooks/useTheme";
-import React from "react";
 import {
   StyleSheet,
   Text,
   TextInput,
-  TextInputProps,
+  type TextInputProps,
   View,
-  ViewStyle,
+  type ViewStyle,
 } from "react-native";
+import { useTheme } from "@/hooks/useTheme";
 
 interface InputProps extends TextInputProps {
   label?: string;
@@ -15,22 +14,12 @@ interface InputProps extends TextInputProps {
   containerStyle?: ViewStyle;
 }
 
-export function Input({
-  label,
-  error,
-  containerStyle,
-  style,
-  ...props
-}: InputProps) {
+export function Input({ label, error, containerStyle, style, ...props }: InputProps) {
   const { colors } = useTheme();
 
   return (
     <View style={[styles.container, containerStyle]}>
-      {label && (
-        <Text style={[styles.label, { color: colors.foreground }]}>
-          {label}
-        </Text>
-      )}
+      {label && <Text style={[styles.label, { color: colors.foreground }]}>{label}</Text>}
       <TextInput
         style={[
           styles.input,
@@ -44,11 +33,7 @@ export function Input({
         placeholderTextColor={colors.mutedForeground}
         {...props}
       />
-      {error && (
-        <Text style={[styles.error, { color: colors.destructive }]}>
-          {error}
-        </Text>
-      )}
+      {error && <Text style={[styles.error, { color: colors.destructive }]}>{error}</Text>}
     </View>
   );
 }

@@ -37,9 +37,7 @@ export const challengesApi = {
         const completionPercentage =
           progress?.total_completed_days && challenge.total_days
             ? Math.min(
-                Math.round(
-                  (progress.total_completed_days / challenge.total_days) * 100
-                ),
+                Math.round((progress.total_completed_days / challenge.total_days) * 100),
                 100
               )
             : 0;
@@ -174,10 +172,7 @@ export const challengesApi = {
       if (error) throw error;
 
       // Clear existing daily logs
-      await supabase
-        .from("user_challenge_daily_logs")
-        .delete()
-        .eq("user_progress_id", progressId);
+      await supabase.from("user_challenge_daily_logs").delete().eq("user_progress_id", progressId);
 
       apiLogger.info("Challenge restarted", { progressId, challengeId });
       return { success: true };
@@ -204,9 +199,7 @@ export const challengesApi = {
     try {
       const isCompleted = countCompleted >= targetCount;
       const now = new Date();
-      const bdTime = new Date(
-        now.toLocaleString("en-US", { timeZone: "Asia/Dhaka" })
-      );
+      const bdTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Dhaka" }));
       const completionDate = bdTime.toLocaleDateString("en-CA");
 
       // Check if log exists
@@ -258,12 +251,8 @@ export const challengesApi = {
 
       // Calculate updates
       const newStreak = isCompleted ? (progress.current_streak || 0) + 1 : 0;
-      const newLongestStreak = Math.max(
-        progress.longest_streak || 0,
-        newStreak
-      );
-      const newTotalCompleted =
-        (progress.total_completed_days || 0) + (isCompleted ? 1 : 0);
+      const newLongestStreak = Math.max(progress.longest_streak || 0, newStreak);
+      const newTotalCompleted = (progress.total_completed_days || 0) + (isCompleted ? 1 : 0);
       const newMissedDays = (progress.missed_days || 0) + (isCompleted ? 0 : 1);
       const newCurrentDay = dayNumber + 1;
       const isChallengeCompleted =
@@ -287,10 +276,7 @@ export const challengesApi = {
         updateData.completed_at = Date.now();
       }
 
-      await supabase
-        .from("user_challenge_progress")
-        .update(updateData)
-        .eq("id", progressId);
+      await supabase.from("user_challenge_progress").update(updateData).eq("id", progressId);
 
       await supabase.rpc("increment_completions", {
         challenge_id: challengeId,
@@ -317,10 +303,7 @@ export const challengesApi = {
 
   delete: async (challengeId: string) => {
     try {
-      const { error } = await supabase
-        .from("challenge_templates")
-        .delete()
-        .eq("id", challengeId);
+      const { error } = await supabase.from("challenge_templates").delete().eq("id", challengeId);
       if (error) throw error;
       apiLogger.info("Challenge deleted", { challengeId });
     } catch (error: any) {

@@ -1,9 +1,5 @@
-import { authApi } from "@/api/auth.api";
-import { Button, Input } from "@/components/ui";
-import { APP_NAME, ROUTES } from "@/config/routes";
-import { useTheme } from "@/hooks/useTheme";
 import { useNavigation } from "@react-navigation/native";
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -15,6 +11,10 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
+import { authApi } from "@/api/auth.api";
+import { Button, Input } from "@/components/ui";
+import { APP_NAME, ROUTES } from "@/config/routes";
+import { useTheme } from "@/hooks/useTheme";
 
 export default function LoginScreen() {
   const navigation = useNavigation<any>();
@@ -22,9 +22,7 @@ export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>(
-    {}
-  );
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
 
   const validate = () => {
     const newErrors: { email?: string; password?: string } = {};
@@ -65,9 +63,7 @@ export default function LoginScreen() {
   };
 
   return (
-    <SafeAreaView
-      style={[styles.safeArea, { backgroundColor: colors.background }]}
-    >
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
       <KeyboardAvoidingView
         style={styles.container}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -77,17 +73,10 @@ export default function LoginScreen() {
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.header}>
-            <View
-              style={[
-                styles.logoContainer,
-                { backgroundColor: colors.primary },
-              ]}
-            >
+            <View style={[styles.logoContainer, { backgroundColor: colors.primary }]}>
               <Text style={styles.logoText}>🕌</Text>
             </View>
-            <Text style={[styles.title, { color: colors.foreground }]}>
-              {APP_NAME}
-            </Text>
+            <Text style={[styles.title, { color: colors.foreground }]}>{APP_NAME}</Text>
             <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>
               Track your spiritual journey
             </Text>
@@ -115,29 +104,19 @@ export default function LoginScreen() {
               containerStyle={styles.passwordInput}
             />
 
-            <Button
-              onPress={handleLogin}
-              loading={loading}
-              style={styles.loginButton}
-            >
+            <Button onPress={handleLogin} loading={loading} style={styles.loginButton}>
               Sign In
             </Button>
 
             <View style={styles.signupRow}>
-              <Text
-                style={[styles.signupText, { color: colors.mutedForeground }]}
-              >
+              <Text style={[styles.signupText, { color: colors.mutedForeground }]}>
                 Don't have an account?
               </Text>
               <Pressable
                 onPress={() => navigation.navigate(ROUTES.SIGNUP)}
                 style={styles.signupLink}
               >
-                <Text
-                  style={[styles.signupLinkText, { color: colors.primary }]}
-                >
-                  Sign Up
-                </Text>
+                <Text style={[styles.signupLinkText, { color: colors.primary }]}>Sign Up</Text>
               </Pressable>
             </View>
           </View>

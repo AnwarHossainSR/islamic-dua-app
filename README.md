@@ -14,14 +14,17 @@ Modern React 19 migration of the Islamic Dua App using Vite, TypeScript, and Sup
 ## Setup
 
 1. **Install dependencies**
+
    ```bash
    npm install
    ```
 
 2. **Configure environment**
+
    ```bash
    cp .env.example .env
    ```
+
    Add your Supabase credentials:
    - `VITE_SUPABASE_URL`
    - `VITE_SUPABASE_ANON_KEY`
@@ -55,21 +58,27 @@ src/
 ## React 19 Features Used
 
 ### `use()` Hook
+
 Data fetching in components:
+
 ```tsx
-const data = use(fetchData())
+const data = use(fetchData());
 ```
 
 ### `useActionState` Hook
+
 Form handling with automatic pending states:
+
 ```tsx
-const [state, formAction, isPending] = useActionState(loginAction, null)
+const [state, formAction, isPending] = useActionState(loginAction, null);
 ```
 
 ### `useOptimistic` Hook
+
 Optimistic UI updates:
+
 ```tsx
-const [optimisticData, setOptimisticData] = useOptimistic(data)
+const [optimisticData, setOptimisticData] = useOptimistic(data);
 ```
 
 ## Pages Implemented
@@ -97,5 +106,73 @@ const [optimisticData, setOptimisticData] = useOptimistic(data)
 npm run dev          # Start dev server
 npm run build        # Build for production
 npm run preview      # Preview production build
-npm run lint         # Run ESLint
+npm run lint         # Run Biome linter
+npm run lint:fix     # Run Biome linter with auto-fix
+npm run format       # Format code with Biome
+npm run format:check # Check code formatting
+npm run type-check   # Run TypeScript type checking
+npm run validate     # Run all quality checks
+npm run check        # Run Biome check (lint + format + organize imports)
 ```
+
+## Commit Conventions
+
+This project follows [Conventional Commits](https://www.conventionalcommits.org/) specification.
+
+### Commit Message Format
+
+```
+<type>(<scope>): <subject>
+```
+
+**Types**: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`
+
+**Examples**:
+
+```bash
+feat(auth): add Google OAuth login
+fix(dashboard): resolve data loading issue
+docs(readme): update installation steps
+```
+
+See [COMMIT_CONVENTION.md](./COMMIT_CONVENTION.md) for detailed guidelines.
+
+### Pre-commit Hooks
+
+Automated checks run before each commit:
+
+- ✅ Biome (lint + format + organize imports)
+- ✅ Commit message validation
+
+To bypass (not recommended):
+
+```bash
+git commit --no-verify -m "your message"
+```
+
+## Code Quality
+
+- **Husky**: Git hooks automation
+- **Biome**: Fast linter and formatter (replaces ESLint + Prettier)
+- **commitlint**: Validate commit messages
+- **TypeScript**: Type safety
+
+## Production Deployment
+
+See [PRODUCTION_DEPLOYMENT.md](./PRODUCTION_DEPLOYMENT.md) for comprehensive deployment guide including:
+
+- Pre-deployment checklist
+- Build and optimization
+- Environment configuration
+- Deployment to Vercel/Netlify/Custom servers
+- Monitoring and logging
+- Rollback procedures
+- Security best practices
+- CI/CD pipeline setup
+
+## Project Documentation
+
+- [COMMIT_CONVENTION.md](./COMMIT_CONVENTION.md) - Commit message guidelines
+- [PRODUCTION_DEPLOYMENT.md](./PRODUCTION_DEPLOYMENT.md) - Deployment guide
+- [PROJECT_STRUCTURE.md](./PROJECT_STRUCTURE.md) - Project structure
+- [PERFORMANCE.md](./PERFORMANCE.md) - Performance optimization

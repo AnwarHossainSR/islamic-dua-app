@@ -1,3 +1,6 @@
+import { Activity, ArrowLeft, Search, TrendingUp, Users } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { activitiesApi } from "@/api/activities.api";
 import { Loader } from "@/components/ui";
 import { Badge } from "@/components/ui/Badge";
@@ -6,9 +9,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { useAuth } from "@/hooks/useAuth";
 import { formatDateTime, formatNumber } from "@/lib/utils";
-import { Activity, ArrowLeft, Search, TrendingUp, Users } from "lucide-react";
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 
 export default function ActivitiesPage() {
   const { user } = useAuth();
@@ -41,10 +41,7 @@ export default function ActivitiesPage() {
     }
   };
 
-  const totalCompletions = userActivities.reduce(
-    (sum, a) => sum + (a?.total_completed || 0),
-    0
-  );
+  const totalCompletions = userActivities.reduce((sum, a) => sum + (a?.total_completed || 0), 0);
 
   if (loading)
     return (
@@ -75,9 +72,7 @@ export default function ActivitiesPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">My Completions</p>
-                <p className="text-3xl font-bold">
-                  {formatNumber(totalCompletions)}
-                </p>
+                <p className="text-3xl font-bold">{formatNumber(totalCompletions)}</p>
               </div>
               <TrendingUp className="h-8 w-8 text-emerald-500" />
             </div>
@@ -89,9 +84,7 @@ export default function ActivitiesPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Days Completed</p>
-                <p className="text-3xl font-bold">
-                  {challengeStats.totalDaysCompleted}
-                </p>
+                <p className="text-3xl font-bold">{challengeStats.totalDaysCompleted}</p>
               </div>
               <TrendingUp className="h-8 w-8 text-blue-500" />
             </div>
@@ -103,9 +96,7 @@ export default function ActivitiesPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Longest Streak</p>
-                <p className="text-3xl font-bold">
-                  {challengeStats.longestStreak}
-                </p>
+                <p className="text-3xl font-bold">{challengeStats.longestStreak}</p>
               </div>
               <Activity className="h-8 w-8 text-orange-500" />
             </div>
@@ -139,7 +130,7 @@ export default function ActivitiesPage() {
                     <div
                       className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg text-2xl"
                       style={{
-                        backgroundColor: (activity?.color || "#10b981") + "20",
+                        backgroundColor: `${activity?.color || "#10b981"}20`,
                       }}
                     >
                       {activity?.icon || "📿"}
@@ -159,23 +150,18 @@ export default function ActivitiesPage() {
                         </p>
                       )}
                       {activity?.name_en && (
-                        <p className="text-sm text-muted-foreground">
-                          {activity.name_en}
+                        <p className="text-sm text-muted-foreground">{activity.name_en}</p>
+                      )}
+                      {activity?.arabic_text && activity.arabic_text !== "none" && (
+                        <p className="arabic-text text-lg mt-2 text-emerald-700 dark:text-emerald-400 line-clamp-2">
+                          {activity.arabic_text}
                         </p>
                       )}
-                      {activity?.arabic_text &&
-                        activity.arabic_text !== "none" && (
-                          <p className="arabic-text text-lg mt-2 text-emerald-700 dark:text-emerald-400 line-clamp-2">
-                            {activity.arabic_text}
-                          </p>
-                        )}
                     </div>
                   </div>
 
                   <div className="flex flex-wrap gap-3 text-sm">
-                    <Badge variant="secondary">
-                      {activity?.activity_type || "dhikr"}
-                    </Badge>
+                    <Badge variant="secondary">{activity?.activity_type || "dhikr"}</Badge>
                     <div className="flex items-center gap-1.5">
                       <span className="text-muted-foreground">Slug:</span>
                       <code className="text-xs bg-muted px-2 py-1 rounded">
@@ -200,34 +186,22 @@ export default function ActivitiesPage() {
                           {userActivity?.longest_streak || 0}
                         </span>
                       </div>
-                      <p className="text-xs text-muted-foreground">
-                        Best Streak
-                      </p>
+                      <p className="text-xs text-muted-foreground">Best Streak</p>
                     </div>
                   </div>
 
                   <div className="rounded-lg border bg-linear-to-r from-emerald-50 to-blue-50 dark:from-emerald-950 dark:to-blue-950 p-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-medium">
-                        Last Completed
-                      </span>
+                      <span className="text-xs font-medium">Last Completed</span>
                       <span className="text-sm font-medium">
                         {userActivity?.last_completed_at
-                          ? formatDateTime(
-                              new Date(userActivity.last_completed_at),
-                              "date"
-                            )
+                          ? formatDateTime(new Date(userActivity.last_completed_at), "date")
                           : "Never"}
                       </span>
                     </div>
                   </div>
 
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    asChild
-                    className="w-full"
-                  >
+                  <Button variant="outline" size="sm" asChild className="w-full">
                     <Link to={`/activities/${activity.id}`}>View Details</Link>
                   </Button>
                 </div>
@@ -258,18 +232,11 @@ export default function ActivitiesPage() {
         </CardHeader>
         <CardContent className="text-sm text-blue-800 dark:text-blue-200">
           <ul className="list-disc list-inside space-y-1">
-            <li>
-              Your personal activity stats are updated when you complete daily
-              challenges
-            </li>
+            <li>Your personal activity stats are updated when you complete daily challenges</li>
             <li>Stats show your individual progress and achievements</li>
-            <li>
-              Track your completion counts, streaks, and progress over time
-            </li>
+            <li>Track your completion counts, streaks, and progress over time</li>
             <li>My Count shows your total completions for each activity</li>
-            <li>
-              Best Streak shows your longest consecutive completion streak
-            </li>
+            <li>Best Streak shows your longest consecutive completion streak</li>
           </ul>
         </CardContent>
       </Card>

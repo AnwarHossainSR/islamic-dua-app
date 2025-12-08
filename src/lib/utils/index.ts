@@ -1,8 +1,7 @@
 import { format, formatDistanceToNow, isSameDay } from "date-fns";
 
 export const isCurrentDay = (lastCompletedAt: number | null) => {
-  if (!lastCompletedAt || isNaN(lastCompletedAt) || lastCompletedAt === null)
-    return false;
+  if (!lastCompletedAt || Number.isNaN(lastCompletedAt) || lastCompletedAt === null) return false;
 
   // Convert UTC timestamp to Bangladesh time
   const completedDate = new Date(lastCompletedAt);
@@ -12,9 +11,7 @@ export const isCurrentDay = (lastCompletedAt: number | null) => {
 
   // Get current Bangladesh time
   const now = new Date();
-  const bdNow = new Date(
-    now.toLocaleString("en-US", { timeZone: "Asia/Dhaka" })
-  );
+  const bdNow = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Dhaka" }));
 
   return isSameDay(completedBdTime, bdNow);
 };
@@ -46,9 +43,9 @@ export const formatDateTime = (
 /**
  * Sort challenges to prioritize incomplete ones (not completed today) at the top
  */
-export function sortChallengesByCompletion<
-  T extends { last_completed_at?: number | null }
->(challenges: T[]): T[] {
+export function sortChallengesByCompletion<T extends { last_completed_at?: number | null }>(
+  challenges: T[]
+): T[] {
   return challenges.sort((a, b) => {
     const aCompletedToday = isCurrentDay(a.last_completed_at || null);
     const bCompletedToday = isCurrentDay(b.last_completed_at || null);

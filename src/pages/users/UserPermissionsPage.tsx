@@ -1,20 +1,14 @@
-import { permissionsApi } from "@/api/permissions.api";
-import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/Card";
-import { Checkbox } from "@/components/ui/Checkbox";
-import { Loader } from "@/components/ui";
-import { apiLogger } from "@/lib/logger";
 import { ArrowLeft, Settings, Shield } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { toast } from "sonner";
+import { permissionsApi } from "@/api/permissions.api";
+import { Loader } from "@/components/ui";
+import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
+import { Checkbox } from "@/components/ui/Checkbox";
+import { apiLogger } from "@/lib/logger";
 
 interface Permission {
   id: string;
@@ -56,10 +50,7 @@ export default function UserPermissionsPage() {
     }
   };
 
-  const handlePermissionToggle = async (
-    permission: Permission,
-    isChecked: boolean
-  ) => {
+  const handlePermissionToggle = async (permission: Permission, isChecked: boolean) => {
     if (!user) return;
 
     try {
@@ -77,7 +68,11 @@ export default function UserPermissionsPage() {
   };
 
   if (loading) {
-    return <div className="text-center py-8"><Loader size="lg" /></div>;
+    return (
+      <div className="text-center py-8">
+        <Loader size="lg" />
+      </div>
+    );
   }
 
   if (!user) {
@@ -119,9 +114,7 @@ export default function UserPermissionsPage() {
             </Button>
             <h1 className="text-3xl font-bold">User Permissions</h1>
           </div>
-          <p className="text-muted-foreground">
-            Manage permissions for {user.email}
-          </p>
+          <p className="text-muted-foreground">Manage permissions for {user.email}</p>
         </div>
       </div>
 
@@ -142,9 +135,7 @@ export default function UserPermissionsPage() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">
-                  Active Permissions
-                </p>
+                <p className="text-sm text-muted-foreground">Active Permissions</p>
                 <p className="text-2xl font-bold">{user.permissions.length}</p>
               </div>
               <Settings className="h-8 w-8 text-green-500" />
@@ -172,8 +163,7 @@ export default function UserPermissionsPage() {
         <CardHeader>
           <CardTitle>Role-Based Permissions</CardTitle>
           <CardDescription>
-            Permissions are managed through roles. User has{" "}
-            <strong>{user.role}</strong> role.
+            Permissions are managed through roles. User has <strong>{user.role}</strong> role.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -194,59 +184,46 @@ export default function UserPermissionsPage() {
             <div className="space-y-4">
               <h3 className="text-lg font-medium">Manage Role Permissions</h3>
               <p className="text-sm text-muted-foreground">
-                Changes will affect all users with the{" "}
-                <strong>{user.role}</strong> role.
+                Changes will affect all users with the <strong>{user.role}</strong> role.
               </p>
 
-              {Object.entries(permissionsByResource).map(
-                ([resource, permissions]) => (
-                  <Card key={resource}>
-                    <CardHeader>
-                      <CardTitle className="capitalize">{resource}</CardTitle>
-                      <CardDescription>
-                        Permissions for {resource} management
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid gap-4 sm:grid-cols-2">
-                        {permissions.map((permission) => {
-                          const isChecked = userPermissionNames.has(
-                            permission.name
-                          );
-                          return (
-                            <div
-                              key={permission.id}
-                              className="flex items-start space-x-3"
-                            >
-                              <Checkbox
-                                id={permission.id}
-                                checked={isChecked}
-                                onCheckedChange={(checked) =>
-                                  handlePermissionToggle(
-                                    permission,
-                                    checked as boolean
-                                  )
-                                }
-                              />
-                              <div className="grid gap-1.5 leading-none">
-                                <label
-                                  htmlFor={permission.id}
-                                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                                >
-                                  {permission.name}
-                                </label>
-                                <p className="text-xs text-muted-foreground">
-                                  {permission.description}
-                                </p>
-                              </div>
+              {Object.entries(permissionsByResource).map(([resource, permissions]) => (
+                <Card key={resource}>
+                  <CardHeader>
+                    <CardTitle className="capitalize">{resource}</CardTitle>
+                    <CardDescription>Permissions for {resource} management</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      {permissions.map((permission) => {
+                        const isChecked = userPermissionNames.has(permission.name);
+                        return (
+                          <div key={permission.id} className="flex items-start space-x-3">
+                            <Checkbox
+                              id={permission.id}
+                              checked={isChecked}
+                              onCheckedChange={(checked) =>
+                                handlePermissionToggle(permission, checked as boolean)
+                              }
+                            />
+                            <div className="grid gap-1.5 leading-none">
+                              <label
+                                htmlFor={permission.id}
+                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                              >
+                                {permission.name}
+                              </label>
+                              <p className="text-xs text-muted-foreground">
+                                {permission.description}
+                              </p>
                             </div>
-                          );
-                        })}
-                      </div>
-                    </CardContent>
-                  </Card>
-                )
-              )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
           </div>
         </CardContent>

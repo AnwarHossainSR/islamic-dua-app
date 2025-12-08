@@ -1,7 +1,6 @@
-import { useTheme } from "@/hooks/useTheme";
 import { AlertTriangle, CheckCircle, Info, XCircle } from "lucide-react-native";
-import React from "react";
 import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
+import { useTheme } from "@/hooks/useTheme";
 import { Button } from "./Button";
 
 interface ConfirmationModalProps {
@@ -57,12 +56,7 @@ export function ConfirmationModal({
   };
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="fade"
-      onRequestClose={onCancel}
-    >
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
       <Pressable style={styles.overlay} onPress={onCancel}>
         <Pressable
           style={[styles.container, { backgroundColor: colors.card }]}
@@ -71,30 +65,19 @@ export function ConfirmationModal({
           {/* Header with Icon */}
           <View style={styles.header}>
             <View style={styles.iconContainer}>{renderIcon()}</View>
-            <Text style={[styles.title, { color: colors.foreground }]}>
-              {title}
-            </Text>
+            <Text style={[styles.title, { color: colors.foreground }]}>{title}</Text>
           </View>
 
           {/* Description */}
-          <Text style={[styles.description, { color: colors.mutedForeground }]}>
-            {description}
-          </Text>
+          <Text style={[styles.description, { color: colors.mutedForeground }]}>{description}</Text>
 
           {/* Actions */}
           <View style={styles.actions}>
-            <Button
-              variant="outline"
-              onPress={onCancel}
-              disabled={isLoading}
-              style={styles.button}
-            >
+            <Button variant="outline" onPress={onCancel} disabled={isLoading} style={styles.button}>
               {cancelText}
             </Button>
             <Button
-              variant={
-                confirmVariant === "destructive" ? "destructive" : "default"
-              }
+              variant={confirmVariant === "destructive" ? "destructive" : "default"}
               onPress={onConfirm}
               loading={isLoading}
               disabled={isLoading}

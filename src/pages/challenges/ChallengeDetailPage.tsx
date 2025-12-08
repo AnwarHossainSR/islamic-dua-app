@@ -1,10 +1,10 @@
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { challengesApi } from "@/api";
 import { Button, Loader } from "@/components/ui";
 import { ROUTES } from "@/config/routes";
 import { StartChallengeButton } from "@/features/challenges/StartChallengeButton";
 import { useAuth } from "@/hooks/useAuth";
-import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
 
 export default function ChallengeDetailPage() {
   const { id } = useParams();
@@ -49,9 +49,7 @@ export default function ChallengeDetailPage() {
           </div>
           <div className="p-4 bg-green-50 rounded">
             <p className="text-sm text-gray-600">Daily Target</p>
-            <p className="text-2xl font-bold">
-              {challenge.daily_target_count}x
-            </p>
+            <p className="text-2xl font-bold">{challenge.daily_target_count}x</p>
           </div>
           <div className="p-4 bg-purple-50 rounded">
             <p className="text-sm text-gray-600">Participants</p>
@@ -71,14 +69,13 @@ export default function ChallengeDetailPage() {
         {!progress ? (
           <StartChallengeButton
             challengeId={challenge.id}
-            userId={user!.id}
+            userId={user?.id}
             onSuccess={() => navigate(ROUTES.CHALLENGES)}
           />
         ) : (
           <div className="p-4 bg-green-50 rounded-lg">
             <p className="font-semibold text-green-800">
-              Challenge Active - Day {progress.current_day}/
-              {challenge.total_days}
+              Challenge Active - Day {progress.current_day}/{challenge.total_days}
             </p>
           </div>
         )}

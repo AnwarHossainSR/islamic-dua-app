@@ -1,20 +1,3 @@
-import { settingsApi } from "@/api/settings.api";
-import { BiometricManager } from "@/components/BiometricManager";
-import { DynamicSettings } from "@/components/DynamicSettings";
-import { NotificationSettings } from "@/components/NotificationSettings";
-import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/Card";
-import { Progress } from "@/components/ui/Progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/Tabs";
-import { apiLogger } from "@/lib/logger";
-import { supabase } from "@/lib/supabase/client";
 import {
   Activity,
   Archive,
@@ -35,6 +18,17 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { settingsApi } from "@/api/settings.api";
+import { BiometricManager } from "@/components/BiometricManager";
+import { DynamicSettings } from "@/components/DynamicSettings";
+import { NotificationSettings } from "@/components/NotificationSettings";
+import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
+import { Progress } from "@/components/ui/Progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/Tabs";
+import { apiLogger } from "@/lib/logger";
+import { supabase } from "@/lib/supabase/client";
 
 export default function SettingsPage() {
   const [dbStats, setDbStats] = useState<any>(null);
@@ -106,9 +100,7 @@ export default function SettingsPage() {
         const url = URL.createObjectURL(result as Blob);
         const link = document.createElement("a");
         link.href = url;
-        link.download = `islamic-dua-app-backup-${
-          new Date().toISOString().split("T")[0]
-        }.sql`;
+        link.download = `islamic-dua-app-backup-${new Date().toISOString().split("T")[0]}.sql`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -147,10 +139,7 @@ export default function SettingsPage() {
       <Tabs defaultValue="general" className="space-y-6">
         <div className="overflow-x-auto">
           <TabsList className="inline-flex w-auto min-w-full">
-            <TabsTrigger
-              className="cursor-pointer text-xs md:text-sm px-2 md:px-4"
-              value="general"
-            >
+            <TabsTrigger className="cursor-pointer text-xs md:text-sm px-2 md:px-4" value="general">
               General
             </TabsTrigger>
             <TabsTrigger
@@ -237,9 +226,7 @@ export default function SettingsPage() {
                   <Database className="h-5 w-5 text-primary" />
                   <CardTitle>Database Overview</CardTitle>
                 </div>
-                <CardDescription>
-                  Monitor your database health and statistics
-                </CardDescription>
+                <CardDescription>Monitor your database health and statistics</CardDescription>
               </CardHeader>
               <CardContent>
                 {dbStats ? (
@@ -247,48 +234,34 @@ export default function SettingsPage() {
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
                         <HardDrive className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm font-medium">
-                          Total Records
-                        </span>
+                        <span className="text-sm font-medium">Total Records</span>
                       </div>
-                      <div className="text-2xl font-bold">
-                        {dbStats.totalRecords || 0}
-                      </div>
+                      <div className="text-2xl font-bold">{dbStats.totalRecords || 0}</div>
                     </div>
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
                         <Activity className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm font-medium">
-                          Active Users
-                        </span>
+                        <span className="text-sm font-medium">Active Users</span>
                       </div>
-                      <div className="text-2xl font-bold">
-                        {dbStats.activeUsers || 0}
-                      </div>
+                      <div className="text-2xl font-bold">{dbStats.activeUsers || 0}</div>
                     </div>
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
                         <FileText className="h-4 w-4 text-muted-foreground" />
                         <span className="text-sm font-medium">Duas Count</span>
                       </div>
-                      <div className="text-2xl font-bold">
-                        {dbStats.duasCount || 0}
-                      </div>
+                      <div className="text-2xl font-bold">{dbStats.duasCount || 0}</div>
                     </div>
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
                         <Server className="h-4 w-4 text-muted-foreground" />
                         <span className="text-sm font-medium">DB Size</span>
                       </div>
-                      <div className="text-2xl font-bold">
-                        {dbStats.dbSize || "N/A"}
-                      </div>
+                      <div className="text-2xl font-bold">{dbStats.dbSize || "N/A"}</div>
                     </div>
                   </div>
                 ) : (
-                  <div className="text-center py-4">
-                    Loading database statistics...
-                  </div>
+                  <div className="text-center py-4">Loading database statistics...</div>
                 )}
               </CardContent>
             </Card>
@@ -299,9 +272,7 @@ export default function SettingsPage() {
                   <Archive className="h-5 w-5 text-primary" />
                   <CardTitle>Database Management</CardTitle>
                 </div>
-                <CardDescription>
-                  Backup, restore, and optimize your database
-                </CardDescription>
+                <CardDescription>Backup, restore, and optimize your database</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid gap-4 md:grid-cols-3">
@@ -342,8 +313,7 @@ export default function SettingsPage() {
                     </div>
                     <Progress value={85} className="h-2" />
                     <p className="text-xs text-muted-foreground">
-                      Database is running optimally. Last optimization: 2 days
-                      ago
+                      Database is running optimally. Last optimization: 2 days ago
                     </p>
                   </div>
                 </div>
@@ -356,9 +326,7 @@ export default function SettingsPage() {
                   <Calendar className="h-5 w-5 text-primary" />
                   <CardTitle>Backup History</CardTitle>
                 </div>
-                <CardDescription>
-                  Manage your stored database backups
-                </CardDescription>
+                <CardDescription>Manage your stored database backups</CardDescription>
               </CardHeader>
               <CardContent>
                 {backups.length > 0 ? (
@@ -395,9 +363,7 @@ export default function SettingsPage() {
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-8 text-muted-foreground">
-                    No backups found.
-                  </div>
+                  <div className="text-center py-8 text-muted-foreground">No backups found.</div>
                 )}
               </CardContent>
             </Card>
@@ -408,9 +374,7 @@ export default function SettingsPage() {
                   <Upload className="h-5 w-5 text-primary" />
                   <CardTitle>Data Export</CardTitle>
                 </div>
-                <CardDescription>
-                  Export your data for backup or migration
-                </CardDescription>
+                <CardDescription>Export your data for backup or migration</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -418,9 +382,7 @@ export default function SettingsPage() {
                     variant="outline"
                     onClick={async () => {
                       try {
-                        const { data } = await supabase
-                          .from("challenge_templates")
-                          .select("*");
+                        const { data } = await supabase.from("challenge_templates").select("*");
                         const jsonString = JSON.stringify(data, null, 2);
                         const blob = new Blob([jsonString], {
                           type: "application/json",
@@ -428,9 +390,7 @@ export default function SettingsPage() {
                         const url = URL.createObjectURL(blob);
                         const link = document.createElement("a");
                         link.href = url;
-                        link.download = `challenges-${
-                          new Date().toISOString().split("T")[0]
-                        }.json`;
+                        link.download = `challenges-${new Date().toISOString().split("T")[0]}.json`;
                         document.body.appendChild(link);
                         link.click();
                         document.body.removeChild(link);
@@ -448,9 +408,7 @@ export default function SettingsPage() {
                     variant="outline"
                     onClick={async () => {
                       try {
-                        const { data } = await supabase
-                          .from("duas")
-                          .select("*");
+                        const { data } = await supabase.from("duas").select("*");
                         const jsonString = JSON.stringify(data, null, 2);
                         const blob = new Blob([jsonString], {
                           type: "application/json",
@@ -458,9 +416,7 @@ export default function SettingsPage() {
                         const url = URL.createObjectURL(blob);
                         const link = document.createElement("a");
                         link.href = url;
-                        link.download = `duas-${
-                          new Date().toISOString().split("T")[0]
-                        }.json`;
+                        link.download = `duas-${new Date().toISOString().split("T")[0]}.json`;
                         document.body.appendChild(link);
                         link.click();
                         document.body.removeChild(link);
@@ -478,9 +434,7 @@ export default function SettingsPage() {
                     variant="outline"
                     onClick={async () => {
                       try {
-                        const { data } = await supabase
-                          .from("app_settings")
-                          .select("*");
+                        const { data } = await supabase.from("app_settings").select("*");
                         const jsonString = JSON.stringify(data, null, 2);
                         const blob = new Blob([jsonString], {
                           type: "application/json",
@@ -488,9 +442,7 @@ export default function SettingsPage() {
                         const url = URL.createObjectURL(blob);
                         const link = document.createElement("a");
                         link.href = url;
-                        link.download = `settings-${
-                          new Date().toISOString().split("T")[0]
-                        }.json`;
+                        link.download = `settings-${new Date().toISOString().split("T")[0]}.json`;
                         document.body.appendChild(link);
                         link.click();
                         document.body.removeChild(link);

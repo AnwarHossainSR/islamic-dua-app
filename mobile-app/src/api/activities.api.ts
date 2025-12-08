@@ -70,13 +70,9 @@ export const activitiesApi = {
 
     if (error) throw error;
 
-    const totalCompleted =
-      data?.filter((p: any) => p.status === "completed").length || 0;
-    const totalActive =
-      data?.filter((p: any) => p.status === "active").length || 0;
-    const longestStreak = Math.max(
-      ...(data?.map((p) => p.longest_streak || 0) || [0])
-    );
+    const totalCompleted = data?.filter((p: any) => p.status === "completed").length || 0;
+    const totalActive = data?.filter((p: any) => p.status === "active").length || 0;
+    const longestStreak = Math.max(...(data?.map((p) => p.longest_streak || 0) || [0]));
     const totalDaysCompleted =
       data?.reduce((sum, p) => sum + (p.total_completed_days || 0), 0) || 0;
 

@@ -2,11 +2,7 @@ import { supabaseAdmin } from "@/lib/supabase/admin";
 import { supabase } from "@/lib/supabase/client";
 
 export const logsApi = {
-  getLogs: async (
-    page: number = 1,
-    level: string = "all",
-    limit: number = 25
-  ) => {
+  getLogs: async (page: number = 1, level: string = "all", limit: number = 25) => {
     let query = supabase
       .from("api_logs")
       .select("*", { count: "exact" })

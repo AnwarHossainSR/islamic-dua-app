@@ -1,7 +1,8 @@
+import type { User } from "@supabase/supabase-js";
+import type React from "react";
+import { useEffect, useState } from "react";
 import { AuthContext } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
-import { User } from "@supabase/supabase-js";
-import React, { useEffect, useState } from "react";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -29,9 +30,5 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
   };
 
-  return (
-    <AuthContext.Provider value={{ user, loading, signOut }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={{ user, loading, signOut }}>{children}</AuthContext.Provider>;
 }

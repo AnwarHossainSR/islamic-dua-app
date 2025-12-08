@@ -1,12 +1,26 @@
-export { Button } from './Button'
-export { Input } from './Input'
-export { Textarea } from './Textarea'
-export { Progress } from './Progress'
-export { StatCard } from './StatCard'
-export { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from './Card'
-export { Badge } from './Badge'
-export { Select, SelectGroup, SelectValue, SelectTrigger, SelectContent, SelectItem } from './Select'
-export { Tabs, TabsList, TabsTrigger, TabsContent } from './Tabs'
-export { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './Dialog'
-export { Skeleton } from './Skeleton'
-export { Loader, FullPageLoader } from './loader'
+export { Badge } from "./Badge";
+export { Button } from "./Button";
+export { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./Card";
+export {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "./Dialog";
+export { Input } from "./Input";
+export { FullPageLoader, Loader } from "./loader";
+export { Progress } from "./Progress";
+export {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./Select";
+export { Skeleton } from "./Skeleton";
+export { StatCard } from "./StatCard";
+export { Tabs, TabsContent, TabsList, TabsTrigger } from "./Tabs";
+export { Textarea } from "./Textarea";

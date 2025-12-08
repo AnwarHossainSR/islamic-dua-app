@@ -1,3 +1,20 @@
+import {
+  ArrowLeft,
+  Calendar as CalendarIcon,
+  Check,
+  CheckCircle2,
+  Edit3,
+  Flame,
+  Maximize2,
+  Minimize2,
+  RotateCcw,
+  Target,
+  Trophy,
+} from "lucide-react";
+import { Activity, useCallback, useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { toast } from "sonner";
 import { challengesApi } from "@/api/challenges.api";
 import { ChallengeCalendar } from "@/components/ChallengeCalendar";
 import { Loader } from "@/components/ui";
@@ -19,23 +36,6 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { useAuth } from "@/hooks/useAuth";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { cn } from "@/lib/utils/cn";
-import {
-  ArrowLeft,
-  Calendar as CalendarIcon,
-  Check,
-  CheckCircle2,
-  Edit3,
-  Flame,
-  Maximize2,
-  Minimize2,
-  RotateCcw,
-  Target,
-  Trophy,
-} from "lucide-react";
-import { Activity, useCallback, useEffect, useMemo, useState } from "react";
-import { createPortal } from "react-dom";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import { toast } from "sonner";
 
 export default function ChallengeProgressPage() {
   const { id } = useParams<{ id: string }>();
@@ -73,8 +73,7 @@ export default function ChallengeProgressPage() {
   const target = challenge?.daily_target_count || 0;
   const today = new Date().toISOString().split("T")[0];
   const todayLog = progress?.daily_logs?.find(
-    (log: any) =>
-      log.completion_date === today && log.day_number === progress?.current_day
+    (log: any) => log.completion_date === today && log.day_number === progress?.current_day
   );
   const isAlreadyCompleted = todayLog?.is_completed;
   console.log("Today Log progress:", progress);
@@ -92,14 +91,13 @@ export default function ChallengeProgressPage() {
 
   console.log("storageKey", storageKey, "count", count);
 
-  const { debouncedCallback: saveToLocalStorage, cancel: cancelSave } =
-    useDebounce(
-      (value: number) => {
-        setCount(value);
-      },
-      10000,
-      []
-    );
+  const { debouncedCallback: saveToLocalStorage, cancel: cancelSave } = useDebounce(
+    (value: number) => {
+      setCount(value);
+    },
+    10000,
+    []
+  );
 
   const dailyProgress = useMemo(() => (count / target) * 100, [count, target]);
   const remaining = useMemo(() => Math.max(0, target - count), [target, count]);
@@ -121,14 +119,7 @@ export default function ChallengeProgressPage() {
       vibrate();
       saveToLocalStorage(newCount);
     }
-  }, [
-    count,
-    target,
-    vibrate,
-    isAlreadyCompleted,
-    setCount,
-    saveToLocalStorage,
-  ]);
+  }, [count, target, vibrate, isAlreadyCompleted, setCount, saveToLocalStorage]);
 
   const toggleInputMode = useCallback(() => {
     setInputMode(!inputMode);
@@ -136,8 +127,8 @@ export default function ChallengeProgressPage() {
   }, [inputMode, count]);
 
   const handleInputSubmit = useCallback(() => {
-    const value = parseInt(inputValue);
-    if (!isNaN(value) && value >= 0 && value <= target && !isAlreadyCompleted) {
+    const value = parseInt(inputValue, 10);
+    if (!Number.isNaN(value) && value >= 0 && value <= target && !isAlreadyCompleted) {
       setCount(value);
       saveToLocalStorage(value);
       setInputValue("");
@@ -148,8 +139,7 @@ export default function ChallengeProgressPage() {
   const handleReset = useCallback(async () => {
     const confirmed = await confirm({
       title: "Reset Counter?",
-      description:
-        "Are you sure you want to reset the counter? This action cannot be undone.",
+      description: "Are you sure you want to reset the counter? This action cannot be undone.",
       confirmText: "Reset",
       confirmVariant: "destructive",
       icon: "warning",
@@ -176,7 +166,7 @@ export default function ChallengeProgressPage() {
     try {
       await challengesApi.complete(
         id!,
-        user!.id,
+        user?.id,
         challenge.id,
         progress.current_day,
         count,
@@ -199,26 +189,14 @@ export default function ChallengeProgressPage() {
     } finally {
       setIsCompleting(false);
     }
-  }, [
-    count,
-    target,
-    id,
-    user,
-    challenge,
-    progress,
-    notes,
-    mood,
-    removeCount,
-    cancelSave,
-  ]);
+  }, [count, target, id, user, challenge, progress, notes, mood, removeCount, cancelSave]);
 
   useEffect(() => {
     if (isAlreadyCompleted) return;
 
     const handleKeyPress = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;
-      const isInputField =
-        target.tagName === "INPUT" || target.tagName === "TEXTAREA";
+      const isInputField = target.tagName === "INPUT" || target.tagName === "TEXTAREA";
 
       if (e.code === "Space" && !isInputField) {
         e.preventDefault();
@@ -252,11 +230,7 @@ export default function ChallengeProgressPage() {
   }
 
   if (!progress || !challenge) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        Progress not found
-      </div>
-    );
+    return <div className="flex items-center justify-center min-h-screen">Progress not found</div>;
   }
 
   const fullscreenContent = isFullscreen && !isAlreadyCompleted && (
@@ -266,9 +240,7 @@ export default function ChallengeProgressPage() {
           <span className="text-2xl">{challenge.icon || "📿"}</span>
           <div>
             <h1 className="text-lg font-bold">{challenge.title_bn}</h1>
-            <p className="text-sm text-muted-foreground">
-              Day {progress.current_day}
-            </p>
+            <p className="text-sm text-muted-foreground">Day {progress.current_day}</p>
           </div>
         </div>
         <Button
@@ -296,9 +268,7 @@ export default function ChallengeProgressPage() {
             </div>
           )}
           <div className="rounded-lg bg-background/95 p-4 text-center shadow-sm border">
-            <p className="text-lg leading-relaxed md:text-xl">
-              {challenge.translation_bn}
-            </p>
+            <p className="text-lg leading-relaxed md:text-xl">{challenge.translation_bn}</p>
           </div>
         </div>
 
@@ -307,10 +277,7 @@ export default function ChallengeProgressPage() {
             <div className="text-center">
               <Badge
                 variant={count >= target ? "default" : "secondary"}
-                className={cn(
-                  "mb-2 text-lg",
-                  count >= target && "bg-emerald-500"
-                )}
+                className={cn("mb-2 text-lg", count >= target && "bg-emerald-500")}
               >
                 {count} / {target}
               </Badge>
@@ -321,9 +288,7 @@ export default function ChallengeProgressPage() {
                 />
               </div>
               <p className="mt-2 text-sm text-muted-foreground">
-                {remaining > 0
-                  ? `${remaining} more to go!`
-                  : "Target reached! 🎉"}
+                {remaining > 0 ? `${remaining} more to go!` : "Target reached! 🎉"}
               </p>
             </div>
             <div className="text-center">
@@ -355,11 +320,7 @@ export default function ChallengeProgressPage() {
             </p>
             {count >= target && (
               <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  onClick={() => setIsFullscreen(false)}
-                  className="flex-1"
-                >
+                <Button variant="outline" onClick={() => setIsFullscreen(false)} className="flex-1">
                   <Minimize2 className="mr-2 h-4 w-4" />
                   Exit Fullscreen
                 </Button>
@@ -380,369 +341,343 @@ export default function ChallengeProgressPage() {
   );
 
   return (
-    <>
-      <div className="mx-auto max-w-4xl space-y-4 px-4 pb-20 pt-4 sm:space-y-6 sm:px-6">
-        <div className="flex items-center gap-3">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate(-1)}
-            className="shrink-0"
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div className="min-w-0 flex-1">
-            <div className="flex items-start gap-2">
-              <span className="shrink-0 text-2xl sm:text-3xl">
-                {challenge.icon || "📿"}
-              </span>
-              <div className="min-w-0 flex-1">
-                <h1 className="truncate text-xl font-bold sm:text-2xl">
-                  {challenge.title_bn}
-                </h1>
-                <p className="text-xs text-muted-foreground sm:text-sm">
-                  Day {progress.current_day} of {challenge.total_days}
-                </p>
-              </div>
+    <div className="mx-auto max-w-4xl space-y-4 px-4 pb-20 pt-4 sm:space-y-6 sm:px-6">
+      <div className="flex items-center gap-3">
+        <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="shrink-0">
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start gap-2">
+            <span className="shrink-0 text-2xl sm:text-3xl">{challenge.icon || "📿"}</span>
+            <div className="min-w-0 flex-1">
+              <h1 className="truncate text-xl font-bold sm:text-2xl">{challenge.title_bn}</h1>
+              <p className="text-xs text-muted-foreground sm:text-sm">
+                Day {progress.current_day} of {challenge.total_days}
+              </p>
             </div>
           </div>
         </div>
+      </div>
 
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
-          <Card>
-            <CardContent className="pt-4 sm:pt-6">
-              <div className="flex flex-col items-center text-center">
-                <CalendarIcon className="mb-1 h-4 w-4 text-blue-500 sm:mb-2 sm:h-5 sm:w-5" />
-                <p className="text-xl font-bold sm:text-2xl">
-                  {progress.current_day}
-                </p>
-                <p className="text-xs text-muted-foreground">Current Day</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-4 sm:pt-6">
-              <div className="flex flex-col items-center text-center">
-                <Flame className="mb-1 h-4 w-4 text-orange-500 sm:mb-2 sm:h-5 sm:w-5" />
-                <p className="text-xl font-bold sm:text-2xl">
-                  {progress.current_streak}
-                </p>
-                <p className="text-xs text-muted-foreground">Streak</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-4 sm:pt-6">
-              <div className="flex flex-col items-center text-center">
-                <Trophy className="mb-1 h-4 w-4 text-amber-500 sm:mb-2 sm:h-5 sm:w-5" />
-                <p className="text-xl font-bold sm:text-2xl">
-                  {progress.total_completed_days}
-                </p>
-                <p className="text-xs text-muted-foreground">Completed</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-4 sm:pt-6">
-              <div className="flex flex-col items-center text-center">
-                <Target className="mb-1 h-4 w-4 text-emerald-500 sm:mb-2 sm:h-5 sm:w-5" />
-                <p className="text-xl font-bold sm:text-2xl">
-                  {challenge.total_days - progress.current_day + 1}
-                </p>
-                <p className="text-xs text-muted-foreground">Remaining</p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
         <Card>
           <CardContent className="pt-4 sm:pt-6">
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium sm:text-sm">
-                  Overall Progress
-                </span>
-                <span className="text-xs text-muted-foreground sm:text-sm">
-                  {progress.current_day - 1}/{challenge.total_days} days
-                </span>
-              </div>
-              <Progress value={overallProgress} className="h-2" />
+            <div className="flex flex-col items-center text-center">
+              <CalendarIcon className="mb-1 h-4 w-4 text-blue-500 sm:mb-2 sm:h-5 sm:w-5" />
+              <p className="text-xl font-bold sm:text-2xl">{progress.current_day}</p>
+              <p className="text-xs text-muted-foreground">Current Day</p>
             </div>
           </CardContent>
         </Card>
-
         <Card>
-          <CardContent className="space-y-3 pt-4 sm:space-y-4 sm:pt-6">
-            <div className="rounded-lg border-2 border-emerald-500/20 bg-emerald-500/5 p-4 sm:p-6">
-              <p className="arabic-text text-center text-2xl leading-loose sm:text-3xl">
-                {challenge.arabic_text}
-              </p>
+          <CardContent className="pt-4 sm:pt-6">
+            <div className="flex flex-col items-center text-center">
+              <Flame className="mb-1 h-4 w-4 text-orange-500 sm:mb-2 sm:h-5 sm:w-5" />
+              <p className="text-xl font-bold sm:text-2xl">{progress.current_streak}</p>
+              <p className="text-xs text-muted-foreground">Streak</p>
             </div>
-            {challenge.transliteration_bn && (
-              <p className="text-center text-sm text-muted-foreground sm:text-lg">
-                {challenge.transliteration_bn}
-              </p>
-            )}
-            <p className="text-center text-sm leading-relaxed sm:text-base">
-              {challenge.translation_bn}
-            </p>
           </CardContent>
         </Card>
+        <Card>
+          <CardContent className="pt-4 sm:pt-6">
+            <div className="flex flex-col items-center text-center">
+              <Trophy className="mb-1 h-4 w-4 text-amber-500 sm:mb-2 sm:h-5 sm:w-5" />
+              <p className="text-xl font-bold sm:text-2xl">{progress.total_completed_days}</p>
+              <p className="text-xs text-muted-foreground">Completed</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-4 sm:pt-6">
+            <div className="flex flex-col items-center text-center">
+              <Target className="mb-1 h-4 w-4 text-emerald-500 sm:mb-2 sm:h-5 sm:w-5" />
+              <p className="text-xl font-bold sm:text-2xl">
+                {challenge.total_days - progress.current_day + 1}
+              </p>
+              <p className="text-xs text-muted-foreground">Remaining</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
-        {!isAlreadyCompleted ? (
-          <Card className="border-2 border-emerald-500">
-            <CardHeader className="pb-3 sm:pb-6">
-              <CardTitle className="flex items-center justify-between text-base sm:text-lg">
-                <span>Today's Count</span>
-                <div className="flex items-center gap-2">
-                  <Badge
-                    variant={count >= target ? "default" : "secondary"}
-                    className="text-sm sm:text-base"
-                  >
-                    {count} / {target}
-                  </Badge>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={() => setIsFullscreen(true)}
-                    title="Fullscreen mode (Ctrl+F)"
-                  >
-                    <Maximize2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4 sm:space-y-6">
-              <div className="space-y-2">
-                <div className="relative h-3 w-full overflow-hidden rounded-full bg-emerald-500/20">
-                  <div
-                    className="h-full bg-emerald-500 transition-all duration-300 ease-out"
-                    style={{ width: `${Math.min(dailyProgress, 100)}%` }}
-                  />
-                </div>
-                <p className="text-center text-xs text-muted-foreground sm:text-sm">
-                  {remaining > 0
-                    ? `${remaining} more to go!`
-                    : "Target reached! 🎉"}
-                </p>
-              </div>
+      <Card>
+        <CardContent className="pt-4 sm:pt-6">
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium sm:text-sm">Overall Progress</span>
+              <span className="text-xs text-muted-foreground sm:text-sm">
+                {progress.current_day - 1}/{challenge.total_days} days
+              </span>
+            </div>
+            <Progress value={overallProgress} className="h-2" />
+          </div>
+        </CardContent>
+      </Card>
 
-              <div className="flex items-center justify-center">
-                <div className="text-center">
-                  <div className="mb-2 text-6xl font-bold tabular-nums sm:mb-4 sm:text-8xl text-emerald-500">
-                    {count}
-                  </div>
-                  <p className="text-xs text-muted-foreground sm:text-sm">
-                    Tap or press Space • Ctrl+F for fullscreen
-                  </p>
-                </div>
-              </div>
+      <Card>
+        <CardContent className="space-y-3 pt-4 sm:space-y-4 sm:pt-6">
+          <div className="rounded-lg border-2 border-emerald-500/20 bg-emerald-500/5 p-4 sm:p-6">
+            <p className="arabic-text text-center text-2xl leading-loose sm:text-3xl">
+              {challenge.arabic_text}
+            </p>
+          </div>
+          {challenge.transliteration_bn && (
+            <p className="text-center text-sm text-muted-foreground sm:text-lg">
+              {challenge.transliteration_bn}
+            </p>
+          )}
+          <p className="text-center text-sm leading-relaxed sm:text-base">
+            {challenge.translation_bn}
+          </p>
+        </CardContent>
+      </Card>
 
-              <div className="flex justify-center mb-4">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={toggleInputMode}
-                  disabled={count >= target}
-                  className="text-xs"
-                >
-                  <Edit3 className="mr-1 h-3 w-3" />
-                  {inputMode ? "Switch to Tap" : "Direct Input"}
-                </Button>
-              </div>
-
-              <Activity mode={inputMode ? "visible" : "hidden"}>
-                <div className="space-y-3">
-                  <div className="flex gap-2">
-                    <Input
-                      type="number"
-                      value={inputValue}
-                      onChange={(e) => setInputValue(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          handleInputSubmit();
-                        }
-                      }}
-                      placeholder={`Enter count (0-${target})`}
-                      min="0"
-                      max={target}
-                      className="text-center text-lg font-bold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                      disabled={count >= target}
-                    />
-                    <Button
-                      onClick={handleInputSubmit}
-                      disabled={!inputValue || count >= target}
-                      className="bg-emerald-500 hover:bg-emerald-600"
-                    >
-                      <Check className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <p className="text-xs text-center text-muted-foreground">
-                    Enter a number between 0 and {target} (Press Enter to
-                    submit)
-                  </p>
-                </div>
-              </Activity>
-
-              <Activity mode={!inputMode ? "visible" : "hidden"}>
-                <Button
-                  type="button"
-                  size="lg"
-                  className="h-24 w-full text-xl font-bold sm:h-32 sm:text-2xl bg-emerald-500 hover:bg-emerald-600"
-                  onClick={handleIncrement}
-                  disabled={count >= target}
-                >
-                  {count >= target ? (
-                    <>
-                      <Check className="mr-2 h-6 w-6 sm:h-8 sm:w-8" />
-                      Target Reached!
-                    </>
-                  ) : (
-                    <>
-                      <Target className="mr-2 h-6 w-6 sm:h-8 sm:w-8" />
-                      Tap to Count
-                    </>
-                  )}
-                </Button>
-              </Activity>
-
-              <div className="grid gap-2 sm:grid-cols-2 sm:gap-3">
-                <Button
-                  variant="outline"
-                  onClick={handleReset}
-                  disabled={count === 0}
+      {!isAlreadyCompleted ? (
+        <Card className="border-2 border-emerald-500">
+          <CardHeader className="pb-3 sm:pb-6">
+            <CardTitle className="flex items-center justify-between text-base sm:text-lg">
+              <span>Today's Count</span>
+              <div className="flex items-center gap-2">
+                <Badge
+                  variant={count >= target ? "default" : "secondary"}
                   className="text-sm sm:text-base"
                 >
-                  <RotateCcw className="mr-2 h-4 w-4" />
-                  Reset Counter
-                </Button>
+                  {count} / {target}
+                </Badge>
                 <Button
-                  variant="default"
-                  onClick={handleComplete}
-                  disabled={isCompleting || count < target}
-                  className="text-sm sm:text-base bg-emerald-500 hover:bg-emerald-600"
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => setIsFullscreen(true)}
+                  title="Fullscreen mode (Ctrl+F)"
                 >
-                  <Check className="mr-2 h-4 w-4" />
-                  {isCompleting ? "Saving..." : "Complete Today"}
+                  <Maximize2 className="h-4 w-4" />
                 </Button>
               </div>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4 sm:space-y-6">
+            <div className="space-y-2">
+              <div className="relative h-3 w-full overflow-hidden rounded-full bg-emerald-500/20">
+                <div
+                  className="h-full bg-emerald-500 transition-all duration-300 ease-out"
+                  style={{ width: `${Math.min(dailyProgress, 100)}%` }}
+                />
+              </div>
+              <p className="text-center text-xs text-muted-foreground sm:text-sm">
+                {remaining > 0 ? `${remaining} more to go!` : "Target reached! 🎉"}
+              </p>
+            </div>
 
-              <div className="space-y-3 border-t pt-4">
-                <div className="space-y-2">
-                  <label className="text-xs font-medium sm:text-sm">
-                    How do you feel? (Optional)
-                  </label>
-                  <Select value={mood} onValueChange={setMood}>
-                    <SelectTrigger className="text-sm">
-                      <SelectValue placeholder="Select mood" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="great">😊 Great</SelectItem>
-                      <SelectItem value="good">🙂 Good</SelectItem>
-                      <SelectItem value="okay">😐 Okay</SelectItem>
-                      <SelectItem value="difficult">😓 Difficult</SelectItem>
-                    </SelectContent>
-                  </Select>
+            <div className="flex items-center justify-center">
+              <div className="text-center">
+                <div className="mb-2 text-6xl font-bold tabular-nums sm:mb-4 sm:text-8xl text-emerald-500">
+                  {count}
                 </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-medium sm:text-sm">
-                    Notes (Optional)
-                  </label>
-                  <Textarea
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    placeholder="Any thoughts or reflections..."
-                    rows={3}
-                    className="text-sm"
+                <p className="text-xs text-muted-foreground sm:text-sm">
+                  Tap or press Space • Ctrl+F for fullscreen
+                </p>
+              </div>
+            </div>
+
+            <div className="flex justify-center mb-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={toggleInputMode}
+                disabled={count >= target}
+                className="text-xs"
+              >
+                <Edit3 className="mr-1 h-3 w-3" />
+                {inputMode ? "Switch to Tap" : "Direct Input"}
+              </Button>
+            </div>
+
+            <Activity mode={inputMode ? "visible" : "hidden"}>
+              <div className="space-y-3">
+                <div className="flex gap-2">
+                  <Input
+                    type="number"
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleInputSubmit();
+                      }
+                    }}
+                    placeholder={`Enter count (0-${target})`}
+                    min="0"
+                    max={target}
+                    className="text-center text-lg font-bold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    disabled={count >= target}
                   />
+                  <Button
+                    onClick={handleInputSubmit}
+                    disabled={!inputValue || count >= target}
+                    className="bg-emerald-500 hover:bg-emerald-600"
+                  >
+                    <Check className="h-4 w-4" />
+                  </Button>
                 </div>
+                <p className="text-xs text-center text-muted-foreground">
+                  Enter a number between 0 and {target} (Press Enter to submit)
+                </p>
+              </div>
+            </Activity>
+
+            <Activity mode={!inputMode ? "visible" : "hidden"}>
+              <Button
+                type="button"
+                size="lg"
+                className="h-24 w-full text-xl font-bold sm:h-32 sm:text-2xl bg-emerald-500 hover:bg-emerald-600"
+                onClick={handleIncrement}
+                disabled={count >= target}
+              >
+                {count >= target ? (
+                  <>
+                    <Check className="mr-2 h-6 w-6 sm:h-8 sm:w-8" />
+                    Target Reached!
+                  </>
+                ) : (
+                  <>
+                    <Target className="mr-2 h-6 w-6 sm:h-8 sm:w-8" />
+                    Tap to Count
+                  </>
+                )}
+              </Button>
+            </Activity>
+
+            <div className="grid gap-2 sm:grid-cols-2 sm:gap-3">
+              <Button
+                variant="outline"
+                onClick={handleReset}
+                disabled={count === 0}
+                className="text-sm sm:text-base"
+              >
+                <RotateCcw className="mr-2 h-4 w-4" />
+                Reset Counter
+              </Button>
+              <Button
+                variant="default"
+                onClick={handleComplete}
+                disabled={isCompleting || count < target}
+                className="text-sm sm:text-base bg-emerald-500 hover:bg-emerald-600"
+              >
+                <Check className="mr-2 h-4 w-4" />
+                {isCompleting ? "Saving..." : "Complete Today"}
+              </Button>
+            </div>
+
+            <div className="space-y-3 border-t pt-4">
+              <div className="space-y-2">
+                <label className="text-xs font-medium sm:text-sm">
+                  How do you feel? (Optional)
+                </label>
+                <Select value={mood} onValueChange={setMood}>
+                  <SelectTrigger className="text-sm">
+                    <SelectValue placeholder="Select mood" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="great">😊 Great</SelectItem>
+                    <SelectItem value="good">🙂 Good</SelectItem>
+                    <SelectItem value="okay">😐 Okay</SelectItem>
+                    <SelectItem value="difficult">😓 Difficult</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-medium sm:text-sm">Notes (Optional)</label>
+                <Textarea
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder="Any thoughts or reflections..."
+                  rows={3}
+                  className="text-sm"
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <Card className="border-2 border-emerald-500 bg-emerald-500/5">
+          <CardContent className="flex flex-col items-center justify-center py-8 text-center sm:py-12">
+            <CheckCircle2 className="mb-3 h-12 w-12 sm:mb-4 sm:h-16 sm:w-16 text-emerald-500" />
+            <h3 className="mb-2 text-xl font-bold sm:text-2xl">
+              Day {progress.current_day} Completed!
+            </h3>
+            <p className="mb-3 text-sm text-muted-foreground sm:mb-4 sm:text-base">
+              You completed {count} repetitions today
+            </p>
+            <Badge variant="secondary" className="text-sm sm:text-base">
+              Come back tomorrow for Day {progress.current_day + 1}
+            </Badge>
+          </CardContent>
+        </Card>
+      )}
+
+      {showSuccessModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <Card className="w-full max-w-md animate-in fade-in zoom-in duration-300">
+            <CardContent className="space-y-4 pt-6 text-center sm:space-y-6">
+              <div className="flex justify-center">
+                <div className="rounded-full p-4 sm:p-6 bg-emerald-500/10">
+                  <CheckCircle2 className="h-12 w-12 sm:h-16 sm:w-16 text-emerald-500" />
+                </div>
+              </div>
+
+              <div>
+                <h2 className="mb-2 text-2xl font-bold sm:text-3xl">Well Done!</h2>
+                <p className="text-base text-muted-foreground sm:text-lg">
+                  Day {progress.current_day} completed successfully
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between rounded-lg bg-muted p-3">
+                  <span className="text-sm">Count</span>
+                  <span className="font-bold">{target}</span>
+                </div>
+                {progress.current_streak >= 0 && (
+                  <div className="flex items-center justify-between rounded-lg bg-muted p-3">
+                    <span className="text-sm">Streak</span>
+                    <span className="flex items-center gap-1 font-bold">
+                      <Flame className="h-4 w-4 text-orange-500" />
+                      {progress.current_streak + 1} days
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              <p className="text-sm font-medium text-muted-foreground">
+                See you tomorrow for Day {progress.current_day + 1}!
+              </p>
+
+              <div className="pt-4">
+                <Link to="/challenges">
+                  <Button className="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-600">
+                    Go to Challenges
+                  </Button>
+                </Link>
               </div>
             </CardContent>
           </Card>
-        ) : (
-          <Card className="border-2 border-emerald-500 bg-emerald-500/5">
-            <CardContent className="flex flex-col items-center justify-center py-8 text-center sm:py-12">
-              <CheckCircle2 className="mb-3 h-12 w-12 sm:mb-4 sm:h-16 sm:w-16 text-emerald-500" />
-              <h3 className="mb-2 text-xl font-bold sm:text-2xl">
-                Day {progress.current_day} Completed!
-              </h3>
-              <p className="mb-3 text-sm text-muted-foreground sm:mb-4 sm:text-base">
-                You completed {count} repetitions today
-              </p>
-              <Badge variant="secondary" className="text-sm sm:text-base">
-                Come back tomorrow for Day {progress.current_day + 1}
-              </Badge>
-            </CardContent>
-          </Card>
-        )}
+        </div>
+      )}
 
-        {showSuccessModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-            <Card className="w-full max-w-md animate-in fade-in zoom-in duration-300">
-              <CardContent className="space-y-4 pt-6 text-center sm:space-y-6">
-                <div className="flex justify-center">
-                  <div className="rounded-full p-4 sm:p-6 bg-emerald-500/10">
-                    <CheckCircle2 className="h-12 w-12 sm:h-16 sm:w-16 text-emerald-500" />
-                  </div>
-                </div>
+      {typeof window !== "undefined" &&
+        fullscreenContent &&
+        createPortal(fullscreenContent, document.body)}
 
-                <div>
-                  <h2 className="mb-2 text-2xl font-bold sm:text-3xl">
-                    Well Done!
-                  </h2>
-                  <p className="text-base text-muted-foreground sm:text-lg">
-                    Day {progress.current_day} completed successfully
-                  </p>
-                </div>
+      {progress.daily_logs && progress.daily_logs.length > 0 && (
+        <ChallengeCalendar
+          challenge={challenge}
+          progress={progress}
+          dailyLogs={progress.daily_logs || []}
+        />
+      )}
 
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between rounded-lg bg-muted p-3">
-                    <span className="text-sm">Count</span>
-                    <span className="font-bold">{target}</span>
-                  </div>
-                  {progress.current_streak >= 0 && (
-                    <div className="flex items-center justify-between rounded-lg bg-muted p-3">
-                      <span className="text-sm">Streak</span>
-                      <span className="flex items-center gap-1 font-bold">
-                        <Flame className="h-4 w-4 text-orange-500" />
-                        {progress.current_streak + 1} days
-                      </span>
-                    </div>
-                  )}
-                </div>
-
-                <p className="text-sm font-medium text-muted-foreground">
-                  See you tomorrow for Day {progress.current_day + 1}!
-                </p>
-
-                <div className="pt-4">
-                  <Link to="/challenges">
-                    <Button className="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-600">
-                      Go to Challenges
-                    </Button>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
-        {typeof window !== "undefined" &&
-          fullscreenContent &&
-          createPortal(fullscreenContent, document.body)}
-
-        {progress.daily_logs && progress.daily_logs.length > 0 && (
-          <ChallengeCalendar
-            challenge={challenge}
-            progress={progress}
-            dailyLogs={progress.daily_logs || []}
-          />
-        )}
-
-        <ConfirmDialog />
-      </div>
-    </>
+      <ConfirmDialog />
+    </div>
   );
 }

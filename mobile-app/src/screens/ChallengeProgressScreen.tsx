@@ -1,3 +1,8 @@
+import { useNavigation, useRoute } from "@react-navigation/native";
+import { Check, Flame, RefreshCcw, Target, Trophy, X } from "lucide-react-native";
+import { useEffect, useMemo, useState } from "react";
+import { Pressable, ScrollView, StyleSheet, Text, Vibration, View } from "react-native";
+import Toast from "react-native-toast-message";
 import { challengesApi } from "@/api/challenges.api";
 import {
   Badge,
@@ -14,25 +19,6 @@ import {
 import { ROUTES } from "@/config/routes";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/hooks/useTheme";
-import { useNavigation, useRoute } from "@react-navigation/native";
-import {
-  Check,
-  Flame,
-  RefreshCcw,
-  Target,
-  Trophy,
-  X,
-} from "lucide-react-native";
-import React, { useEffect, useMemo, useState } from "react";
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  Vibration,
-  View,
-} from "react-native";
-import Toast from "react-native-toast-message";
 
 export default function ChallengeProgressScreen() {
   const route = useRoute<any>();
@@ -60,8 +46,7 @@ export default function ChallengeProgressScreen() {
       // Check if today is already completed
       const today = new Date().toISOString().split("T")[0];
       const todayLog = data?.daily_logs?.find(
-        (log: any) =>
-          log.completion_date === today && log.day_number === data?.current_day
+        (log: any) => log.completion_date === today && log.day_number === data?.current_day
       );
       if (todayLog?.count_completed) {
         setCount(todayLog.count_completed);
@@ -82,15 +67,11 @@ export default function ChallengeProgressScreen() {
   const target = challenge?.daily_target_count || 0;
   const today = new Date().toISOString().split("T")[0];
   const todayLog = progress?.daily_logs?.find(
-    (log: any) =>
-      log.completion_date === today && log.day_number === progress?.current_day
+    (log: any) => log.completion_date === today && log.day_number === progress?.current_day
   );
   const isAlreadyCompleted = todayLog?.is_completed;
 
-  const dailyProgress = useMemo(
-    () => (target > 0 ? (count / target) * 100 : 0),
-    [count, target]
-  );
+  const dailyProgress = useMemo(() => (target > 0 ? (count / target) * 100 : 0), [count, target]);
   const remaining = useMemo(() => Math.max(0, target - count), [target, count]);
 
   const handleIncrement = () => {
@@ -130,9 +111,7 @@ export default function ChallengeProgressScreen() {
       if (result.success) {
         Toast.show({
           type: "success",
-          text1: result.isChallengeCompleted
-            ? "🎉 Challenge Completed!"
-            : "Day Completed!",
+          text1: result.isChallengeCompleted ? "🎉 Challenge Completed!" : "Day Completed!",
           text2: result.isChallengeCompleted
             ? "Congratulations on completing the challenge!"
             : `Current streak: ${result.newStreak} days`,
@@ -156,13 +135,7 @@ export default function ChallengeProgressScreen() {
 
   if (!progress) {
     return (
-      <View
-        style={[
-          styles.container,
-          styles.center,
-          { backgroundColor: colors.background },
-        ]}
-      >
+      <View style={[styles.container, styles.center, { backgroundColor: colors.background }]}>
         <Text style={{ color: colors.foreground }}>Progress not found</Text>
       </View>
     );
@@ -181,20 +154,13 @@ export default function ChallengeProgressScreen() {
       <Card>
         <CardHeader>
           <View style={styles.headerRow}>
-            <View
-              style={[
-                styles.iconContainer,
-                { backgroundColor: colors.primary + "20" },
-              ]}
-            >
+            <View style={[styles.iconContainer, { backgroundColor: `${colors.primary}20` }]}>
               <Target color={colors.primary} size={24} />
             </View>
             <View style={styles.headerInfo}>
               <CardTitle>{challenge.title_bn}</CardTitle>
               {challenge.title_ar && (
-                <Text
-                  style={[styles.arabicText, { color: colors.mutedForeground }]}
-                >
+                <Text style={[styles.arabicText, { color: colors.mutedForeground }]}>
                   {challenge.title_ar}
                 </Text>
               )}
@@ -204,9 +170,7 @@ export default function ChallengeProgressScreen() {
         <CardContent>
           <View style={styles.progressSection}>
             <View style={styles.progressHeader}>
-              <Text
-                style={[styles.progressLabel, { color: colors.foreground }]}
-              >
+              <Text style={[styles.progressLabel, { color: colors.foreground }]}>
                 Day {progress.current_day} of {challenge.total_days}
               </Text>
               <Text style={[styles.progressPercent, { color: colors.primary }]}>
@@ -218,57 +182,33 @@ export default function ChallengeProgressScreen() {
 
           {/* Stats - 4 in a row */}
           <View style={styles.statsRow}>
-            <View
-              style={[styles.statBox, { backgroundColor: colors.secondary }]}
-            >
+            <View style={[styles.statBox, { backgroundColor: colors.secondary }]}>
               <Flame color="#f97316" size={20} />
               <Text style={[styles.statNumber, { color: colors.foreground }]}>
                 {progress.current_streak}
               </Text>
-              <Text
-                style={[styles.statLabel, { color: colors.mutedForeground }]}
-              >
-                Streak
-              </Text>
+              <Text style={[styles.statLabel, { color: colors.mutedForeground }]}>Streak</Text>
             </View>
-            <View
-              style={[styles.statBox, { backgroundColor: colors.secondary }]}
-            >
+            <View style={[styles.statBox, { backgroundColor: colors.secondary }]}>
               <Trophy color="#eab308" size={20} />
               <Text style={[styles.statNumber, { color: colors.foreground }]}>
                 {progress.longest_streak || 0}
               </Text>
-              <Text
-                style={[styles.statLabel, { color: colors.mutedForeground }]}
-              >
-                Best
-              </Text>
+              <Text style={[styles.statLabel, { color: colors.mutedForeground }]}>Best</Text>
             </View>
-            <View
-              style={[styles.statBox, { backgroundColor: colors.secondary }]}
-            >
+            <View style={[styles.statBox, { backgroundColor: colors.secondary }]}>
               <Check color="#22c55e" size={20} />
               <Text style={[styles.statNumber, { color: colors.foreground }]}>
                 {progress.total_completed_days}
               </Text>
-              <Text
-                style={[styles.statLabel, { color: colors.mutedForeground }]}
-              >
-                Done
-              </Text>
+              <Text style={[styles.statLabel, { color: colors.mutedForeground }]}>Done</Text>
             </View>
-            <View
-              style={[styles.statBox, { backgroundColor: colors.secondary }]}
-            >
+            <View style={[styles.statBox, { backgroundColor: colors.secondary }]}>
               <X color="#ef4444" size={20} />
               <Text style={[styles.statNumber, { color: colors.foreground }]}>
                 {progress.missed_days || 0}
               </Text>
-              <Text
-                style={[styles.statLabel, { color: colors.mutedForeground }]}
-              >
-                Missed
-              </Text>
+              <Text style={[styles.statLabel, { color: colors.mutedForeground }]}>Missed</Text>
             </View>
           </View>
         </CardContent>
@@ -284,8 +224,7 @@ export default function ChallengeProgressScreen() {
                 style={[
                   styles.countBadge,
                   {
-                    backgroundColor:
-                      count >= target ? "#22c55e" : colors.secondary,
+                    backgroundColor: count >= target ? "#22c55e" : colors.secondary,
                   },
                 ]}
               >
@@ -304,12 +243,7 @@ export default function ChallengeProgressScreen() {
           <CardContent>
             {/* Daily Progress Bar */}
             <View style={styles.dailyProgressContainer}>
-              <View
-                style={[
-                  styles.dailyProgressBar,
-                  { backgroundColor: "#22c55e20" },
-                ]}
-              >
+              <View style={[styles.dailyProgressBar, { backgroundColor: "#22c55e20" }]}>
                 <View
                   style={[
                     styles.dailyProgressFill,
@@ -320,23 +254,14 @@ export default function ChallengeProgressScreen() {
                   ]}
                 />
               </View>
-              <Text
-                style={[
-                  styles.remainingText,
-                  { color: colors.mutedForeground },
-                ]}
-              >
-                {remaining > 0
-                  ? `${remaining} more to go!`
-                  : "Target reached! 🎉"}
+              <Text style={[styles.remainingText, { color: colors.mutedForeground }]}>
+                {remaining > 0 ? `${remaining} more to go!` : "Target reached! 🎉"}
               </Text>
             </View>
 
             {/* Large Counter Display */}
             <View style={styles.counterDisplay}>
-              <Text style={[styles.counterNumber, { color: "#22c55e" }]}>
-                {count}
-              </Text>
+              <Text style={[styles.counterNumber, { color: "#22c55e" }]}>{count}</Text>
             </View>
 
             {/* Arabic Text */}
@@ -353,9 +278,7 @@ export default function ChallengeProgressScreen() {
               </View>
             )}
             {challenge.translation_bn && (
-              <Text
-                style={[styles.translation, { color: colors.mutedForeground }]}
-              >
+              <Text style={[styles.translation, { color: colors.mutedForeground }]}>
                 {challenge.translation_bn}
               </Text>
             )}
@@ -367,8 +290,7 @@ export default function ChallengeProgressScreen() {
               style={({ pressed }) => [
                 styles.tapButton,
                 {
-                  backgroundColor:
-                    count >= target ? colors.secondary : "#22c55e",
+                  backgroundColor: count >= target ? colors.secondary : "#22c55e",
                   opacity: pressed ? 0.8 : 1,
                 },
               ]}
@@ -376,9 +298,7 @@ export default function ChallengeProgressScreen() {
               {count >= target ? (
                 <>
                   <Check color={colors.foreground} size={28} />
-                  <Text
-                    style={[styles.tapButtonText, { color: colors.foreground }]}
-                  >
+                  <Text style={[styles.tapButtonText, { color: colors.foreground }]}>
                     Target Reached!
                   </Text>
                 </>
@@ -408,9 +328,7 @@ export default function ChallengeProgressScreen() {
                 style={[styles.actionButton, { backgroundColor: "#22c55e" }]}
               >
                 <Check color="#fff" size={16} />
-                <Text style={{ color: "#fff", fontWeight: "600" }}>
-                  Complete
-                </Text>
+                <Text style={{ color: "#fff", fontWeight: "600" }}>Complete</Text>
               </Button>
             </View>
           </CardContent>
@@ -428,19 +346,11 @@ export default function ChallengeProgressScreen() {
         >
           <CardContent style={styles.completedTodayCard}>
             <Check color="#22c55e" size={48} />
-            <Text
-              style={[styles.completedTodayTitle, { color: colors.foreground }]}
-            >
+            <Text style={[styles.completedTodayTitle, { color: colors.foreground }]}>
               Day {progress.current_day} Completed!
             </Text>
-            <Text
-              style={[
-                styles.completedTodayText,
-                { color: colors.mutedForeground },
-              ]}
-            >
-              You completed {todayLog?.count_completed || target} repetitions
-              today
+            <Text style={[styles.completedTodayText, { color: colors.mutedForeground }]}>
+              You completed {todayLog?.count_completed || target} repetitions today
             </Text>
             <Badge style={{ backgroundColor: colors.secondary }}>
               <Text style={{ color: colors.foreground }}>
@@ -459,18 +369,14 @@ export default function ChallengeProgressScreen() {
             <Text style={[styles.completedTitle, { color: colors.foreground }]}>
               Challenge Completed! 🎉
             </Text>
-            <Text
-              style={[styles.completedText, { color: colors.mutedForeground }]}
-            >
+            <Text style={[styles.completedText, { color: colors.mutedForeground }]}>
               Congratulations on completing this challenge!
             </Text>
             <Button
               onPress={() => navigation.navigate(ROUTES.CHALLENGES)}
               style={{ marginTop: 16 }}
             >
-              <Text style={{ color: colors.primaryForeground }}>
-                Back to Challenges
-              </Text>
+              <Text style={{ color: colors.primaryForeground }}>Back to Challenges</Text>
             </Button>
           </CardContent>
         </Card>

@@ -1,6 +1,6 @@
+import type React from "react";
+import { StyleSheet, Text, View, type ViewStyle } from "react-native";
 import { useTheme } from "@/hooks/useTheme";
-import React from "react";
-import { StyleSheet, Text, View, ViewStyle } from "react-native";
 
 interface AlertProps {
   children: React.ReactNode;
@@ -9,12 +9,7 @@ interface AlertProps {
   style?: ViewStyle;
 }
 
-export function Alert({
-  children,
-  variant = "default",
-  title,
-  style,
-}: AlertProps) {
+export function Alert({ children, variant = "default", title, style }: AlertProps) {
   const { colors } = useTheme();
 
   const getBorderColor = () => {
@@ -44,10 +39,7 @@ export function Alert({
           style={[
             styles.title,
             {
-              color:
-                variant === "destructive"
-                  ? colors.destructive
-                  : colors.foreground,
+              color: variant === "destructive" ? colors.destructive : colors.foreground,
             },
           ]}
         >
@@ -55,9 +47,7 @@ export function Alert({
         </Text>
       )}
       {typeof children === "string" ? (
-        <Text style={[styles.description, { color: colors.mutedForeground }]}>
-          {children}
-        </Text>
+        <Text style={[styles.description, { color: colors.mutedForeground }]}>{children}</Text>
       ) : (
         children
       )}

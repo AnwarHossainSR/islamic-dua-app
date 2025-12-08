@@ -1,12 +1,6 @@
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react-native";
+import { Pressable, StyleSheet, Text, View, type ViewStyle } from "react-native";
 import { useTheme } from "@/hooks/useTheme";
-import {
-  ChevronLeft,
-  ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
-} from "lucide-react-native";
-import React from "react";
-import { Pressable, StyleSheet, Text, View, ViewStyle } from "react-native";
 
 interface PaginationProps {
   currentPage: number;
@@ -57,10 +51,7 @@ export function Pagination({
           onPress={() => onPageChange(1)}
           disabled={isFirstPage}
         >
-          <ChevronsLeft
-            color={isFirstPage ? colors.muted : colors.foreground}
-            size={18}
-          />
+          <ChevronsLeft color={isFirstPage ? colors.muted : colors.foreground} size={18} />
         </Pressable>
 
         {/* Previous Page */}
@@ -73,10 +64,7 @@ export function Pagination({
           onPress={() => onPageChange(Math.max(1, currentPage - 1))}
           disabled={isFirstPage}
         >
-          <ChevronLeft
-            color={isFirstPage ? colors.muted : colors.foreground}
-            size={18}
-          />
+          <ChevronLeft color={isFirstPage ? colors.muted : colors.foreground} size={18} />
         </Pressable>
 
         {/* Page Indicator */}
@@ -96,10 +84,7 @@ export function Pagination({
           onPress={() => onPageChange(Math.min(totalPages, currentPage + 1))}
           disabled={isLastPage}
         >
-          <ChevronRight
-            color={isLastPage ? colors.muted : colors.foreground}
-            size={18}
-          />
+          <ChevronRight color={isLastPage ? colors.muted : colors.foreground} size={18} />
         </Pressable>
 
         {/* Last Page */}
@@ -112,10 +97,7 @@ export function Pagination({
           onPress={() => onPageChange(totalPages)}
           disabled={isLastPage}
         >
-          <ChevronsRight
-            color={isLastPage ? colors.muted : colors.foreground}
-            size={18}
-          />
+          <ChevronsRight color={isLastPage ? colors.muted : colors.foreground} size={18} />
         </Pressable>
       </View>
     </View>

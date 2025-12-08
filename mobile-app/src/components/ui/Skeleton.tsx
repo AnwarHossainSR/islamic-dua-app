@@ -1,6 +1,6 @@
-import { useTheme } from "@/hooks/useTheme";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Animated } from "react-native";
+import { useTheme } from "@/hooks/useTheme";
 
 interface SkeletonProps {
   width?: number | string;
@@ -9,12 +9,7 @@ interface SkeletonProps {
   style?: any;
 }
 
-export function Skeleton({
-  width = "100%",
-  height = 20,
-  borderRadius = 8,
-  style,
-}: SkeletonProps) {
+export function Skeleton({ width = "100%", height = 20, borderRadius = 8, style }: SkeletonProps) {
   const { colors } = useTheme();
   // Use useState to initialize the animated value once
   const [animatedValue] = useState(() => new Animated.Value(0.3));

@@ -1,18 +1,18 @@
-import { useState, useEffect } from 'react'
-import { adminApi } from '@/api/admin.api'
+import { useEffect, useState } from "react";
+import { adminApi } from "@/api/admin.api";
 
 export default function PermissionsPage() {
-  const [permissions, setPermissions] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
+  const [permissions, setPermissions] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    adminApi.getPermissions().then(data => {
-      setPermissions(data)
-      setLoading(false)
-    })
-  }, [])
+    adminApi.getPermissions().then((data) => {
+      setPermissions(data);
+      setLoading(false);
+    });
+  }, []);
 
-  if (loading) return <div className="max-w-7xl mx-auto px-4 py-8">Loading...</div>
+  if (loading) return <div className="max-w-7xl mx-auto px-4 py-8">Loading...</div>;
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
@@ -27,5 +27,5 @@ export default function PermissionsPage() {
         ))}
       </div>
     </div>
-  )
+  );
 }

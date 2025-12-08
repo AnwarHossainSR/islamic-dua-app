@@ -1,6 +1,6 @@
-import { useTheme } from "@/hooks/useTheme";
-import React from "react";
+import type React from "react";
 import { StyleSheet, Text, View } from "react-native";
+import { useTheme } from "@/hooks/useTheme";
 import { Card, CardContent } from "./Card";
 
 interface StatCardProps {
@@ -17,18 +17,12 @@ export function StatCard({ title, value, description, icon }: StatCardProps) {
     <Card>
       <CardContent style={styles.content}>
         <View style={styles.header}>
-          <Text style={[styles.title, { color: colors.mutedForeground }]}>
-            {title}
-          </Text>
+          <Text style={[styles.title, { color: colors.mutedForeground }]}>{title}</Text>
           {icon && <View style={styles.iconContainer}>{icon}</View>}
         </View>
-        <Text style={[styles.value, { color: colors.cardForeground }]}>
-          {value}
-        </Text>
+        <Text style={[styles.value, { color: colors.cardForeground }]}>{value}</Text>
         {description && (
-          <Text style={[styles.description, { color: colors.mutedForeground }]}>
-            {description}
-          </Text>
+          <Text style={[styles.description, { color: colors.mutedForeground }]}>{description}</Text>
         )}
       </CardContent>
     </Card>

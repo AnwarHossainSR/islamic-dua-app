@@ -1,3 +1,8 @@
+import { useNavigation } from "@react-navigation/native";
+import { Activity, Flame, Target, TrendingUp, Trophy, User, Users } from "lucide-react-native";
+import { useEffect, useState } from "react";
+import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { dashboardApi } from "@/api/dashboard.api";
 import {
   Badge,
@@ -13,26 +18,6 @@ import { ROUTES } from "@/config/routes";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/hooks/useTheme";
 import { formatNumber } from "@/lib/utils";
-import { useNavigation } from "@react-navigation/native";
-import {
-  Activity,
-  Flame,
-  Target,
-  TrendingUp,
-  Trophy,
-  User,
-  Users,
-} from "lucide-react-native";
-import React, { useEffect, useState } from "react";
-import {
-  Pressable,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function DashboardScreen() {
   const navigation = useNavigation<any>();
@@ -57,9 +42,7 @@ export default function DashboardScreen() {
     }
     try {
       const [statsData, activitiesData] = await Promise.all([
-        showGlobal
-          ? dashboardApi.getGlobalStats()
-          : dashboardApi.getUserStats(user.id),
+        showGlobal ? dashboardApi.getGlobalStats() : dashboardApi.getUserStats(user.id),
         showGlobal
           ? dashboardApi.getGlobalTopActivities(5)
           : dashboardApi.getUserTopActivities(user.id, 5),
@@ -84,10 +67,7 @@ export default function DashboardScreen() {
   }
 
   return (
-    <SafeAreaView
-      style={[styles.safeArea, { backgroundColor: colors.background }]}
-      edges={["top"]}
-    >
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]} edges={["top"]}>
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.content}
@@ -102,9 +82,7 @@ export default function DashboardScreen() {
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerTop}>
-            <Text style={[styles.title, { color: colors.foreground }]}>
-              Your Dashboard
-            </Text>
+            <Text style={[styles.title, { color: colors.foreground }]}>Your Dashboard</Text>
             {/* Toggle */}
             <View style={styles.toggleContainer}>
               <User color={colors.mutedForeground} size={16} />
@@ -112,9 +90,7 @@ export default function DashboardScreen() {
                 style={[
                   styles.switchTrack,
                   {
-                    backgroundColor: showGlobalStats
-                      ? colors.primary
-                      : colors.muted,
+                    backgroundColor: showGlobalStats ? colors.primary : colors.muted,
                   },
                 ]}
                 onPress={() => handleToggle(!showGlobalStats)}
@@ -133,9 +109,7 @@ export default function DashboardScreen() {
             </View>
           </View>
           <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>
-            {showGlobalStats
-              ? "Global statistics"
-              : "Track your spiritual journey"}
+            {showGlobalStats ? "Global statistics" : "Track your spiritual journey"}
           </Text>
         </View>
 
@@ -144,9 +118,7 @@ export default function DashboardScreen() {
           <Card style={styles.statCard}>
             <CardHeader style={styles.statHeader}>
               <View style={styles.statRow}>
-                <Text
-                  style={[styles.statLabel, { color: colors.mutedForeground }]}
-                >
+                <Text style={[styles.statLabel, { color: colors.mutedForeground }]}>
                   {showGlobalStats ? "Total Activities" : "Your Activities"}
                 </Text>
                 <Activity color={colors.mutedForeground} size={16} />
@@ -162,9 +134,7 @@ export default function DashboardScreen() {
           <Card style={styles.statCard}>
             <CardHeader style={styles.statHeader}>
               <View style={styles.statRow}>
-                <Text
-                  style={[styles.statLabel, { color: colors.mutedForeground }]}
-                >
+                <Text style={[styles.statLabel, { color: colors.mutedForeground }]}>
                   {showGlobalStats ? "Total Completions" : "Your Completions"}
                 </Text>
                 <Trophy color={colors.mutedForeground} size={16} />
@@ -180,9 +150,7 @@ export default function DashboardScreen() {
           <Card style={styles.statCard}>
             <CardHeader style={styles.statHeader}>
               <View style={styles.statRow}>
-                <Text
-                  style={[styles.statLabel, { color: colors.mutedForeground }]}
-                >
+                <Text style={[styles.statLabel, { color: colors.mutedForeground }]}>
                   {showGlobalStats ? "Active Users" : "Streak Days"}
                 </Text>
                 <Flame color={colors.mutedForeground} size={16} />
@@ -198,9 +166,7 @@ export default function DashboardScreen() {
           <Card style={styles.statCard}>
             <CardHeader style={styles.statHeader}>
               <View style={styles.statRow}>
-                <Text
-                  style={[styles.statLabel, { color: colors.mutedForeground }]}
-                >
+                <Text style={[styles.statLabel, { color: colors.mutedForeground }]}>
                   {showGlobalStats ? "Active Challenges" : "Your Challenges"}
                 </Text>
                 <Target color={colors.mutedForeground} size={16} />
@@ -219,13 +185,9 @@ export default function DashboardScreen() {
           <CardHeader>
             <View style={styles.cardHeaderRow}>
               <View>
-                <CardTitle>
-                  {showGlobalStats ? "Top Activities" : "Your Top Activities"}
-                </CardTitle>
+                <CardTitle>{showGlobalStats ? "Top Activities" : "Your Top Activities"}</CardTitle>
                 <CardDescription>
-                  {showGlobalStats
-                    ? "Most completed dhikr and prayers"
-                    : "Your most practiced"}
+                  {showGlobalStats ? "Most completed dhikr and prayers" : "Your most practiced"}
                 </CardDescription>
               </View>
               <Button
@@ -253,19 +215,13 @@ export default function DashboardScreen() {
                   <Badge variant="outline">#{index + 1}</Badge>
                   <View style={styles.activityInfo}>
                     <Text
-                      style={[
-                        styles.activityName,
-                        { color: colors.foreground },
-                      ]}
+                      style={[styles.activityName, { color: colors.foreground }]}
                       numberOfLines={1}
                     >
                       {activity.name_bn}
                     </Text>
                     <Text
-                      style={[
-                        styles.activitySubtitle,
-                        { color: colors.mutedForeground },
-                      ]}
+                      style={[styles.activitySubtitle, { color: colors.mutedForeground }]}
                       numberOfLines={1}
                     >
                       {activity.name_ar || activity.name_en}
@@ -273,9 +229,7 @@ export default function DashboardScreen() {
                   </View>
                 </View>
                 <View style={styles.activityRight}>
-                  <Text
-                    style={[styles.activityCount, { color: colors.foreground }]}
-                  >
+                  <Text style={[styles.activityCount, { color: colors.foreground }]}>
                     {formatNumber(activity.total_count)}
                   </Text>
                   <Badge variant="secondary">
@@ -295,9 +249,7 @@ export default function DashboardScreen() {
             ))}
 
             {topActivities.length === 0 && (
-              <Text
-                style={[styles.emptyText, { color: colors.mutedForeground }]}
-              >
+              <Text style={[styles.emptyText, { color: colors.mutedForeground }]}>
                 No activity data yet. Start challenges to see statistics.
               </Text>
             )}
@@ -315,15 +267,11 @@ export default function DashboardScreen() {
                 </CardTitle>
               </View>
               <CardDescription>
-                {showGlobalStats
-                  ? "Completions in the last 24 hours"
-                  : "Your completions today"}
+                {showGlobalStats ? "Completions in the last 24 hours" : "Your completions today"}
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Text
-                style={[styles.progressValue, { color: colors.foreground }]}
-              >
+              <Text style={[styles.progressValue, { color: colors.foreground }]}>
                 {formatNumber(stats?.todayCompletions || 0)}
               </Text>
               {stats?.todayCompletions > (stats?.yesterdayCompletions || 0) ? (
@@ -331,8 +279,7 @@ export default function DashboardScreen() {
                   <TrendingUp color="#10b981" size={14} />
                   <Text style={[styles.trendText, { color: "#10b981" }]}>
                     {(
-                      ((stats.todayCompletions -
-                        (stats.yesterdayCompletions || 0)) /
+                      ((stats.todayCompletions - (stats.yesterdayCompletions || 0)) /
                         Math.max(stats.yesterdayCompletions || 1, 1)) *
                       100
                     ).toFixed(0)}
@@ -340,12 +287,7 @@ export default function DashboardScreen() {
                   </Text>
                 </View>
               ) : (
-                <Text
-                  style={[
-                    styles.progressSubtext,
-                    { color: colors.mutedForeground },
-                  ]}
-                >
+                <Text style={[styles.progressSubtext, { color: colors.mutedForeground }]}>
                   Keep up the good work!
                 </Text>
               )}
@@ -359,23 +301,14 @@ export default function DashboardScreen() {
                 <CardTitle style={styles.progressTitle}>This Week</CardTitle>
               </View>
               <CardDescription>
-                {showGlobalStats
-                  ? "Completions in the last 7 days"
-                  : "Your weekly progress"}
+                {showGlobalStats ? "Completions in the last 7 days" : "Your weekly progress"}
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Text
-                style={[styles.progressValue, { color: colors.foreground }]}
-              >
+              <Text style={[styles.progressValue, { color: colors.foreground }]}>
                 {formatNumber(stats?.weekCompletions || 0)}
               </Text>
-              <Text
-                style={[
-                  styles.progressSubtext,
-                  { color: colors.mutedForeground },
-                ]}
-              >
+              <Text style={[styles.progressSubtext, { color: colors.mutedForeground }]}>
                 Average {Math.round((stats?.weekCompletions || 0) / 7)} per day
               </Text>
             </CardContent>
@@ -396,12 +329,7 @@ export default function DashboardScreen() {
               >
                 <View style={styles.actionContent}>
                   <Target color={colors.primaryForeground} size={24} />
-                  <Text
-                    style={[
-                      styles.actionText,
-                      { color: colors.primaryForeground },
-                    ]}
-                  >
+                  <Text style={[styles.actionText, { color: colors.primaryForeground }]}>
                     Join Challenges
                   </Text>
                 </View>
@@ -413,9 +341,7 @@ export default function DashboardScreen() {
               >
                 <View style={styles.actionContent}>
                   <Activity color={colors.foreground} size={24} />
-                  <Text
-                    style={[styles.actionText, { color: colors.foreground }]}
-                  >
+                  <Text style={[styles.actionText, { color: colors.foreground }]}>
                     View Activities
                   </Text>
                 </View>
@@ -427,11 +353,7 @@ export default function DashboardScreen() {
               >
                 <View style={styles.actionContent}>
                   <TrendingUp color={colors.foreground} size={24} />
-                  <Text
-                    style={[styles.actionText, { color: colors.foreground }]}
-                  >
-                    Browse Duas
-                  </Text>
+                  <Text style={[styles.actionText, { color: colors.foreground }]}>Browse Duas</Text>
                 </View>
               </Button>
             </View>

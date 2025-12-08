@@ -1,8 +1,9 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import type React from "react";
+import { useEffect, useState } from "react";
+import { useColorScheme } from "react-native";
 import { ThemeContext } from "@/contexts/ThemeContext";
 import { getColors } from "@/lib/theme";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import React, { useEffect, useState } from "react";
-import { useColorScheme } from "react-native";
 
 const THEME_STORAGE_KEY = "@app_theme";
 
@@ -28,10 +29,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     AsyncStorage.setItem(THEME_STORAGE_KEY, mode);
   };
 
-  const isDark =
-    themeMode === "system"
-      ? systemColorScheme === "dark"
-      : themeMode === "dark";
+  const isDark = themeMode === "system" ? systemColorScheme === "dark" : themeMode === "dark";
 
   const toggleTheme = () => {
     const newMode = isDark ? "light" : "dark";

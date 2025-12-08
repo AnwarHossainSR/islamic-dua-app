@@ -1,6 +1,6 @@
-import { env } from "@/config/env";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createClient } from "@supabase/supabase-js";
+import { env } from "@/config/env";
 import "react-native-url-polyfill/auto";
 
 export const supabase = createClient(env.supabase.url, env.supabase.anonKey, {

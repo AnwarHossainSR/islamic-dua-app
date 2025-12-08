@@ -1,6 +1,5 @@
-import { useTheme } from "@/hooks/useTheme";
-import React from "react";
 import { StyleSheet, View } from "react-native";
+import { useTheme } from "@/hooks/useTheme";
 
 interface ProgressProps {
   value: number;

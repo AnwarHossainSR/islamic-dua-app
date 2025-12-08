@@ -22,16 +22,11 @@ export const settingsApi = {
   async getDbStats() {
     const [duas, challenges, progress] = await Promise.all([
       supabase.from("duas").select("*", { count: "exact", head: true }),
-      supabase
-        .from("challenge_templates")
-        .select("*", { count: "exact", head: true }),
-      supabase
-        .from("user_challenge_progress")
-        .select("*", { count: "exact", head: true }),
+      supabase.from("challenge_templates").select("*", { count: "exact", head: true }),
+      supabase.from("user_challenge_progress").select("*", { count: "exact", head: true }),
     ]);
 
-    const totalRecords =
-      (duas.count || 0) + (challenges.count || 0) + (progress.count || 0);
+    const totalRecords = (duas.count || 0) + (challenges.count || 0) + (progress.count || 0);
 
     return {
       totalRecords,

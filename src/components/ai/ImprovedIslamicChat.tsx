@@ -1,9 +1,3 @@
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
-import { Switch } from "@/components/ui/Switch";
-import { EnhancedAIService } from "@/lib/ai/service";
-import { supabase } from "@/lib/supabase/client";
-import { renderMarkdown } from "@/lib/utils/markdown-renderer";
 import {
   Brain,
   Database,
@@ -17,6 +11,12 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
+import { Switch } from "@/components/ui/Switch";
+import { EnhancedAIService } from "@/lib/ai/service";
+import { supabase } from "@/lib/supabase/client";
+import { renderMarkdown } from "@/lib/utils/markdown-renderer";
 
 interface ChatMessage {
   id: string;
@@ -40,14 +40,9 @@ interface ImprovedIslamicChatProps {
   hasOpenAIKey: boolean;
 }
 
-export function ImprovedIslamicChat({
-  initialSessions,
-  hasOpenAIKey,
-}: ImprovedIslamicChatProps) {
+export function ImprovedIslamicChat({ initialSessions, hasOpenAIKey }: ImprovedIslamicChatProps) {
   const [sessions, setSessions] = useState<ChatSession[]>(initialSessions);
-  const [currentSession, setCurrentSession] = useState<ChatSession | null>(
-    null
-  );
+  const [currentSession, setCurrentSession] = useState<ChatSession | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -128,8 +123,7 @@ export function ImprovedIslamicChat({
           return;
         }
 
-        const title =
-          messageText.slice(0, 50) + (messageText.length > 50 ? "..." : "");
+        const title = messageText.slice(0, 50) + (messageText.length > 50 ? "..." : "");
         const { data, error } = await supabase
           .from("ai_chat_sessions")
           .insert({
@@ -229,9 +223,7 @@ export function ImprovedIslamicChat({
       const errorMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content:
-          error.message ||
-          "I apologize, but I encountered an error. Please try again.",
+        content: error.message || "I apologize, but I encountered an error. Please try again.",
         created_at: new Date().toISOString(),
       };
       setMessages((prev) => [...prev, errorMessage]);
@@ -272,9 +264,7 @@ export function ImprovedIslamicChat({
       <div className="h-full flex items-center justify-center">
         <Card className="p-8 text-center max-w-md">
           <Brain className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-          <h3 className="text-lg font-semibold mb-2">
-            AI Assistant Unavailable
-          </h3>
+          <h3 className="text-lg font-semibold mb-2">AI Assistant Unavailable</h3>
           <p className="text-muted-foreground mb-4">
             Configure OpenAI API key to enable AI features
           </p>
@@ -296,9 +286,7 @@ export function ImprovedIslamicChat({
               <div className="flex items-center gap-2 md:gap-3 min-w-0 flex-1">
                 <div
                   className={`p-2 rounded-full shrink-0 ${
-                    chatMode === "database"
-                      ? "bg-primary/10"
-                      : "bg-blue-100 dark:bg-blue-900/30"
+                    chatMode === "database" ? "bg-primary/10" : "bg-blue-100 dark:bg-blue-900/30"
                   }`}
                 >
                   {chatMode === "database" ? (
@@ -309,9 +297,7 @@ export function ImprovedIslamicChat({
                 </div>
                 <div className="min-w-0 flex-1">
                   <h1 className="text-lg md:text-xl font-semibold truncate">
-                    {chatMode === "database"
-                      ? "Islamic AI Assistant"
-                      : "General AI Assistant"}
+                    {chatMode === "database" ? "Islamic AI Assistant" : "General AI Assistant"}
                   </h1>
                   <p className="text-xs md:text-sm text-muted-foreground truncate">
                     {chatMode === "database"
@@ -325,35 +311,25 @@ export function ImprovedIslamicChat({
                 <div className="hidden sm:flex items-center gap-2 text-xs md:text-sm">
                   <span
                     className={
-                      chatMode === "database"
-                        ? "text-primary font-medium"
-                        : "text-muted-foreground"
+                      chatMode === "database" ? "text-primary font-medium" : "text-muted-foreground"
                     }
                   >
                     Islamic
                   </span>
                   <Switch
                     checked={chatMode === "database"}
-                    onCheckedChange={(checked) =>
-                      setChatMode(checked ? "database" : "general")
-                    }
+                    onCheckedChange={(checked) => setChatMode(checked ? "database" : "general")}
                   />
                   <span
                     className={
-                      chatMode === "general"
-                        ? "text-blue-600 font-medium"
-                        : "text-muted-foreground"
+                      chatMode === "general" ? "text-blue-600 font-medium" : "text-muted-foreground"
                     }
                   >
                     General
                   </span>
                 </div>
 
-                <Button
-                  onClick={() => setSidebarOpen(!sidebarOpen)}
-                  variant="outline"
-                  size="sm"
-                >
+                <Button onClick={() => setSidebarOpen(!sidebarOpen)} variant="outline" size="sm">
                   <History className="h-4 w-4 md:mr-1" />
                   <span className="hidden md:inline">History</span>
                 </Button>
@@ -385,8 +361,7 @@ export function ImprovedIslamicChat({
                     />
                   </div>
                   <h3 className="text-lg font-semibold mb-2">
-                    Welcome to {chatMode === "database" ? "Islamic" : "General"}{" "}
-                    AI Assistant
+                    Welcome to {chatMode === "database" ? "Islamic" : "General"} AI Assistant
                   </h3>
                   <p className="text-muted-foreground mb-6">
                     {chatMode === "database"
@@ -420,9 +395,7 @@ export function ImprovedIslamicChat({
                 {messages.map((message) => (
                   <div
                     key={message.id}
-                    className={`flex ${
-                      message.role === "user" ? "justify-end" : "justify-start"
-                    }`}
+                    className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
                   >
                     <div
                       className={`flex items-start gap-2 md:gap-3 max-w-[95%] md:max-w-[85%] ${
@@ -434,8 +407,8 @@ export function ImprovedIslamicChat({
                           message.role === "user"
                             ? "bg-primary text-primary-foreground"
                             : chatMode === "database"
-                            ? "bg-primary/10"
-                            : "bg-blue-100 dark:bg-blue-900/30"
+                              ? "bg-primary/10"
+                              : "bg-blue-100 dark:bg-blue-900/30"
                         }`}
                       >
                         {message.role === "user" ? (
@@ -462,43 +435,36 @@ export function ImprovedIslamicChat({
                             try {
                               if (message.metadata) {
                                 const parsed = JSON.parse(message.metadata);
-                                if (
-                                  parsed.relatedDuas &&
-                                  parsed.relatedDuas.length > 0
-                                ) {
+                                if (parsed.relatedDuas && parsed.relatedDuas.length > 0) {
                                   return (
                                     <div className="space-y-4">
-                                      <div className="whitespace-pre-wrap">
-                                        {message.content}
-                                      </div>
+                                      <div className="whitespace-pre-wrap">{message.content}</div>
                                       <div className="border-t pt-4">
                                         <div className="flex items-center gap-2 text-primary font-medium mb-3">
                                           <Database className="h-4 w-4" />
                                           <span>Related Duas</span>
                                         </div>
-                                        {parsed.relatedDuas.map(
-                                          (dua: any, index: number) => (
-                                            <div
-                                              key={index}
-                                              className="border border-primary/20 rounded-lg p-4 bg-primary/5 mb-3"
-                                            >
-                                              <h4 className="font-medium text-primary mb-2">
-                                                {dua.title}
-                                              </h4>
-                                              <div className="text-right mb-3 p-3 bg-card rounded border">
-                                                <div className="font-arabic text-xl leading-loose text-green-800 dark:text-green-200">
-                                                  {dua.arabic}
-                                                </div>
-                                              </div>
-                                              <div className="text-sm text-muted-foreground bg-muted p-3 rounded">
-                                                <div className="font-medium text-xs mb-1">
-                                                  Bengali Translation:
-                                                </div>
-                                                {dua.translation}
+                                        {parsed.relatedDuas.map((dua: any, index: number) => (
+                                          <div
+                                            key={index}
+                                            className="border border-primary/20 rounded-lg p-4 bg-primary/5 mb-3"
+                                          >
+                                            <h4 className="font-medium text-primary mb-2">
+                                              {dua.title}
+                                            </h4>
+                                            <div className="text-right mb-3 p-3 bg-card rounded border">
+                                              <div className="font-arabic text-xl leading-loose text-green-800 dark:text-green-200">
+                                                {dua.arabic}
                                               </div>
                                             </div>
-                                          )
-                                        )}
+                                            <div className="text-sm text-muted-foreground bg-muted p-3 rounded">
+                                              <div className="font-medium text-xs mb-1">
+                                                Bengali Translation:
+                                              </div>
+                                              {dua.translation}
+                                            </div>
+                                          </div>
+                                        ))}
                                       </div>
                                     </div>
                                   );
@@ -545,14 +511,10 @@ export function ImprovedIslamicChat({
                         <div className="flex items-center gap-2">
                           <div
                             className={`animate-spin h-4 w-4 border-2 border-t-transparent rounded-full ${
-                              chatMode === "database"
-                                ? "border-primary"
-                                : "border-blue-500"
+                              chatMode === "database" ? "border-primary" : "border-blue-500"
                             }`}
                           />
-                          <span className="text-sm text-muted-foreground">
-                            Thinking...
-                          </span>
+                          <span className="text-sm text-muted-foreground">Thinking...</span>
                         </div>
                       </div>
                     </div>
@@ -588,8 +550,7 @@ export function ImprovedIslamicChat({
                   onInput={(e) => {
                     const target = e.target as HTMLTextAreaElement;
                     target.style.height = "auto";
-                    target.style.height =
-                      Math.min(target.scrollHeight, 128) + "px";
+                    target.style.height = `${Math.min(target.scrollHeight, 128)}px`;
                   }}
                 />
                 <Button
@@ -629,11 +590,7 @@ export function ImprovedIslamicChat({
                 <Plus className="h-4 w-4 mr-1" />
                 New
               </Button>
-              <Button
-                onClick={() => setSidebarOpen(false)}
-                variant="ghost"
-                size="sm"
-              >
+              <Button onClick={() => setSidebarOpen(false)} variant="ghost" size="sm">
                 <X className="h-4 w-4" />
               </Button>
             </div>
@@ -644,9 +601,7 @@ export function ImprovedIslamicChat({
               {sessions.map((session) => (
                 <Button
                   key={session.id}
-                  variant={
-                    currentSession?.id === session.id ? "secondary" : "ghost"
-                  }
+                  variant={currentSession?.id === session.id ? "secondary" : "ghost"}
                   className="w-full justify-start text-left h-auto p-3"
                   onClick={() => {
                     setCurrentSession(session);
@@ -661,9 +616,7 @@ export function ImprovedIslamicChat({
                       <Globe className="h-4 w-4 text-blue-500 shrink-0" />
                     )}
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium text-sm truncate">
-                        {session.title}
-                      </div>
+                      <div className="font-medium text-sm truncate">{session.title}</div>
                       <div className="text-xs text-muted-foreground">
                         {new Date(session.created_at).toLocaleDateString()}
                       </div>
@@ -690,10 +643,7 @@ export function ImprovedIslamicChat({
         </div>
 
         {sidebarOpen && (
-          <div
-            className="fixed inset-0 bg-black/20 z-20"
-            onClick={() => setSidebarOpen(false)}
-          />
+          <div className="fixed inset-0 bg-black/20 z-20" onClick={() => setSidebarOpen(false)} />
         )}
       </div>
     </div>

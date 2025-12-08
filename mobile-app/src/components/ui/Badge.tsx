@@ -1,4 +1,4 @@
-import type React from "react";
+import type React from 'react';
 import {
   type StyleProp,
   StyleSheet,
@@ -6,29 +6,29 @@ import {
   type TextStyle,
   View,
   type ViewStyle,
-} from "react-native";
-import { useTheme } from "@/hooks/useTheme";
+} from 'react-native';
+import { useTheme } from '@/hooks/useTheme';
 
 interface BadgeProps {
   children: React.ReactNode;
-  variant?: "default" | "secondary" | "destructive" | "outline";
+  variant?: 'default' | 'secondary' | 'destructive' | 'outline';
   style?: StyleProp<ViewStyle>;
   textStyle?: TextStyle;
 }
 
-export function Badge({ children, variant = "default", style, textStyle }: BadgeProps) {
+export function Badge({ children, variant = 'default', style, textStyle }: BadgeProps) {
   const { colors } = useTheme();
 
   const getBackgroundColor = () => {
     switch (variant) {
-      case "default":
+      case 'default':
         return colors.primary;
-      case "secondary":
+      case 'secondary':
         return colors.secondary;
-      case "destructive":
+      case 'destructive':
         return colors.destructive;
-      case "outline":
-        return "transparent";
+      case 'outline':
+        return 'transparent';
       default:
         return colors.primary;
     }
@@ -36,13 +36,13 @@ export function Badge({ children, variant = "default", style, textStyle }: Badge
 
   const getTextColor = () => {
     switch (variant) {
-      case "default":
+      case 'default':
         return colors.primaryForeground;
-      case "secondary":
+      case 'secondary':
         return colors.secondaryForeground;
-      case "destructive":
+      case 'destructive':
         return colors.destructiveForeground;
-      case "outline":
+      case 'outline':
         return colors.foreground;
       default:
         return colors.primaryForeground;
@@ -55,13 +55,13 @@ export function Badge({ children, variant = "default", style, textStyle }: Badge
         styles.badge,
         {
           backgroundColor: getBackgroundColor(),
-          borderColor: variant === "outline" ? colors.border : "transparent",
-          borderWidth: variant === "outline" ? 1 : 0,
+          borderColor: variant === 'outline' ? colors.border : 'transparent',
+          borderWidth: variant === 'outline' ? 1 : 0,
         },
         style,
       ]}
     >
-      {typeof children === "string" ? (
+      {typeof children === 'string' ? (
         <Text style={[styles.text, { color: getTextColor() }, textStyle]}>{children}</Text>
       ) : (
         children
@@ -72,8 +72,8 @@ export function Badge({ children, variant = "default", style, textStyle }: Badge
 
 const styles = StyleSheet.create({
   badge: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 9999,
@@ -81,6 +81,6 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 12,
-    fontWeight: "500",
+    fontWeight: '500',
   },
 });

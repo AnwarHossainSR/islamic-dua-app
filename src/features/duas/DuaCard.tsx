@@ -1,4 +1,4 @@
-import type { Dua } from "@/lib/types";
+import type { Dua } from '@/lib/types';
 
 interface DuaCardProps {
   dua: Dua;

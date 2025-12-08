@@ -1,16 +1,16 @@
 export function isWebAuthnSupported(): boolean {
   return (
-    typeof window !== "undefined" &&
-    "navigator" in window &&
-    "credentials" in navigator &&
-    "create" in navigator.credentials &&
-    "get" in navigator.credentials
+    typeof window !== 'undefined' &&
+    'navigator' in window &&
+    'credentials' in navigator &&
+    'create' in navigator.credentials &&
+    'get' in navigator.credentials
   );
 }
 
 export function arrayBufferToBase64(buffer: ArrayBuffer): string {
   const bytes = new Uint8Array(buffer);
-  let binary = "";
+  let binary = '';
   for (let i = 0; i < bytes.byteLength; i++) {
     binary += String.fromCharCode(bytes[i]);
   }
@@ -28,7 +28,7 @@ export function base64ToArrayBuffer(base64: string): ArrayBuffer {
 
 export async function authenticateCredential(options: any) {
   if (!isWebAuthnSupported()) {
-    throw new Error("WebAuthn is not supported in this browser");
+    throw new Error('WebAuthn is not supported in this browser');
   }
 
   const publicKeyCredentialRequestOptions = {
@@ -45,7 +45,7 @@ export async function authenticateCredential(options: any) {
   })) as PublicKeyCredential;
 
   if (!credential) {
-    throw new Error("Failed to authenticate");
+    throw new Error('Failed to authenticate');
   }
 
   const response = credential.response as AuthenticatorAssertionResponse;

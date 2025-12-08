@@ -1,11 +1,11 @@
-import { Fingerprint, Monitor, Plus, Trash2 } from "lucide-react";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
-import { settingsApi } from "@/api/settings.api";
-import { Button } from "@/components/ui/Button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
-import { Input } from "@/components/ui/Input";
-import { Label } from "@/components/ui/Label";
+import { Fingerprint, Monitor, Plus, Trash2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { settingsApi } from '@/api/settings.api';
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Input } from '@/components/ui/Input';
+import { Label } from '@/components/ui/Label';
 
 interface Credential {
   id: string;
@@ -17,11 +17,11 @@ interface Credential {
 
 export function BiometricManager() {
   const [isSupported] = useState(
-    () => "credentials" in navigator && "PublicKeyCredential" in window
+    () => 'credentials' in navigator && 'PublicKeyCredential' in window
   );
   const [credentials, setCredentials] = useState<Credential[]>([]);
   const [isAdding, setIsAdding] = useState(false);
-  const [deviceName, setDeviceName] = useState("");
+  const [deviceName, setDeviceName] = useState('');
   const [loading] = useState(false);
 
   const fetchCredentials = async () => {
@@ -29,7 +29,7 @@ export function BiometricManager() {
       const data = await settingsApi.getCredentials();
       setCredentials(data);
     } catch (error) {
-      console.error("Failed to fetch credentials:", error);
+      console.error('Failed to fetch credentials:', error);
     }
   };
 
@@ -40,7 +40,7 @@ export function BiometricManager() {
         const data = await settingsApi.getCredentials();
         if (mounted) setCredentials(data);
       } catch (error) {
-        console.error("Failed to fetch credentials:", error);
+        console.error('Failed to fetch credentials:', error);
       }
     };
     loadCredentials();
@@ -50,14 +50,14 @@ export function BiometricManager() {
   }, []);
 
   const handleDeleteCredential = async (credentialId: string) => {
-    if (!confirm("Are you sure you want to remove this device?")) return;
+    if (!confirm('Are you sure you want to remove this device?')) return;
 
     try {
       await settingsApi.deleteCredential(credentialId);
-      toast.success("Device removed successfully");
+      toast.success('Device removed successfully');
       fetchCredentials();
     } catch (error: any) {
-      toast.error(error.message || "Failed to remove device");
+      toast.error(error.message || 'Failed to remove device');
     }
   };
 
@@ -102,11 +102,11 @@ export function BiometricManager() {
             </div>
             <div className="flex gap-2">
               <Button
-                onClick={() => toast.info("WebAuthn registration not implemented")}
+                onClick={() => toast.info('WebAuthn registration not implemented')}
                 disabled={loading}
               >
                 <Fingerprint className="mr-2 h-4 w-4" />
-                {loading ? "Adding..." : "Add Device"}
+                {loading ? 'Adding...' : 'Add Device'}
               </Button>
               <Button variant="outline" onClick={() => setIsAdding(false)}>
                 Cancel
@@ -136,7 +136,7 @@ export function BiometricManager() {
                       Added {new Date(credential.created_at).toLocaleDateString()}
                       {credential.last_used_at && (
                         <span>
-                          {" "}
+                          {' '}
                           • Last used {new Date(credential.last_used_at).toLocaleString()}
                         </span>
                       )}

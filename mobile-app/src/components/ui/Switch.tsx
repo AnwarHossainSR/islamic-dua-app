@@ -1,5 +1,5 @@
-import { Switch as RNSwitch, StyleSheet, Text, View, type ViewStyle } from "react-native";
-import { useTheme } from "@/hooks/useTheme";
+import { Switch as RNSwitch, StyleSheet, Text, View, type ViewStyle } from 'react-native';
+import { useTheme } from '@/hooks/useTheme';
 
 interface SwitchProps {
   value: boolean;
@@ -32,13 +32,13 @@ export function Switch({ value, onValueChange, label, disabled = false, style }:
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   label: {
     fontSize: 14,
-    fontWeight: "500",
+    fontWeight: '500',
     flex: 1,
   },
 });

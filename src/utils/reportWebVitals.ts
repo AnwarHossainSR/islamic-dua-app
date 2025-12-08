@@ -1,4 +1,4 @@
-import { type Metric, onCLS, onFCP, onINP, onLCP, onTTFB } from "web-vitals";
+import { type Metric, onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
 
 /**
  * Reports Web Vitals metrics to the console and can be extended to send to analytics

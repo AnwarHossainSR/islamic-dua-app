@@ -1,13 +1,13 @@
-import { ArrowLeft, BookOpen, Calendar, Clock, Star, Target, Trophy, Users } from "lucide-react";
-import { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import { challengesApi } from "@/api/challenges.api";
-import { Loader } from "@/components/ui";
-import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
-import { useAuth } from "@/hooks/useAuth";
-import type { Challenge } from "@/types";
+import { ArrowLeft, BookOpen, Calendar, Clock, Star, Target, Trophy, Users } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { challengesApi } from '@/api/challenges.api';
+import { Loader } from '@/components/ui';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { useAuth } from '@/hooks/useAuth';
+import type { Challenge } from '@/types';
 
 export default function ChallengePreviewPage() {
   const { id } = useParams<{ id: string }>();
@@ -36,7 +36,7 @@ export default function ChallengePreviewPage() {
           }
         }
       } catch (error) {
-        console.error("Error loading challenge:", error);
+        console.error('Error loading challenge:', error);
       } finally {
         setLoading(false);
       }
@@ -58,7 +58,7 @@ export default function ChallengePreviewPage() {
         navigate(`/challenges/progress/${result.data.id}`);
       }
     } catch (error) {
-      console.error("Error starting challenge:", error);
+      console.error('Error starting challenge:', error);
     } finally {
       setStarting(false);
     }
@@ -78,11 +78,11 @@ export default function ChallengePreviewPage() {
 
   const timeLabel =
     challenge.recommended_time
-      ?.replace(/_/g, " ")
-      .replace(/\b\w/g, (l: string) => l.toUpperCase()) || "";
+      ?.replace(/_/g, ' ')
+      .replace(/\b\w/g, (l: string) => l.toUpperCase()) || '';
   const prayerLabel =
-    (challenge.recommended_prayer?.charAt(0).toUpperCase() || "") +
-    (challenge.recommended_prayer?.slice(1) || "");
+    (challenge.recommended_prayer?.charAt(0).toUpperCase() || '') +
+    (challenge.recommended_prayer?.slice(1) || '');
 
   return (
     <>
@@ -94,7 +94,7 @@ export default function ChallengePreviewPage() {
           </Button>
           <div className="flex-1">
             <div className="flex items-center gap-2">
-              <span className="text-4xl">{challenge.icon || "📿"}</span>
+              <span className="text-4xl">{challenge.icon || '📿'}</span>
               <div>
                 <h1 className="text-3xl font-bold">{challenge.title_bn}</h1>
                 {challenge.title_ar && (
@@ -106,11 +106,11 @@ export default function ChallengePreviewPage() {
           <div className="flex items-center gap-2">
             <Badge
               variant={
-                challenge.difficulty_level === "easy"
-                  ? "secondary"
-                  : challenge.difficulty_level === "hard"
-                    ? "destructive"
-                    : "default"
+                challenge.difficulty_level === 'easy'
+                  ? 'secondary'
+                  : challenge.difficulty_level === 'hard'
+                    ? 'destructive'
+                    : 'default'
               }
               className="text-base"
             >
@@ -252,7 +252,7 @@ export default function ChallengePreviewPage() {
                   1
                 </span>
                 <span>
-                  Start the challenge and commit to reading this dhikr{" "}
+                  Start the challenge and commit to reading this dhikr{' '}
                   <strong>{challenge.daily_target_count} times</strong> every day
                 </span>
               </li>
@@ -261,7 +261,7 @@ export default function ChallengePreviewPage() {
                   2
                 </span>
                 <span>
-                  Complete your daily goal for{" "}
+                  Complete your daily goal for{' '}
                   <strong>{challenge.total_days} consecutive days</strong>
                 </span>
               </li>
@@ -290,7 +290,7 @@ export default function ChallengePreviewPage() {
               <CardContent className="flex items-center justify-between gap-4 p-4">
                 <div>
                   <p className="font-semibold">
-                    {hasActiveChallenge ? "Continue Your Challenge" : "Ready to begin?"}
+                    {hasActiveChallenge ? 'Continue Your Challenge' : 'Ready to begin?'}
                   </p>
                   <p className="text-sm text-muted-foreground">
                     {challenge.total_days} days • {challenge.daily_target_count}x per day
@@ -302,7 +302,7 @@ export default function ChallengePreviewPage() {
                   </Button>
                 ) : (
                   <Button size="lg" onClick={handleStartChallenge} disabled={starting}>
-                    {starting ? "Starting..." : "Start Challenge"}
+                    {starting ? 'Starting...' : 'Start Challenge'}
                   </Button>
                 )}
               </CardContent>

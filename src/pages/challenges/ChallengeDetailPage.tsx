@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { challengesApi } from "@/api";
-import { Button, Loader } from "@/components/ui";
-import { ROUTES } from "@/config/routes";
-import { StartChallengeButton } from "@/features/challenges/StartChallengeButton";
-import { useAuth } from "@/hooks/useAuth";
+import { challengesApi } from '@/api';
+import { Button, Loader } from '@/components/ui';
+import { ROUTES } from '@/config/routes';
+import { StartChallengeButton } from '@/features/challenges/StartChallengeButton';
+import { useAuth } from '@/hooks/useAuth';
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 
 export default function ChallengeDetailPage() {
   const { id } = useParams();
@@ -35,7 +35,7 @@ export default function ChallengeDetailPage() {
 
       <div className="bg-white rounded-lg shadow p-8">
         <div className="flex items-start gap-4 mb-6">
-          <div className="text-5xl">{challenge.icon || "📿"}</div>
+          <div className="text-5xl">{challenge.icon || '📿'}</div>
           <div className="flex-1">
             <h1 className="text-3xl font-bold mb-2">{challenge.title_bn}</h1>
             <p className="text-gray-600">{challenge.description_bn}</p>
@@ -69,7 +69,7 @@ export default function ChallengeDetailPage() {
         {!progress ? (
           <StartChallengeButton
             challengeId={challenge.id}
-            userId={user?.id}
+            userId={user?.id || ''}
             onSuccess={() => navigate(ROUTES.CHALLENGES)}
           />
         ) : (

@@ -5,12 +5,12 @@ interface StatCardProps {
   icon?: string;
 }
 
-export function StatCard({ title, value, color = "blue", icon }: StatCardProps) {
+export function StatCard({ title, value, color = 'blue', icon }: StatCardProps) {
   const colorClasses = {
-    blue: "text-blue-600",
-    green: "text-green-600",
-    purple: "text-purple-600",
-    red: "text-red-600",
+    blue: 'text-blue-600',
+    green: 'text-green-600',
+    purple: 'text-purple-600',
+    red: 'text-red-600',
   };
 
   return (

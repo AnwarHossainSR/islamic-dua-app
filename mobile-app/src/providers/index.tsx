@@ -1,8 +1,8 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import type React from "react";
-import Toast from "react-native-toast-message";
-import { AuthProvider } from "./AuthProvider";
-import { ThemeProvider } from "./ThemeProvider";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import type React from 'react';
+import Toast from 'react-native-toast-message';
+import { AuthProvider } from './AuthProvider';
+import { ThemeProvider } from './ThemeProvider';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -27,5 +27,5 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
 }
 
 // Only export provider components from this file
-export { AuthProvider } from "./AuthProvider";
-export { ThemeProvider } from "./ThemeProvider";
+export { AuthProvider } from './AuthProvider';
+export { ThemeProvider } from './ThemeProvider';

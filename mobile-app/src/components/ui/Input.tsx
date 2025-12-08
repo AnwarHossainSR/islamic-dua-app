@@ -5,8 +5,8 @@ import {
   type TextInputProps,
   View,
   type ViewStyle,
-} from "react-native";
-import { useTheme } from "@/hooks/useTheme";
+} from 'react-native';
+import { useTheme } from '@/hooks/useTheme';
 
 interface InputProps extends TextInputProps {
   label?: string;
@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 14,
-    fontWeight: "500",
+    fontWeight: '500',
   },
   input: {
     height: 44,

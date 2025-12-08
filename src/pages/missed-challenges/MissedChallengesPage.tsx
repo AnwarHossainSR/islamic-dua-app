@@ -1,14 +1,14 @@
-import { AlertTriangle, ArrowLeft, Calendar, RefreshCw, TrendingDown } from "lucide-react";
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { toast } from "sonner";
-import { missedChallengesApi } from "@/api/missed-challenges.api";
-import { Loader } from "@/components/ui";
-import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
-import { useAuth } from "@/hooks/useAuth";
-import { formatDateTime, formatTimeAgo } from "@/lib/utils";
+import { AlertTriangle, ArrowLeft, Calendar, RefreshCw, TrendingDown } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { toast } from 'sonner';
+import { missedChallengesApi } from '@/api/missed-challenges.api';
+import { Loader } from '@/components/ui';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { useAuth } from '@/hooks/useAuth';
+import { formatDateTime, formatTimeAgo } from '@/lib/utils';
 
 export default function MissedChallengesPage() {
   const { user } = useAuth();
@@ -40,7 +40,7 @@ export default function MissedChallengesPage() {
       setSummary(summaryData);
       setLastSyncTime(syncTime);
     } catch (error) {
-      console.error("Error loading missed challenges:", error);
+      console.error('Error loading missed challenges:', error);
     } finally {
       setLoading(false);
     }
@@ -51,13 +51,13 @@ export default function MissedChallengesPage() {
     setSyncing(true);
     try {
       const result = await missedChallengesApi.sync(user.id);
-      toast.success("Sync completed", {
+      toast.success('Sync completed', {
         description: `Found ${result.missedCount || 0} missed challenges`,
       });
       loadData();
     } catch (error) {
-      toast.error("Sync failed", {
-        description: error instanceof Error ? error.message : "Unknown error",
+      toast.error('Sync failed', {
+        description: error instanceof Error ? error.message : 'Unknown error',
       });
     } finally {
       setSyncing(false);
@@ -105,8 +105,8 @@ export default function MissedChallengesPage() {
           </div>
         </div>
         <Button onClick={handleSync} disabled={syncing} variant="outline">
-          <RefreshCw className={`h-4 w-4 mr-2 ${syncing ? "animate-spin" : ""}`} />
-          {syncing ? "Syncing..." : "Sync"}
+          <RefreshCw className={`h-4 w-4 mr-2 ${syncing ? 'animate-spin' : ''}`} />
+          {syncing ? 'Syncing...' : 'Sync'}
         </Button>
       </div>
 
@@ -152,7 +152,7 @@ export default function MissedChallengesPage() {
             <div className="text-center">
               <p className="text-sm text-muted-foreground">Most Missed</p>
               <p className="text-lg font-bold truncate">
-                {summary.most_missed_challenge?.title_bn || "None"}
+                {summary.most_missed_challenge?.title_bn || 'None'}
               </p>
               {summary.most_missed_challenge && (
                 <p className="text-sm text-muted-foreground">
@@ -171,7 +171,7 @@ export default function MissedChallengesPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Calendar className="h-5 w-5" />
-                  {formatDateTime(date, "date")}
+                  {formatDateTime(date, 'date')}
                   <Badge variant="destructive" className="ml-auto">
                     {groupedByDate[date].length} missed
                   </Badge>
@@ -187,10 +187,10 @@ export default function MissedChallengesPage() {
                       <div
                         className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-lg"
                         style={{
-                          backgroundColor: `${challenge.challenge_color || "#ef4444"}20`,
+                          backgroundColor: `${challenge.challenge_color || '#ef4444'}20`,
                         }}
                       >
-                        {challenge.challenge_icon || "📿"}
+                        {challenge.challenge_icon || '📿'}
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-medium wrap-break-word">
@@ -198,7 +198,7 @@ export default function MissedChallengesPage() {
                         </p>
                         <div className="flex flex-wrap items-center gap-2 mt-1">
                           <Badge variant="outline" className="text-xs shrink-0">
-                            {challenge.reason === "not_completed" ? "Not Done" : challenge.reason}
+                            {challenge.reason === 'not_completed' ? 'Not Done' : challenge.reason}
                           </Badge>
                           <span className="text-xs text-muted-foreground whitespace-nowrap">
                             {challenge.days_ago} days ago

@@ -1,4 +1,4 @@
-import { format, formatDistanceToNow, isSameDay } from "date-fns";
+import { format, formatDistanceToNow, isSameDay } from 'date-fns';
 
 export const isCurrentDay = (lastCompletedAt: number | null) => {
   if (!lastCompletedAt || Number.isNaN(lastCompletedAt) || lastCompletedAt === null) return false;
@@ -6,12 +6,12 @@ export const isCurrentDay = (lastCompletedAt: number | null) => {
   // Convert UTC timestamp to Bangladesh time
   const completedDate = new Date(lastCompletedAt);
   const completedBdTime = new Date(
-    completedDate.toLocaleString("en-US", { timeZone: "Asia/Dhaka" })
+    completedDate.toLocaleString('en-US', { timeZone: 'Asia/Dhaka' })
   );
 
   // Get current Bangladesh time
   const now = new Date();
-  const bdNow = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Dhaka" }));
+  const bdNow = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Dhaka' }));
 
   return isSameDay(completedBdTime, bdNow);
 };
@@ -22,21 +22,21 @@ export const isCurrentDay = (lastCompletedAt: number | null) => {
  */
 export const formatDateTime = (
   dateInput: string | Date,
-  formatType: "date" | "datetime" | "full" = "datetime"
+  formatType: 'date' | 'datetime' | 'full' = 'datetime'
 ): string => {
-  if (!dateInput) return "Invalid date";
+  if (!dateInput) return 'Invalid date';
 
   const date = new Date(dateInput);
 
   switch (formatType) {
-    case "date":
-      return format(date, "PPP"); // Oct 22, 2025
-    case "datetime":
-      return format(date, "PPp"); // Oct 22, 2025, 10:45 PM
-    case "full":
-      return format(date, "PPpp"); // Wednesday, October 22, 2025 at 10:45:30 PM
+    case 'date':
+      return format(date, 'PPP'); // Oct 22, 2025
+    case 'datetime':
+      return format(date, 'PPp'); // Oct 22, 2025, 10:45 PM
+    case 'full':
+      return format(date, 'PPpp'); // Wednesday, October 22, 2025 at 10:45:30 PM
     default:
-      return format(date, "PPp");
+      return format(date, 'PPp');
   }
 };
 
@@ -64,7 +64,7 @@ export function sortChallengesByCompletion<T extends { last_completed_at?: numbe
  * Format timestamp to relative time (e.g., "2 minutes ago", "just now")
  */
 export function formatTimeAgo(timestamp: number | null): string {
-  if (!timestamp) return "Never";
+  if (!timestamp) return 'Never';
 
   const date = new Date(timestamp);
   const now = new Date();
@@ -72,7 +72,7 @@ export function formatTimeAgo(timestamp: number | null): string {
 
   // If less than 30 seconds, show "just now"
   if (diffMs < 30000) {
-    return "Just now";
+    return 'Just now';
   }
 
   return formatDistanceToNow(date, { addSuffix: true });
@@ -88,9 +88,9 @@ export function formatNumber(num: number, decimals: number = 1): string {
   if (num < 1000) return num.toString();
 
   const units = [
-    { value: 1e9, suffix: "B" },
-    { value: 1e6, suffix: "M" },
-    { value: 1e3, suffix: "K" },
+    { value: 1e9, suffix: 'B' },
+    { value: 1e6, suffix: 'M' },
+    { value: 1e3, suffix: 'K' },
   ];
 
   for (const unit of units) {

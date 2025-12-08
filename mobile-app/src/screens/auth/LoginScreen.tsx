@@ -1,5 +1,5 @@
-import { useNavigation } from "@react-navigation/native";
-import { useState } from "react";
+import { useNavigation } from '@react-navigation/native';
+import { useState } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -8,33 +8,33 @@ import {
   StyleSheet,
   Text,
   View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import Toast from "react-native-toast-message";
-import { authApi } from "@/api/auth.api";
-import { Button, Input } from "@/components/ui";
-import { APP_NAME, ROUTES } from "@/config/routes";
-import { useTheme } from "@/hooks/useTheme";
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import Toast from 'react-native-toast-message';
+import { authApi } from '@/api/auth.api';
+import { Button, Input } from '@/components/ui';
+import { APP_NAME, ROUTES } from '@/config/routes';
+import { useTheme } from '@/hooks/useTheme';
 
 export default function LoginScreen() {
   const navigation = useNavigation<any>();
   const { colors } = useTheme();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
 
   const validate = () => {
     const newErrors: { email?: string; password?: string } = {};
     if (!email) {
-      newErrors.email = "Email is required";
+      newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(email)) {
-      newErrors.email = "Invalid email format";
+      newErrors.email = 'Invalid email format';
     }
     if (!password) {
-      newErrors.password = "Password is required";
+      newErrors.password = 'Password is required';
     } else if (password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
+      newErrors.password = 'Password must be at least 6 characters';
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -47,15 +47,15 @@ export default function LoginScreen() {
     try {
       await authApi.signIn(email, password);
       Toast.show({
-        type: "success",
-        text1: "Welcome back!",
-        text2: "You have successfully logged in.",
+        type: 'success',
+        text1: 'Welcome back!',
+        text2: 'You have successfully logged in.',
       });
     } catch (error: any) {
       Toast.show({
-        type: "error",
-        text1: "Login Failed",
-        text2: error.message || "Invalid email or password",
+        type: 'error',
+        text1: 'Login Failed',
+        text2: error.message || 'Invalid email or password',
       });
     } finally {
       setLoading(false);
@@ -66,7 +66,7 @@ export default function LoginScreen() {
     <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
       <KeyboardAvoidingView
         style={styles.container}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <ScrollView
           contentContainerStyle={styles.scrollContent}
@@ -135,19 +135,19 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    justifyContent: "center",
+    justifyContent: 'center',
     padding: 24,
   },
   header: {
-    alignItems: "center",
+    alignItems: 'center',
     marginBottom: 40,
   },
   logoContainer: {
     width: 80,
     height: 80,
     borderRadius: 20,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     marginBottom: 16,
   },
   logoText: {
@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    fontWeight: "700",
+    fontWeight: '700',
     marginBottom: 8,
   },
   subtitle: {
@@ -171,9 +171,9 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   signupRow: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
     marginTop: 24,
     gap: 4,
   },
@@ -186,6 +186,6 @@ const styles = StyleSheet.create({
   },
   signupLinkText: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: '600',
   },
 });

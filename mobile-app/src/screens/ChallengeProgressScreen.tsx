@@ -1,9 +1,9 @@
-import { useNavigation, useRoute } from "@react-navigation/native";
-import { Check, Flame, RefreshCcw, Target, Trophy, X } from "lucide-react-native";
-import { useEffect, useMemo, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, Vibration, View } from "react-native";
-import Toast from "react-native-toast-message";
-import { challengesApi } from "@/api/challenges.api";
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { Check, Flame, RefreshCcw, Target, Trophy, X } from 'lucide-react-native';
+import { useEffect, useMemo, useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, Vibration, View } from 'react-native';
+import Toast from 'react-native-toast-message';
+import { challengesApi } from '@/api/challenges.api';
 import {
   Badge,
   Button,
@@ -15,10 +15,10 @@ import {
   ConfirmationModal,
   Loader,
   Progress,
-} from "@/components/ui";
-import { ROUTES } from "@/config/routes";
-import { useAuth } from "@/hooks/useAuth";
-import { useTheme } from "@/hooks/useTheme";
+} from '@/components/ui';
+import { ROUTES } from '@/config/routes';
+import { useAuth } from '@/hooks/useAuth';
+import { useTheme } from '@/hooks/useTheme';
 
 export default function ChallengeProgressScreen() {
   const route = useRoute<any>();
@@ -44,7 +44,7 @@ export default function ChallengeProgressScreen() {
       setProgress(data);
 
       // Check if today is already completed
-      const today = new Date().toISOString().split("T")[0];
+      const today = new Date().toISOString().split('T')[0];
       const todayLog = data?.daily_logs?.find(
         (log: any) => log.completion_date === today && log.day_number === data?.current_day
       );
@@ -52,11 +52,11 @@ export default function ChallengeProgressScreen() {
         setCount(todayLog.count_completed);
       }
     } catch (error) {
-      console.error("Error loading progress:", error);
+      console.error('Error loading progress:', error);
       Toast.show({
-        type: "error",
-        text1: "Error",
-        text2: "Failed to load progress",
+        type: 'error',
+        text1: 'Error',
+        text2: 'Failed to load progress',
       });
     } finally {
       setLoading(false);
@@ -65,7 +65,7 @@ export default function ChallengeProgressScreen() {
 
   const challenge = progress?.challenge;
   const target = challenge?.daily_target_count || 0;
-  const today = new Date().toISOString().split("T")[0];
+  const today = new Date().toISOString().split('T')[0];
   const todayLog = progress?.daily_logs?.find(
     (log: any) => log.completion_date === today && log.day_number === progress?.current_day
   );
@@ -110,19 +110,19 @@ export default function ChallengeProgressScreen() {
 
       if (result.success) {
         Toast.show({
-          type: "success",
-          text1: result.isChallengeCompleted ? "🎉 Challenge Completed!" : "Day Completed!",
+          type: 'success',
+          text1: result.isChallengeCompleted ? '🎉 Challenge Completed!' : 'Day Completed!',
           text2: result.isChallengeCompleted
-            ? "Congratulations on completing the challenge!"
+            ? 'Congratulations on completing the challenge!'
             : `Current streak: ${result.newStreak} days`,
         });
         loadProgress();
       }
     } catch (error: any) {
       Toast.show({
-        type: "error",
-        text1: "Error",
-        text2: error.message || "Failed to complete",
+        type: 'error',
+        text1: 'Error',
+        text2: error.message || 'Failed to complete',
       });
     } finally {
       setCompleting(false);
@@ -215,8 +215,8 @@ export default function ChallengeProgressScreen() {
       </Card>
 
       {/* Today's Challenge with Counter */}
-      {progress.status === "active" && !isAlreadyCompleted && (
-        <Card style={{ borderWidth: 2, borderColor: "#22c55e" }}>
+      {progress.status === 'active' && !isAlreadyCompleted && (
+        <Card style={{ borderWidth: 2, borderColor: '#22c55e' }}>
           <CardHeader>
             <View style={styles.todayHeader}>
               <CardTitle>Today's Count</CardTitle>
@@ -224,14 +224,14 @@ export default function ChallengeProgressScreen() {
                 style={[
                   styles.countBadge,
                   {
-                    backgroundColor: count >= target ? "#22c55e" : colors.secondary,
+                    backgroundColor: count >= target ? '#22c55e' : colors.secondary,
                   },
                 ]}
               >
                 <Text
                   style={{
-                    color: count >= target ? "#fff" : colors.foreground,
-                    fontWeight: "600",
+                    color: count >= target ? '#fff' : colors.foreground,
+                    fontWeight: '600',
                   }}
                 >
                   {count} / {target}
@@ -243,25 +243,25 @@ export default function ChallengeProgressScreen() {
           <CardContent>
             {/* Daily Progress Bar */}
             <View style={styles.dailyProgressContainer}>
-              <View style={[styles.dailyProgressBar, { backgroundColor: "#22c55e20" }]}>
+              <View style={[styles.dailyProgressBar, { backgroundColor: '#22c55e20' }]}>
                 <View
                   style={[
                     styles.dailyProgressFill,
                     {
-                      backgroundColor: "#22c55e",
+                      backgroundColor: '#22c55e',
                       width: `${Math.min(dailyProgress, 100)}%`,
                     },
                   ]}
                 />
               </View>
               <Text style={[styles.remainingText, { color: colors.mutedForeground }]}>
-                {remaining > 0 ? `${remaining} more to go!` : "Target reached! 🎉"}
+                {remaining > 0 ? `${remaining} more to go!` : 'Target reached! 🎉'}
               </Text>
             </View>
 
             {/* Large Counter Display */}
             <View style={styles.counterDisplay}>
-              <Text style={[styles.counterNumber, { color: "#22c55e" }]}>{count}</Text>
+              <Text style={[styles.counterNumber, { color: '#22c55e' }]}>{count}</Text>
             </View>
 
             {/* Arabic Text */}
@@ -269,7 +269,7 @@ export default function ChallengeProgressScreen() {
               <View
                 style={[
                   styles.arabicContainer,
-                  { backgroundColor: "#22c55e10", borderColor: "#22c55e40" },
+                  { backgroundColor: '#22c55e10', borderColor: '#22c55e40' },
                 ]}
               >
                 <Text style={[styles.arabicMain, { color: colors.foreground }]}>
@@ -290,7 +290,7 @@ export default function ChallengeProgressScreen() {
               style={({ pressed }) => [
                 styles.tapButton,
                 {
-                  backgroundColor: count >= target ? colors.secondary : "#22c55e",
+                  backgroundColor: count >= target ? colors.secondary : '#22c55e',
                   opacity: pressed ? 0.8 : 1,
                 },
               ]}
@@ -325,10 +325,10 @@ export default function ChallengeProgressScreen() {
                 onPress={handleComplete}
                 loading={completing}
                 disabled={completing}
-                style={[styles.actionButton, { backgroundColor: "#22c55e" }]}
+                style={[styles.actionButton, { backgroundColor: '#22c55e' }]}
               >
                 <Check color="#fff" size={16} />
-                <Text style={{ color: "#fff", fontWeight: "600" }}>Complete</Text>
+                <Text style={{ color: '#fff', fontWeight: '600' }}>Complete</Text>
               </Button>
             </View>
           </CardContent>
@@ -340,8 +340,8 @@ export default function ChallengeProgressScreen() {
         <Card
           style={{
             borderWidth: 2,
-            borderColor: "#22c55e",
-            backgroundColor: "#22c55e10",
+            borderColor: '#22c55e',
+            backgroundColor: '#22c55e10',
           }}
         >
           <CardContent style={styles.completedTodayCard}>
@@ -362,7 +362,7 @@ export default function ChallengeProgressScreen() {
       )}
 
       {/* Completed Status */}
-      {progress.status === "completed" && (
+      {progress.status === 'completed' && (
         <Card>
           <CardContent style={styles.completedCard}>
             <Trophy color="#eab308" size={48} />
@@ -415,8 +415,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   center: {
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   content: {
     padding: 16,
@@ -424,16 +424,16 @@ const styles = StyleSheet.create({
     paddingBottom: 32,
   },
   headerRow: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 16,
   },
   iconContainer: {
     width: 48,
     height: 48,
     borderRadius: 12,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   headerInfo: {
     flex: 1,
@@ -446,40 +446,40 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   progressHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     marginBottom: 10,
   },
   progressLabel: {
     fontSize: 15,
-    fontWeight: "500",
+    fontWeight: '500',
   },
   progressPercent: {
     fontSize: 15,
-    fontWeight: "600",
+    fontWeight: '600',
   },
   statsRow: {
-    flexDirection: "row",
+    flexDirection: 'row',
     gap: 8,
   },
   statBox: {
     flex: 1,
     padding: 10,
     borderRadius: 12,
-    alignItems: "center",
+    alignItems: 'center',
     gap: 4,
   },
   statNumber: {
     fontSize: 24,
-    fontWeight: "700",
+    fontWeight: '700',
   },
   statLabel: {
     fontSize: 12,
   },
   todayHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   countBadge: {
     paddingHorizontal: 12,
@@ -492,24 +492,24 @@ const styles = StyleSheet.create({
   dailyProgressBar: {
     height: 10,
     borderRadius: 5,
-    overflow: "hidden",
+    overflow: 'hidden',
   },
   dailyProgressFill: {
-    height: "100%",
+    height: '100%',
     borderRadius: 5,
   },
   remainingText: {
-    textAlign: "center",
+    textAlign: 'center',
     fontSize: 13,
     marginTop: 8,
   },
   counterDisplay: {
-    alignItems: "center",
+    alignItems: 'center',
     marginVertical: 16,
   },
   counterNumber: {
     fontSize: 80,
-    fontWeight: "700",
+    fontWeight: '700',
   },
   arabicContainer: {
     padding: 20,
@@ -520,61 +520,61 @@ const styles = StyleSheet.create({
   arabicMain: {
     fontSize: 24,
     lineHeight: 40,
-    textAlign: "center",
+    textAlign: 'center',
   },
   translation: {
     fontSize: 14,
     lineHeight: 22,
-    textAlign: "center",
+    textAlign: 'center',
     marginBottom: 20,
   },
   tapButton: {
     height: 80,
     borderRadius: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     gap: 12,
     marginBottom: 16,
   },
   tapButtonText: {
-    color: "#fff",
+    color: '#fff',
     fontSize: 20,
-    fontWeight: "700",
+    fontWeight: '700',
   },
   actionButtons: {
-    flexDirection: "row",
+    flexDirection: 'row',
     gap: 12,
   },
   actionButton: {
     flex: 1,
-    flexDirection: "row",
+    flexDirection: 'row',
     gap: 8,
   },
   completedTodayCard: {
-    alignItems: "center",
+    alignItems: 'center',
     paddingVertical: 32,
     gap: 12,
   },
   completedTodayTitle: {
     fontSize: 20,
-    fontWeight: "700",
+    fontWeight: '700',
   },
   completedTodayText: {
     fontSize: 14,
-    textAlign: "center",
+    textAlign: 'center',
   },
   completedCard: {
-    alignItems: "center",
+    alignItems: 'center',
     paddingVertical: 32,
     gap: 12,
   },
   completedTitle: {
     fontSize: 20,
-    fontWeight: "700",
+    fontWeight: '700',
   },
   completedText: {
     fontSize: 14,
-    textAlign: "center",
+    textAlign: 'center',
   },
 });

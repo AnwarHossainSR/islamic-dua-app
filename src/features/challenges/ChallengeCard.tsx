@@ -1,8 +1,8 @@
-import { Calendar, Eye, Play, Target, Trophy, Users } from "lucide-react";
-import { Link } from "react-router-dom";
-import { Badge, Button, Card } from "@/components/ui";
-import { ROUTES } from "@/config/routes";
-import type { Challenge } from "@/lib/types";
+import { Calendar, Eye, Play, Target, Trophy, Users } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Badge, Button, Card } from '@/components/ui';
+import { ROUTES } from '@/config/routes';
+import type { Challenge } from '@/lib/types';
 
 interface ChallengeCardProps {
   challenge: Challenge & { user_challenge_progress?: any[] };
@@ -10,7 +10,7 @@ interface ChallengeCardProps {
 
 export function ChallengeCard({ challenge }: ChallengeCardProps) {
   const progress = challenge.user_challenge_progress?.[0];
-  const isActive = progress?.status === "active";
+  const isActive = progress?.status === 'active';
   const completionRate = progress
     ? Math.round((progress.total_completed_days / challenge.total_days) * 100)
     : 0;
@@ -21,7 +21,7 @@ export function ChallengeCard({ challenge }: ChallengeCardProps) {
         <div className="flex-1 space-y-4">
           <div className="flex items-start gap-3">
             <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg text-2xl bg-emerald-500/10">
-              {challenge.icon || "📿"}
+              {challenge.icon || '📿'}
             </div>
             <div className="flex-1 min-w-0">
               <div className="mb-1 flex items-center gap-2 flex-wrap">
@@ -97,7 +97,7 @@ export function ChallengeCard({ challenge }: ChallengeCardProps) {
                 }
               >
                 {isActive ? <Eye className="mr-1 h-3 w-3" /> : <Play className="mr-1 h-3 w-3" />}
-                {isActive ? "Continue" : "Start"}
+                {isActive ? 'Continue' : 'Start'}
               </Link>
             </Button>
           </div>

@@ -1,7 +1,7 @@
-import { createContext } from "react";
-import type { colors } from "@/lib/theme";
+import { createContext } from 'react';
+import type { colors } from '@/lib/theme';
 
-type ThemeMode = "light" | "dark" | "system";
+type ThemeMode = 'light' | 'dark' | 'system';
 
 export interface ThemeContextType {
   isDark: boolean;

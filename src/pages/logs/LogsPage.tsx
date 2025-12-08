@@ -1,18 +1,18 @@
-import { FileText, RefreshCw, Trash2 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { logsApi } from "@/api/logs.api";
-import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
-import { Confirm } from "@/components/ui/Confirm";
+import { FileText, RefreshCw, Trash2 } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { logsApi } from '@/api/logs.api';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Confirm } from '@/components/ui/Confirm';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/Select";
-import { Skeleton } from "@/components/ui/Skeleton";
+} from '@/components/ui/Select';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 interface LogEntry {
   id: string;
@@ -26,7 +26,7 @@ export default function LogsPage() {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [clearing, setClearing] = useState(false);
-  const [level, setLevel] = useState("all");
+  const [level, setLevel] = useState('all');
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [limit, setLimit] = useState(25);
@@ -41,7 +41,7 @@ export default function LogsPage() {
       setLogs(data.logs || []);
       setTotal(data.total || 0);
     } catch (error) {
-      console.error("Error fetching logs:", error);
+      console.error('Error fetching logs:', error);
     } finally {
       setLoading(false);
       fetchingRef.current = false;
@@ -66,7 +66,7 @@ export default function LogsPage() {
       await logsApi.clearAllLogs();
       fetchLogs();
     } catch (error) {
-      console.error("Failed to clear logs:", error);
+      console.error('Failed to clear logs:', error);
     } finally {
       setClearing(false);
     }
@@ -74,14 +74,14 @@ export default function LogsPage() {
 
   const getLevelColor = (level: string) => {
     switch (level) {
-      case "error":
-        return "destructive";
-      case "warn":
-        return "secondary";
-      case "info":
-        return "default";
+      case 'error':
+        return 'destructive';
+      case 'warn':
+        return 'secondary';
+      case 'info':
+        return 'default';
       default:
-        return "outline";
+        return 'outline';
     }
   };
 
@@ -154,7 +154,7 @@ export default function LogsPage() {
             <CardDescription>Real-time system logs and API activity</CardDescription>
             <div className="text-sm text-muted-foreground">
               <span className="hidden sm:inline">
-                Total: {total} entries | Showing {(page - 1) * limit + 1} to{" "}
+                Total: {total} entries | Showing {(page - 1) * limit + 1} to{' '}
                 {Math.min(page * limit, total)} of {total}
               </span>
               <span className="sm:hidden">
@@ -200,7 +200,7 @@ export default function LogsPage() {
                         Show metadata
                       </summary>
                       <pre className="mt-2 p-2 bg-muted rounded overflow-auto">
-                        {typeof log.meta === "string"
+                        {typeof log.meta === 'string'
                           ? log.meta
                           : JSON.stringify(log.meta, null, 2)}
                       </pre>

@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/use-memo */
-import { type DependencyList, useCallback, useEffect, useRef } from "react";
+import { type DependencyList, useCallback, useEffect, useRef } from 'react';
 
 interface UseDebounceReturn<T extends (...args: any[]) => void> {
   debouncedCallback: T;

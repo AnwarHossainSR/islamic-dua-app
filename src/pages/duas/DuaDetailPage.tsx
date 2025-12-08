@@ -1,12 +1,12 @@
-import { ArrowLeft, Edit, Star } from "lucide-react";
-import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import { duasApi } from "@/api/duas.api";
-import { Loader } from "@/components/ui";
-import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
-import { Card, CardContent, CardHeader } from "@/components/ui/Card";
-import type { Dua } from "@/lib/types/duas";
+import { ArrowLeft, Edit, Star } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
+import { duasApi } from '@/api/duas.api';
+import { Loader } from '@/components/ui';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent, CardHeader } from '@/components/ui/Card';
+import type { Dua } from '@/lib/types/duas';
 
 export default function DuaDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -21,7 +21,7 @@ export default function DuaDetailPage() {
         const data = await duasApi.getById(id);
         setDua(data);
       } catch (error) {
-        console.error("Error loading dua:", error);
+        console.error('Error loading dua:', error);
       } finally {
         setLoading(false);
       }

@@ -1,23 +1,23 @@
-import { BarChart3, BookOpen, Edit, Eye, Plus, Search, Star, Trash2 } from "lucide-react";
-import { useEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
-import { duasApi } from "@/api/duas.api";
-import { Loader } from "@/components/ui";
-import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
-import { Card, CardContent, CardHeader } from "@/components/ui/Card";
-import { useConfirm } from "@/components/ui/Confirm";
-import { Input } from "@/components/ui/Input";
+import { BarChart3, BookOpen, Edit, Eye, Plus, Search, Star, Trash2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { duasApi } from '@/api/duas.api';
+import { Loader } from '@/components/ui';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent, CardHeader } from '@/components/ui/Card';
+import { useConfirm } from '@/components/ui/Confirm';
+import { Input } from '@/components/ui/Input';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/Select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/Tabs";
-import { useAuth } from "@/hooks/useAuth";
-import type { Dua, DuaCategory, DuaStats } from "@/lib/types/duas";
+} from '@/components/ui/Select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
+import { useAuth } from '@/hooks/useAuth';
+import type { Dua, DuaCategory, DuaStats } from '@/lib/types/duas';
 
 export default function DuasPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -31,9 +31,9 @@ export default function DuasPage() {
     byCategory: {},
   });
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || "");
-  const [categoryFilter, setCategoryFilter] = useState(searchParams.get("category") || "all");
-  const [importantFilter, setImportantFilter] = useState(searchParams.get("important") === "true");
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
+  const [categoryFilter, setCategoryFilter] = useState(searchParams.get('category') || 'all');
+  const [importantFilter, setImportantFilter] = useState(searchParams.get('important') === 'true');
 
   useEffect(() => {
     if (!user) return;
@@ -42,7 +42,7 @@ export default function DuasPage() {
       try {
         const [duasData, categoriesData, statsData] = await Promise.all([
           duasApi.getAll({
-            category: categoryFilter !== "all" ? categoryFilter : undefined,
+            category: categoryFilter !== 'all' ? categoryFilter : undefined,
             search: searchQuery || undefined,
             isImportant: importantFilter || undefined,
             limit: 20,
@@ -55,7 +55,7 @@ export default function DuasPage() {
         setCategories(categoriesData);
         setStats(statsData);
       } catch (error) {
-        console.error("Error loading duas:", error);
+        console.error('Error loading duas:', error);
       } finally {
         setLoading(false);
       }
@@ -66,37 +66,37 @@ export default function DuasPage() {
 
   const handleSearch = () => {
     const params = new URLSearchParams();
-    if (searchQuery) params.set("search", searchQuery);
-    if (categoryFilter !== "all") params.set("category", categoryFilter);
-    if (importantFilter) params.set("important", "true");
+    if (searchQuery) params.set('search', searchQuery);
+    if (categoryFilter !== 'all') params.set('category', categoryFilter);
+    if (importantFilter) params.set('important', 'true');
     setSearchParams(params);
   };
 
   const handleFilterChange = (key: string, value: string | boolean) => {
     const params = new URLSearchParams();
-    if (searchQuery) params.set("search", searchQuery);
+    if (searchQuery) params.set('search', searchQuery);
 
-    if (key === "category") {
+    if (key === 'category') {
       setCategoryFilter(value as string);
-      if (value !== "all") params.set("category", value as string);
-    } else if (key === "important") {
+      if (value !== 'all') params.set('category', value as string);
+    } else if (key === 'important') {
       setImportantFilter(value as boolean);
-      if (value) params.set("important", "true");
+      if (value) params.set('important', 'true');
     }
 
-    if (categoryFilter !== "all" && key !== "category") params.set("category", categoryFilter);
-    if (importantFilter && key !== "important") params.set("important", "true");
+    if (categoryFilter !== 'all' && key !== 'category') params.set('category', categoryFilter);
+    if (importantFilter && key !== 'important') params.set('important', 'true');
 
     setSearchParams(params);
   };
 
   const handleDelete = async (id: string) => {
     const confirmed = await confirm({
-      title: "Delete Dua",
-      description: "Are you sure you want to delete this dua? This action cannot be undone.",
-      confirmText: "Delete",
-      confirmVariant: "destructive",
-      icon: "warning",
+      title: 'Delete Dua',
+      description: 'Are you sure you want to delete this dua? This action cannot be undone.',
+      confirmText: 'Delete',
+      confirmVariant: 'destructive',
+      icon: 'warning',
     });
     if (confirmed) {
       await duasApi.delete(id);
@@ -189,12 +189,12 @@ export default function DuasPage() {
                     className="pl-10"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                   />
                 </div>
                 <Select
                   value={categoryFilter}
-                  onValueChange={(value) => handleFilterChange("category", value)}
+                  onValueChange={(value) => handleFilterChange('category', value)}
                 >
                   <SelectTrigger className="w-48">
                     <SelectValue placeholder="Category" />
@@ -209,8 +209,8 @@ export default function DuasPage() {
                   </SelectContent>
                 </Select>
                 <Button
-                  variant={importantFilter ? "default" : "outline"}
-                  onClick={() => handleFilterChange("important", !importantFilter)}
+                  variant={importantFilter ? 'default' : 'outline'}
+                  onClick={() => handleFilterChange('important', !importantFilter)}
                 >
                   <Star className="mr-2 h-4 w-4" />
                   Important Only
@@ -315,7 +315,7 @@ export default function DuasPage() {
                       className="flex h-12 w-12 items-center justify-center rounded-lg text-2xl"
                       style={{ backgroundColor: `${category.color}20` }}
                     >
-                      {category.icon || "📿"}
+                      {category.icon || '📿'}
                     </div>
                     <div className="flex-1">
                       <h3 className="font-semibold">{category.name_bn}</h3>
@@ -346,7 +346,7 @@ export default function DuasPage() {
                     const percentage = Math.round((count / stats.total) * 100);
                     return (
                       <div key={categoryId} className="flex items-center gap-3">
-                        <span className="text-lg">{category?.icon || "📿"}</span>
+                        <span className="text-lg">{category?.icon || '📿'}</span>
                         <div className="flex-1">
                           <div className="flex justify-between text-sm">
                             <span>{category?.name_bn || categoryId}</span>
@@ -359,7 +359,7 @@ export default function DuasPage() {
                               className="h-full rounded-full"
                               style={{
                                 width: `${percentage}%`,
-                                backgroundColor: category?.color || "#10b981",
+                                backgroundColor: category?.color || '#10b981',
                               }}
                             />
                           </div>

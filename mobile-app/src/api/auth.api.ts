@@ -1,5 +1,5 @@
-import { apiLogger } from "@/lib/logger";
-import { supabase } from "@/lib/supabase";
+import { apiLogger } from '@/lib/logger';
+import { supabase } from '@/lib/supabase';
 
 export const authApi = {
   signIn: async (email: string, password: string) => {
@@ -9,10 +9,10 @@ export const authApi = {
         password,
       });
       if (error) throw error;
-      apiLogger.info("User signed in", { email });
+      apiLogger.info('User signed in', { email });
       return data;
     } catch (error: any) {
-      apiLogger.error("Sign in failed", { email, error: error.message });
+      apiLogger.error('Sign in failed', { email, error: error.message });
       throw error;
     }
   },
@@ -21,10 +21,10 @@ export const authApi = {
     try {
       const { data, error } = await supabase.auth.signUp({ email, password });
       if (error) throw error;
-      apiLogger.info("User signed up", { email });
+      apiLogger.info('User signed up', { email });
       return data;
     } catch (error: any) {
-      apiLogger.error("Sign up failed", { email, error: error.message });
+      apiLogger.error('Sign up failed', { email, error: error.message });
       throw error;
     }
   },
@@ -33,9 +33,9 @@ export const authApi = {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
-      apiLogger.info("User signed out");
+      apiLogger.info('User signed out');
     } catch (error: any) {
-      apiLogger.error("Sign out failed", { error: error.message });
+      apiLogger.error('Sign out failed', { error: error.message });
       throw error;
     }
   },
@@ -46,7 +46,7 @@ export const authApi = {
       if (error) throw error;
       return data.session;
     } catch (error: any) {
-      apiLogger.error("Get session failed", { error: error.message });
+      apiLogger.error('Get session failed', { error: error.message });
       throw error;
     }
   },

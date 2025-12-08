@@ -1,5 +1,5 @@
-import { supabase } from "@/lib/supabase";
-import type { Dua } from "@/types";
+import { supabase } from '@/lib/supabase';
+import type { Dua } from '@/types';
 
 export interface DuaCategory {
   id: string;
@@ -23,10 +23,10 @@ export const duasApi = {
     limit?: number;
     offset?: number;
   }) => {
-    let query = supabase.from("duas").select("*").eq("is_active", true);
+    let query = supabase.from('duas').select('*').eq('is_active', true);
 
-    if (filters?.category && filters.category !== "all") {
-      query = query.eq("category", filters.category);
+    if (filters?.category && filters.category !== 'all') {
+      query = query.eq('category', filters.category);
     }
 
     if (filters?.search) {
@@ -36,10 +36,10 @@ export const duasApi = {
     }
 
     if (filters?.isImportant) {
-      query = query.eq("is_important", true);
+      query = query.eq('is_important', true);
     }
 
-    query = query.order("created_at", { ascending: false });
+    query = query.order('created_at', { ascending: false });
 
     if (filters?.limit) {
       query = query.limit(filters.limit);
@@ -57,10 +57,10 @@ export const duasApi = {
 
   getById: async (id: string) => {
     const { data, error } = await supabase
-      .from("duas")
-      .select("*")
-      .eq("id", id)
-      .eq("is_active", true)
+      .from('duas')
+      .select('*')
+      .eq('id', id)
+      .eq('is_active', true)
       .single();
 
     if (error) throw error;
@@ -69,10 +69,10 @@ export const duasApi = {
 
   getCategories: async () => {
     const { data, error } = await supabase
-      .from("dua_categories")
-      .select("*")
-      .eq("is_active", true)
-      .order("name_bn");
+      .from('dua_categories')
+      .select('*')
+      .eq('is_active', true)
+      .order('name_bn');
 
     if (error) throw error;
     return data as DuaCategory[];
@@ -80,9 +80,9 @@ export const duasApi = {
 
   getStats: async (): Promise<DuaStats> => {
     const { data: allDuas, error } = await supabase
-      .from("duas")
-      .select("category, is_important")
-      .eq("is_active", true);
+      .from('duas')
+      .select('category, is_important')
+      .eq('is_active', true);
 
     if (error) throw error;
 
@@ -97,14 +97,14 @@ export const duasApi = {
     return { total, important, byCategory };
   },
 
-  create: async (duaData: Omit<Dua, "id">) => {
+  create: async (duaData: Omit<Dua, 'id'>) => {
     const {
       data: { user },
     } = await supabase.auth.getUser();
-    if (!user) throw new Error("Not authenticated");
+    if (!user) throw new Error('Not authenticated');
 
     const { data, error } = await supabase
-      .from("duas")
+      .from('duas')
       .insert({ ...duaData, created_by: user.id })
       .select()
       .single();
@@ -115,9 +115,9 @@ export const duasApi = {
 
   update: async (id: string, duaData: Partial<Dua>) => {
     const { data, error } = await supabase
-      .from("duas")
+      .from('duas')
       .update({ ...duaData, updated_at: Date.now() })
-      .eq("id", id)
+      .eq('id', id)
       .select()
       .single();
 
@@ -127,9 +127,9 @@ export const duasApi = {
 
   delete: async (id: string) => {
     const { error } = await supabase
-      .from("duas")
+      .from('duas')
       .update({ is_active: false, updated_at: Date.now() })
-      .eq("id", id);
+      .eq('id', id);
 
     if (error) throw error;
   },

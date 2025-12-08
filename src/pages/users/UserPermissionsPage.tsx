@@ -1,14 +1,14 @@
-import { ArrowLeft, Settings, Shield } from "lucide-react";
-import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import { toast } from "sonner";
-import { permissionsApi } from "@/api/permissions.api";
-import { Loader } from "@/components/ui";
-import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
-import { Checkbox } from "@/components/ui/Checkbox";
-import { apiLogger } from "@/lib/logger";
+import { ArrowLeft, Settings, Shield } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
+import { toast } from 'sonner';
+import { permissionsApi } from '@/api/permissions.api';
+import { Loader } from '@/components/ui';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Checkbox } from '@/components/ui/Checkbox';
+import { apiLogger } from '@/lib/logger';
 
 interface Permission {
   id: string;
@@ -43,8 +43,8 @@ export default function UserPermissionsPage() {
       const data = await permissionsApi.getUserPermissions(id);
       setUser(data);
     } catch (error: any) {
-      toast.error("Failed to load user permissions");
-      apiLogger.error("Error loading user permissions:", error);
+      toast.error('Failed to load user permissions');
+      apiLogger.error('Error loading user permissions:', error);
     } finally {
       setLoading(false);
     }
@@ -63,7 +63,7 @@ export default function UserPermissionsPage() {
       }
       loadUser();
     } catch (error: any) {
-      toast.error(error.message || "Failed to update permission");
+      toast.error(error.message || 'Failed to update permission');
     }
   };
 
@@ -149,8 +149,8 @@ export default function UserPermissionsPage() {
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">Status</p>
                 <div className="flex gap-2">
-                  <Badge variant={user.is_active ? "default" : "outline"}>
-                    {user.is_active ? "Active" : "Inactive"}
+                  <Badge variant={user.is_active ? 'default' : 'outline'}>
+                    {user.is_active ? 'Active' : 'Inactive'}
                   </Badge>
                 </div>
               </div>

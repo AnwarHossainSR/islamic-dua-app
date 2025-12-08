@@ -1,6 +1,6 @@
-import { useNavigation } from "@react-navigation/native";
-import { Book, ChevronRight, Search, Star } from "lucide-react-native";
-import { useEffect, useState } from "react";
+import { useNavigation } from '@react-navigation/native';
+import { Book, ChevronRight, Search, Star } from 'lucide-react-native';
+import { useEffect, useState } from 'react';
 import {
   Pressable,
   RefreshControl,
@@ -9,13 +9,13 @@ import {
   Text,
   TextInput,
   View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { duasApi } from "@/api/duas.api";
-import { Badge, Card, CardContent, Loader } from "@/components/ui";
-import { ROUTES } from "@/config/routes";
-import { useTheme } from "@/hooks/useTheme";
-import type { Dua } from "@/types";
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { duasApi } from '@/api/duas.api';
+import { Badge, Card, CardContent, Loader } from '@/components/ui';
+import { ROUTES } from '@/config/routes';
+import { useTheme } from '@/hooks/useTheme';
+import type { Dua } from '@/types';
 
 export default function DuasScreen() {
   const navigation = useNavigation<any>();
@@ -24,8 +24,8 @@ export default function DuasScreen() {
   const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [search, setSearch] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [search, setSearch] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
 
   useEffect(() => {
     loadData();
@@ -44,7 +44,7 @@ export default function DuasScreen() {
       setDuas(duasData);
       setCategories(categoriesData);
     } catch (error) {
-      console.error("Error loading duas:", error);
+      console.error('Error loading duas:', error);
     } finally {
       setLoading(false);
     }
@@ -54,12 +54,12 @@ export default function DuasScreen() {
     if (isRefresh) setRefreshing(true);
     try {
       const data = await duasApi.getAll({
-        category: selectedCategory !== "all" ? selectedCategory : undefined,
+        category: selectedCategory !== 'all' ? selectedCategory : undefined,
         search: search || undefined,
       });
       setDuas(data);
     } catch (error) {
-      console.error("Error loading duas:", error);
+      console.error('Error loading duas:', error);
     } finally {
       setRefreshing(false);
     }
@@ -70,7 +70,7 @@ export default function DuasScreen() {
   }
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]} edges={["top"]}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]} edges={['top']}>
       <View style={styles.container}>
         {/* Search and Filter */}
         <View style={styles.filterSection}>
@@ -94,11 +94,11 @@ export default function DuasScreen() {
             contentContainerStyle={styles.categoriesContent}
           >
             <Pressable
-              onPress={() => setSelectedCategory("all")}
+              onPress={() => setSelectedCategory('all')}
               style={[
                 styles.categoryChip,
                 {
-                  backgroundColor: selectedCategory === "all" ? colors.primary : colors.secondary,
+                  backgroundColor: selectedCategory === 'all' ? colors.primary : colors.secondary,
                 },
               ]}
             >
@@ -107,7 +107,7 @@ export default function DuasScreen() {
                   styles.categoryText,
                   {
                     color:
-                      selectedCategory === "all" ? colors.primaryForeground : colors.foreground,
+                      selectedCategory === 'all' ? colors.primaryForeground : colors.foreground,
                   },
                 ]}
               >
@@ -209,7 +209,7 @@ export default function DuasScreen() {
               <Book color={colors.mutedForeground} size={48} />
               <Text style={[styles.emptyTitle, { color: colors.foreground }]}>No Duas Found</Text>
               <Text style={[styles.emptyText, { color: colors.mutedForeground }]}>
-                {search ? "Try a different search term" : "No duas available"}
+                {search ? 'Try a different search term' : 'No duas available'}
               </Text>
             </View>
           )}
@@ -231,8 +231,8 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
   },
   searchBox: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 12,
     paddingHorizontal: 14,
     height: 44,
@@ -257,7 +257,7 @@ const styles = StyleSheet.create({
   },
   categoryText: {
     fontSize: 13,
-    fontWeight: "500",
+    fontWeight: '500',
   },
   content: {
     padding: 16,
@@ -271,48 +271,48 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   duaHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
   },
   duaInfo: {
     flex: 1,
     gap: 6,
   },
   duaTitleRow: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 8,
   },
   duaTitle: {
     fontSize: 15,
-    fontWeight: "600",
+    fontWeight: '600',
     flex: 1,
   },
   categoryBadge: {
-    alignSelf: "flex-start",
+    alignSelf: 'flex-start',
   },
   arabicText: {
     fontSize: 18,
     lineHeight: 32,
-    textAlign: "right",
-    fontFamily: "System",
+    textAlign: 'right',
+    fontFamily: 'System',
   },
   translation: {
     fontSize: 13,
     lineHeight: 20,
   },
   emptyState: {
-    alignItems: "center",
+    alignItems: 'center',
     paddingVertical: 60,
     gap: 12,
   },
   emptyTitle: {
     fontSize: 18,
-    fontWeight: "600",
+    fontWeight: '600',
   },
   emptyText: {
     fontSize: 14,
-    textAlign: "center",
+    textAlign: 'center',
   },
 });

@@ -1,7 +1,7 @@
-import type React from "react";
-import { StyleSheet, Text, View } from "react-native";
-import { useTheme } from "@/hooks/useTheme";
-import { Card, CardContent } from "./Card";
+import type React from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+import { useTheme } from '@/hooks/useTheme';
+import { Card, CardContent } from './Card';
 
 interface StatCardProps {
   title: string;
@@ -34,21 +34,21 @@ const styles = StyleSheet.create({
     paddingTop: 16,
   },
   header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 8,
   },
   title: {
     fontSize: 14,
-    fontWeight: "500",
+    fontWeight: '500',
   },
   iconContainer: {
     opacity: 0.7,
   },
   value: {
     fontSize: 24,
-    fontWeight: "700",
+    fontWeight: '700',
     marginBottom: 4,
   },
   description: {

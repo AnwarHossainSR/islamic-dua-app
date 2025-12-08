@@ -1,32 +1,32 @@
-import { Bell, BellOff, BookOpen, Clock, Target } from "lucide-react";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
-import { Button } from "@/components/ui/Button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
-import { Label } from "@/components/ui/Label";
+import { Bell, BellOff, BookOpen, Clock, Target } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Label } from '@/components/ui/Label';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/Select";
-import { Switch } from "@/components/ui/Switch";
+} from '@/components/ui/Select';
+import { Switch } from '@/components/ui/Switch';
 
 export function NotificationSettings() {
-  const [permission, setPermission] = useState<NotificationPermission>("default");
+  const [permission, setPermission] = useState<NotificationPermission>('default');
   const [settings, setSettings] = useState({
     duaReminders: true,
     challengeReminders: true,
     prayerReminders: false,
-    reminderFrequency: "normal",
+    reminderFrequency: 'normal',
   });
 
   useEffect(() => {
-    if ("Notification" in window) {
+    if ('Notification' in window) {
       setPermission(Notification.permission);
     }
-    const stored = localStorage.getItem("notificationSettings");
+    const stored = localStorage.getItem('notificationSettings');
     if (stored) {
       setSettings(JSON.parse(stored));
     }
@@ -35,36 +35,36 @@ export function NotificationSettings() {
   const updateSettings = (key: string, value: any) => {
     const newSettings = { ...settings, [key]: value };
     setSettings(newSettings);
-    localStorage.setItem("notificationSettings", JSON.stringify(newSettings));
+    localStorage.setItem('notificationSettings', JSON.stringify(newSettings));
   };
 
   const handleEnableNotifications = async () => {
-    if ("Notification" in window) {
+    if ('Notification' in window) {
       const result = await Notification.requestPermission();
       setPermission(result);
-      if (result === "granted") {
-        toast.success("Notifications enabled successfully");
+      if (result === 'granted') {
+        toast.success('Notifications enabled successfully');
       }
     }
   };
 
   const handleTestNotification = () => {
-    if (permission === "granted") {
-      new Notification("Test Notification", {
-        body: "This is a test notification to verify everything is working!",
-        icon: "/icon.png",
+    if (permission === 'granted') {
+      new Notification('Test Notification', {
+        body: 'This is a test notification to verify everything is working!',
+        icon: '/icon.png',
       });
     }
   };
 
   const getPermissionStatus = () => {
     switch (permission) {
-      case "granted":
-        return { icon: Bell, text: "Notifications Enabled", color: "text-green-600" };
-      case "denied":
-        return { icon: BellOff, text: "Notifications Blocked", color: "text-red-600" };
+      case 'granted':
+        return { icon: Bell, text: 'Notifications Enabled', color: 'text-green-600' };
+      case 'denied':
+        return { icon: BellOff, text: 'Notifications Blocked', color: 'text-red-600' };
       default:
-        return { icon: BellOff, text: "Notifications Disabled", color: "text-gray-600" };
+        return { icon: BellOff, text: 'Notifications Disabled', color: 'text-gray-600' };
     }
   };
 
@@ -81,7 +81,7 @@ export function NotificationSettings() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          {permission !== "granted" && (
+          {permission !== 'granted' && (
             <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
               <p className="text-sm text-blue-800 mb-3">
                 Enable notifications to receive reminders for duas, challenges, and prayers.
@@ -106,8 +106,8 @@ export function NotificationSettings() {
               <Switch
                 id="dua-reminders"
                 checked={settings.duaReminders}
-                onCheckedChange={(checked) => updateSettings("duaReminders", checked)}
-                disabled={permission !== "granted"}
+                onCheckedChange={(checked) => updateSettings('duaReminders', checked)}
+                disabled={permission !== 'granted'}
               />
             </div>
 
@@ -124,8 +124,8 @@ export function NotificationSettings() {
               <Switch
                 id="challenge-reminders"
                 checked={settings.challengeReminders}
-                onCheckedChange={(checked) => updateSettings("challengeReminders", checked)}
-                disabled={permission !== "granted"}
+                onCheckedChange={(checked) => updateSettings('challengeReminders', checked)}
+                disabled={permission !== 'granted'}
               />
             </div>
 
@@ -141,8 +141,8 @@ export function NotificationSettings() {
               </div>
               <Select
                 value={settings.reminderFrequency}
-                onValueChange={(value) => updateSettings("reminderFrequency", value)}
-                disabled={permission !== "granted"}
+                onValueChange={(value) => updateSettings('reminderFrequency', value)}
+                disabled={permission !== 'granted'}
               >
                 <SelectTrigger className="w-32">
                   <SelectValue />
@@ -156,7 +156,7 @@ export function NotificationSettings() {
             </div>
           </div>
 
-          {permission === "granted" && (
+          {permission === 'granted' && (
             <div className="pt-4 border-t space-y-2">
               <div className="flex gap-2">
                 <Button onClick={handleEnableNotifications} variant="outline" size="sm">

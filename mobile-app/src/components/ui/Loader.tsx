@@ -1,13 +1,13 @@
-import { ActivityIndicator, StyleSheet, View } from "react-native";
-import { useTheme } from "@/hooks/useTheme";
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { useTheme } from '@/hooks/useTheme';
 
 interface LoaderProps {
-  size?: "small" | "large";
+  size?: 'small' | 'large';
   color?: string;
   fullScreen?: boolean;
 }
 
-export function Loader({ size = "large", color, fullScreen = false }: LoaderProps) {
+export function Loader({ size = 'large', color, fullScreen = false }: LoaderProps) {
   const { colors } = useTheme();
 
   if (fullScreen) {
@@ -33,7 +33,7 @@ export function FullPageLoader() {
 const styles = StyleSheet.create({
   fullScreen: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

@@ -1,13 +1,13 @@
-import { ArrowLeft } from "lucide-react";
-import { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import { toast } from "sonner";
-import { duasApi } from "@/api/duas.api";
-import { Button } from "@/components/ui/Button";
-import { Card, CardContent, CardHeader } from "@/components/ui/Card";
-import { Input } from "@/components/ui/Input";
-import { Label } from "@/components/ui/Label";
-import { Textarea } from "@/components/ui/Textarea";
+import { ArrowLeft } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { toast } from 'sonner';
+import { duasApi } from '@/api/duas.api';
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent, CardHeader } from '@/components/ui/Card';
+import { Input } from '@/components/ui/Input';
+import { Label } from '@/components/ui/Label';
+import { Textarea } from '@/components/ui/Textarea';
 
 interface DuaFormData {
   title_bn: string;
@@ -32,20 +32,20 @@ export default function DuaEditPage() {
   const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState<DuaFormData>({
-    title_bn: "",
-    title_ar: "",
-    title_en: "",
-    dua_text_ar: "",
-    transliteration: "",
-    translation_bn: "",
-    translation_en: "",
-    category: "",
-    source: "",
-    reference: "",
-    benefits: "",
+    title_bn: '',
+    title_ar: '',
+    title_en: '',
+    dua_text_ar: '',
+    transliteration: '',
+    translation_bn: '',
+    translation_en: '',
+    category: '',
+    source: '',
+    reference: '',
+    benefits: '',
     tags: [],
     is_important: false,
-    audio_url: "",
+    audio_url: '',
   });
 
   useEffect(() => {
@@ -55,24 +55,24 @@ export default function DuaEditPage() {
       try {
         const dua = await duasApi.getById(id);
         setFormData({
-          title_bn: dua?.title_bn || "",
-          title_ar: dua?.title_ar || "",
-          title_en: dua?.title_en || "",
-          dua_text_ar: dua?.dua_text_ar || "",
-          transliteration: dua?.transliteration || "",
-          translation_bn: dua?.translation_bn || "",
-          translation_en: dua?.translation_en || "",
-          category: dua?.category || "",
-          source: dua?.source || "",
-          reference: dua?.reference || "",
-          benefits: dua?.benefits || "",
+          title_bn: dua?.title_bn || '',
+          title_ar: dua?.title_ar || '',
+          title_en: dua?.title_en || '',
+          dua_text_ar: dua?.dua_text_ar || '',
+          transliteration: dua?.transliteration || '',
+          translation_bn: dua?.translation_bn || '',
+          translation_en: dua?.translation_en || '',
+          category: dua?.category || '',
+          source: dua?.source || '',
+          reference: dua?.reference || '',
+          benefits: dua?.benefits || '',
           tags: dua?.tags || [],
           is_important: dua?.is_important || false,
-          audio_url: dua?.audio_url || "",
+          audio_url: dua?.audio_url || '',
         });
       } catch (_error) {
-        toast.error("Failed to load dua");
-        navigate("/duas");
+        toast.error('Failed to load dua');
+        navigate('/duas');
       }
     };
 
@@ -85,7 +85,7 @@ export default function DuaEditPage() {
 
   const handleTagsChange = (value: string) => {
     const tags = value
-      .split(",")
+      .split(',')
       .map((tag) => tag.trim())
       .filter(Boolean);
     setFormData((prev) => ({ ...prev, tags }));
@@ -97,10 +97,10 @@ export default function DuaEditPage() {
 
     try {
       await duasApi.update(id!, formData);
-      toast.success("Dua updated successfully");
+      toast.success('Dua updated successfully');
       navigate(`/duas/${id}`);
     } catch (error: any) {
-      toast.error(error.message || "Failed to update dua");
+      toast.error(error.message || 'Failed to update dua');
     } finally {
       setLoading(false);
     }
@@ -130,7 +130,7 @@ export default function DuaEditPage() {
                 <Input
                   id="title_bn"
                   value={formData.title_bn}
-                  onChange={(e) => handleInputChange("title_bn", e.target.value)}
+                  onChange={(e) => handleInputChange('title_bn', e.target.value)}
                   required
                 />
               </div>
@@ -139,7 +139,7 @@ export default function DuaEditPage() {
                 <Input
                   id="title_ar"
                   value={formData.title_ar}
-                  onChange={(e) => handleInputChange("title_ar", e.target.value)}
+                  onChange={(e) => handleInputChange('title_ar', e.target.value)}
                 />
               </div>
               <div>
@@ -147,7 +147,7 @@ export default function DuaEditPage() {
                 <Input
                   id="title_en"
                   value={formData.title_en}
-                  onChange={(e) => handleInputChange("title_en", e.target.value)}
+                  onChange={(e) => handleInputChange('title_en', e.target.value)}
                 />
               </div>
             </div>
@@ -157,7 +157,7 @@ export default function DuaEditPage() {
               <Textarea
                 id="dua_text_ar"
                 value={formData.dua_text_ar}
-                onChange={(e) => handleInputChange("dua_text_ar", e.target.value)}
+                onChange={(e) => handleInputChange('dua_text_ar', e.target.value)}
                 rows={4}
                 required
               />
@@ -168,7 +168,7 @@ export default function DuaEditPage() {
               <Textarea
                 id="transliteration"
                 value={formData.transliteration}
-                onChange={(e) => handleInputChange("transliteration", e.target.value)}
+                onChange={(e) => handleInputChange('transliteration', e.target.value)}
                 rows={3}
               />
             </div>
@@ -185,7 +185,7 @@ export default function DuaEditPage() {
               <Textarea
                 id="translation_bn"
                 value={formData.translation_bn}
-                onChange={(e) => handleInputChange("translation_bn", e.target.value)}
+                onChange={(e) => handleInputChange('translation_bn', e.target.value)}
                 rows={3}
               />
             </div>
@@ -194,7 +194,7 @@ export default function DuaEditPage() {
               <Textarea
                 id="translation_en"
                 value={formData.translation_en}
-                onChange={(e) => handleInputChange("translation_en", e.target.value)}
+                onChange={(e) => handleInputChange('translation_en', e.target.value)}
                 rows={3}
               />
             </div>
@@ -212,7 +212,7 @@ export default function DuaEditPage() {
                 <Input
                   id="category"
                   value={formData.category}
-                  onChange={(e) => handleInputChange("category", e.target.value)}
+                  onChange={(e) => handleInputChange('category', e.target.value)}
                   required
                 />
               </div>
@@ -221,7 +221,7 @@ export default function DuaEditPage() {
                 <Input
                   id="source"
                   value={formData.source}
-                  onChange={(e) => handleInputChange("source", e.target.value)}
+                  onChange={(e) => handleInputChange('source', e.target.value)}
                 />
               </div>
               <div>
@@ -229,7 +229,7 @@ export default function DuaEditPage() {
                 <Input
                   id="reference"
                   value={formData.reference}
-                  onChange={(e) => handleInputChange("reference", e.target.value)}
+                  onChange={(e) => handleInputChange('reference', e.target.value)}
                 />
               </div>
             </div>
@@ -239,7 +239,7 @@ export default function DuaEditPage() {
               <Textarea
                 id="benefits"
                 value={formData.benefits}
-                onChange={(e) => handleInputChange("benefits", e.target.value)}
+                onChange={(e) => handleInputChange('benefits', e.target.value)}
                 rows={3}
               />
             </div>
@@ -248,7 +248,7 @@ export default function DuaEditPage() {
               <Label htmlFor="tags">Tags (comma separated)</Label>
               <Input
                 id="tags"
-                value={formData.tags.join(", ")}
+                value={formData.tags.join(', ')}
                 onChange={(e) => handleTagsChange(e.target.value)}
               />
             </div>
@@ -259,7 +259,7 @@ export default function DuaEditPage() {
                 <Input
                   id="audio_url"
                   value={formData.audio_url}
-                  onChange={(e) => handleInputChange("audio_url", e.target.value)}
+                  onChange={(e) => handleInputChange('audio_url', e.target.value)}
                 />
               </div>
               <div className="flex items-center space-x-2 pt-6">
@@ -267,7 +267,7 @@ export default function DuaEditPage() {
                   type="checkbox"
                   id="is_important"
                   checked={formData.is_important}
-                  onChange={(e) => handleInputChange("is_important", e.target.checked)}
+                  onChange={(e) => handleInputChange('is_important', e.target.checked)}
                 />
                 <Label htmlFor="is_important">Important Dua</Label>
               </div>
@@ -280,7 +280,7 @@ export default function DuaEditPage() {
             Cancel
           </Button>
           <Button type="submit" disabled={loading}>
-            {loading ? "Updating..." : "Update Dua"}
+            {loading ? 'Updating...' : 'Update Dua'}
           </Button>
         </div>
       </form>

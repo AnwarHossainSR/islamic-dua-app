@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { adminApi } from "@/api/admin.api";
+import { useEffect, useState } from 'react';
+import { adminApi } from '@/api/admin.api';
 
 export default function UsersPage() {
   const [users, setUsers] = useState<any[]>([]);
@@ -48,10 +48,10 @@ export default function UsersPage() {
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span
                     className={`px-2 py-1 rounded text-xs ${
-                      user.is_active ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                      user.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                     }`}
                   >
-                    {user.is_active ? "Active" : "Inactive"}
+                    {user.is_active ? 'Active' : 'Inactive'}
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

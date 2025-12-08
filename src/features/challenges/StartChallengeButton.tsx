@@ -1,6 +1,6 @@
-import { useActionState } from "react";
-import { challengesApi } from "@/api";
-import { Button } from "@/components/ui";
+import { useActionState } from 'react';
+import { challengesApi } from '@/api';
+import { Button } from '@/components/ui';
 
 interface StartChallengeButtonProps {
   challengeId: string;
@@ -10,8 +10,8 @@ interface StartChallengeButtonProps {
 
 async function startAction(_: any, formData: FormData) {
   try {
-    const challengeId = formData.get("challengeId") as string;
-    const userId = formData.get("userId") as string;
+    const challengeId = formData.get('challengeId') as string;
+    const userId = formData.get('userId') as string;
     await challengesApi.start(challengeId, userId);
     return { success: true };
   } catch (error: any) {
@@ -36,7 +36,7 @@ export function StartChallengeButton({
       <input type="hidden" name="userId" value={userId} />
       {state?.error && <p className="text-red-600 mb-4">{state.error}</p>}
       <Button type="submit" disabled={isPending} size="lg" className="w-full">
-        {isPending ? "Starting..." : "Start Challenge"}
+        {isPending ? 'Starting...' : 'Start Challenge'}
       </Button>
     </form>
   );

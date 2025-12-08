@@ -1,18 +1,18 @@
-import { FileJson, Upload } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
-import { Button } from "@/components/ui/Button";
-import { Card, CardContent, CardHeader } from "@/components/ui/Card";
-import { Input } from "@/components/ui/Input";
-import { Label } from "@/components/ui/Label";
-import { Textarea } from "@/components/ui/Textarea";
+import { FileJson, Upload } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent, CardHeader } from '@/components/ui/Card';
+import { Input } from '@/components/ui/Input';
+import { Label } from '@/components/ui/Label';
+import { Textarea } from '@/components/ui/Textarea';
 
 export default function JsonImportClient() {
-  const [jsonInput, setJsonInput] = useState("");
+  const [jsonInput, setJsonInput] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    fetch("/data/challenge-json-format.json")
+    fetch('/data/challenge-json-format.json')
       .then((res) => res.json())
       .then((data) => setJsonInput(JSON.stringify(data, null, 2)))
       .catch(() => {});
@@ -26,26 +26,26 @@ export default function JsonImportClient() {
       Object.keys(parsed).forEach((key) => {
         const element = document.getElementById(key) as HTMLInputElement | HTMLTextAreaElement;
         if (element) {
-          if (element.tagName === "INPUT" || element.tagName === "TEXTAREA") {
-            element.value = String(parsed[key] || "");
-            const event = new Event("input", { bubbles: true });
+          if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
+            element.value = String(parsed[key] || '');
+            const event = new Event('input', { bubbles: true });
             element.dispatchEvent(event);
           }
         }
 
-        if (key === "is_featured" || key === "is_active") {
+        if (key === 'is_featured' || key === 'is_active') {
           const checkbox = document.getElementById(key) as HTMLInputElement;
           if (checkbox) {
             checkbox.checked = Boolean(parsed[key]);
-            const event = new Event("change", { bubbles: true });
+            const event = new Event('change', { bubbles: true });
             checkbox.dispatchEvent(event);
           }
         }
       });
 
-      toast.success("JSON data loaded successfully! ✅");
+      toast.success('JSON data loaded successfully! ✅');
     } catch (_error) {
-      toast.error("Invalid JSON format. Please check and try again. ❌");
+      toast.error('Invalid JSON format. Please check and try again. ❌');
     }
   };
 
@@ -65,27 +65,27 @@ export default function JsonImportClient() {
                 | HTMLInputElement
                 | HTMLTextAreaElement;
               if (element) {
-                if (element.tagName === "INPUT" || element.tagName === "TEXTAREA") {
-                  element.value = String(parsed[key] || "");
-                  const event = new Event("input", { bubbles: true });
+                if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
+                  element.value = String(parsed[key] || '');
+                  const event = new Event('input', { bubbles: true });
                   element.dispatchEvent(event);
                 }
               }
 
-              if (key === "is_featured" || key === "is_active") {
+              if (key === 'is_featured' || key === 'is_active') {
                 const checkbox = document.getElementById(key) as HTMLInputElement;
                 if (checkbox) {
                   checkbox.checked = Boolean(parsed[key]);
-                  const event = new Event("change", { bubbles: true });
+                  const event = new Event('change', { bubbles: true });
                   checkbox.dispatchEvent(event);
                 }
               }
             });
 
-            toast.success("JSON file loaded successfully! ✅");
+            toast.success('JSON file loaded successfully! ✅');
           }, 100);
         } catch (_error) {
-          toast.error("Invalid JSON file. Please check and try again. ❌");
+          toast.error('Invalid JSON file. Please check and try again. ❌');
         }
       };
       reader.readAsText(file);

@@ -1,8 +1,8 @@
-import { Eye, EyeOff } from "lucide-react";
-import { useActionState, useState } from "react";
-import { Link } from "react-router-dom";
-import { toast } from "sonner";
-import { authApi } from "@/api";
+import { Eye, EyeOff } from 'lucide-react';
+import { useActionState, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { toast } from 'sonner';
+import { authApi } from '@/api';
 import {
   Button,
   Card,
@@ -11,17 +11,17 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui";
-import { ROUTES } from "@/config/routes";
-import { cn } from "@/lib/utils/cn";
-import { BiometricLogin } from "./BiometricLogin";
+} from '@/components/ui';
+import { ROUTES } from '@/config/routes';
+import { cn } from '@/lib/utils/cn';
+import { BiometricLogin } from './BiometricLogin';
 
 async function loginAction(_: any, formData: FormData) {
   try {
-    const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
     await authApi.signIn(email, password);
-    toast.success("Signed in successfully!");
+    toast.success('Signed in successfully!');
     return { success: true };
   } catch (error: any) {
     return { error: error.message };
@@ -57,8 +57,8 @@ export function LoginForm() {
               placeholder="your@email.com"
               required
               className={cn(
-                "block w-full px-3 py-2 border border-input rounded-md bg-background",
-                "focus:outline-none focus:ring-2 focus:ring-ring"
+                'block w-full px-3 py-2 border border-input rounded-md bg-background',
+                'focus:outline-none focus:ring-2 focus:ring-ring'
               )}
             />
           </div>
@@ -71,12 +71,12 @@ export function LoginForm() {
               <input
                 id="password"
                 name="password"
-                type={showPassword ? "text" : "password"}
+                type={showPassword ? 'text' : 'password'}
                 placeholder="••••••••"
                 required
                 className={cn(
-                  "block w-full px-3 py-2 pr-10 border border-input rounded-md bg-background",
-                  "focus:outline-none focus:ring-2 focus:ring-ring"
+                  'block w-full px-3 py-2 pr-10 border border-input rounded-md bg-background',
+                  'focus:outline-none focus:ring-2 focus:ring-ring'
                 )}
               />
               <button
@@ -91,7 +91,7 @@ export function LoginForm() {
         </CardContent>
         <CardFooter className="flex flex-col gap-4">
           <Button type="submit" disabled={isPending} className="w-full">
-            {isPending ? "Signing in..." : "Sign In"}
+            {isPending ? 'Signing in...' : 'Sign In'}
           </Button>
 
           <div className="relative">
@@ -105,11 +105,11 @@ export function LoginForm() {
 
           <BiometricLogin
             onError={(error) => toast.error(error)}
-            onSuccess={() => toast.success("Signed in successfully!")}
+            onSuccess={() => toast.success('Signed in successfully!')}
           />
 
           <p className="text-center text-sm text-muted-foreground">
-            Don't have an account?{" "}
+            Don't have an account?{' '}
             <Link to={ROUTES.SIGNUP} className="text-primary hover:underline">
               Sign up
             </Link>

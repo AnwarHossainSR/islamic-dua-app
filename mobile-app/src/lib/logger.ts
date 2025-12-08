@@ -4,17 +4,17 @@
 export const apiLogger = {
   info: (message: string, data?: object) => {
     if (__DEV__) {
-      console.log(`[API INFO] ${message}`, data || "");
+      console.log(`[API INFO] ${message}`, data || '');
     }
   },
   error: (message: string, data?: object) => {
     if (__DEV__) {
-      console.error(`[API ERROR] ${message}`, data || "");
+      console.error(`[API ERROR] ${message}`, data || '');
     }
   },
   warn: (message: string, data?: object) => {
     if (__DEV__) {
-      console.warn(`[API WARN] ${message}`, data || "");
+      console.warn(`[API WARN] ${message}`, data || '');
     }
   },
 };

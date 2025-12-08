@@ -1,11 +1,11 @@
-import { useRoute } from "@react-navigation/native";
-import { Book, Info, Star } from "lucide-react-native";
-import { useEffect, useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
-import { duasApi } from "@/api/duas.api";
-import { Badge, Card, CardContent, CardHeader, CardTitle, Loader } from "@/components/ui";
-import { useTheme } from "@/hooks/useTheme";
-import type { Dua } from "@/types";
+import { useRoute } from '@react-navigation/native';
+import { Book, Info, Star } from 'lucide-react-native';
+import { useEffect, useState } from 'react';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { duasApi } from '@/api/duas.api';
+import { Badge, Card, CardContent, CardHeader, CardTitle, Loader } from '@/components/ui';
+import { useTheme } from '@/hooks/useTheme';
+import type { Dua } from '@/types';
 
 export default function DuaDetailScreen() {
   const route = useRoute<any>();
@@ -24,7 +24,7 @@ export default function DuaDetailScreen() {
       const data = await duasApi.getById(duaId);
       setDua(data);
     } catch (error) {
-      console.error("Error loading dua:", error);
+      console.error('Error loading dua:', error);
     } finally {
       setLoading(false);
     }
@@ -162,8 +162,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   center: {
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   content: {
     padding: 16,
@@ -171,23 +171,23 @@ const styles = StyleSheet.create({
     paddingBottom: 32,
   },
   headerRow: {
-    flexDirection: "row",
-    alignItems: "flex-start",
+    flexDirection: 'row',
+    alignItems: 'flex-start',
     gap: 16,
   },
   iconContainer: {
     width: 48,
     height: 48,
     borderRadius: 12,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   headerInfo: {
     flex: 1,
   },
   titleRow: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 8,
   },
   title: {
@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   categoryBadge: {
-    alignSelf: "flex-start",
+    alignSelf: 'flex-start',
     marginTop: 8,
   },
   sectionTitle: {
@@ -212,13 +212,13 @@ const styles = StyleSheet.create({
   arabicText: {
     fontSize: 26,
     lineHeight: 48,
-    textAlign: "right",
-    fontFamily: "System",
+    textAlign: 'right',
+    fontFamily: 'System',
   },
   transliteration: {
     fontSize: 15,
     lineHeight: 24,
-    fontStyle: "italic",
+    fontStyle: 'italic',
   },
   translation: {
     fontSize: 15,
@@ -229,8 +229,8 @@ const styles = StyleSheet.create({
     lineHeight: 24,
   },
   refHeaderRow: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 8,
   },
   refText: {

@@ -1,14 +1,14 @@
-import { useNavigation, useRoute } from "@react-navigation/native";
-import { BookOpen, Calendar, Clock, Play, Star, Target, Trophy, Users } from "lucide-react-native";
-import { useEffect, useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import Toast from "react-native-toast-message";
-import { challengesApi } from "@/api/challenges.api";
-import { Badge, Button, Card, CardContent, CardHeader, CardTitle, Loader } from "@/components/ui";
-import { ROUTES } from "@/config/routes";
-import { useAuth } from "@/hooks/useAuth";
-import { useTheme } from "@/hooks/useTheme";
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { BookOpen, Calendar, Clock, Play, Star, Target, Trophy, Users } from 'lucide-react-native';
+import { useEffect, useState } from 'react';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import Toast from 'react-native-toast-message';
+import { challengesApi } from '@/api/challenges.api';
+import { Badge, Button, Card, CardContent, CardHeader, CardTitle, Loader } from '@/components/ui';
+import { ROUTES } from '@/config/routes';
+import { useAuth } from '@/hooks/useAuth';
+import { useTheme } from '@/hooks/useTheme';
 
 export default function ChallengePreviewScreen() {
   const route = useRoute<any>();
@@ -40,11 +40,11 @@ export default function ChallengePreviewScreen() {
         }
       }
     } catch (error) {
-      console.error("Error loading challenge:", error);
+      console.error('Error loading challenge:', error);
       Toast.show({
-        type: "error",
-        text1: "Error",
-        text2: "Failed to load challenge",
+        type: 'error',
+        text1: 'Error',
+        text2: 'Failed to load challenge',
       });
     } finally {
       setLoading(false);
@@ -59,9 +59,9 @@ export default function ChallengePreviewScreen() {
       const result = await challengesApi.start(user.id, challengeId);
       if (result.data) {
         Toast.show({
-          type: "success",
-          text1: "Challenge Started!",
-          text2: "Good luck on your journey.",
+          type: 'success',
+          text1: 'Challenge Started!',
+          text2: 'Good luck on your journey.',
         });
         navigation.navigate(ROUTES.CHALLENGE_PROGRESS, {
           progressId: result.data.id,
@@ -69,9 +69,9 @@ export default function ChallengePreviewScreen() {
       }
     } catch (error: any) {
       Toast.show({
-        type: "error",
-        text1: "Error",
-        text2: error.message || "Failed to start challenge",
+        type: 'error',
+        text1: 'Error',
+        text2: error.message || 'Failed to start challenge',
       });
     } finally {
       setStarting(false);
@@ -102,18 +102,18 @@ export default function ChallengePreviewScreen() {
 
   const timeLabel =
     challenge.recommended_time
-      ?.replace(/_/g, " ")
-      .replace(/\b\w/g, (l: string) => l.toUpperCase()) || "";
+      ?.replace(/_/g, ' ')
+      .replace(/\b\w/g, (l: string) => l.toUpperCase()) || '';
   const prayerLabel =
-    (challenge.recommended_prayer?.charAt(0).toUpperCase() || "") +
-    (challenge.recommended_prayer?.slice(1) || "");
+    (challenge.recommended_prayer?.charAt(0).toUpperCase() || '') +
+    (challenge.recommended_prayer?.slice(1) || '');
 
   const getDifficultyColor = () => {
     switch (challenge.difficulty_level) {
-      case "easy":
-        return "#22c55e";
-      case "hard":
-        return "#ef4444";
+      case 'easy':
+        return '#22c55e';
+      case 'hard':
+        return '#ef4444';
       default:
         return colors.primary;
     }
@@ -122,7 +122,7 @@ export default function ChallengePreviewScreen() {
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.background }]}
-      edges={["bottom"]}
+      edges={['bottom']}
     >
       <ScrollView
         style={styles.scrollView}
@@ -131,7 +131,7 @@ export default function ChallengePreviewScreen() {
       >
         {/* Header with Challenge Info */}
         <View style={styles.header}>
-          <Text style={styles.icon}>{challenge.icon || "📿"}</Text>
+          <Text style={styles.icon}>{challenge.icon || '📿'}</Text>
           <View style={styles.headerContent}>
             <View style={styles.titleInfo}>
               <Text style={[styles.title, { color: colors.foreground }]}>{challenge.title_bn}</Text>
@@ -143,7 +143,7 @@ export default function ChallengePreviewScreen() {
             </View>
             <Badge style={[styles.difficultyBadge, { backgroundColor: getDifficultyColor() }]}>
               <Text style={styles.badgeText}>
-                {challenge.difficulty_level?.toUpperCase() || "MEDIUM"}
+                {challenge.difficulty_level?.toUpperCase() || 'MEDIUM'}
               </Text>
             </Badge>
           </View>
@@ -223,7 +223,7 @@ export default function ChallengePreviewScreen() {
               <View
                 style={[
                   styles.arabicBox,
-                  { borderColor: "#22c55e40", backgroundColor: "#22c55e10" },
+                  { borderColor: '#22c55e40', backgroundColor: '#22c55e10' },
                 ]}
               >
                 <Text style={[styles.arabicText, { color: colors.foreground }]}>
@@ -292,8 +292,8 @@ export default function ChallengePreviewScreen() {
               {[
                 `Start the challenge and read this dhikr ${challenge.daily_target_count} times daily`,
                 `Complete for ${challenge.total_days} consecutive days`,
-                "Track progress and build streaks",
-                "Complete and experience the benefits!",
+                'Track progress and build streaks',
+                'Complete and experience the benefits!',
               ].map((step, index) => (
                 <View key={index} style={styles.stepRow}>
                   <View style={[styles.stepNumber, { backgroundColor: colors.primary }]}>
@@ -316,7 +316,7 @@ export default function ChallengePreviewScreen() {
         <View style={styles.actionBarContent}>
           <View>
             <Text style={[styles.actionTitle, { color: colors.foreground }]}>
-              {hasActiveChallenge ? "Continue Your Challenge" : "Ready to begin?"}
+              {hasActiveChallenge ? 'Continue Your Challenge' : 'Ready to begin?'}
             </Text>
             <Text style={[styles.actionSubtitle, { color: colors.mutedForeground }]}>
               {challenge.total_days} days • {challenge.daily_target_count}x per day
@@ -334,7 +334,7 @@ export default function ChallengePreviewScreen() {
             <Button
               onPress={handleStartChallenge}
               loading={starting}
-              style={[styles.actionButton, { backgroundColor: "#22c55e" }]}
+              style={[styles.actionButton, { backgroundColor: '#22c55e' }]}
             >
               <Play color="#fff" size={16} />
               <Text style={styles.actionButtonText}>Start</Text>
@@ -359,19 +359,19 @@ const styles = StyleSheet.create({
   },
   center: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   header: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 12,
   },
   headerContent: {
     flex: 1,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
   },
   icon: {
     fontSize: 32,
@@ -381,7 +381,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 18,
-    fontWeight: "700",
+    fontWeight: '700',
   },
   arabicTitle: {
     fontSize: 14,
@@ -393,28 +393,28 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   badgeText: {
-    color: "#fff",
+    color: '#fff',
     fontSize: 10,
-    fontWeight: "700",
+    fontWeight: '700',
   },
   statsRow: {
-    flexDirection: "row",
+    flexDirection: 'row',
     gap: 8,
   },
   statCard: {
     flex: 1,
     padding: 12,
     borderRadius: 12,
-    alignItems: "center",
+    alignItems: 'center',
     gap: 4,
   },
   statValue: {
     fontSize: 16,
-    fontWeight: "700",
+    fontWeight: '700',
   },
   statLabel: {
     fontSize: 9,
-    textAlign: "center",
+    textAlign: 'center',
   },
   description: {
     fontSize: 15,
@@ -424,18 +424,18 @@ const styles = StyleSheet.create({
     marginTop: 16,
     padding: 12,
     borderRadius: 12,
-    flexDirection: "row",
-    flexWrap: "wrap",
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: 16,
   },
   recommendItem: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 8,
   },
   recommendText: {
     fontSize: 13,
-    fontWeight: "500",
+    fontWeight: '500',
   },
   dhikrContent: {
     gap: 16,
@@ -448,58 +448,58 @@ const styles = StyleSheet.create({
   arabicText: {
     fontSize: 24,
     lineHeight: 44,
-    textAlign: "center",
+    textAlign: 'center',
   },
   section: {
     gap: 6,
   },
   sectionLabel: {
     fontSize: 13,
-    fontWeight: "600",
+    fontWeight: '600',
   },
   sectionText: {
     fontSize: 15,
     lineHeight: 24,
   },
   referenceBox: {
-    flexDirection: "row",
-    alignItems: "flex-start",
+    flexDirection: 'row',
+    alignItems: 'flex-start',
     gap: 12,
     padding: 16,
     borderRadius: 12,
   },
   referenceLabel: {
     fontSize: 13,
-    fontWeight: "600",
+    fontWeight: '600',
   },
   referenceText: {
     fontSize: 13,
     marginTop: 2,
   },
   fazilatHeader: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 8,
   },
   steps: {
     gap: 12,
   },
   stepRow: {
-    flexDirection: "row",
-    alignItems: "flex-start",
+    flexDirection: 'row',
+    alignItems: 'flex-start',
     gap: 12,
   },
   stepNumber: {
     width: 24,
     height: 24,
     borderRadius: 12,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   stepNumberText: {
-    color: "#fff",
+    color: '#fff',
     fontSize: 12,
-    fontWeight: "700",
+    fontWeight: '700',
   },
   stepText: {
     flex: 1,
@@ -507,7 +507,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   actionBar: {
-    position: "absolute",
+    position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
@@ -516,26 +516,26 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   actionBarContent: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   actionTitle: {
     fontSize: 15,
-    fontWeight: "600",
+    fontWeight: '600',
   },
   actionSubtitle: {
     fontSize: 12,
     marginTop: 2,
   },
   actionButton: {
-    flexDirection: "row",
+    flexDirection: 'row',
     gap: 8,
     paddingHorizontal: 20,
   },
   actionButtonText: {
-    color: "#fff",
+    color: '#fff',
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: '600',
   },
 });

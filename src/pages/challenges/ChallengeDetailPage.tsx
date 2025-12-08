@@ -1,10 +1,10 @@
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { challengesApi } from '@/api';
 import { Button, Loader } from '@/components/ui';
 import { ROUTES } from '@/config/routes';
 import { StartChallengeButton } from '@/features/challenges/StartChallengeButton';
 import { useAuth } from '@/hooks/useAuth';
-import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
 
 export default function ChallengeDetailPage() {
   const { id } = useParams();

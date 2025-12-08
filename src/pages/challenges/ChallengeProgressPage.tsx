@@ -1,3 +1,20 @@
+import {
+  ArrowLeft,
+  Calendar as CalendarIcon,
+  Check,
+  CheckCircle2,
+  Edit3,
+  Flame,
+  Maximize2,
+  Minimize2,
+  RotateCcw,
+  Target,
+  Trophy,
+} from 'lucide-react';
+import { Activity, useCallback, useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { toast } from 'sonner';
 import { challengesApi } from '@/api/challenges.api';
 import { ChallengeCalendar } from '@/components/ChallengeCalendar';
 import { Loader } from '@/components/ui';
@@ -19,23 +36,6 @@ import { useDebounce } from '@/hooks/use-debounce';
 import { useAuth } from '@/hooks/useAuth';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { cn } from '@/lib/utils/cn';
-import {
-  ArrowLeft,
-  Calendar as CalendarIcon,
-  Check,
-  CheckCircle2,
-  Edit3,
-  Flame,
-  Maximize2,
-  Minimize2,
-  RotateCcw,
-  Target,
-  Trophy,
-} from 'lucide-react';
-import { Activity, useCallback, useEffect, useMemo, useState } from 'react';
-import { createPortal } from 'react-dom';
-import { Link, useNavigate, useParams } from 'react-router-dom';
-import { toast } from 'sonner';
 
 export default function ChallengeProgressPage() {
   const { id } = useParams<{ id: string }>();

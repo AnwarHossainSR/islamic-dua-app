@@ -9,7 +9,7 @@ export interface Challenge {
   reference?: string;
   fazilat_bn?: string;
   icon?: string;
-  difficulty_level: "easy" | "medium" | "hard";
+  difficulty_level: 'easy' | 'medium' | 'hard';
   daily_target_count: number;
   total_days: number;
   recommended_time?: string;

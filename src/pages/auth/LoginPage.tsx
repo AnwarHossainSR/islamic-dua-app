@@ -1,8 +1,8 @@
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { ROUTES } from "@/config/routes";
-import { LoginForm } from "@/features/auth/LoginForm";
-import { useAuth } from "@/hooks/useAuth";
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ROUTES } from '@/config/routes';
+import { LoginForm } from '@/features/auth/LoginForm';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function LoginPage() {
   const { user } = useAuth();

@@ -1,5 +1,5 @@
-import { StyleSheet, View } from "react-native";
-import { useTheme } from "@/hooks/useTheme";
+import { StyleSheet, View } from 'react-native';
+import { useTheme } from '@/hooks/useTheme';
 
 interface ProgressProps {
   value: number;
@@ -36,12 +36,12 @@ export function Progress({ value, max = 100, height = 8 }: ProgressProps) {
 
 const styles = StyleSheet.create({
   container: {
-    width: "100%",
+    width: '100%',
     borderRadius: 9999,
-    overflow: "hidden",
+    overflow: 'hidden',
   },
   progress: {
-    height: "100%",
+    height: '100%',
     borderRadius: 9999,
   },
 });

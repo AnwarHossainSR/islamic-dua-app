@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase/client";
+import { supabase } from '@/lib/supabase/client';
 
 export const activityApi = {
   getUserRecentLogs: async (limit: number = 10) => {
@@ -8,7 +8,7 @@ export const activityApi = {
     if (!user) return [];
 
     const { data, error } = await supabase
-      .from("user_challenge_daily_logs")
+      .from('user_challenge_daily_logs')
       .select(`
         id,
         day_number,
@@ -23,8 +23,8 @@ export const activityApi = {
           )
         )
       `)
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false })
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
       .limit(limit);
 
     if (error) throw error;

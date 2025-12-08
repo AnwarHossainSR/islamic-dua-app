@@ -1,13 +1,13 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
-import { duasApi } from "@/api/duas.api";
-import { Button } from "@/components/ui/Button";
-import { Card, CardContent, CardHeader } from "@/components/ui/Card";
-import { Input } from "@/components/ui/Input";
-import { Label } from "@/components/ui/Label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/Tabs";
-import { Textarea } from "@/components/ui/Textarea";
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
+import { duasApi } from '@/api/duas.api';
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent, CardHeader } from '@/components/ui/Card';
+import { Input } from '@/components/ui/Input';
+import { Label } from '@/components/ui/Label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
+import { Textarea } from '@/components/ui/Textarea';
 
 interface DuaFormData {
   title_bn: string;
@@ -29,23 +29,23 @@ interface DuaFormData {
 export default function DuaAddPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [jsonInput, setJsonInput] = useState("");
+  const [jsonInput, setJsonInput] = useState('');
 
   const [formData, setFormData] = useState<DuaFormData>({
-    title_bn: "",
-    title_ar: "",
-    title_en: "",
-    dua_text_ar: "",
-    transliteration: "",
-    translation_bn: "",
-    translation_en: "",
-    category: "",
-    source: "",
-    reference: "",
-    benefits: "",
+    title_bn: '',
+    title_ar: '',
+    title_en: '',
+    dua_text_ar: '',
+    transliteration: '',
+    translation_bn: '',
+    translation_en: '',
+    category: '',
+    source: '',
+    reference: '',
+    benefits: '',
     tags: [],
     is_important: false,
-    audio_url: "",
+    audio_url: '',
   });
 
   const handleInputChange = (field: keyof DuaFormData, value: any) => {
@@ -54,7 +54,7 @@ export default function DuaAddPage() {
 
   const handleTagsChange = (value: string) => {
     const tags = value
-      .split(",")
+      .split(',')
       .map((tag) => tag.trim())
       .filter(Boolean);
     setFormData((prev) => ({ ...prev, tags }));
@@ -64,24 +64,24 @@ export default function DuaAddPage() {
     try {
       const parsed = JSON.parse(jsonInput);
       setFormData({
-        title_bn: parsed.title_bn || "",
-        title_ar: parsed.title_ar || "",
-        title_en: parsed.title_en || "",
-        dua_text_ar: parsed.dua_text_ar || parsed.arabic_text || "",
-        transliteration: parsed.transliteration || "",
-        translation_bn: parsed.translation_bn || "",
-        translation_en: parsed.translation_en || "",
-        category: parsed.category || "",
-        source: parsed.source || "",
-        reference: parsed.reference || "",
-        benefits: parsed.benefits || "",
+        title_bn: parsed.title_bn || '',
+        title_ar: parsed.title_ar || '',
+        title_en: parsed.title_en || '',
+        dua_text_ar: parsed.dua_text_ar || parsed.arabic_text || '',
+        transliteration: parsed.transliteration || '',
+        translation_bn: parsed.translation_bn || '',
+        translation_en: parsed.translation_en || '',
+        category: parsed.category || '',
+        source: parsed.source || '',
+        reference: parsed.reference || '',
+        benefits: parsed.benefits || '',
         tags: parsed.tags || [],
         is_important: parsed.is_important || parsed.is_featured || false,
-        audio_url: parsed.audio_url || "",
+        audio_url: parsed.audio_url || '',
       });
-      toast.success("Data has been loaded from JSON input");
+      toast.success('Data has been loaded from JSON input');
     } catch (_error) {
-      toast.error("Invalid JSON: Please provide valid JSON data");
+      toast.error('Invalid JSON: Please provide valid JSON data');
     }
   };
 
@@ -91,10 +91,10 @@ export default function DuaAddPage() {
 
     try {
       await duasApi.create({ ...formData, is_active: true });
-      toast.success("The new dua has been created successfully");
-      navigate("/duas");
+      toast.success('The new dua has been created successfully');
+      navigate('/duas');
     } catch (error: any) {
-      toast.error(error.message || "Failed to create dua");
+      toast.error(error.message || 'Failed to create dua');
     } finally {
       setLoading(false);
     }
@@ -145,7 +145,7 @@ export default function DuaAddPage() {
                     <Input
                       id="title_bn"
                       value={formData.title_bn}
-                      onChange={(e) => handleInputChange("title_bn", e.target.value)}
+                      onChange={(e) => handleInputChange('title_bn', e.target.value)}
                       required
                     />
                   </div>
@@ -154,7 +154,7 @@ export default function DuaAddPage() {
                     <Input
                       id="title_ar"
                       value={formData.title_ar}
-                      onChange={(e) => handleInputChange("title_ar", e.target.value)}
+                      onChange={(e) => handleInputChange('title_ar', e.target.value)}
                     />
                   </div>
                   <div>
@@ -162,7 +162,7 @@ export default function DuaAddPage() {
                     <Input
                       id="title_en"
                       value={formData.title_en}
-                      onChange={(e) => handleInputChange("title_en", e.target.value)}
+                      onChange={(e) => handleInputChange('title_en', e.target.value)}
                     />
                   </div>
                 </div>
@@ -172,7 +172,7 @@ export default function DuaAddPage() {
                   <Textarea
                     id="dua_text_ar"
                     value={formData.dua_text_ar}
-                    onChange={(e) => handleInputChange("dua_text_ar", e.target.value)}
+                    onChange={(e) => handleInputChange('dua_text_ar', e.target.value)}
                     rows={4}
                     required
                   />
@@ -183,7 +183,7 @@ export default function DuaAddPage() {
                   <Textarea
                     id="transliteration"
                     value={formData.transliteration}
-                    onChange={(e) => handleInputChange("transliteration", e.target.value)}
+                    onChange={(e) => handleInputChange('transliteration', e.target.value)}
                     rows={3}
                   />
                 </div>
@@ -200,7 +200,7 @@ export default function DuaAddPage() {
                   <Textarea
                     id="translation_bn"
                     value={formData.translation_bn}
-                    onChange={(e) => handleInputChange("translation_bn", e.target.value)}
+                    onChange={(e) => handleInputChange('translation_bn', e.target.value)}
                     rows={3}
                   />
                 </div>
@@ -209,7 +209,7 @@ export default function DuaAddPage() {
                   <Textarea
                     id="translation_en"
                     value={formData.translation_en}
-                    onChange={(e) => handleInputChange("translation_en", e.target.value)}
+                    onChange={(e) => handleInputChange('translation_en', e.target.value)}
                     rows={3}
                   />
                 </div>
@@ -227,7 +227,7 @@ export default function DuaAddPage() {
                     <Input
                       id="category"
                       value={formData.category}
-                      onChange={(e) => handleInputChange("category", e.target.value)}
+                      onChange={(e) => handleInputChange('category', e.target.value)}
                       placeholder="e.g., morning, evening, prayer"
                       required
                     />
@@ -237,7 +237,7 @@ export default function DuaAddPage() {
                     <Input
                       id="source"
                       value={formData.source}
-                      onChange={(e) => handleInputChange("source", e.target.value)}
+                      onChange={(e) => handleInputChange('source', e.target.value)}
                       placeholder="e.g., Quran, Hadith"
                     />
                   </div>
@@ -246,7 +246,7 @@ export default function DuaAddPage() {
                     <Input
                       id="reference"
                       value={formData.reference}
-                      onChange={(e) => handleInputChange("reference", e.target.value)}
+                      onChange={(e) => handleInputChange('reference', e.target.value)}
                       placeholder="e.g., 2:255, Bukhari 123"
                     />
                   </div>
@@ -257,7 +257,7 @@ export default function DuaAddPage() {
                   <Textarea
                     id="benefits"
                     value={formData.benefits}
-                    onChange={(e) => handleInputChange("benefits", e.target.value)}
+                    onChange={(e) => handleInputChange('benefits', e.target.value)}
                     rows={3}
                     placeholder="Benefits of reciting this dua..."
                   />
@@ -267,7 +267,7 @@ export default function DuaAddPage() {
                   <Label htmlFor="tags">Tags (comma separated)</Label>
                   <Input
                     id="tags"
-                    value={formData.tags.join(", ")}
+                    value={formData.tags.join(', ')}
                     onChange={(e) => handleTagsChange(e.target.value)}
                     placeholder="protection, morning, daily"
                   />
@@ -279,7 +279,7 @@ export default function DuaAddPage() {
                     <Input
                       id="audio_url"
                       value={formData.audio_url}
-                      onChange={(e) => handleInputChange("audio_url", e.target.value)}
+                      onChange={(e) => handleInputChange('audio_url', e.target.value)}
                       placeholder="https://example.com/audio.mp3"
                     />
                   </div>
@@ -288,7 +288,7 @@ export default function DuaAddPage() {
                       type="checkbox"
                       id="is_important"
                       checked={formData.is_important}
-                      onChange={(e) => handleInputChange("is_important", e.target.checked)}
+                      onChange={(e) => handleInputChange('is_important', e.target.checked)}
                     />
                     <Label htmlFor="is_important">Important Dua</Label>
                   </div>
@@ -301,7 +301,7 @@ export default function DuaAddPage() {
                 Cancel
               </Button>
               <Button type="submit" disabled={loading}>
-                {loading ? "Creating..." : "Create Dua"}
+                {loading ? 'Creating...' : 'Create Dua'}
               </Button>
             </div>
           </form>

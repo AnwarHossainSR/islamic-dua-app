@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { adminApi } from "@/api/admin.api";
+import { useEffect, useState } from 'react';
+import { adminApi } from '@/api/admin.api';
 
 export default function PermissionsPage() {
   const [permissions, setPermissions] = useState<any[]>([]);

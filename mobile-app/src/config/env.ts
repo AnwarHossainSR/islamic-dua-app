@@ -3,22 +3,22 @@
 
 export const env = {
   supabase: {
-    url: process.env.EXPO_PUBLIC_SUPABASE_URL || "",
-    anonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || "",
+    url: process.env.EXPO_PUBLIC_SUPABASE_URL || '',
+    anonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || '',
   },
   openai: {
-    apiKey: process.env.EXPO_PUBLIC_OPENAI_API_KEY || "",
+    apiKey: process.env.EXPO_PUBLIC_OPENAI_API_KEY || '',
   },
 } as const;
 
 export const ENV = {
-  SUPABASE_URL: process.env.EXPO_PUBLIC_SUPABASE_URL || "",
-  SUPABASE_ANON_KEY: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || "",
-  OPENAI_API_KEY: process.env.EXPO_PUBLIC_OPENAI_API_KEY || "",
+  SUPABASE_URL: process.env.EXPO_PUBLIC_SUPABASE_URL || '',
+  SUPABASE_ANON_KEY: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || '',
+  OPENAI_API_KEY: process.env.EXPO_PUBLIC_OPENAI_API_KEY || '',
 } as const;
 
 export function validateEnv() {
   if (!env.supabase.url || !env.supabase.anonKey) {
-    console.warn("Missing required environment variables - check your .env file");
+    console.warn('Missing required environment variables - check your .env file');
   }
 }

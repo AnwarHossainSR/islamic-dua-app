@@ -1,8 +1,8 @@
-import { supabaseAdmin } from "@/lib/supabase/admin";
-import { supabase } from "@/lib/supabase/client";
-import type { Challenge, UserChallengeProgress } from "@/lib/types";
+import { supabaseAdmin } from '@/lib/supabase/admin';
+import { supabase } from '@/lib/supabase/client';
+import type { Challenge, UserChallengeProgress } from '@/lib/types';
 
-const { apiLogger } = await import("@/lib/logger");
+const { apiLogger } = await import('@/lib/logger');
 
 export const challengesApi = {
   getAll: async () => {
@@ -10,10 +10,10 @@ export const challengesApi = {
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
+      if (!user) throw new Error('Not authenticated');
 
       const { data, error } = await supabase
-        .from("challenge_templates")
+        .from('challenge_templates')
         .select(
           `
         *,
@@ -28,9 +28,9 @@ export const challengesApi = {
         )
       `
         )
-        .eq("is_active", true)
-        .eq("user_challenge_progress.user_id", user.id)
-        .order("display_order");
+        .eq('is_active', true)
+        .eq('user_challenge_progress.user_id', user.id)
+        .order('display_order');
 
       if (error) throw error;
 
@@ -46,7 +46,7 @@ export const challengesApi = {
 
         return {
           ...challenge,
-          user_status: progress?.status || "not_started",
+          user_status: progress?.status || 'not_started',
           progress_id: progress?.id,
           completed_at: progress?.completed_at,
           total_completed_days: progress?.total_completed_days || 0,
@@ -56,7 +56,7 @@ export const challengesApi = {
         };
       }) as Challenge[];
     } catch (error: any) {
-      apiLogger.error("Get challenges failed", { error: error.message });
+      apiLogger.error('Get challenges failed', { error: error.message });
       throw error;
     }
   },
@@ -64,15 +64,15 @@ export const challengesApi = {
   getById: async (id: string) => {
     try {
       const { data, error } = await supabase
-        .from("challenge_templates")
-        .select("*")
-        .eq("id", id)
+        .from('challenge_templates')
+        .select('*')
+        .eq('id', id)
         .single();
 
       if (error) throw error;
       return data as Challenge;
     } catch (error: any) {
-      apiLogger.error("Get challenge by ID failed", {
+      apiLogger.error('Get challenge by ID failed', {
         id,
         error: error.message,
       });
@@ -82,30 +82,30 @@ export const challengesApi = {
 
   checkActiveProgress: async (userId: string, challengeId: string) => {
     return supabase
-      .from("user_challenge_progress")
-      .select("id, status")
-      .eq("user_id", userId)
-      .eq("challenge_id", challengeId)
-      .in("status", ["active", "paused"])
+      .from('user_challenge_progress')
+      .select('id, status')
+      .eq('user_id', userId)
+      .eq('challenge_id', challengeId)
+      .in('status', ['active', 'paused'])
       .maybeSingle();
   },
 
   start: async (userId: string, challengeId: string) => {
     try {
       const { data, error } = await supabase
-        .from("user_challenge_progress")
+        .from('user_challenge_progress')
         .insert({
           user_id: userId,
           challenge_id: challengeId,
           current_day: 1,
-          status: "active",
+          status: 'active',
           current_streak: 0,
         })
         .select()
         .single();
 
       if (error) {
-        apiLogger.error("Start challenge failed", {
+        apiLogger.error('Start challenge failed', {
           userId,
           challengeId,
           error: error.message,
@@ -113,14 +113,14 @@ export const challengesApi = {
         return { data: null, error };
       }
 
-      await supabase.rpc("increment_challenge_participants", {
+      await supabase.rpc('increment_challenge_participants', {
         challenge_id: challengeId,
       });
-      apiLogger.info("Challenge started", { userId, challengeId });
+      apiLogger.info('Challenge started', { userId, challengeId });
 
       return { data: data as UserChallengeProgress, error: null };
     } catch (error: any) {
-      apiLogger.error("Start challenge exception", {
+      apiLogger.error('Start challenge exception', {
         userId,
         challengeId,
         error: error.message,
@@ -132,7 +132,7 @@ export const challengesApi = {
   getProgress: async (progressId: string) => {
     try {
       const { data, error } = await supabase
-        .from("user_challenge_progress")
+        .from('user_challenge_progress')
         .select(
           `
           *,
@@ -140,13 +140,13 @@ export const challengesApi = {
           daily_logs:user_challenge_daily_logs(*)
         `
         )
-        .eq("id", progressId)
+        .eq('id', progressId)
         .single();
 
       if (error) throw error;
       return data;
     } catch (error: any) {
-      apiLogger.error("Get progress failed", {
+      apiLogger.error('Get progress failed', {
         progressId,
         error: error.message,
       });
@@ -157,10 +157,10 @@ export const challengesApi = {
   restart: async (progressId: string, challengeId: string) => {
     try {
       const { error } = await supabase
-        .from("user_challenge_progress")
+        .from('user_challenge_progress')
         .update({
           current_day: 1,
-          status: "active",
+          status: 'active',
           current_streak: 0,
           longest_streak: 0,
           total_completed_days: 0,
@@ -169,29 +169,29 @@ export const challengesApi = {
           paused_at: null,
           last_completed_at: null,
         })
-        .eq("id", progressId);
+        .eq('id', progressId);
 
       if (error) throw error;
 
       // Clear existing daily logs
       await supabaseAdmin
-        .from("user_challenge_daily_logs")
+        .from('user_challenge_daily_logs')
         .delete()
-        .eq("user_progress_id", progressId);
+        .eq('user_progress_id', progressId);
       // Increment completions
       const { data: challenge } = await supabase
-        .from("challenge_templates")
-        .select("total_completions")
-        .eq("id", challengeId)
+        .from('challenge_templates')
+        .select('total_completions')
+        .eq('id', challengeId)
         .single();
 
       if (challenge) {
         await supabase
-          .from("challenge_templates")
+          .from('challenge_templates')
           .update({ total_completions: (challenge.total_completions || 0) + 1 })
-          .eq("id", challengeId);
+          .eq('id', challengeId);
       }
-      apiLogger.info("Challenge restarted", {
+      apiLogger.info('Challenge restarted', {
         progressId,
         challengeId,
         challenge,
@@ -199,7 +199,7 @@ export const challengesApi = {
 
       return { success: true };
     } catch (error: any) {
-      apiLogger.error("Restart challenge failed", {
+      apiLogger.error('Restart challenge failed', {
         progressId,
         challengeId,
         error: error.message,
@@ -211,16 +211,16 @@ export const challengesApi = {
   create: async (data: any) => {
     try {
       const { data: result, error } = await supabase
-        .from("challenge_templates")
+        .from('challenge_templates')
         .insert(data)
         .select()
         .single();
 
       if (error) throw error;
-      apiLogger.info("Challenge created", { challengeId: result.id });
+      apiLogger.info('Challenge created', { challengeId: result.id });
       return result;
     } catch (error: any) {
-      apiLogger.error("Create challenge failed", { error: error.message });
+      apiLogger.error('Create challenge failed', { error: error.message });
       throw error;
     }
   },
@@ -228,17 +228,17 @@ export const challengesApi = {
   update: async (id: string, data: any) => {
     try {
       const { data: result, error } = await supabase
-        .from("challenge_templates")
+        .from('challenge_templates')
         .update(data)
-        .eq("id", id)
+        .eq('id', id)
         .select()
         .single();
 
       if (error) throw error;
-      apiLogger.info("Challenge updated", { challengeId: id });
+      apiLogger.info('Challenge updated', { challengeId: id });
       return result;
     } catch (error: any) {
-      apiLogger.error("Update challenge failed", { id, error: error.message });
+      apiLogger.error('Update challenge failed', { id, error: error.message });
       throw error;
     }
   },
@@ -256,26 +256,26 @@ export const challengesApi = {
     try {
       const isCompleted = countCompleted >= targetCount;
       const now = new Date();
-      const bdTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Dhaka" }));
-      const completionDate = bdTime.toLocaleDateString("en-CA");
+      const bdTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Dhaka' }));
+      const completionDate = bdTime.toLocaleDateString('en-CA');
 
       // Check if log exists
       const { data: existingLog } = await supabase
-        .from("user_challenge_daily_logs")
-        .select("id")
-        .eq("user_progress_id", progressId)
-        .eq("day_number", dayNumber)
+        .from('user_challenge_daily_logs')
+        .select('id')
+        .eq('user_progress_id', progressId)
+        .eq('day_number', dayNumber)
         .single();
 
-      console.log("DEBUG - Existing log found:", !!existingLog);
-      console.log("DEBUG - Progress ID:", progressId);
-      console.log("DEBUG - Day Number:", dayNumber);
+      console.log('DEBUG - Existing log found:', !!existingLog);
+      console.log('DEBUG - Progress ID:', progressId);
+      console.log('DEBUG - Day Number:', dayNumber);
 
       if (existingLog) {
-        console.log("DEBUG - Updating existing log");
+        console.log('DEBUG - Updating existing log');
         // Update existing
         await supabase
-          .from("user_challenge_daily_logs")
+          .from('user_challenge_daily_logs')
           .update({
             count_completed: countCompleted,
             target_count: targetCount,
@@ -284,11 +284,11 @@ export const challengesApi = {
             notes,
             mood,
           })
-          .eq("id", existingLog.id);
+          .eq('id', existingLog.id);
       } else {
-        console.log("DEBUG - Creating new log");
+        console.log('DEBUG - Creating new log');
         // Insert new
-        await supabase.from("user_challenge_daily_logs").insert({
+        await supabase.from('user_challenge_daily_logs').insert({
           user_progress_id: progressId,
           user_id: userId,
           challenge_id: challengeId,
@@ -305,13 +305,13 @@ export const challengesApi = {
 
       // Get current progress
       const { data: progress } = await supabase
-        .from("user_challenge_progress")
-        .select("*, challenge:challenge_templates(*)")
-        .eq("id", progressId)
+        .from('user_challenge_progress')
+        .select('*, challenge:challenge_templates(*)')
+        .eq('id', progressId)
         .single();
 
       if (!progress) {
-        return { error: "Progress not found" };
+        return { error: 'Progress not found' };
       }
 
       // Calculate updates
@@ -337,21 +337,21 @@ export const challengesApi = {
       }
 
       if (isChallengeCompleted) {
-        updateData.status = "completed";
+        updateData.status = 'completed';
         updateData.completed_at = Date.now();
       }
 
       // Update progress
-      await supabase.from("user_challenge_progress").update(updateData).eq("id", progressId);
+      await supabase.from('user_challenge_progress').update(updateData).eq('id', progressId);
 
       // Increment challenge completions
-      await supabase.rpc("increment_completions", {
+      await supabase.rpc('increment_completions', {
         challenge_id: challengeId,
       });
 
       // Log challenge completion with challenge title
       if (isCompleted) {
-        apiLogger.info("Challenge completed", {
+        apiLogger.info('Challenge completed', {
           userId,
           challengeId,
           challengeTitle: progress.challenge?.title_bn,
@@ -366,18 +366,18 @@ export const challengesApi = {
 
       return { success: true, isCompleted, isChallengeCompleted, newStreak };
     } catch (error) {
-      apiLogger.error("Error completing daily challenge", { error });
-      return { error: "Failed to complete daily challenge" };
+      apiLogger.error('Error completing daily challenge', { error });
+      return { error: 'Failed to complete daily challenge' };
     }
   },
 
   delete: async (challengeId: string) => {
     try {
-      const { error } = await supabase.from("challenge_templates").delete().eq("id", challengeId);
+      const { error } = await supabase.from('challenge_templates').delete().eq('id', challengeId);
       if (error) throw error;
-      apiLogger.info("Challenge deleted", { challengeId });
+      apiLogger.info('Challenge deleted', { challengeId });
     } catch (error: any) {
-      apiLogger.error("Delete challenge failed", {
+      apiLogger.error('Delete challenge failed', {
         challengeId,
         error: error.message,
       });

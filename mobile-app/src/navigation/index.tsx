@@ -1,23 +1,23 @@
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 // Icons
-import { Activity, Book, Home, Settings, Target } from "lucide-react-native";
-import { ROUTES } from "@/config/routes";
-import { useAuth } from "@/hooks/useAuth";
-import { useTheme } from "@/hooks/useTheme";
+import { Activity, Book, Home, Settings, Target } from 'lucide-react-native';
+import { ROUTES } from '@/config/routes';
+import { useAuth } from '@/hooks/useAuth';
+import { useTheme } from '@/hooks/useTheme';
 // Screens
-import ActivitiesScreen from "@/screens/ActivitiesScreen";
-import ActivityDetailScreen from "@/screens/ActivityDetailScreen";
-import LoginScreen from "@/screens/auth/LoginScreen";
-import SignupScreen from "@/screens/auth/SignupScreen";
-import ChallengePreviewScreen from "@/screens/ChallengePreviewScreen";
-import ChallengeProgressScreen from "@/screens/ChallengeProgressScreen";
-import ChallengesScreen from "@/screens/ChallengesScreen";
-import DashboardScreen from "@/screens/DashboardScreen";
-import DuaDetailScreen from "@/screens/DuaDetailScreen";
-import DuasScreen from "@/screens/DuasScreen";
-import SettingsScreen from "@/screens/SettingsScreen";
+import ActivitiesScreen from '@/screens/ActivitiesScreen';
+import ActivityDetailScreen from '@/screens/ActivityDetailScreen';
+import LoginScreen from '@/screens/auth/LoginScreen';
+import SignupScreen from '@/screens/auth/SignupScreen';
+import ChallengePreviewScreen from '@/screens/ChallengePreviewScreen';
+import ChallengeProgressScreen from '@/screens/ChallengeProgressScreen';
+import ChallengesScreen from '@/screens/ChallengesScreen';
+import DashboardScreen from '@/screens/DashboardScreen';
+import DuaDetailScreen from '@/screens/DuaDetailScreen';
+import DuasScreen from '@/screens/DuasScreen';
+import SettingsScreen from '@/screens/SettingsScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -40,7 +40,7 @@ function TabNavigator() {
         tabBarInactiveTintColor: colors.mutedForeground,
         tabBarLabelStyle: {
           fontSize: 11,
-          fontWeight: "500",
+          fontWeight: '500',
         },
       }}
     >
@@ -48,7 +48,7 @@ function TabNavigator() {
         name={ROUTES.DASHBOARD}
         component={DashboardScreen}
         options={{
-          tabBarLabel: "Dashboard",
+          tabBarLabel: 'Dashboard',
           tabBarIcon: ({ color, size }) => <Home color={color} size={size} />,
         }}
       />
@@ -56,7 +56,7 @@ function TabNavigator() {
         name={ROUTES.CHALLENGES}
         component={ChallengesScreen}
         options={{
-          tabBarLabel: "Challenges",
+          tabBarLabel: 'Challenges',
           tabBarIcon: ({ color, size }) => <Target color={color} size={size} />,
         }}
       />
@@ -64,7 +64,7 @@ function TabNavigator() {
         name={ROUTES.ACTIVITIES}
         component={ActivitiesScreen}
         options={{
-          tabBarLabel: "Activities",
+          tabBarLabel: 'Activities',
           tabBarIcon: ({ color, size }) => <Activity color={color} size={size} />,
         }}
       />
@@ -72,7 +72,7 @@ function TabNavigator() {
         name={ROUTES.DUAS}
         component={DuasScreen}
         options={{
-          tabBarLabel: "Duas",
+          tabBarLabel: 'Duas',
           tabBarIcon: ({ color, size }) => <Book color={color} size={size} />,
         }}
       />
@@ -80,7 +80,7 @@ function TabNavigator() {
         name={ROUTES.SETTINGS}
         component={SettingsScreen}
         options={{
-          tabBarLabel: "Settings",
+          tabBarLabel: 'Settings',
           tabBarIcon: ({ color, size }) => <Settings color={color} size={size} />,
         }}
       />
@@ -115,7 +115,7 @@ function MainStack() {
         },
         headerTintColor: colors.foreground,
         headerTitleStyle: {
-          fontWeight: "600",
+          fontWeight: '600',
         },
         contentStyle: { backgroundColor: colors.background },
       }}
@@ -124,22 +124,22 @@ function MainStack() {
       <Stack.Screen
         name={ROUTES.CHALLENGE_PROGRESS}
         component={ChallengeProgressScreen}
-        options={{ title: "Challenge Progress" }}
+        options={{ title: 'Challenge Progress' }}
       />
       <Stack.Screen
         name={ROUTES.CHALLENGE_PREVIEW}
         component={ChallengePreviewScreen}
-        options={{ title: "Challenge Preview" }}
+        options={{ title: 'Challenge Preview' }}
       />
       <Stack.Screen
         name={ROUTES.ACTIVITY_DETAIL}
         component={ActivityDetailScreen}
-        options={{ title: "Activity Details" }}
+        options={{ title: 'Activity Details' }}
       />
       <Stack.Screen
         name={ROUTES.DUA_DETAIL}
         component={DuaDetailScreen}
-        options={{ title: "Dua Details" }}
+        options={{ title: 'Dua Details' }}
       />
     </Stack.Navigator>
   );
@@ -167,20 +167,20 @@ export function Navigation() {
         },
         fonts: {
           regular: {
-            fontFamily: "System",
-            fontWeight: "400",
+            fontFamily: 'System',
+            fontWeight: '400',
           },
           medium: {
-            fontFamily: "System",
-            fontWeight: "500",
+            fontFamily: 'System',
+            fontWeight: '500',
           },
           bold: {
-            fontFamily: "System",
-            fontWeight: "700",
+            fontFamily: 'System',
+            fontWeight: '700',
           },
           heavy: {
-            fontFamily: "System",
-            fontWeight: "800",
+            fontFamily: 'System',
+            fontWeight: '800',
           },
         },
       }}

@@ -1,12 +1,12 @@
-import { Suspense } from "react";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import { Toaster } from "sonner";
-import { Header } from "@/components/Header";
-import { RouteWrapper } from "@/components/RouteWrapper";
-import { FullPageLoader } from "@/components/ui";
-import { ROUTES } from "@/config/routes";
-import { routes } from "@/config/routes.config";
-import { AppProviders } from "@/providers";
+import { Suspense } from 'react';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { Toaster } from 'sonner';
+import { Header } from '@/components/Header';
+import { RouteWrapper } from '@/components/RouteWrapper';
+import { FullPageLoader } from '@/components/ui';
+import { ROUTES } from '@/config/routes';
+import { routes } from '@/config/routes.config';
+import { AppProviders } from '@/providers';
 
 export default function App() {
   return (

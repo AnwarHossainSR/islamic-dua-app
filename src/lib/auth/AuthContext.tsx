@@ -1,7 +1,7 @@
-import type { User } from "@supabase/supabase-js";
-import { createContext, useContext, useEffect, useState } from "react";
-import { toast } from "sonner";
-import { supabase } from "@/lib/supabase/client";
+import type { User } from '@supabase/supabase-js';
+import { createContext, useContext, useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { supabase } from '@/lib/supabase/client';
 
 interface AuthContextType {
   user: User | null;
@@ -34,9 +34,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await supabase.auth.signOut();
       setUser(null);
-      toast.success("Signed out successfully!");
+      toast.success('Signed out successfully!');
     } catch {
-      toast.error("Failed to sign out");
+      toast.error('Failed to sign out');
     }
   };
 
@@ -46,7 +46,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
+    throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 }

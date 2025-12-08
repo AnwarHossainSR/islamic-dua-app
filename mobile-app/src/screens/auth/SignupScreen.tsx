@@ -1,19 +1,19 @@
-import { useNavigation } from "@react-navigation/native";
-import { useState } from "react";
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import Toast from "react-native-toast-message";
-import { authApi } from "@/api/auth.api";
-import { Button, Input } from "@/components/ui";
-import { APP_NAME, ROUTES } from "@/config/routes";
-import { useTheme } from "@/hooks/useTheme";
+import { useNavigation } from '@react-navigation/native';
+import { useState } from 'react';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import Toast from 'react-native-toast-message';
+import { authApi } from '@/api/auth.api';
+import { Button, Input } from '@/components/ui';
+import { APP_NAME, ROUTES } from '@/config/routes';
+import { useTheme } from '@/hooks/useTheme';
 
 export default function SignupScreen() {
   const navigation = useNavigation<any>();
   const { colors } = useTheme();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{
     email?: string;
@@ -24,19 +24,19 @@ export default function SignupScreen() {
   const validate = () => {
     const newErrors: typeof errors = {};
     if (!email) {
-      newErrors.email = "Email is required";
+      newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(email)) {
-      newErrors.email = "Invalid email format";
+      newErrors.email = 'Invalid email format';
     }
     if (!password) {
-      newErrors.password = "Password is required";
+      newErrors.password = 'Password is required';
     } else if (password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
+      newErrors.password = 'Password must be at least 6 characters';
     }
     if (!confirmPassword) {
-      newErrors.confirmPassword = "Please confirm your password";
+      newErrors.confirmPassword = 'Please confirm your password';
     } else if (password !== confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match";
+      newErrors.confirmPassword = 'Passwords do not match';
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -49,16 +49,16 @@ export default function SignupScreen() {
     try {
       await authApi.signUp(email, password);
       Toast.show({
-        type: "success",
-        text1: "Account Created!",
-        text2: "Please check your email to verify your account.",
+        type: 'success',
+        text1: 'Account Created!',
+        text2: 'Please check your email to verify your account.',
       });
       navigation.navigate(ROUTES.LOGIN);
     } catch (error: any) {
       Toast.show({
-        type: "error",
-        text1: "Signup Failed",
-        text2: error.message || "Failed to create account",
+        type: 'error',
+        text1: 'Signup Failed',
+        text2: error.message || 'Failed to create account',
       });
     } finally {
       setLoading(false);
@@ -69,7 +69,7 @@ export default function SignupScreen() {
     <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
       <KeyboardAvoidingView
         style={styles.container}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <ScrollView
           contentContainerStyle={styles.scrollContent}
@@ -147,19 +147,19 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    justifyContent: "center",
+    justifyContent: 'center',
     padding: 24,
   },
   header: {
-    alignItems: "center",
+    alignItems: 'center',
     marginBottom: 40,
   },
   logoContainer: {
     width: 80,
     height: 80,
     borderRadius: 20,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     marginBottom: 16,
   },
   logoText: {
@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    fontWeight: "700",
+    fontWeight: '700',
     marginBottom: 8,
   },
   subtitle: {
@@ -180,16 +180,16 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   loginRow: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
     marginTop: 16,
   },
   loginText: {
     fontSize: 14,
   },
   loginLink: {
-    height: "auto",
+    height: 'auto',
     paddingHorizontal: 0,
   },
 });

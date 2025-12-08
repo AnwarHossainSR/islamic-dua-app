@@ -1,21 +1,21 @@
-import { cn } from "@/lib/utils/cn";
+import { cn } from '@/lib/utils/cn';
 
 interface LoaderProps {
-  size?: "sm" | "md" | "lg";
+  size?: 'sm' | 'md' | 'lg';
   className?: string;
 }
 
-export function Loader({ size = "md", className }: LoaderProps) {
+export function Loader({ size = 'md', className }: LoaderProps) {
   const sizeClasses = {
-    sm: "w-6 h-6 border-2",
-    md: "w-10 h-10 border-3",
-    lg: "w-16 h-16 border-4",
+    sm: 'w-6 h-6 border-2',
+    md: 'w-10 h-10 border-3',
+    lg: 'w-16 h-16 border-4',
   };
 
   return (
     <div
       className={cn(
-        "inline-block rounded-full border-solid border-primary border-t-transparent animate-spin",
+        'inline-block rounded-full border-solid border-primary border-t-transparent animate-spin',
         sizeClasses[size],
         className
       )}

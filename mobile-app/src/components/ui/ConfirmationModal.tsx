@@ -1,7 +1,7 @@
-import { AlertTriangle, CheckCircle, Info, XCircle } from "lucide-react-native";
-import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
-import { useTheme } from "@/hooks/useTheme";
-import { Button } from "./Button";
+import { AlertTriangle, CheckCircle, Info, XCircle } from 'lucide-react-native';
+import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useTheme } from '@/hooks/useTheme';
+import { Button } from './Button';
 
 interface ConfirmationModalProps {
   visible: boolean;
@@ -9,28 +9,28 @@ interface ConfirmationModalProps {
   description: string;
   cancelText?: string;
   confirmText?: string;
-  confirmVariant?: "default" | "destructive";
-  icon?: "warning" | "info" | "success" | "error";
+  confirmVariant?: 'default' | 'destructive';
+  icon?: 'warning' | 'info' | 'success' | 'error';
   onCancel: () => void;
   onConfirm: () => void;
   isLoading?: boolean;
 }
 
 const iconColors = {
-  warning: "#f59e0b",
-  info: "#3b82f6",
-  success: "#22c55e",
-  error: "#ef4444",
+  warning: '#f59e0b',
+  info: '#3b82f6',
+  success: '#22c55e',
+  error: '#ef4444',
 };
 
 export function ConfirmationModal({
   visible,
   title,
   description,
-  cancelText = "Cancel",
-  confirmText = "Confirm",
-  confirmVariant = "default",
-  icon = "warning",
+  cancelText = 'Cancel',
+  confirmText = 'Confirm',
+  confirmVariant = 'default',
+  icon = 'warning',
   onCancel,
   onConfirm,
   isLoading = false,
@@ -42,13 +42,13 @@ export function ConfirmationModal({
     const size = 28;
 
     switch (icon) {
-      case "warning":
+      case 'warning':
         return <AlertTriangle color={color} size={size} />;
-      case "info":
+      case 'info':
         return <Info color={color} size={size} />;
-      case "success":
+      case 'success':
         return <CheckCircle color={color} size={size} />;
-      case "error":
+      case 'error':
         return <XCircle color={color} size={size} />;
       default:
         return <AlertTriangle color={color} size={size} />;
@@ -77,7 +77,7 @@ export function ConfirmationModal({
               {cancelText}
             </Button>
             <Button
-              variant={confirmVariant === "destructive" ? "destructive" : "default"}
+              variant={confirmVariant === 'destructive' ? 'destructive' : 'default'}
               onPress={onConfirm}
               loading={isLoading}
               disabled={isLoading}
@@ -95,25 +95,25 @@ export function ConfirmationModal({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
     padding: 20,
   },
   container: {
-    width: "100%",
+    width: '100%',
     maxWidth: 340,
     borderRadius: 16,
     padding: 24,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 8,
   },
   header: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 12,
     marginBottom: 12,
   },
@@ -121,13 +121,13 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(245, 158, 11, 0.1)",
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(245, 158, 11, 0.1)',
   },
   title: {
     fontSize: 18,
-    fontWeight: "600",
+    fontWeight: '600',
     flex: 1,
   },
   description: {
@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   actions: {
-    flexDirection: "row",
+    flexDirection: 'row',
     gap: 12,
   },
   button: {

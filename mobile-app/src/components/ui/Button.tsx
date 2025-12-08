@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -7,14 +7,14 @@ import {
   Text,
   type TextStyle,
   type ViewStyle,
-} from "react-native";
-import { useTheme } from "@/hooks/useTheme";
+} from 'react-native';
+import { useTheme } from '@/hooks/useTheme';
 
 interface ButtonProps {
   children: React.ReactNode;
   onPress?: () => void;
-  variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
-  size?: "default" | "sm" | "lg" | "icon";
+  variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
+  size?: 'default' | 'sm' | 'lg' | 'icon';
   disabled?: boolean;
   loading?: boolean;
   style?: StyleProp<ViewStyle>;
@@ -24,8 +24,8 @@ interface ButtonProps {
 export function Button({
   children,
   onPress,
-  variant = "default",
-  size = "default",
+  variant = 'default',
+  size = 'default',
   disabled = false,
   loading = false,
   style,
@@ -36,37 +36,37 @@ export function Button({
   const getBackgroundColor = () => {
     if (disabled) return colors.muted;
     switch (variant) {
-      case "default":
-        return "#22c55e"; // Always use solid green
-      case "destructive":
-        return "#ef4444"; // Solid red
-      case "secondary":
+      case 'default':
+        return '#22c55e'; // Always use solid green
+      case 'destructive':
+        return '#ef4444'; // Solid red
+      case 'secondary':
         return colors.secondary;
-      case "outline":
-        return "transparent";
-      case "ghost":
-        return "transparent";
-      case "link":
-        return "transparent";
+      case 'outline':
+        return 'transparent';
+      case 'ghost':
+        return 'transparent';
+      case 'link':
+        return 'transparent';
       default:
-        return "#22c55e";
+        return '#22c55e';
     }
   };
 
   const getTextColor = () => {
     if (disabled) return colors.mutedForeground;
     switch (variant) {
-      case "default":
+      case 'default':
         return colors.primaryForeground;
-      case "destructive":
+      case 'destructive':
         return colors.destructiveForeground;
-      case "secondary":
+      case 'secondary':
         return colors.secondaryForeground;
-      case "outline":
+      case 'outline':
         return colors.foreground;
-      case "ghost":
+      case 'ghost':
         return colors.foreground;
-      case "link":
+      case 'link':
         return colors.primary;
       default:
         return colors.primaryForeground;
@@ -75,20 +75,20 @@ export function Button({
 
   const getBorderColor = () => {
     switch (variant) {
-      case "outline":
+      case 'outline':
         return colors.border;
       default:
-        return "transparent";
+        return 'transparent';
     }
   };
 
   const getHeight = () => {
     switch (size) {
-      case "sm":
+      case 'sm':
         return 36;
-      case "lg":
+      case 'lg':
         return 44;
-      case "icon":
+      case 'icon':
         return 40;
       default:
         return 40;
@@ -97,11 +97,11 @@ export function Button({
 
   const getPadding = () => {
     switch (size) {
-      case "sm":
+      case 'sm':
         return 12;
-      case "lg":
+      case 'lg':
         return 24;
-      case "icon":
+      case 'icon':
         return 8;
       default:
         return 16;
@@ -115,15 +115,15 @@ export function Button({
       return <ActivityIndicator color={textColor} size="small" />;
     }
 
-    if (typeof children === "string") {
+    if (typeof children === 'string') {
       return (
         <Text
           style={[
             styles.text,
             {
               color: textColor,
-              fontSize: size === "sm" ? 13 : 14,
-              textDecorationLine: variant === "link" ? "underline" : "none",
+              fontSize: size === 'sm' ? 13 : 14,
+              textDecorationLine: variant === 'link' ? 'underline' : 'none',
             },
             textStyle,
           ]}
@@ -135,15 +135,15 @@ export function Button({
 
     // For mixed content (icons + text), we need to wrap string children in Text
     return React.Children.map(children, (child) => {
-      if (typeof child === "string") {
+      if (typeof child === 'string') {
         return (
           <Text
             style={[
               styles.text,
               {
                 color: textColor,
-                fontSize: size === "sm" ? 13 : 14,
-                textDecorationLine: variant === "link" ? "underline" : "none",
+                fontSize: size === 'sm' ? 13 : 14,
+                textDecorationLine: variant === 'link' ? 'underline' : 'none',
               },
               textStyle,
             ]}
@@ -171,7 +171,7 @@ export function Button({
         {
           backgroundColor: customBgColor || getBackgroundColor(),
           borderColor: getBorderColor(),
-          borderWidth: variant === "outline" ? 1 : 0,
+          borderWidth: variant === 'outline' ? 1 : 0,
           height: getHeight(),
           paddingHorizontal: getPadding(),
           opacity: pressed ? 0.8 : 1,
@@ -186,13 +186,13 @@ export function Button({
 
 const styles = StyleSheet.create({
   button: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     borderRadius: 8,
     gap: 8,
   },
   text: {
-    fontWeight: "500",
+    fontWeight: '500',
   },
 });

@@ -1,27 +1,27 @@
-import { ArrowLeft } from "lucide-react";
-import { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import { toast } from "sonner";
-import { challengesApi } from "@/api/challenges.api";
-import JsonImportClient from "@/components/JsonImportClient";
-import { Loader } from "@/components/ui";
-import { Button } from "@/components/ui/Button";
-import { Card, CardContent, CardHeader } from "@/components/ui/Card";
-import { Input } from "@/components/ui/Input";
-import { Label } from "@/components/ui/Label";
+import { ArrowLeft } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { toast } from 'sonner';
+import { challengesApi } from '@/api/challenges.api';
+import JsonImportClient from '@/components/JsonImportClient';
+import { Loader } from '@/components/ui';
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent, CardHeader } from '@/components/ui/Card';
+import { Input } from '@/components/ui/Input';
+import { Label } from '@/components/ui/Label';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/Select";
-import { Textarea } from "@/components/ui/Textarea";
+} from '@/components/ui/Select';
+import { Textarea } from '@/components/ui/Textarea';
 
 export default function ChallengeFormPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const isEdit = id && id !== "new";
+  const isEdit = id && id !== 'new';
   const [challenge, setChallenge] = useState<any>(null);
   const [loading, setLoading] = useState(isEdit);
 
@@ -33,7 +33,7 @@ export default function ChallengeFormPage() {
         const data = await challengesApi.getById(id!);
         setChallenge(data);
       } catch (error) {
-        console.error("Error loading challenge:", error);
+        console.error('Error loading challenge:', error);
       } finally {
         setLoading(false);
       }
@@ -47,44 +47,44 @@ export default function ChallengeFormPage() {
     const formData = new FormData(e.currentTarget);
 
     const data = {
-      title_bn: formData.get("title_bn") as string,
-      title_ar: formData.get("title_ar") as string,
-      title_en: formData.get("title_en") as string,
-      description_bn: formData.get("description_bn") as string,
-      description_ar: formData.get("description_ar") as string,
-      description_en: formData.get("description_en") as string,
-      icon: formData.get("icon") as string,
-      color: formData.get("color") as string,
-      arabic_text: formData.get("arabic_text") as string,
-      transliteration_bn: formData.get("transliteration_bn") as string,
-      translation_bn: formData.get("translation_bn") as string,
-      translation_en: formData.get("translation_en") as string,
-      daily_target_count: parseInt(formData.get("daily_target_count") as string, 10),
-      total_days: parseInt(formData.get("total_days") as string, 10),
-      recommended_time: formData.get("recommended_time") as string,
-      recommended_prayer: formData.get("recommended_prayer") as string,
-      difficulty_level: formData.get("difficulty_level") as string,
-      fazilat_bn: formData.get("fazilat_bn") as string,
-      fazilat_ar: formData.get("fazilat_ar") as string,
-      fazilat_en: formData.get("fazilat_en") as string,
-      reference: formData.get("reference") as string,
-      display_order: parseInt(formData.get("display_order") as string, 10) || 0,
-      is_featured: formData.get("is_featured") === "on",
-      is_active: formData.get("is_active") === "on",
+      title_bn: formData.get('title_bn') as string,
+      title_ar: formData.get('title_ar') as string,
+      title_en: formData.get('title_en') as string,
+      description_bn: formData.get('description_bn') as string,
+      description_ar: formData.get('description_ar') as string,
+      description_en: formData.get('description_en') as string,
+      icon: formData.get('icon') as string,
+      color: formData.get('color') as string,
+      arabic_text: formData.get('arabic_text') as string,
+      transliteration_bn: formData.get('transliteration_bn') as string,
+      translation_bn: formData.get('translation_bn') as string,
+      translation_en: formData.get('translation_en') as string,
+      daily_target_count: parseInt(formData.get('daily_target_count') as string, 10),
+      total_days: parseInt(formData.get('total_days') as string, 10),
+      recommended_time: formData.get('recommended_time') as string,
+      recommended_prayer: formData.get('recommended_prayer') as string,
+      difficulty_level: formData.get('difficulty_level') as string,
+      fazilat_bn: formData.get('fazilat_bn') as string,
+      fazilat_ar: formData.get('fazilat_ar') as string,
+      fazilat_en: formData.get('fazilat_en') as string,
+      reference: formData.get('reference') as string,
+      display_order: parseInt(formData.get('display_order') as string, 10) || 0,
+      is_featured: formData.get('is_featured') === 'on',
+      is_active: formData.get('is_active') === 'on',
     };
 
     try {
       if (isEdit) {
         await challengesApi.update(id!, data);
-        toast.success("Challenge updated successfully!");
+        toast.success('Challenge updated successfully!');
       } else {
         await challengesApi.create(data);
-        toast.success("Challenge created successfully!");
+        toast.success('Challenge created successfully!');
       }
-      navigate("/challenges");
+      navigate('/challenges');
     } catch (error) {
-      console.error("Error saving challenge:", error);
-      toast.error("Failed to save challenge");
+      console.error('Error saving challenge:', error);
+      toast.error('Failed to save challenge');
     }
   };
 
@@ -106,10 +106,10 @@ export default function ChallengeFormPage() {
         </Button>
         <div>
           <h1 className="text-4xl font-bold">
-            {isEdit ? "Edit Challenge" : "Create New Challenge"}
+            {isEdit ? 'Edit Challenge' : 'Create New Challenge'}
           </h1>
           <p className="text-muted-foreground">
-            {isEdit ? "Update challenge details" : "Add a new daily dhikr challenge"}
+            {isEdit ? 'Update challenge details' : 'Add a new daily dhikr challenge'}
           </p>
         </div>
       </div>
@@ -129,7 +129,7 @@ export default function ChallengeFormPage() {
                   <Input
                     id="title_bn"
                     name="title_bn"
-                    defaultValue={challenge?.title_bn || ""}
+                    defaultValue={challenge?.title_bn || ''}
                     required
                     placeholder="চ্যালেঞ্জের নাম"
                   />
@@ -139,7 +139,7 @@ export default function ChallengeFormPage() {
                   <Input
                     id="title_ar"
                     name="title_ar"
-                    defaultValue={challenge?.title_ar || ""}
+                    defaultValue={challenge?.title_ar || ''}
                     placeholder="اسم التحدي"
                     className="arabic-text"
                   />
@@ -151,7 +151,7 @@ export default function ChallengeFormPage() {
                 <Input
                   id="title_en"
                   name="title_en"
-                  defaultValue={challenge?.title_en || ""}
+                  defaultValue={challenge?.title_en || ''}
                   placeholder="Challenge Title"
                 />
               </div>
@@ -161,7 +161,7 @@ export default function ChallengeFormPage() {
                 <Textarea
                   id="description_bn"
                   name="description_bn"
-                  defaultValue={challenge?.description_bn || ""}
+                  defaultValue={challenge?.description_bn || ''}
                   required
                   rows={3}
                   placeholder="চ্যালেঞ্জের বিস্তারিত বর্ণনা"
@@ -173,7 +173,7 @@ export default function ChallengeFormPage() {
                 <Textarea
                   id="description_ar"
                   name="description_ar"
-                  defaultValue={challenge?.description_ar || ""}
+                  defaultValue={challenge?.description_ar || ''}
                   rows={3}
                   placeholder="وصف التحدي"
                   className="arabic-text"
@@ -185,7 +185,7 @@ export default function ChallengeFormPage() {
                 <Textarea
                   id="description_en"
                   name="description_en"
-                  defaultValue={challenge?.description_en || ""}
+                  defaultValue={challenge?.description_en || ''}
                   rows={3}
                   placeholder="Challenge description"
                 />
@@ -197,7 +197,7 @@ export default function ChallengeFormPage() {
                   <Input
                     id="icon"
                     name="icon"
-                    defaultValue={challenge?.icon || ""}
+                    defaultValue={challenge?.icon || ''}
                     placeholder="📿"
                     maxLength={4}
                   />
@@ -208,7 +208,7 @@ export default function ChallengeFormPage() {
                     id="color"
                     name="color"
                     type="color"
-                    defaultValue={challenge?.color || "#10b981"}
+                    defaultValue={challenge?.color || '#10b981'}
                   />
                 </div>
               </div>
@@ -225,7 +225,7 @@ export default function ChallengeFormPage() {
                 <Textarea
                   id="arabic_text"
                   name="arabic_text"
-                  defaultValue={challenge?.arabic_text || ""}
+                  defaultValue={challenge?.arabic_text || ''}
                   required
                   rows={3}
                   className="arabic-text text-xl"
@@ -238,7 +238,7 @@ export default function ChallengeFormPage() {
                 <Textarea
                   id="transliteration_bn"
                   name="transliteration_bn"
-                  defaultValue={challenge?.transliteration_bn || ""}
+                  defaultValue={challenge?.transliteration_bn || ''}
                   rows={2}
                   placeholder="বাংলা উচ্চারণ"
                 />
@@ -249,7 +249,7 @@ export default function ChallengeFormPage() {
                 <Textarea
                   id="translation_bn"
                   name="translation_bn"
-                  defaultValue={challenge?.translation_bn || ""}
+                  defaultValue={challenge?.translation_bn || ''}
                   required
                   rows={3}
                   placeholder="বাংলা অনুবাদ"
@@ -261,7 +261,7 @@ export default function ChallengeFormPage() {
                 <Textarea
                   id="translation_en"
                   name="translation_en"
-                  defaultValue={challenge?.translation_en || ""}
+                  defaultValue={challenge?.translation_en || ''}
                   rows={3}
                   placeholder="English translation"
                 />
@@ -308,7 +308,7 @@ export default function ChallengeFormPage() {
                   <Label htmlFor="recommended_time">Recommended Time</Label>
                   <Select
                     name="recommended_time"
-                    defaultValue={challenge?.recommended_time || "anytime"}
+                    defaultValue={challenge?.recommended_time || 'anytime'}
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -329,7 +329,7 @@ export default function ChallengeFormPage() {
                   <Label htmlFor="recommended_prayer">Recommended Prayer</Label>
                   <Select
                     name="recommended_prayer"
-                    defaultValue={challenge?.recommended_prayer || ""}
+                    defaultValue={challenge?.recommended_prayer || ''}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select prayer" />
@@ -351,7 +351,7 @@ export default function ChallengeFormPage() {
                 <Label htmlFor="difficulty_level">Difficulty Level</Label>
                 <Select
                   name="difficulty_level"
-                  defaultValue={challenge?.difficulty_level || "medium"}
+                  defaultValue={challenge?.difficulty_level || 'medium'}
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -376,7 +376,7 @@ export default function ChallengeFormPage() {
                 <Textarea
                   id="fazilat_bn"
                   name="fazilat_bn"
-                  defaultValue={challenge?.fazilat_bn || ""}
+                  defaultValue={challenge?.fazilat_bn || ''}
                   rows={4}
                   placeholder="এই দোয়া পড়ার ফজিলত ও উপকারিতা"
                 />
@@ -387,7 +387,7 @@ export default function ChallengeFormPage() {
                 <Textarea
                   id="fazilat_ar"
                   name="fazilat_ar"
-                  defaultValue={challenge?.fazilat_ar || ""}
+                  defaultValue={challenge?.fazilat_ar || ''}
                   rows={4}
                   placeholder="فضائل هذا الذكر"
                   className="arabic-text"
@@ -399,7 +399,7 @@ export default function ChallengeFormPage() {
                 <Textarea
                   id="fazilat_en"
                   name="fazilat_en"
-                  defaultValue={challenge?.fazilat_en || ""}
+                  defaultValue={challenge?.fazilat_en || ''}
                   rows={4}
                   placeholder="Benefits of this dhikr"
                 />
@@ -410,7 +410,7 @@ export default function ChallengeFormPage() {
                 <Input
                   id="reference"
                   name="reference"
-                  defaultValue={challenge?.reference || ""}
+                  defaultValue={challenge?.reference || ''}
                   placeholder="হাদীস বা কুরআনের রেফারেন্স"
                 />
               </div>
@@ -460,7 +460,7 @@ export default function ChallengeFormPage() {
 
           <div className="flex gap-4">
             <Button type="submit" size="lg" className="flex-1">
-              {isEdit ? "Update Challenge" : "Create Challenge"}
+              {isEdit ? 'Update Challenge' : 'Create Challenge'}
             </Button>
             <Button type="button" variant="outline" size="lg" asChild>
               <Link to="/challenges">Cancel</Link>

@@ -1,6 +1,6 @@
-import { Link } from "react-router-dom";
-import { ROUTES } from "@/config/routes";
-import { ThemeToggle } from "./ThemeToggle";
+import { Link } from 'react-router-dom';
+import { ROUTES } from '@/config/routes';
+import { ThemeToggle } from './ThemeToggle';
 
 export function Header() {
   return (

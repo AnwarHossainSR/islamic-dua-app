@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   Calendar,
@@ -9,12 +9,12 @@ import {
   Flame,
   Target,
   X,
-} from "lucide-react";
-import { useMemo, useState } from "react";
-import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
-import { cn } from "@/lib/utils";
+} from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { cn } from '@/lib/utils';
 
 interface DailyLog {
   day_number: number;
@@ -63,7 +63,7 @@ export function ChallengeCalendar({
         date: Date;
         dayNumber: number | null;
         log: DailyLog | null;
-        status: "completed" | "current" | "missed" | "upcoming" | "outside";
+        status: 'completed' | 'current' | 'missed' | 'upcoming' | 'outside';
       }>
     > = [];
 
@@ -86,23 +86,23 @@ export function ChallengeCalendar({
         const dayNumber =
           daysSinceStart >= 0 && daysSinceStart < challenge.total_days ? daysSinceStart + 1 : null;
 
-        let status: "completed" | "current" | "missed" | "upcoming" | "outside" = "outside";
+        let status: 'completed' | 'current' | 'missed' | 'upcoming' | 'outside' = 'outside';
         let log: DailyLog | null = null;
 
         if (dayNumber) {
           log = dailyLogs.find((l) => l.day_number === dayNumber) || null;
 
           if (dayNumber < progress.current_day) {
-            status = log?.is_completed ? "completed" : "missed";
+            status = log?.is_completed ? 'completed' : 'missed';
           } else if (dayNumber === progress.current_day) {
-            status = log?.is_completed ? "completed" : "current";
+            status = log?.is_completed ? 'completed' : 'current';
           } else {
-            status = "upcoming";
+            status = 'upcoming';
           }
         } else if (date.getMonth() === currentMonth.getMonth()) {
-          status = "outside";
+          status = 'outside';
         } else {
-          status = "outside";
+          status = 'outside';
         }
 
         weekDays.push({ date, dayNumber, log, status });
@@ -121,24 +121,24 @@ export function ChallengeCalendar({
   }, [currentMonth, challenge.total_days, progress.current_day, dailyLogs]);
 
   const monthNames = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
   ];
 
-  const navigateMonth = (direction: "prev" | "next") => {
+  const navigateMonth = (direction: 'prev' | 'next') => {
     setCurrentMonth((prev) => {
       const newDate = new Date(prev);
-      if (direction === "prev") {
+      if (direction === 'prev') {
         newDate.setMonth(newDate.getMonth() - 1);
       } else {
         newDate.setMonth(newDate.getMonth() + 1);
@@ -149,16 +149,16 @@ export function ChallengeCalendar({
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "completed":
-        return "border-emerald-500 bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/20";
-      case "current":
-        return "border-blue-500 bg-blue-500/10 text-blue-700 hover:bg-blue-500/20 ring-2 ring-blue-500/30";
-      case "missed":
-        return "border-red-500 bg-red-500/10 text-red-700 hover:bg-red-500/20";
-      case "upcoming":
-        return "border-muted bg-muted/30 text-muted-foreground hover:bg-muted/50";
+      case 'completed':
+        return 'border-emerald-500 bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/20';
+      case 'current':
+        return 'border-blue-500 bg-blue-500/10 text-blue-700 hover:bg-blue-500/20 ring-2 ring-blue-500/30';
+      case 'missed':
+        return 'border-red-500 bg-red-500/10 text-red-700 hover:bg-red-500/20';
+      case 'upcoming':
+        return 'border-muted bg-muted/30 text-muted-foreground hover:bg-muted/50';
       default:
-        return "border-transparent text-muted-foreground/50";
+        return 'border-transparent text-muted-foreground/50';
     }
   };
 
@@ -166,13 +166,13 @@ export function ChallengeCalendar({
     if (!dayNumber) return null;
 
     switch (status) {
-      case "completed":
+      case 'completed':
         return <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4" />;
-      case "current":
+      case 'current':
         return <Target className="h-3 w-3 sm:h-4 sm:w-4" />;
-      case "missed":
+      case 'missed':
         return <X className="h-3 w-3 sm:h-4 sm:w-4" />;
-      case "upcoming":
+      case 'upcoming':
         return <Circle className="h-3 w-3 sm:h-4 sm:w-4 opacity-50" />;
       default:
         return null;
@@ -192,7 +192,7 @@ export function ChallengeCalendar({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => navigateMonth("prev")}
+              onClick={() => navigateMonth('prev')}
               className="h-8 w-8 p-0 sm:h-9 sm:w-9"
             >
               <ChevronLeft className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -203,7 +203,7 @@ export function ChallengeCalendar({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => navigateMonth("next")}
+              onClick={() => navigateMonth('next')}
               className="h-8 w-8 p-0 sm:h-9 sm:w-9"
             >
               <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -248,7 +248,7 @@ export function ChallengeCalendar({
         <div className="space-y-2">
           {/* Day headers */}
           <div className="grid grid-cols-7 gap-1 sm:gap-2">
-            {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
               <div key={day} className="p-2 text-center text-xs font-medium text-muted-foreground">
                 {day}
               </div>
@@ -263,11 +263,11 @@ export function ChallengeCalendar({
                   key={dayIndex}
                   onClick={() => day.dayNumber && setSelectedDay(day.log)}
                   className={cn(
-                    "aspect-square rounded-lg border transition-all duration-200 flex flex-col items-center justify-center relative",
-                    "h-8 w-8 sm:min-h-26 sm:min-w-26 sm:border-2",
+                    'aspect-square rounded-lg border transition-all duration-200 flex flex-col items-center justify-center relative',
+                    'h-8 w-8 sm:min-h-26 sm:min-w-26 sm:border-2',
                     getStatusColor(day.status),
-                    day.dayNumber && "cursor-pointer",
-                    !day.dayNumber && "cursor-default"
+                    day.dayNumber && 'cursor-pointer',
+                    !day.dayNumber && 'cursor-default'
                   )}
                   disabled={!day.dayNumber}
                 >
@@ -339,10 +339,10 @@ export function ChallengeCalendar({
                 <div className="flex justify-between">
                   <span className="text-sm text-muted-foreground">Status:</span>
                   <Badge
-                    variant={selectedDay.is_completed ? "default" : "destructive"}
+                    variant={selectedDay.is_completed ? 'default' : 'destructive'}
                     className="text-xs"
                   >
-                    {selectedDay.is_completed ? "Completed" : "Incomplete"}
+                    {selectedDay.is_completed ? 'Completed' : 'Incomplete'}
                   </Badge>
                 </div>
 

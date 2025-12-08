@@ -1,8 +1,8 @@
-import type { User } from "@supabase/supabase-js";
-import type React from "react";
-import { useEffect, useState } from "react";
-import { AuthContext } from "@/contexts/AuthContext";
-import { supabase } from "@/lib/supabase";
+import type { User } from '@supabase/supabase-js';
+import type React from 'react';
+import { useEffect, useState } from 'react';
+import { AuthContext } from '@/contexts/AuthContext';
+import { supabase } from '@/lib/supabase';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);

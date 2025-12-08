@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 
 export function useLocalStorage<T>(key: string, initialValue: T) {
   const [storedValue, setStoredValue] = useState<T>(() => {
-    if (typeof window === "undefined") {
+    if (typeof window === 'undefined') {
       return initialValue;
     }
     try {
@@ -18,7 +18,7 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
 
   // Re-sync when key changes
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (typeof window === 'undefined') return;
 
     try {
       const item = window.localStorage.getItem(key);
@@ -39,7 +39,7 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
     try {
       const valueToStore = value instanceof Function ? value(storedValue) : value;
       setStoredValue(valueToStore);
-      if (typeof window !== "undefined") {
+      if (typeof window !== 'undefined') {
         window.localStorage.setItem(key, JSON.stringify(valueToStore));
       }
     } catch (error) {
@@ -49,7 +49,7 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
 
   const removeValue = () => {
     try {
-      if (typeof window !== "undefined") {
+      if (typeof window !== 'undefined') {
         window.localStorage.removeItem(key);
       }
       setStoredValue(initialValue);

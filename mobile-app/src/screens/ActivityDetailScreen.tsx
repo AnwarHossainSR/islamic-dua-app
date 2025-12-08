@@ -1,11 +1,11 @@
-import { useRoute } from "@react-navigation/native";
-import { Activity, Trophy, Users } from "lucide-react-native";
-import { useEffect, useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
-import { activitiesApi } from "@/api/activities.api";
-import { Card, CardContent, CardHeader, CardTitle, Loader } from "@/components/ui";
-import { useTheme } from "@/hooks/useTheme";
-import { formatNumber } from "@/lib/utils";
+import { useRoute } from '@react-navigation/native';
+import { Activity, Trophy, Users } from 'lucide-react-native';
+import { useEffect, useState } from 'react';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { activitiesApi } from '@/api/activities.api';
+import { Card, CardContent, CardHeader, CardTitle, Loader } from '@/components/ui';
+import { useTheme } from '@/hooks/useTheme';
+import { formatNumber } from '@/lib/utils';
 
 export default function ActivityDetailScreen() {
   const route = useRoute<any>();
@@ -24,7 +24,7 @@ export default function ActivityDetailScreen() {
       const data = await activitiesApi.getActivityById(activityId);
       setActivity(data);
     } catch (error) {
-      console.error("Error loading activity:", error);
+      console.error('Error loading activity:', error);
     } finally {
       setLoading(false);
     }
@@ -100,8 +100,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   center: {
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   content: {
     padding: 16,
@@ -109,16 +109,16 @@ const styles = StyleSheet.create({
     paddingBottom: 32,
   },
   headerRow: {
-    flexDirection: "row",
-    alignItems: "flex-start",
+    flexDirection: 'row',
+    alignItems: 'flex-start',
     gap: 16,
   },
   iconContainer: {
     width: 56,
     height: 56,
     borderRadius: 14,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   headerInfo: {
     flex: 1,
@@ -132,22 +132,22 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   statsGrid: {
-    flexDirection: "row",
+    flexDirection: 'row',
     gap: 12,
   },
   statBox: {
     flex: 1,
     padding: 16,
     borderRadius: 12,
-    alignItems: "center",
+    alignItems: 'center',
     gap: 8,
   },
   statValue: {
     fontSize: 24,
-    fontWeight: "700",
+    fontWeight: '700',
   },
   statLabel: {
     fontSize: 12,
-    textAlign: "center",
+    textAlign: 'center',
   },
 });

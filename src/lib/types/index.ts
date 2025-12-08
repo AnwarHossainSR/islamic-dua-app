@@ -20,7 +20,7 @@ export interface UserChallengeProgress {
   user_id: string;
   challenge_id: string;
   current_day: number;
-  status: "active" | "completed" | "paused";
+  status: 'active' | 'completed' | 'paused';
   current_streak: number;
   total_completed_days: number;
   missed_days: number;

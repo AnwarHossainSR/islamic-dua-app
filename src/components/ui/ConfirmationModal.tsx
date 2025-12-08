@@ -1,4 +1,4 @@
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -7,7 +7,7 @@ import {
   AlertDialogDescription,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/AlertDialog";
+} from '@/components/ui/AlertDialog';
 
 interface ConfirmationModalProps {
   open: boolean;
@@ -15,8 +15,8 @@ interface ConfirmationModalProps {
   description: string;
   cancelText?: string;
   confirmText?: string;
-  confirmVariant?: "default" | "destructive";
-  icon?: "warning" | "info" | "success" | "error";
+  confirmVariant?: 'default' | 'destructive';
+  icon?: 'warning' | 'info' | 'success' | 'error';
   onCancel: () => void;
   onConfirm: () => void;
   isLoading?: boolean;
@@ -26,19 +26,19 @@ export function ConfirmationModal({
   open,
   title,
   description,
-  cancelText = "Cancel",
-  confirmText = "Confirm",
-  confirmVariant = "default",
-  icon = "warning",
+  cancelText = 'Cancel',
+  confirmText = 'Confirm',
+  confirmVariant = 'default',
+  icon = 'warning',
   onCancel,
   onConfirm,
   isLoading = false,
 }: ConfirmationModalProps) {
   const iconClasses = {
-    warning: "text-amber-500",
-    info: "text-blue-500",
-    success: "text-emerald-500",
-    error: "text-red-500",
+    warning: 'text-amber-500',
+    info: 'text-blue-500',
+    success: 'text-emerald-500',
+    error: 'text-red-500',
   };
 
   return (
@@ -71,12 +71,12 @@ export function ConfirmationModal({
             onClick={onConfirm}
             disabled={isLoading}
             className={
-              confirmVariant === "destructive"
-                ? "bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-all hover:scale-105 active:scale-95"
-                : "transition-all hover:scale-105 active:scale-95"
+              confirmVariant === 'destructive'
+                ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-all hover:scale-105 active:scale-95'
+                : 'transition-all hover:scale-105 active:scale-95'
             }
           >
-            {isLoading ? "Loading..." : confirmText}
+            {isLoading ? 'Loading...' : confirmText}
           </AlertDialogAction>
         </div>
       </AlertDialogContent>

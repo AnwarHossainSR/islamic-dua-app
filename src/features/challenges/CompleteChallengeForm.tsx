@@ -1,6 +1,6 @@
-import { useActionState } from "react";
-import { challengesApi } from "@/api";
-import { Button, Input } from "@/components/ui";
+import { useActionState } from 'react';
+import { challengesApi } from '@/api';
+import { Button, Input } from '@/components/ui';
 
 interface CompleteChallengeFormProps {
   progressId: string;
@@ -13,12 +13,12 @@ interface CompleteChallengeFormProps {
 
 async function completeAction(_: any, formData: FormData) {
   try {
-    const progressId = formData.get("progressId") as string;
-    const userId = formData.get("userId") as string;
-    const challengeId = formData.get("challengeId") as string;
-    const dayNumber = parseInt(formData.get("dayNumber") as string, 10);
-    const count = parseInt(formData.get("count") as string, 10);
-    const targetCount = parseInt(formData.get("targetCount") as string, 10);
+    const progressId = formData.get('progressId') as string;
+    const userId = formData.get('userId') as string;
+    const challengeId = formData.get('challengeId') as string;
+    const dayNumber = parseInt(formData.get('dayNumber') as string, 10);
+    const count = parseInt(formData.get('count') as string, 10);
+    const targetCount = parseInt(formData.get('targetCount') as string, 10);
 
     await challengesApi.complete(progressId, userId, challengeId, dayNumber, count, targetCount);
     return { success: true };
@@ -59,7 +59,7 @@ export function CompleteChallengeForm({
       </div>
 
       <Button type="submit" disabled={isPending} className="w-full">
-        {isPending ? "Completing..." : "Complete Day"}
+        {isPending ? 'Completing...' : 'Complete Day'}
       </Button>
     </form>
   );

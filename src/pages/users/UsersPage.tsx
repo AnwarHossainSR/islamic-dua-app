@@ -1,12 +1,12 @@
-import { Edit, Shield, Trash2, UserPlus, Users } from "lucide-react";
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { toast } from "sonner";
-import { usersApi } from "@/api/users.api";
-import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
-import { Card, CardContent } from "@/components/ui/Card";
-import { useConfirm } from "@/components/ui/Confirm";
+import { Edit, Shield, Trash2, UserPlus, Users } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { toast } from 'sonner';
+import { usersApi } from '@/api/users.api';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent } from '@/components/ui/Card';
+import { useConfirm } from '@/components/ui/Confirm';
 import {
   Dialog,
   DialogContent,
@@ -15,17 +15,17 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/Dialog";
-import { Input } from "@/components/ui/Input";
-import { Label } from "@/components/ui/Label";
+} from '@/components/ui/Dialog';
+import { Input } from '@/components/ui/Input';
+import { Label } from '@/components/ui/Label';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/Select";
-import { Skeleton } from "@/components/ui/Skeleton";
+} from '@/components/ui/Select';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 interface User {
   id: string;
@@ -44,12 +44,12 @@ export default function UsersPage() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [role, setRole] = useState("editor");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [role, setRole] = useState('editor');
   const [isActive, setIsActive] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [generatedPassword, setGeneratedPassword] = useState("");
+  const [generatedPassword, setGeneratedPassword] = useState('');
 
   useEffect(() => {
     loadUsers();
@@ -60,10 +60,10 @@ export default function UsersPage() {
     try {
       const {
         data: { user },
-      } = await import("@/lib/supabase/client").then((m) => m.supabase.auth.getUser());
+      } = await import('@/lib/supabase/client').then((m) => m.supabase.auth.getUser());
       if (user) setCurrentUserId(user.id);
     } catch (error) {
-      console.error("Failed to get current user:", error);
+      console.error('Failed to get current user:', error);
     }
   };
 
@@ -72,7 +72,7 @@ export default function UsersPage() {
       const data = await usersApi.getAll();
       setUsers(data);
     } catch (_error) {
-      toast.error("Failed to load users");
+      toast.error('Failed to load users');
     } finally {
       setLoading(false);
     }
@@ -80,7 +80,7 @@ export default function UsersPage() {
 
   const handleAddAdmin = async () => {
     if (!email.trim()) {
-      toast.error("Email is required");
+      toast.error('Email is required');
       return;
     }
 
@@ -93,13 +93,13 @@ export default function UsersPage() {
       } else {
         toast.success(`Admin user ${email} has been added as ${role}`);
         setIsAddDialogOpen(false);
-        setEmail("");
-        setPassword("");
-        setRole("editor");
+        setEmail('');
+        setPassword('');
+        setRole('editor');
         loadUsers();
       }
     } catch (error: any) {
-      toast.error(error.message || "Failed to add admin");
+      toast.error(error.message || 'Failed to add admin');
     } finally {
       setSubmitting(false);
     }
@@ -116,7 +116,7 @@ export default function UsersPage() {
       setSelectedUser(null);
       loadUsers();
     } catch (error: any) {
-      toast.error(error.message || "Failed to update user");
+      toast.error(error.message || 'Failed to update user');
     } finally {
       setSubmitting(false);
     }
@@ -124,16 +124,16 @@ export default function UsersPage() {
 
   const handleRemoveUser = async (userId: string, userEmail: string, userUserId: string) => {
     if (userUserId === currentUserId) {
-      toast.error("You cannot delete your own account");
+      toast.error('You cannot delete your own account');
       return;
     }
 
     const confirmed = await confirm({
-      title: "Remove Admin User",
+      title: 'Remove Admin User',
       description: `Are you sure you want to remove ${userEmail} as admin? This action cannot be undone.`,
-      confirmText: "Remove",
-      confirmVariant: "destructive",
-      icon: "warning",
+      confirmText: 'Remove',
+      confirmVariant: 'destructive',
+      icon: 'warning',
     });
     if (confirmed) {
       await usersApi.remove(userId);
@@ -175,7 +175,7 @@ export default function UsersPage() {
               <div>
                 <p className="text-sm text-muted-foreground">Super Admins</p>
                 <p className="text-2xl font-bold">
-                  {users.filter((u) => u.role === "super_admin").length}
+                  {users.filter((u) => u.role === 'super_admin').length}
                 </p>
               </div>
               <Shield className="h-8 w-8 text-red-500" />
@@ -189,7 +189,7 @@ export default function UsersPage() {
               <div>
                 <p className="text-sm text-muted-foreground">Admins</p>
                 <p className="text-2xl font-bold">
-                  {users.filter((u) => u.role === "admin").length}
+                  {users.filter((u) => u.role === 'admin').length}
                 </p>
               </div>
               <Shield className="h-8 w-8 text-orange-500" />
@@ -203,7 +203,7 @@ export default function UsersPage() {
               <div>
                 <p className="text-sm text-muted-foreground">Editors</p>
                 <p className="text-2xl font-bold">
-                  {users.filter((u) => u.role === "editor").length}
+                  {users.filter((u) => u.role === 'editor').length}
                 </p>
               </div>
               <Edit className="h-8 w-8 text-green-500" />
@@ -283,17 +283,17 @@ export default function UsersPage() {
                       variant="outline"
                       onClick={() => {
                         setIsAddDialogOpen(false);
-                        setEmail("");
-                        setPassword("");
-                        setRole("editor");
-                        setGeneratedPassword("");
+                        setEmail('');
+                        setPassword('');
+                        setRole('editor');
+                        setGeneratedPassword('');
                       }}
                     >
-                      {generatedPassword ? "Close" : "Cancel"}
+                      {generatedPassword ? 'Close' : 'Cancel'}
                     </Button>
                     {!generatedPassword && (
                       <Button onClick={handleAddAdmin} disabled={submitting}>
-                        {submitting ? "Adding..." : "Add Admin"}
+                        {submitting ? 'Adding...' : 'Add Admin'}
                       </Button>
                     )}
                   </DialogFooter>
@@ -340,23 +340,23 @@ export default function UsersPage() {
                         <div className="flex flex-wrap gap-2">
                           <Badge
                             variant={
-                              user.role === "super_admin"
-                                ? "destructive"
-                                : user.role === "admin"
-                                  ? "default"
-                                  : "secondary"
+                              user.role === 'super_admin'
+                                ? 'destructive'
+                                : user.role === 'admin'
+                                  ? 'default'
+                                  : 'secondary'
                             }
                           >
-                            {user.role === "super_admin"
-                              ? "Super Admin"
-                              : user.role === "admin"
-                                ? "Admin"
-                                : user.role === "editor"
-                                  ? "Editor"
-                                  : "User"}
+                            {user.role === 'super_admin'
+                              ? 'Super Admin'
+                              : user.role === 'admin'
+                                ? 'Admin'
+                                : user.role === 'editor'
+                                  ? 'Editor'
+                                  : 'User'}
                           </Badge>
-                          <Badge variant={user.is_active ? "default" : "outline"}>
-                            {user.is_active ? "Active" : "Inactive"}
+                          <Badge variant={user.is_active ? 'default' : 'outline'}>
+                            {user.is_active ? 'Active' : 'Inactive'}
                           </Badge>
                         </div>
                         <div className="flex gap-2">
@@ -375,8 +375,8 @@ export default function UsersPage() {
                             disabled={user.user_id === currentUserId}
                             title={
                               user.user_id === currentUserId
-                                ? "Cannot delete your own account"
-                                : "Delete user"
+                                ? 'Cannot delete your own account'
+                                : 'Delete user'
                             }
                           >
                             <Trash2 className="h-4 w-4" />
@@ -422,8 +422,8 @@ export default function UsersPage() {
               <div>
                 <Label htmlFor="edit-status">Status</Label>
                 <Select
-                  value={isActive ? "active" : "inactive"}
-                  onValueChange={(value) => setIsActive(value === "active")}
+                  value={isActive ? 'active' : 'inactive'}
+                  onValueChange={(value) => setIsActive(value === 'active')}
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -441,7 +441,7 @@ export default function UsersPage() {
               Cancel
             </Button>
             <Button onClick={handleUpdateUser} disabled={submitting}>
-              {submitting ? "Updating..." : "Update"}
+              {submitting ? 'Updating...' : 'Update'}
             </Button>
           </DialogFooter>
         </DialogContent>

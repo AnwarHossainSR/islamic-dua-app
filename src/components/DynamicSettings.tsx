@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
-import { settingsApi } from "@/api/settings.api";
-import { Button } from "@/components/ui/Button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
-import { Input } from "@/components/ui/Input";
-import { Label } from "@/components/ui/Label";
-import { Switch } from "@/components/ui/Switch";
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { settingsApi } from '@/api/settings.api';
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Input } from '@/components/ui/Input';
+import { Label } from '@/components/ui/Label';
+import { Switch } from '@/components/ui/Switch';
 
 interface Setting {
   id: string;
@@ -48,7 +48,7 @@ export function DynamicSettings({ category, title, description, icon }: DynamicS
       });
       setValues(initialValues);
     } catch (error) {
-      console.error("Failed to fetch settings:", error);
+      console.error('Failed to fetch settings:', error);
     } finally {
       setLoading(false);
     }
@@ -60,9 +60,9 @@ export function DynamicSettings({ category, title, description, icon }: DynamicS
       await Promise.all(
         Object.entries(values).map(([key, value]) => settingsApi.update(key, value))
       );
-      toast.success("Settings saved successfully");
+      toast.success('Settings saved successfully');
     } catch (error: any) {
-      toast.error(error.message || "Failed to save settings");
+      toast.error(error.message || 'Failed to save settings');
     } finally {
       setSaving(false);
     }
@@ -72,7 +72,7 @@ export function DynamicSettings({ category, title, description, icon }: DynamicS
     const value = values[setting.key];
 
     switch (setting.type) {
-      case "boolean":
+      case 'boolean':
         return (
           <Switch
             checked={value}
@@ -81,11 +81,11 @@ export function DynamicSettings({ category, title, description, icon }: DynamicS
             }
           />
         );
-      case "number":
+      case 'number':
         return (
           <Input
             type="number"
-            value={value || ""}
+            value={value || ''}
             onChange={(e) =>
               setValues((prev) => ({ ...prev, [setting.key]: parseInt(e.target.value, 10) || 0 }))
             }
@@ -94,7 +94,7 @@ export function DynamicSettings({ category, title, description, icon }: DynamicS
       default:
         return (
           <Input
-            value={value || ""}
+            value={value || ''}
             onChange={(e) => setValues((prev) => ({ ...prev, [setting.key]: e.target.value }))}
           />
         );
@@ -134,7 +134,7 @@ export function DynamicSettings({ category, title, description, icon }: DynamicS
         ) : (
           settings.map((setting) => (
             <div key={setting.id} className="space-y-2">
-              {setting.type === "boolean" ? (
+              {setting.type === 'boolean' ? (
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label>{setting.label}</Label>
@@ -159,7 +159,7 @@ export function DynamicSettings({ category, title, description, icon }: DynamicS
 
         {settings.length > 0 && (
           <Button onClick={handleSave} disabled={saving} className="w-full">
-            {saving ? "Saving..." : "Save Settings"}
+            {saving ? 'Saving...' : 'Save Settings'}
           </Button>
         )}
       </CardContent>

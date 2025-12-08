@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
-import { adminApi } from "@/api/admin.api";
-import { Loader } from "@/components/ui";
+import { useEffect, useState } from 'react';
+import { adminApi } from '@/api/admin.api';
+import { Loader } from '@/components/ui';
 
 export default function LogsPage() {
   const [logs, setLogs] = useState<any[]>([]);
@@ -46,11 +46,11 @@ export default function LogsPage() {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span
                       className={`px-2 py-1 rounded text-xs ${
-                        log.level === "error"
-                          ? "bg-red-100 text-red-800"
-                          : log.level === "warn"
-                            ? "bg-yellow-100 text-yellow-800"
-                            : "bg-blue-100 text-blue-800"
+                        log.level === 'error'
+                          ? 'bg-red-100 text-red-800'
+                          : log.level === 'warn'
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : 'bg-blue-100 text-blue-800'
                       }`}
                     >
                       {log.level}

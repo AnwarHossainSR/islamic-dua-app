@@ -1,4 +1,4 @@
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation } from '@react-navigation/native';
 import {
   Check,
   Clock,
@@ -10,8 +10,8 @@ import {
   Target,
   Trash2,
   TrendingUp,
-} from "lucide-react-native";
-import { useEffect, useMemo, useState } from "react";
+} from 'lucide-react-native';
+import { useEffect, useMemo, useState } from 'react';
 import {
   Pressable,
   RefreshControl,
@@ -20,10 +20,10 @@ import {
   Text,
   TextInput,
   View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import Toast from "react-native-toast-message";
-import { challengesApi } from "@/api/challenges.api";
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import Toast from 'react-native-toast-message';
+import { challengesApi } from '@/api/challenges.api';
 import {
   Badge,
   Button,
@@ -35,10 +35,10 @@ import {
   Loader,
   Pagination,
   Progress,
-} from "@/components/ui";
-import { ROUTES } from "@/config/routes";
-import { useAuth } from "@/hooks/useAuth";
-import { useTheme } from "@/hooks/useTheme";
+} from '@/components/ui';
+import { ROUTES } from '@/config/routes';
+import { useAuth } from '@/hooks/useAuth';
+import { useTheme } from '@/hooks/useTheme';
 
 function isCurrentDay(timestamp: number | string | null): boolean {
   if (!timestamp) return false;
@@ -48,22 +48,22 @@ function isCurrentDay(timestamp: number | string | null): boolean {
 }
 
 function formatLastCompleted(timestamp: number | string | null): string {
-  if (!timestamp) return "Not started";
+  if (!timestamp) return 'Not started';
   const date = new Date(timestamp);
   const today = new Date();
   const yesterday = new Date(today);
   yesterday.setDate(yesterday.getDate() - 1);
 
   if (date.toDateString() === today.toDateString()) {
-    return `Today at ${date.toLocaleTimeString("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
+    return `Today at ${date.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
       hour12: true,
     })}`;
   } else if (date.toDateString() === yesterday.toDateString()) {
-    return "Yesterday";
+    return 'Yesterday';
   } else {
-    return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   }
 }
 
@@ -74,8 +74,8 @@ export default function ChallengesScreen() {
   const [challenges, setChallenges] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [completionFilter, setCompletionFilter] = useState("pending"); // all, pending, completed
+  const [searchQuery, setSearchQuery] = useState('');
+  const [completionFilter, setCompletionFilter] = useState('pending'); // all, pending, completed
   const [currentPage, setCurrentPage] = useState(1);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<{
@@ -106,11 +106,11 @@ export default function ChallengesScreen() {
       const data = await challengesApi.getAll();
       setChallenges(data);
     } catch (error) {
-      console.error("Error loading challenges:", error);
+      console.error('Error loading challenges:', error);
       Toast.show({
-        type: "error",
-        text1: "Error",
-        text2: "Failed to load challenges",
+        type: 'error',
+        text1: 'Error',
+        text2: 'Failed to load challenges',
       });
     } finally {
       setLoading(false);
@@ -142,9 +142,9 @@ export default function ChallengesScreen() {
     }
 
     // Completion filter
-    if (completionFilter === "completed") {
+    if (completionFilter === 'completed') {
       filtered = filtered.filter((c) => isCurrentDay(c.last_completed_at));
-    } else if (completionFilter === "pending") {
+    } else if (completionFilter === 'pending') {
       filtered = filtered.filter((c) => !isCurrentDay(c.last_completed_at));
     }
 
@@ -164,16 +164,16 @@ export default function ChallengesScreen() {
       const { error } = await challengesApi.start(user.id, challengeId);
       if (error) throw error;
       Toast.show({
-        type: "success",
-        text1: "Challenge Started!",
-        text2: "Good luck on your journey.",
+        type: 'success',
+        text1: 'Challenge Started!',
+        text2: 'Good luck on your journey.',
       });
       loadChallenges();
     } catch (error: any) {
       Toast.show({
-        type: "error",
-        text1: "Error",
-        text2: error.message || "Failed to start challenge",
+        type: 'error',
+        text1: 'Error',
+        text2: error.message || 'Failed to start challenge',
       });
     } finally {
       setActionLoading(null);
@@ -186,16 +186,16 @@ export default function ChallengesScreen() {
     try {
       await challengesApi.restart(challenge.progress_id, challenge.id);
       Toast.show({
-        type: "success",
-        text1: "Challenge Restarted!",
-        text2: "Your progress has been reset.",
+        type: 'success',
+        text1: 'Challenge Restarted!',
+        text2: 'Your progress has been reset.',
       });
       loadChallenges();
     } catch (error: any) {
       Toast.show({
-        type: "error",
-        text1: "Error",
-        text2: error.message || "Failed to restart challenge",
+        type: 'error',
+        text1: 'Error',
+        text2: error.message || 'Failed to restart challenge',
       });
     } finally {
       setActionLoading(null);
@@ -208,16 +208,16 @@ export default function ChallengesScreen() {
     try {
       await challengesApi.delete(deleteConfirm.challengeId);
       Toast.show({
-        type: "success",
-        text1: "Challenge Deleted",
-        text2: "The challenge has been removed.",
+        type: 'success',
+        text1: 'Challenge Deleted',
+        text2: 'The challenge has been removed.',
       });
       loadChallenges();
     } catch (error: any) {
       Toast.show({
-        type: "error",
-        text1: "Error",
-        text2: error.message || "Failed to delete challenge",
+        type: 'error',
+        text1: 'Error',
+        text2: error.message || 'Failed to delete challenge',
       });
     } finally {
       setActionLoading(null);
@@ -227,12 +227,12 @@ export default function ChallengesScreen() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "active":
+      case 'active':
         return colors.primary;
-      case "completed":
-        return "#22c55e";
-      case "paused":
-        return "#f59e0b";
+      case 'completed':
+        return '#22c55e';
+      case 'paused':
+        return '#f59e0b';
       default:
         return colors.mutedForeground;
     }
@@ -240,14 +240,14 @@ export default function ChallengesScreen() {
 
   const getStatusLabel = (status: string) => {
     switch (status) {
-      case "active":
-        return "Active";
-      case "completed":
-        return "Completed";
-      case "paused":
-        return "Paused";
+      case 'active':
+        return 'Active';
+      case 'completed':
+        return 'Completed';
+      case 'paused':
+        return 'Paused';
       default:
-        return "Not Started";
+        return 'Not Started';
     }
   };
 
@@ -256,7 +256,7 @@ export default function ChallengesScreen() {
   }
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]} edges={["top"]}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]} edges={['top']}>
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.content}
@@ -358,20 +358,20 @@ export default function ChallengesScreen() {
           <Pressable
             style={[
               styles.filterTab,
-              completionFilter === "all" && {
+              completionFilter === 'all' && {
                 backgroundColor: colors.primary,
               },
-              completionFilter !== "all" && {
+              completionFilter !== 'all' && {
                 backgroundColor: colors.secondary,
               },
             ]}
-            onPress={() => setCompletionFilter("all")}
+            onPress={() => setCompletionFilter('all')}
           >
             <Text
               style={[
                 styles.filterTabText,
                 {
-                  color: completionFilter === "all" ? colors.primaryForeground : colors.foreground,
+                  color: completionFilter === 'all' ? colors.primaryForeground : colors.foreground,
                 },
               ]}
             >
@@ -382,21 +382,21 @@ export default function ChallengesScreen() {
           <Pressable
             style={[
               styles.filterTab,
-              completionFilter === "pending" && {
+              completionFilter === 'pending' && {
                 backgroundColor: colors.primary,
               },
-              completionFilter !== "pending" && {
+              completionFilter !== 'pending' && {
                 backgroundColor: colors.secondary,
               },
             ]}
-            onPress={() => setCompletionFilter("pending")}
+            onPress={() => setCompletionFilter('pending')}
           >
             <Text
               style={[
                 styles.filterTabText,
                 {
                   color:
-                    completionFilter === "pending" ? colors.primaryForeground : colors.foreground,
+                    completionFilter === 'pending' ? colors.primaryForeground : colors.foreground,
                 },
               ]}
             >
@@ -407,21 +407,21 @@ export default function ChallengesScreen() {
           <Pressable
             style={[
               styles.filterTab,
-              completionFilter === "completed" && {
+              completionFilter === 'completed' && {
                 backgroundColor: colors.primary,
               },
-              completionFilter !== "completed" && {
+              completionFilter !== 'completed' && {
                 backgroundColor: colors.secondary,
               },
             ]}
-            onPress={() => setCompletionFilter("completed")}
+            onPress={() => setCompletionFilter('completed')}
           >
             <Text
               style={[
                 styles.filterTabText,
                 {
                   color:
-                    completionFilter === "completed" ? colors.primaryForeground : colors.foreground,
+                    completionFilter === 'completed' ? colors.primaryForeground : colors.foreground,
                 },
               ]}
             >
@@ -445,7 +445,7 @@ export default function ChallengesScreen() {
                     <View
                       style={[styles.iconContainer, { backgroundColor: `${colors.primary}20` }]}
                     >
-                      <Text style={styles.challengeIcon}>{challenge.icon || "📿"}</Text>
+                      <Text style={styles.challengeIcon}>{challenge.icon || '📿'}</Text>
                     </View>
                     <View style={styles.titleContainer}>
                       <CardTitle>{challenge.title_bn}</CardTitle>
@@ -458,7 +458,7 @@ export default function ChallengesScreen() {
                   </View>
                   <View style={styles.badgeColumn}>
                     <Badge
-                      variant={challenge.user_status === "active" ? "default" : "secondary"}
+                      variant={challenge.user_status === 'active' ? 'default' : 'secondary'}
                       style={{
                         backgroundColor: `${getStatusColor(challenge.user_status)}20`,
                       }}
@@ -473,12 +473,12 @@ export default function ChallengesScreen() {
                         variant="secondary"
                         style={{
                           backgroundColor: isCurrentDay(challenge.last_completed_at)
-                            ? "#22c55e20"
+                            ? '#22c55e20'
                             : colors.secondary,
                         }}
                         textStyle={{
                           color: isCurrentDay(challenge.last_completed_at)
-                            ? "#22c55e"
+                            ? '#22c55e'
                             : colors.mutedForeground,
                         }}
                       >
@@ -526,7 +526,7 @@ export default function ChallengesScreen() {
                   </View>
                 </View>
 
-                {challenge.user_status !== "not_started" && (
+                {challenge.user_status !== 'not_started' && (
                   <View style={styles.progressContainer}>
                     <View style={styles.progressHeader}>
                       <Text style={[styles.progressLabel, { color: colors.mutedForeground }]}>
@@ -544,14 +544,14 @@ export default function ChallengesScreen() {
                 <View style={styles.actionRow}>
                   {/* Primary Action */}
                   <View style={styles.primaryActions}>
-                    {challenge.user_status === "not_started" && (
+                    {challenge.user_status === 'not_started' && (
                       <Pressable
                         onPress={() => handleStartChallenge(challenge.id)}
                         disabled={actionLoading === challenge.id}
                         style={({ pressed }) => [
                           styles.primaryButton,
                           {
-                            backgroundColor: "#22c55e",
+                            backgroundColor: '#22c55e',
                             opacity: pressed ? 0.8 : 1,
                           },
                         ]}
@@ -560,7 +560,7 @@ export default function ChallengesScreen() {
                         <Text style={styles.buttonText}>Start</Text>
                       </Pressable>
                     )}
-                    {challenge.user_status === "active" && (
+                    {challenge.user_status === 'active' && (
                       <Pressable
                         onPress={() =>
                           navigation.navigate(ROUTES.CHALLENGE_PROGRESS, {
@@ -570,7 +570,7 @@ export default function ChallengesScreen() {
                         style={({ pressed }) => [
                           styles.primaryButton,
                           {
-                            backgroundColor: "#22c55e",
+                            backgroundColor: '#22c55e',
                             opacity: pressed ? 0.8 : 1,
                           },
                         ]}
@@ -579,14 +579,14 @@ export default function ChallengesScreen() {
                         <Text style={styles.buttonText}>Continue</Text>
                       </Pressable>
                     )}
-                    {challenge.user_status === "completed" && (
+                    {challenge.user_status === 'completed' && (
                       <Pressable
                         onPress={() => handleRestartChallenge(challenge)}
                         disabled={actionLoading === challenge.progress_id}
                         style={({ pressed }) => [
                           styles.primaryButton,
                           {
-                            backgroundColor: "#f59e0b",
+                            backgroundColor: '#f59e0b',
                             opacity: pressed ? 0.8 : 1,
                           },
                         ]}
@@ -656,8 +656,8 @@ export default function ChallengesScreen() {
               </Text>
               <Text style={[styles.emptyText, { color: colors.mutedForeground }]}>
                 {searchQuery
-                  ? "Try a different search term"
-                  : "Check back later for new challenges"}
+                  ? 'Try a different search term'
+                  : 'Check back later for new challenges'}
               </Text>
             </View>
           )}
@@ -706,29 +706,29 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    fontWeight: "700",
+    fontWeight: '700',
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 14,
   },
   statsGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: 10,
     marginBottom: 16,
   },
   statCard: {
-    width: "48%",
+    width: '48%',
     flexGrow: 1,
   },
   statCardContent: {
     paddingVertical: 12,
   },
   statRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   statLabel: {
     fontSize: 12,
@@ -736,11 +736,11 @@ const styles = StyleSheet.create({
   },
   statValue: {
     fontSize: 22,
-    fontWeight: "700",
+    fontWeight: '700',
   },
   searchContainer: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingHorizontal: 12,
     paddingVertical: 10,
     borderRadius: 10,
@@ -753,7 +753,7 @@ const styles = StyleSheet.create({
     padding: 0,
   },
   filterTabs: {
-    flexDirection: "row",
+    flexDirection: 'row',
     gap: 8,
     marginBottom: 12,
   },
@@ -762,11 +762,11 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 12,
     borderRadius: 8,
-    alignItems: "center",
+    alignItems: 'center',
   },
   filterTabText: {
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: '600',
   },
   resultsCount: {
     fontSize: 13,
@@ -777,13 +777,13 @@ const styles = StyleSheet.create({
   },
   challengeCard: {},
   cardHeaderRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
   },
   cardTitleRow: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 12,
     flex: 1,
   },
@@ -791,8 +791,8 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 10,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   challengeIcon: {
     fontSize: 20,
@@ -802,7 +802,7 @@ const styles = StyleSheet.create({
   },
   badgeColumn: {
     gap: 4,
-    alignItems: "flex-end",
+    alignItems: 'flex-end',
   },
   arabicTitle: {
     fontSize: 14,
@@ -814,17 +814,17 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   challengeStatsRow: {
-    flexDirection: "row",
-    justifyContent: "space-around",
+    flexDirection: 'row',
+    justifyContent: 'space-around',
     paddingVertical: 12,
     marginBottom: 12,
   },
   challengeStat: {
-    alignItems: "center",
+    alignItems: 'center',
   },
   challengeStatValue: {
     fontSize: 20,
-    fontWeight: "700",
+    fontWeight: '700',
   },
   challengeStatLabel: {
     fontSize: 12,
@@ -834,8 +834,8 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   progressHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     marginBottom: 8,
   },
   progressLabel: {
@@ -843,12 +843,12 @@ const styles = StyleSheet.create({
   },
   progressPercent: {
     fontSize: 13,
-    fontWeight: "600",
+    fontWeight: '600',
   },
   actionRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     gap: 8,
     marginTop: 12,
   },
@@ -856,16 +856,16 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   iconActions: {
-    flexDirection: "row",
+    flexDirection: 'row',
     gap: 8,
   },
   primaryButton: {
-    flexDirection: "row",
+    flexDirection: 'row',
     gap: 6,
     borderRadius: 8,
   },
   secondaryButton: {
-    flexDirection: "row",
+    flexDirection: 'row',
     gap: 6,
     borderRadius: 8,
   },
@@ -873,30 +873,30 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     paddingHorizontal: 0,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     borderRadius: 8,
   },
   buttonText: {
-    color: "#fff",
-    fontWeight: "500",
+    color: '#fff',
+    fontWeight: '500',
     fontSize: 13,
   },
   actionButton: {
-    flexDirection: "row",
+    flexDirection: 'row',
     gap: 8,
   },
   emptyState: {
-    alignItems: "center",
+    alignItems: 'center',
     paddingVertical: 60,
     gap: 12,
   },
   emptyTitle: {
     fontSize: 18,
-    fontWeight: "600",
+    fontWeight: '600',
   },
   emptyText: {
     fontSize: 14,
-    textAlign: "center",
+    textAlign: 'center',
   },
 });

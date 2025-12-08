@@ -1,6 +1,6 @@
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react-native";
-import { Pressable, StyleSheet, Text, View, type ViewStyle } from "react-native";
-import { useTheme } from "@/hooks/useTheme";
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react-native';
+import { Pressable, StyleSheet, Text, View, type ViewStyle } from 'react-native';
+import { useTheme } from '@/hooks/useTheme';
 
 interface PaginationProps {
   currentPage: number;
@@ -106,8 +106,8 @@ export function Pagination({
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: "column",
-    alignItems: "center",
+    flexDirection: 'column',
+    alignItems: 'center',
     gap: 12,
     marginTop: 20,
     paddingTop: 16,
@@ -117,16 +117,16 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   buttonsContainer: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 8,
   },
   button: {
     width: 36,
     height: 36,
     borderRadius: 8,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   buttonDisabled: {
     opacity: 0.5,
@@ -139,6 +139,6 @@ const styles = StyleSheet.create({
   },
   pageText: {
     fontSize: 13,
-    fontWeight: "500",
+    fontWeight: '500',
   },
 });

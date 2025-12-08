@@ -1,6 +1,6 @@
-import { Toaster } from "sonner";
-import { AuthProvider } from "./AuthProvider";
-import { ThemeProvider } from "./ThemeProvider";
+import { Toaster } from 'sonner';
+import { AuthProvider } from './AuthProvider';
+import { ThemeProvider } from './ThemeProvider';
 
 export function AppProviders({ children }: { children: React.ReactNode }) {
   return (

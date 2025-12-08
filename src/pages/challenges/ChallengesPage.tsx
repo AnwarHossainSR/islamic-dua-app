@@ -1,4 +1,4 @@
-import { format } from "date-fns";
+import { format } from 'date-fns';
 import {
   Calendar,
   Check,
@@ -17,12 +17,12 @@ import {
   TrendingUp,
   Trophy,
   Users,
-} from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
-import { toast } from "sonner";
-import { activityApi } from "@/api/activity.api";
-import { challengesApi } from "@/api/challenges.api";
+} from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { toast } from 'sonner';
+import { activityApi } from '@/api/activity.api';
+import { challengesApi } from '@/api/challenges.api';
 import {
   Badge,
   Button,
@@ -46,11 +46,11 @@ import {
   TabsContent,
   TabsList,
   TabsTrigger,
-} from "@/components/ui";
-import { useConfirm } from "@/components/ui/Confirm";
-import { Pagination } from "@/components/ui/Pagination";
-import { useAuth } from "@/hooks/useAuth";
-import { formatNumber } from "@/lib/utils/format";
+} from '@/components/ui';
+import { useConfirm } from '@/components/ui/Confirm';
+import { Pagination } from '@/components/ui/Pagination';
+import { useAuth } from '@/hooks/useAuth';
+import { formatNumber } from '@/lib/utils/format';
 
 function isCurrentDay(timestamp: number | null): boolean {
   if (!timestamp) return false;
@@ -66,10 +66,10 @@ export default function ChallengesPage() {
   const [recentLogs, setRecentLogs] = useState<any[]>([]);
   const [filteredChallenges, setFilteredChallenges] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [difficultyFilter, setDifficultyFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [completionFilter, setCompletionFilter] = useState("pending");
+  const [searchQuery, setSearchQuery] = useState('');
+  const [difficultyFilter, setDifficultyFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [completionFilter, setCompletionFilter] = useState('pending');
   const [currentPage, setCurrentPage] = useState(1);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [showCompletedDialog, setShowCompletedDialog] = useState(false);
@@ -82,7 +82,7 @@ export default function ChallengesPage() {
         setChallenges(data);
         applyFilters(data, searchQuery, difficultyFilter, statusFilter, completionFilter);
       } catch (error) {
-        console.error("Failed to load challenges:", error);
+        console.error('Failed to load challenges:', error);
       } finally {
         setLoading(false);
       }
@@ -92,7 +92,7 @@ export default function ChallengesPage() {
         const logs = await activityApi.getUserRecentLogs(10);
         setRecentLogs(logs);
       } catch (error) {
-        console.error("Failed to load recent logs:", error);
+        console.error('Failed to load recent logs:', error);
       }
     };
     loadChallenges();
@@ -119,23 +119,23 @@ export default function ChallengesPage() {
     }
 
     // Difficulty filter
-    if (difficulty !== "all") {
+    if (difficulty !== 'all') {
       filtered = filtered.filter((c) => c.difficulty_level === difficulty);
     }
 
     // Status filter
-    if (status === "active") {
+    if (status === 'active') {
       filtered = filtered.filter((c) => c.is_active === true);
-    } else if (status === "inactive") {
+    } else if (status === 'inactive') {
       filtered = filtered.filter((c) => c.is_active === false);
-    } else if (status === "featured") {
+    } else if (status === 'featured') {
       filtered = filtered.filter((c) => c.is_featured === true);
     }
 
     // Completion filter
-    if (completion === "completed") {
+    if (completion === 'completed') {
       filtered = filtered.filter((c) => isCurrentDay(c.last_completed_at || null));
-    } else if (completion === "pending") {
+    } else if (completion === 'pending') {
       filtered = filtered.filter((c) => !isCurrentDay(c.last_completed_at || null));
     }
 
@@ -170,20 +170,20 @@ export default function ChallengesPage() {
       await challengesApi.start(user.id, challengeId);
       window.location.reload();
     } catch (error) {
-      console.error("Error starting challenge:", error);
+      console.error('Error starting challenge:', error);
     } finally {
       setActionLoading(null);
     }
   };
 
   const handleRestartChallenge = async (challenge: any) => {
-    setActionLoading(challenge.progress_id || "");
+    setActionLoading(challenge.progress_id || '');
     try {
       await challengesApi.restart(challenge.progress_id, challenge.id);
       window.location.reload();
     } catch (error: any) {
-      console.error("Error restarting challenge:", error);
-      toast.error(`${error?.message || "Failed to restart challenge."}`);
+      console.error('Error restarting challenge:', error);
+      toast.error(`${error?.message || 'Failed to restart challenge.'}`);
     } finally {
       setActionLoading(null);
     }
@@ -191,11 +191,11 @@ export default function ChallengesPage() {
 
   const handleDeleteChallenge = async (challengeId: string) => {
     const confirmed = await confirm({
-      title: "Delete Challenge",
-      description: "Are you sure you want to delete this challenge? This action cannot be undone.",
-      confirmText: "Delete",
-      confirmVariant: "destructive",
-      icon: "warning",
+      title: 'Delete Challenge',
+      description: 'Are you sure you want to delete this challenge? This action cannot be undone.',
+      confirmText: 'Delete',
+      confirmVariant: 'destructive',
+      icon: 'warning',
     });
     if (confirmed) {
       await challengesApi.delete(challengeId);
@@ -478,11 +478,11 @@ export default function ChallengesPage() {
                     >
                       <div className="flex items-center gap-3 min-w-0">
                         <span className="text-2xl shrink-0">
-                          {log.user_progress?.challenge?.icon || "📿"}
+                          {log.user_progress?.challenge?.icon || '📿'}
                         </span>
                         <div className="min-w-0">
                           <p className="text-sm font-medium truncate">
-                            {log.user_progress?.challenge?.title_bn || "Unknown Challenge"}
+                            {log.user_progress?.challenge?.title_bn || 'Unknown Challenge'}
                           </p>
                           <p className="text-xs text-muted-foreground">
                             Day {log.day_number} • {log.count_completed} reps
@@ -491,7 +491,7 @@ export default function ChallengesPage() {
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
                         <span className="text-xs text-muted-foreground">
-                          {new Date(log.completed_at || log.created_at).toLocaleDateString("en-GB")}
+                          {new Date(log.completed_at || log.created_at).toLocaleDateString('en-GB')}
                         </span>
                         {log.is_completed && (
                           <Badge variant="default" className="bg-emerald-500">
@@ -529,7 +529,7 @@ export default function ChallengesPage() {
                       );
                       return (
                         <div key={challenge.id} className="flex items-center gap-2 min-w-0">
-                          <span className="text-xl shrink-0">{challenge.icon || "📿"}</span>
+                          <span className="text-xl shrink-0">{challenge.icon || '📿'}</span>
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium truncate">{challenge.title_bn}</p>
                             <div className="mt-1 h-2 overflow-hidden rounded-full bg-muted">
@@ -537,7 +537,7 @@ export default function ChallengesPage() {
                                 className="h-full"
                                 style={{
                                   width: `${rate}%`,
-                                  backgroundColor: "rgb(16 185 129)",
+                                  backgroundColor: 'rgb(16 185 129)',
                                 }}
                               />
                             </div>
@@ -565,7 +565,7 @@ export default function ChallengesPage() {
                         className="flex items-center justify-between gap-2 min-w-0"
                       >
                         <div className="flex items-center gap-2 min-w-0">
-                          <span className="text-xl shrink-0">{challenge.icon || "📿"}</span>
+                          <span className="text-xl shrink-0">{challenge.icon || '📿'}</span>
                           <p className="text-sm font-medium truncate">{challenge.title_bn}</p>
                         </div>
                         <Badge variant="secondary" className="shrink-0 text-xs">
@@ -614,38 +614,38 @@ function ChallengeCard({
   const completionRate = challenge.completion_percentage || 0;
   const completedToday = isCurrentDay(challenge.last_completed_at || null);
   const statusBadge =
-    challenge.user_status === "completed"
-      ? { variant: "default" as const, text: "Completed" }
-      : challenge.user_status === "active"
-        ? { variant: "secondary" as const, text: "Active" }
-        : { variant: "outline" as const, text: "Not Started" };
+    challenge.user_status === 'completed'
+      ? { variant: 'default' as const, text: 'Completed' }
+      : challenge.user_status === 'active'
+        ? { variant: 'secondary' as const, text: 'Active' }
+        : { variant: 'outline' as const, text: 'Not Started' };
   const difficultyVariant =
-    challenge.difficulty_level === "easy"
-      ? ("secondary" as const)
-      : challenge.difficulty_level === "hard"
-        ? ("destructive" as const)
-        : ("default" as const);
+    challenge.difficulty_level === 'easy'
+      ? ('secondary' as const)
+      : challenge.difficulty_level === 'hard'
+        ? ('destructive' as const)
+        : ('default' as const);
   const progressConfig =
-    challenge.user_status === "completed"
+    challenge.user_status === 'completed'
       ? {
-          label: "Completed",
-          percentage: "100%",
+          label: 'Completed',
+          percentage: '100%',
           width: 100,
-          color: "rgb(34 197 94)",
+          color: 'rgb(34 197 94)',
         }
       : {
-          label: "Progress",
+          label: 'Progress',
           percentage: `${completionRate}%`,
           width: completionRate,
-          color: "rgb(16 185 129)",
+          color: 'rgb(16 185 129)',
         };
 
   return (
     <Card
       className={
-        challenge.user_status === "completed"
-          ? "overflow-hidden bg-emerald-100/80 border-emerald-300 dark:bg-emerald-900/40 dark:border-emerald-600"
-          : "overflow-hidden"
+        challenge.user_status === 'completed'
+          ? 'overflow-hidden bg-emerald-100/80 border-emerald-300 dark:bg-emerald-900/40 dark:border-emerald-600'
+          : 'overflow-hidden'
       }
     >
       <div className="flex flex-col gap-6 p-4 md:p-6 md:flex-row">
@@ -653,7 +653,7 @@ function ChallengeCard({
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-start gap-3 flex-1 min-w-0">
               <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg text-2xl bg-emerald-500/10">
-                {challenge.icon || "📿"}
+                {challenge.icon || '📿'}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="mb-1 flex items-center gap-2 flex-wrap">
@@ -690,11 +690,11 @@ function ChallengeCard({
               ) : completedToday ? (
                 <Badge className="bg-emerald-500/10 text-emerald-700 border-emerald-200 flex items-center gap-1 text-xs">
                   <CheckCircle2 className="h-3 w-3" />
-                  Today at {format(new Date(challenge.last_completed_at), "h:mm a")}
+                  Today at {format(new Date(challenge.last_completed_at), 'h:mm a')}
                 </Badge>
               ) : (
                 <Badge variant="secondary" className="text-xs">
-                  {format(new Date(challenge.last_completed_at), "MMM d, h:mm a")}
+                  {format(new Date(challenge.last_completed_at), 'MMM d, h:mm a')}
                 </Badge>
               )}
             </div>
@@ -748,7 +748,7 @@ function ChallengeCard({
             </div>
           </div>
           <div className="flex gap-2">
-            {challenge.user_status === "not_started" && (
+            {challenge.user_status === 'not_started' && (
               <Button
                 size="sm"
                 className="flex-1 text-xs md:text-sm"
@@ -763,7 +763,7 @@ function ChallengeCard({
                 Start
               </Button>
             )}
-            {challenge.user_status === "completed" && (
+            {challenge.user_status === 'completed' && (
               <Button
                 size="sm"
                 variant="outline"

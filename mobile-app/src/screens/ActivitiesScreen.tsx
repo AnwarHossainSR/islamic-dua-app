@@ -1,14 +1,14 @@
-import { useNavigation } from "@react-navigation/native";
-import { Activity, Flame, Trophy } from "lucide-react-native";
-import { useEffect, useState } from "react";
-import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { activitiesApi } from "@/api/activities.api";
-import { Card, CardContent, CardHeader, CardTitle, Loader } from "@/components/ui";
-import { ROUTES } from "@/config/routes";
-import { useAuth } from "@/hooks/useAuth";
-import { useTheme } from "@/hooks/useTheme";
-import { formatNumber } from "@/lib/utils";
+import { useNavigation } from '@react-navigation/native';
+import { Activity, Flame, Trophy } from 'lucide-react-native';
+import { useEffect, useState } from 'react';
+import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { activitiesApi } from '@/api/activities.api';
+import { Card, CardContent, CardHeader, CardTitle, Loader } from '@/components/ui';
+import { ROUTES } from '@/config/routes';
+import { useAuth } from '@/hooks/useAuth';
+import { useTheme } from '@/hooks/useTheme';
+import { formatNumber } from '@/lib/utils';
 
 export default function ActivitiesScreen() {
   const navigation = useNavigation<any>();
@@ -38,7 +38,7 @@ export default function ActivitiesScreen() {
       setActivities(activitiesData || []);
       setStats(statsData);
     } catch (error) {
-      console.error("Error loading activities:", error);
+      console.error('Error loading activities:', error);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -50,7 +50,7 @@ export default function ActivitiesScreen() {
   }
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]} edges={["top"]}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]} edges={['top']}>
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.content}
@@ -198,14 +198,14 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    fontWeight: "700",
+    fontWeight: '700',
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 14,
   },
   statsRow: {
-    flexDirection: "row",
+    flexDirection: 'row',
     gap: 12,
   },
   miniStat: {
@@ -213,26 +213,26 @@ const styles = StyleSheet.create({
   },
   miniStatContent: {
     padding: 16,
-    alignItems: "center",
+    alignItems: 'center',
     gap: 8,
   },
   miniStatValue: {
     fontSize: 20,
-    fontWeight: "700",
+    fontWeight: '700',
   },
   miniStatLabel: {
     fontSize: 11,
-    textAlign: "center",
+    textAlign: 'center',
   },
   activityRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     paddingVertical: 14,
   },
   activityLeft: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 12,
     flex: 1,
   },
@@ -240,47 +240,47 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 8,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   activityInfo: {
     flex: 1,
   },
   activityName: {
     fontSize: 14,
-    fontWeight: "500",
+    fontWeight: '500',
   },
   activityArabic: {
     fontSize: 12,
     marginTop: 2,
   },
   activityRight: {
-    alignItems: "flex-end",
+    alignItems: 'flex-end',
     gap: 4,
   },
   activityCount: {
     fontSize: 18,
-    fontWeight: "700",
+    fontWeight: '700',
   },
   streakRow: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 4,
   },
   streakText: {
     fontSize: 12,
   },
   emptyState: {
-    alignItems: "center",
+    alignItems: 'center',
     paddingVertical: 40,
     gap: 12,
   },
   emptyTitle: {
     fontSize: 18,
-    fontWeight: "600",
+    fontWeight: '600',
   },
   emptyText: {
     fontSize: 14,
-    textAlign: "center",
+    textAlign: 'center',
   },
 });

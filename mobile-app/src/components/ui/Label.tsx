@@ -1,6 +1,6 @@
-import type React from "react";
-import { StyleSheet, Text, type TextStyle } from "react-native";
-import { useTheme } from "@/hooks/useTheme";
+import type React from 'react';
+import { StyleSheet, Text, type TextStyle } from 'react-native';
+import { useTheme } from '@/hooks/useTheme';
 
 interface LabelProps {
   children: React.ReactNode;
@@ -22,7 +22,7 @@ export function Label({ children, style, required }: LabelProps) {
 const styles = StyleSheet.create({
   label: {
     fontSize: 14,
-    fontWeight: "500",
+    fontWeight: '500',
     marginBottom: 6,
   },
 });

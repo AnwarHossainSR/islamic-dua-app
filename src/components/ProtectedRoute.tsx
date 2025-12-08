@@ -1,7 +1,7 @@
-import { Navigate } from "react-router-dom";
-import { Loader } from "@/components/ui";
-import { ROUTES } from "@/config/routes";
-import { useAuth } from "@/hooks/useAuth";
+import { Navigate } from 'react-router-dom';
+import { Loader } from '@/components/ui';
+import { ROUTES } from '@/config/routes';
+import { useAuth } from '@/hooks/useAuth';
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();

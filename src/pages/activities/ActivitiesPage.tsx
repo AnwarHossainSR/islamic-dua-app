@@ -1,14 +1,14 @@
-import { Activity, ArrowLeft, Search, TrendingUp, Users } from "lucide-react";
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { activitiesApi } from "@/api/activities.api";
-import { Loader } from "@/components/ui";
-import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
-import { Input } from "@/components/ui/Input";
-import { useAuth } from "@/hooks/useAuth";
-import { formatDateTime, formatNumber } from "@/lib/utils";
+import { Activity, ArrowLeft, Search, TrendingUp, Users } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { activitiesApi } from '@/api/activities.api';
+import { Loader } from '@/components/ui';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Input } from '@/components/ui/Input';
+import { useAuth } from '@/hooks/useAuth';
+import { formatDateTime, formatNumber } from '@/lib/utils';
 
 export default function ActivitiesPage() {
   const { user } = useAuth();
@@ -35,7 +35,7 @@ export default function ActivitiesPage() {
       setUserActivities(activities);
       setChallengeStats(stats);
     } catch (error) {
-      console.error("Error loading activities:", error);
+      console.error('Error loading activities:', error);
     } finally {
       setLoading(false);
     }
@@ -130,15 +130,15 @@ export default function ActivitiesPage() {
                     <div
                       className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg text-2xl"
                       style={{
-                        backgroundColor: `${activity?.color || "#10b981"}20`,
+                        backgroundColor: `${activity?.color || '#10b981'}20`,
                       }}
                     >
-                      {activity?.icon || "📿"}
+                      {activity?.icon || '📿'}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1 flex-wrap">
                         <h3 className="text-xl font-bold truncate">
-                          {activity?.name_bn || "Unknown Activity"}
+                          {activity?.name_bn || 'Unknown Activity'}
                         </h3>
                         <Badge variant="outline" className="text-xs">
                           #{index + 1}
@@ -152,7 +152,7 @@ export default function ActivitiesPage() {
                       {activity?.name_en && (
                         <p className="text-sm text-muted-foreground">{activity.name_en}</p>
                       )}
-                      {activity?.arabic_text && activity.arabic_text !== "none" && (
+                      {activity?.arabic_text && activity.arabic_text !== 'none' && (
                         <p className="arabic-text text-lg mt-2 text-emerald-700 dark:text-emerald-400 line-clamp-2">
                           {activity.arabic_text}
                         </p>
@@ -161,11 +161,11 @@ export default function ActivitiesPage() {
                   </div>
 
                   <div className="flex flex-wrap gap-3 text-sm">
-                    <Badge variant="secondary">{activity?.activity_type || "dhikr"}</Badge>
+                    <Badge variant="secondary">{activity?.activity_type || 'dhikr'}</Badge>
                     <div className="flex items-center gap-1.5">
                       <span className="text-muted-foreground">Slug:</span>
                       <code className="text-xs bg-muted px-2 py-1 rounded">
-                        {activity?.unique_slug || "unknown"}
+                        {activity?.unique_slug || 'unknown'}
                       </code>
                     </div>
                   </div>
@@ -195,8 +195,8 @@ export default function ActivitiesPage() {
                       <span className="text-xs font-medium">Last Completed</span>
                       <span className="text-sm font-medium">
                         {userActivity?.last_completed_at
-                          ? formatDateTime(new Date(userActivity.last_completed_at), "date")
-                          : "Never"}
+                          ? formatDateTime(new Date(userActivity.last_completed_at), 'date')
+                          : 'Never'}
                       </span>
                     </div>
                   </div>

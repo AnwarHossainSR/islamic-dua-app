@@ -1,5 +1,5 @@
-import type React from "react";
-import ReactMarkdown from "react-markdown";
+import type React from 'react';
+import ReactMarkdown from 'react-markdown';
 
 export function renderMarkdown(text: string): React.ReactNode {
   return (

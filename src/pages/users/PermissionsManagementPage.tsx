@@ -1,12 +1,12 @@
-import { Crown, Edit, Plus, Settings, Shield, Trash2, Users } from "lucide-react";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
-import { permissionsApi } from "@/api/permissions.api";
-import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
-import { Checkbox } from "@/components/ui/Checkbox";
-import { useConfirm } from "@/components/ui/Confirm";
+import { Crown, Edit, Plus, Settings, Shield, Trash2, Users } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { permissionsApi } from '@/api/permissions.api';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Checkbox } from '@/components/ui/Checkbox';
+import { useConfirm } from '@/components/ui/Confirm';
 import {
   Dialog,
   DialogContent,
@@ -15,19 +15,19 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/Dialog";
-import { Input } from "@/components/ui/Input";
-import { Label } from "@/components/ui/Label";
+} from '@/components/ui/Dialog';
+import { Input } from '@/components/ui/Input';
+import { Label } from '@/components/ui/Label';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/Select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/Tabs";
-import { Textarea } from "@/components/ui/Textarea";
-import { apiLogger } from "@/lib/logger";
+} from '@/components/ui/Select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
+import { Textarea } from '@/components/ui/Textarea';
+import { apiLogger } from '@/lib/logger';
 
 interface Permission {
   id: string;
@@ -42,8 +42,8 @@ interface Role {
   permissions: Permission[];
 }
 
-const resources = ["challenges", "duas", "users", "settings", "logs", "activities", "dashboard"];
-const actions = ["create", "read", "update", "delete", "manage"];
+const resources = ['challenges', 'duas', 'users', 'settings', 'logs', 'activities', 'dashboard'];
+const actions = ['create', 'read', 'update', 'delete', 'manage'];
 
 const roleIcons = {
   user: Users,
@@ -53,17 +53,17 @@ const roleIcons = {
 };
 
 const roleColors = {
-  user: "text-gray-500",
-  editor: "text-green-500",
-  admin: "text-blue-500",
-  super_admin: "text-red-500",
+  user: 'text-gray-500',
+  editor: 'text-green-500',
+  admin: 'text-blue-500',
+  super_admin: 'text-red-500',
 };
 
 const roleLabels = {
-  user: "User",
-  editor: "Editor",
-  admin: "Admin",
-  super_admin: "Super Admin",
+  user: 'User',
+  editor: 'Editor',
+  admin: 'Admin',
+  super_admin: 'Super Admin',
 };
 
 export default function PermissionsManagementPage() {
@@ -74,10 +74,10 @@ export default function PermissionsManagementPage() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedPermission, setSelectedPermission] = useState<Permission | null>(null);
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [resource, setResource] = useState("");
-  const [action, setAction] = useState("");
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [resource, setResource] = useState('');
+  const [action, setAction] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -93,23 +93,23 @@ export default function PermissionsManagementPage() {
       setPermissions(perms);
       setRolesWithPermissions(roles);
     } catch (error) {
-      toast.error("Failed to load permissions");
-      apiLogger.error("Load Permissions Error:", error);
+      toast.error('Failed to load permissions');
+      apiLogger.error('Load Permissions Error:', error);
     } finally {
       setLoading(false);
     }
   };
 
   const resetForm = () => {
-    setName("");
-    setDescription("");
-    setResource("");
-    setAction("");
+    setName('');
+    setDescription('');
+    setResource('');
+    setAction('');
   };
 
   const handleAddPermission = async () => {
     if (!name.trim() || !resource || !action) {
-      toast.error("Please fill in all required fields");
+      toast.error('Please fill in all required fields');
       return;
     }
 
@@ -126,7 +126,7 @@ export default function PermissionsManagementPage() {
       resetForm();
       loadData();
     } catch (error: any) {
-      toast.error(error.message || "Failed to create permission");
+      toast.error(error.message || 'Failed to create permission');
     } finally {
       setSubmitting(false);
     }
@@ -134,7 +134,7 @@ export default function PermissionsManagementPage() {
 
   const handleUpdatePermission = async () => {
     if (!selectedPermission || !name.trim() || !resource || !action) {
-      toast.error("Please fill in all required fields");
+      toast.error('Please fill in all required fields');
       return;
     }
 
@@ -152,7 +152,7 @@ export default function PermissionsManagementPage() {
       resetForm();
       loadData();
     } catch (error: any) {
-      toast.error(error.message || "Failed to update permission");
+      toast.error(error.message || 'Failed to update permission');
     } finally {
       setSubmitting(false);
     }
@@ -160,11 +160,11 @@ export default function PermissionsManagementPage() {
 
   const handleDeletePermission = async (permissionId: string, permissionName: string) => {
     const confirmed = await confirm({
-      title: "Delete Permission",
+      title: 'Delete Permission',
       description: `Are you sure you want to delete "${permissionName}"? This action cannot be undone.`,
-      confirmText: "Delete",
-      confirmVariant: "destructive",
-      icon: "warning",
+      confirmText: 'Delete',
+      confirmVariant: 'destructive',
+      icon: 'warning',
     });
     if (confirmed) {
       await permissionsApi.delete(permissionId);
@@ -176,9 +176,9 @@ export default function PermissionsManagementPage() {
   const openEditDialog = (permission: Permission) => {
     setSelectedPermission(permission);
     setName(permission.name);
-    setDescription(permission?.description || "");
-    setResource(permission?.resource || "");
-    setAction(permission?.action || "");
+    setDescription(permission?.description || '');
+    setResource(permission?.resource || '');
+    setAction(permission?.action || '');
     setIsEditDialogOpen(true);
   };
 
@@ -201,13 +201,13 @@ export default function PermissionsManagementPage() {
       }
       loadData();
     } catch (error: any) {
-      toast.error(error.message || "Failed to update permission");
+      toast.error(error.message || 'Failed to update permission');
     }
   };
 
   const permissionsByResource = permissions.reduce(
     (acc, permission) => {
-      const res = permission.resource || "general";
+      const res = permission.resource || 'general';
       if (!acc[res]) {
         acc[res] = [];
       }
@@ -217,8 +217,8 @@ export default function PermissionsManagementPage() {
     {} as Record<string, Permission[]>
   );
 
-  const resourceCount = [...new Set(permissions.map((p) => p.resource || "unknown"))].length;
-  const actionCount = [...new Set(permissions.map((p) => p.action || "unknown"))].length;
+  const resourceCount = [...new Set(permissions.map((p) => p.resource || 'unknown'))].length;
+  const actionCount = [...new Set(permissions.map((p) => p.action || 'unknown'))].length;
 
   return (
     <div className="space-y-6">
@@ -312,7 +312,7 @@ export default function PermissionsManagementPage() {
                           </Badge>
                         </CardTitle>
                         <CardDescription>
-                          Manage permissions for{" "}
+                          Manage permissions for{' '}
                           {roleLabels[roleData.role as keyof typeof roleLabels]} role
                         </CardDescription>
                       </CardHeader>
@@ -463,7 +463,7 @@ export default function PermissionsManagementPage() {
                           Cancel
                         </Button>
                         <Button onClick={handleAddPermission} disabled={submitting}>
-                          {submitting ? "Creating..." : "Create Permission"}
+                          {submitting ? 'Creating...' : 'Create Permission'}
                         </Button>
                       </DialogFooter>
                     </DialogContent>
@@ -497,11 +497,11 @@ export default function PermissionsManagementPage() {
                                   <div className="flex items-center gap-2">
                                     <p className="font-medium">{permission.name}</p>
                                     <Badge variant="outline" className="text-xs">
-                                      {permission.action || "general"}
+                                      {permission.action || 'general'}
                                     </Badge>
                                   </div>
                                   <p className="text-sm text-muted-foreground">
-                                    {permission.description || "No description"}
+                                    {permission.description || 'No description'}
                                   </p>
                                 </div>
                                 <div className="flex gap-2">
@@ -600,7 +600,7 @@ export default function PermissionsManagementPage() {
               Cancel
             </Button>
             <Button onClick={handleUpdatePermission} disabled={submitting}>
-              {submitting ? "Updating..." : "Update Permission"}
+              {submitting ? 'Updating...' : 'Update Permission'}
             </Button>
           </DialogFooter>
         </DialogContent>

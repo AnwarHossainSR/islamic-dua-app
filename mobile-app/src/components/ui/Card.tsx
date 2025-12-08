@@ -1,6 +1,6 @@
-import type React from "react";
-import { StyleSheet, Text, type TextStyle, View, type ViewStyle } from "react-native";
-import { useTheme } from "@/hooks/useTheme";
+import type React from 'react';
+import { StyleSheet, Text, type TextStyle, View, type ViewStyle } from 'react-native';
+import { useTheme } from '@/hooks/useTheme';
 
 interface CardProps {
   children: React.ReactNode;
@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: 12,
     borderWidth: 1,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 2,
@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: '600',
     lineHeight: 20,
   },
   cardDescription: {
@@ -106,8 +106,8 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
   },
   cardFooter: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: 16,
     paddingTop: 0,
   },

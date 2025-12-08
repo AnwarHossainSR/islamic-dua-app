@@ -15,20 +15,20 @@ import {
   Shield,
   Trash2,
   Upload,
-} from "lucide-react";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
-import { settingsApi } from "@/api/settings.api";
-import { BiometricManager } from "@/components/BiometricManager";
-import { DynamicSettings } from "@/components/DynamicSettings";
-import { NotificationSettings } from "@/components/NotificationSettings";
-import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
-import { Progress } from "@/components/ui/Progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/Tabs";
-import { apiLogger } from "@/lib/logger";
-import { supabase } from "@/lib/supabase/client";
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { settingsApi } from '@/api/settings.api';
+import { BiometricManager } from '@/components/BiometricManager';
+import { DynamicSettings } from '@/components/DynamicSettings';
+import { NotificationSettings } from '@/components/NotificationSettings';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Progress } from '@/components/ui/Progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
+import { apiLogger } from '@/lib/logger';
+import { supabase } from '@/lib/supabase/client';
 
 export default function SettingsPage() {
   const [dbStats, setDbStats] = useState<any>(null);
@@ -46,7 +46,7 @@ export default function SettingsPage() {
       const data = await settingsApi.getDbStats();
       setDbStats(data);
     } catch (error) {
-      console.error("Failed to fetch database stats:", error);
+      console.error('Failed to fetch database stats:', error);
     }
   }
 
@@ -55,7 +55,7 @@ export default function SettingsPage() {
       const data = await settingsApi.getBackups();
       setBackups(data);
     } catch (error) {
-      console.error("Failed to fetch backups:", error);
+      console.error('Failed to fetch backups:', error);
     }
   }
 
@@ -63,28 +63,28 @@ export default function SettingsPage() {
     try {
       const blob = await settingsApi.downloadBackup(filename);
       const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
+      const link = document.createElement('a');
       link.href = url;
       link.download = filename;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
-      toast.success("Backup downloaded successfully");
+      toast.success('Backup downloaded successfully');
     } catch (error: any) {
-      toast.error(error.message || "Failed to download backup");
+      toast.error(error.message || 'Failed to download backup');
     }
   }
 
   async function handleDeleteBackup(filename: string) {
-    if (!confirm("Are you sure you want to delete this backup?")) return;
+    if (!confirm('Are you sure you want to delete this backup?')) return;
 
     try {
       await settingsApi.deleteBackup(filename);
-      toast.success("Backup deleted successfully");
+      toast.success('Backup deleted successfully');
       fetchBackups();
     } catch (error: any) {
-      toast.error(error.message || "Failed to delete backup");
+      toast.error(error.message || 'Failed to delete backup');
     }
   }
 
@@ -94,21 +94,21 @@ export default function SettingsPage() {
       const result = await settingsApi.createBackup(storeInSupabase);
 
       if (storeInSupabase) {
-        toast.success("Backup stored in Supabase successfully");
+        toast.success('Backup stored in Supabase successfully');
         fetchBackups();
       } else {
         const url = URL.createObjectURL(result as Blob);
-        const link = document.createElement("a");
+        const link = document.createElement('a');
         link.href = url;
-        link.download = `islamic-dua-app-backup-${new Date().toISOString().split("T")[0]}.sql`;
+        link.download = `islamic-dua-app-backup-${new Date().toISOString().split('T')[0]}.sql`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
-        toast.success("Database backup downloaded successfully");
+        toast.success('Database backup downloaded successfully');
       }
     } catch (error: any) {
-      toast.error(error.message || "Failed to backup database");
+      toast.error(error.message || 'Failed to backup database');
     } finally {
       setBackupLoading(false);
     }
@@ -118,10 +118,10 @@ export default function SettingsPage() {
     setLoading(true);
     try {
       await settingsApi.optimizeDatabase();
-      toast.success("Database optimized successfully");
+      toast.success('Database optimized successfully');
       fetchDbStats();
     } catch (error: any) {
-      toast.error(error.message || "Failed to optimize database");
+      toast.error(error.message || 'Failed to optimize database');
     } finally {
       setLoading(false);
     }
@@ -257,7 +257,7 @@ export default function SettingsPage() {
                         <Server className="h-4 w-4 text-muted-foreground" />
                         <span className="text-sm font-medium">DB Size</span>
                       </div>
-                      <div className="text-2xl font-bold">{dbStats.dbSize || "N/A"}</div>
+                      <div className="text-2xl font-bold">{dbStats.dbSize || 'N/A'}</div>
                     </div>
                   </div>
                 ) : (
@@ -282,7 +282,7 @@ export default function SettingsPage() {
                     className="w-full"
                   >
                     <Download className="mr-2 h-4 w-4" />
-                    {backupLoading ? "Creating..." : "Download Backup"}
+                    {backupLoading ? 'Creating...' : 'Download Backup'}
                   </Button>
                   <Button
                     variant="outline"
@@ -291,7 +291,7 @@ export default function SettingsPage() {
                     className="w-full"
                   >
                     <Archive className="mr-2 h-4 w-4" />
-                    {backupLoading ? "Storing..." : "Store in Cloud"}
+                    {backupLoading ? 'Storing...' : 'Store in Cloud'}
                   </Button>
                   <Button
                     variant="outline"
@@ -300,7 +300,7 @@ export default function SettingsPage() {
                     className="w-full"
                   >
                     <RefreshCw className="mr-2 h-4 w-4" />
-                    {loading ? "Optimizing..." : "Optimize Database"}
+                    {loading ? 'Optimizing...' : 'Optimize Database'}
                   </Button>
                 </div>
 
@@ -339,7 +339,7 @@ export default function SettingsPage() {
                         <div className="flex-1">
                           <div className="font-medium">{backup.name}</div>
                           <div className="text-sm text-muted-foreground">
-                            {new Date(backup.created_at).toLocaleString()} •{" "}
+                            {new Date(backup.created_at).toLocaleString()} •{' '}
                             {Math.round(backup.size / 1024)} KB
                           </div>
                         </div>
@@ -382,23 +382,23 @@ export default function SettingsPage() {
                     variant="outline"
                     onClick={async () => {
                       try {
-                        const { data } = await supabase.from("challenge_templates").select("*");
+                        const { data } = await supabase.from('challenge_templates').select('*');
                         const jsonString = JSON.stringify(data, null, 2);
                         const blob = new Blob([jsonString], {
-                          type: "application/json",
+                          type: 'application/json',
                         });
                         const url = URL.createObjectURL(blob);
-                        const link = document.createElement("a");
+                        const link = document.createElement('a');
                         link.href = url;
-                        link.download = `challenges-${new Date().toISOString().split("T")[0]}.json`;
+                        link.download = `challenges-${new Date().toISOString().split('T')[0]}.json`;
                         document.body.appendChild(link);
                         link.click();
                         document.body.removeChild(link);
                         URL.revokeObjectURL(url);
-                        toast.success("Challenges exported successfully");
+                        toast.success('Challenges exported successfully');
                       } catch (error: any) {
-                        toast.error("Failed to export challenges");
-                        apiLogger.error("Export Challenges Error:", error);
+                        toast.error('Failed to export challenges');
+                        apiLogger.error('Export Challenges Error:', error);
                       }
                     }}
                   >
@@ -408,23 +408,23 @@ export default function SettingsPage() {
                     variant="outline"
                     onClick={async () => {
                       try {
-                        const { data } = await supabase.from("duas").select("*");
+                        const { data } = await supabase.from('duas').select('*');
                         const jsonString = JSON.stringify(data, null, 2);
                         const blob = new Blob([jsonString], {
-                          type: "application/json",
+                          type: 'application/json',
                         });
                         const url = URL.createObjectURL(blob);
-                        const link = document.createElement("a");
+                        const link = document.createElement('a');
                         link.href = url;
-                        link.download = `duas-${new Date().toISOString().split("T")[0]}.json`;
+                        link.download = `duas-${new Date().toISOString().split('T')[0]}.json`;
                         document.body.appendChild(link);
                         link.click();
                         document.body.removeChild(link);
                         URL.revokeObjectURL(url);
-                        toast.success("Duas exported successfully");
+                        toast.success('Duas exported successfully');
                       } catch (error) {
-                        toast.error("Failed to export duas");
-                        apiLogger.error("Export Duas Error:", error);
+                        toast.error('Failed to export duas');
+                        apiLogger.error('Export Duas Error:', error);
                       }
                     }}
                   >
@@ -434,23 +434,23 @@ export default function SettingsPage() {
                     variant="outline"
                     onClick={async () => {
                       try {
-                        const { data } = await supabase.from("app_settings").select("*");
+                        const { data } = await supabase.from('app_settings').select('*');
                         const jsonString = JSON.stringify(data, null, 2);
                         const blob = new Blob([jsonString], {
-                          type: "application/json",
+                          type: 'application/json',
                         });
                         const url = URL.createObjectURL(blob);
-                        const link = document.createElement("a");
+                        const link = document.createElement('a');
                         link.href = url;
-                        link.download = `settings-${new Date().toISOString().split("T")[0]}.json`;
+                        link.download = `settings-${new Date().toISOString().split('T')[0]}.json`;
                         document.body.appendChild(link);
                         link.click();
                         document.body.removeChild(link);
                         URL.revokeObjectURL(url);
-                        toast.success("Settings exported successfully");
+                        toast.success('Settings exported successfully');
                       } catch (error) {
-                        toast.error("Failed to export settings");
-                        apiLogger.error("Export Settings Error:", error);
+                        toast.error('Failed to export settings');
+                        apiLogger.error('Export Settings Error:', error);
                       }
                     }}
                   >

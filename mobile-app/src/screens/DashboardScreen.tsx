@@ -1,9 +1,9 @@
-import { useNavigation } from "@react-navigation/native";
-import { Activity, Flame, Target, TrendingUp, Trophy, User, Users } from "lucide-react-native";
-import { useEffect, useState } from "react";
-import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { dashboardApi } from "@/api/dashboard.api";
+import { useNavigation } from '@react-navigation/native';
+import { Activity, Flame, Target, TrendingUp, Trophy, User, Users } from 'lucide-react-native';
+import { useEffect, useState } from 'react';
+import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { dashboardApi } from '@/api/dashboard.api';
 import {
   Badge,
   Button,
@@ -13,11 +13,11 @@ import {
   CardHeader,
   CardTitle,
   Loader,
-} from "@/components/ui";
-import { ROUTES } from "@/config/routes";
-import { useAuth } from "@/hooks/useAuth";
-import { useTheme } from "@/hooks/useTheme";
-import { formatNumber } from "@/lib/utils";
+} from '@/components/ui';
+import { ROUTES } from '@/config/routes';
+import { useAuth } from '@/hooks/useAuth';
+import { useTheme } from '@/hooks/useTheme';
+import { formatNumber } from '@/lib/utils';
 
 export default function DashboardScreen() {
   const navigation = useNavigation<any>();
@@ -50,7 +50,7 @@ export default function DashboardScreen() {
       setStats(statsData);
       setTopActivities(activitiesData);
     } catch (error) {
-      console.error("Error loading dashboard:", error);
+      console.error('Error loading dashboard:', error);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -67,7 +67,7 @@ export default function DashboardScreen() {
   }
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]} edges={["top"]}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]} edges={['top']}>
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.content}
@@ -109,7 +109,7 @@ export default function DashboardScreen() {
             </View>
           </View>
           <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>
-            {showGlobalStats ? "Global statistics" : "Track your spiritual journey"}
+            {showGlobalStats ? 'Global statistics' : 'Track your spiritual journey'}
           </Text>
         </View>
 
@@ -119,7 +119,7 @@ export default function DashboardScreen() {
             <CardHeader style={styles.statHeader}>
               <View style={styles.statRow}>
                 <Text style={[styles.statLabel, { color: colors.mutedForeground }]}>
-                  {showGlobalStats ? "Total Activities" : "Your Activities"}
+                  {showGlobalStats ? 'Total Activities' : 'Your Activities'}
                 </Text>
                 <Activity color={colors.mutedForeground} size={16} />
               </View>
@@ -135,7 +135,7 @@ export default function DashboardScreen() {
             <CardHeader style={styles.statHeader}>
               <View style={styles.statRow}>
                 <Text style={[styles.statLabel, { color: colors.mutedForeground }]}>
-                  {showGlobalStats ? "Total Completions" : "Your Completions"}
+                  {showGlobalStats ? 'Total Completions' : 'Your Completions'}
                 </Text>
                 <Trophy color={colors.mutedForeground} size={16} />
               </View>
@@ -151,7 +151,7 @@ export default function DashboardScreen() {
             <CardHeader style={styles.statHeader}>
               <View style={styles.statRow}>
                 <Text style={[styles.statLabel, { color: colors.mutedForeground }]}>
-                  {showGlobalStats ? "Active Users" : "Streak Days"}
+                  {showGlobalStats ? 'Active Users' : 'Streak Days'}
                 </Text>
                 <Flame color={colors.mutedForeground} size={16} />
               </View>
@@ -167,7 +167,7 @@ export default function DashboardScreen() {
             <CardHeader style={styles.statHeader}>
               <View style={styles.statRow}>
                 <Text style={[styles.statLabel, { color: colors.mutedForeground }]}>
-                  {showGlobalStats ? "Active Challenges" : "Your Challenges"}
+                  {showGlobalStats ? 'Active Challenges' : 'Your Challenges'}
                 </Text>
                 <Target color={colors.mutedForeground} size={16} />
               </View>
@@ -185,9 +185,9 @@ export default function DashboardScreen() {
           <CardHeader>
             <View style={styles.cardHeaderRow}>
               <View>
-                <CardTitle>{showGlobalStats ? "Top Activities" : "Your Top Activities"}</CardTitle>
+                <CardTitle>{showGlobalStats ? 'Top Activities' : 'Your Top Activities'}</CardTitle>
                 <CardDescription>
-                  {showGlobalStats ? "Most completed dhikr and prayers" : "Your most practiced"}
+                  {showGlobalStats ? 'Most completed dhikr and prayers' : 'Your most practiced'}
                 </CardDescription>
               </View>
               <Button
@@ -267,7 +267,7 @@ export default function DashboardScreen() {
                 </CardTitle>
               </View>
               <CardDescription>
-                {showGlobalStats ? "Completions in the last 24 hours" : "Your completions today"}
+                {showGlobalStats ? 'Completions in the last 24 hours' : 'Your completions today'}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -277,7 +277,7 @@ export default function DashboardScreen() {
               {stats?.todayCompletions > (stats?.yesterdayCompletions || 0) ? (
                 <View style={styles.trendRow}>
                   <TrendingUp color="#10b981" size={14} />
-                  <Text style={[styles.trendText, { color: "#10b981" }]}>
+                  <Text style={[styles.trendText, { color: '#10b981' }]}>
                     {(
                       ((stats.todayCompletions - (stats.yesterdayCompletions || 0)) /
                         Math.max(stats.yesterdayCompletions || 1, 1)) *
@@ -301,7 +301,7 @@ export default function DashboardScreen() {
                 <CardTitle style={styles.progressTitle}>This Week</CardTitle>
               </View>
               <CardDescription>
-                {showGlobalStats ? "Completions in the last 7 days" : "Your weekly progress"}
+                {showGlobalStats ? 'Completions in the last 7 days' : 'Your weekly progress'}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -380,21 +380,21 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   headerTop: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 4,
   },
   title: {
     fontSize: 28,
-    fontWeight: "700",
+    fontWeight: '700',
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 14,
   },
   toggle: {
-    flexDirection: "row",
+    flexDirection: 'row',
     padding: 4,
     borderRadius: 8,
   },
@@ -405,71 +405,71 @@ const styles = StyleSheet.create({
   },
   toggleText: {
     fontSize: 12,
-    fontWeight: "500",
+    fontWeight: '500',
   },
   toggleContainer: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 8,
   },
   toggleLabel: {
     fontSize: 12,
-    fontWeight: "500",
+    fontWeight: '500',
   },
   switchTrack: {
     width: 40,
     height: 22,
     borderRadius: 11,
-    justifyContent: "center",
+    justifyContent: 'center',
   },
   switchThumb: {
     width: 18,
     height: 18,
     borderRadius: 9,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
     shadowRadius: 1,
     elevation: 2,
   },
   statsGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: 12,
   },
   statCard: {
-    width: "48%",
+    width: '48%',
   },
   statHeader: {
     paddingBottom: 8,
   },
   statRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   statLabel: {
     fontSize: 12,
-    fontWeight: "500",
+    fontWeight: '500',
   },
   statValue: {
     fontSize: 24,
-    fontWeight: "700",
+    fontWeight: '700',
   },
   cardHeaderRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
   },
   activityRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     paddingVertical: 12,
   },
   activityLeft: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 12,
     flex: 1,
   },
@@ -478,22 +478,22 @@ const styles = StyleSheet.create({
   },
   activityName: {
     fontSize: 14,
-    fontWeight: "500",
+    fontWeight: '500',
   },
   activitySubtitle: {
     fontSize: 12,
     marginTop: 2,
   },
   activityRight: {
-    alignItems: "flex-end",
+    alignItems: 'flex-end',
     gap: 4,
   },
   activityCount: {
     fontSize: 18,
-    fontWeight: "700",
+    fontWeight: '700',
   },
   emptyText: {
-    textAlign: "center",
+    textAlign: 'center',
     paddingVertical: 24,
     fontSize: 14,
   },
@@ -507,12 +507,12 @@ const styles = StyleSheet.create({
     height: 60,
   },
   actionContent: {
-    alignItems: "center",
+    alignItems: 'center',
     gap: 8,
   },
   actionText: {
     fontSize: 14,
-    fontWeight: "500",
+    fontWeight: '500',
   },
   progressGrid: {
     gap: 12,
@@ -521,8 +521,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   progressHeader: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 8,
     marginBottom: 4,
   },
@@ -531,15 +531,15 @@ const styles = StyleSheet.create({
   },
   progressValue: {
     fontSize: 28,
-    fontWeight: "700",
+    fontWeight: '700',
   },
   progressSubtext: {
     fontSize: 12,
     marginTop: 4,
   },
   trendRow: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 4,
     marginTop: 4,
   },

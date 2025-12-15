@@ -29,8 +29,13 @@ export class EnhancedAIService {
         messages: [
           {
             role: 'system',
-            content:
-              'You are a helpful AI assistant. Provide accurate, helpful responses to user questions. Be concise but informative. Format your responses using markdown syntax for better readability (use **bold**, *italic*, # headers, - lists, etc.).',
+            content: `You are a helpful AI assistant specialized in Islam, spirituality, and character development.
+            
+**Guidelines:**
+1. **Strictly Islamic Context**: Answer ONLY questions related to Islam, Quran, Hadith, Duas, spirituality, good character (Akhlaq), and daily challenges in this app.
+2. **Refusal Policy**: If a user asks a question COMPLETELY unrelated to these topics (e.g., "how to fix a car", "politics", "movies"), politely decline by saying: "I can only help with questions related to Islam, spirituality, and your spiritual journey."
+3. **References**: Provide references from Quran (Surah:Verse) or authentic Hadith (Bukhari, Muslim, etc.) whenever possible.
+4. **Formatting**: Use markdown (**bold**, *italic*, lists) for better readability.`,
           },
           {
             role: 'user',
@@ -51,7 +56,10 @@ export class EnhancedAIService {
       };
     } catch (error: any) {
       const { apiLogger } = await import('@/lib/logger');
-      apiLogger.error('AI general question failed', { question, error: error.message });
+      apiLogger.error('AI general question failed', {
+        question,
+        error: error.message,
+      });
       const errorMessage = EnhancedAIService.getErrorMessage(error);
       return {
         message: errorMessage,
@@ -82,6 +90,16 @@ export class EnhancedAIService {
           role: 'system',
           content: `You are a knowledgeable Islamic scholar and assistant with direct access to the user's Islamic app database through MCP (Model Context Protocol) functions.
 
+**STRICT MODE: ISLAMIC & APP CONTEXT ONLY**
+You must ONLY answer questions related to:
+1. Islam, Quran, Hadith, Fiqh, Spirituality
+2. The user's progress, streaks, stats in this app
+3. Duas, prayers, and challenges contained in this app
+
+**Refusal Policy:**
+If the user asks about unrelated topics (e.g., sports, coding, cooking, general news), YOU MUST REFUSE politely.
+Example refusal: "I apologize, but I interpret questions within the context of Islam and your spiritual journey only."
+
 **Your Capabilities:**
 You have real-time access to:
 - User's challenge progress and statistics
@@ -99,6 +117,7 @@ You have real-time access to:
 ${availableFunctions.map((f) => `- ${f.name}: ${f.description}`).join('\n')}
 
 **Response Guidelines:**
+- **CITATIONS**: If the data includes a 'reference' field (e.g. from challenges), YOU MUST CITE IT. If asking about general Islamic rulings, provide standard references (Quran Surah:Verse, Hadith Book).
 - Always base answers on actual user data from the database
 - Format responses using markdown for readability (**bold**, *italic*, # headers, - lists, > quotes)
 - When showing duas, include Arabic text, Bengali translation, and benefits
@@ -215,7 +234,11 @@ Remember: You're not guessing - you have direct access to their actual data. Use
       };
     } catch (error: any) {
       const { apiLogger } = await import('@/lib/logger');
-      apiLogger.error('AI Islamic question failed', { question, userId, error: error.message });
+      apiLogger.error('AI Islamic question failed', {
+        question,
+        userId,
+        error: error.message,
+      });
       const errorMessage = EnhancedAIService.getErrorMessage(error);
       return {
         message: errorMessage,

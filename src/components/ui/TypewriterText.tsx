@@ -1,5 +1,5 @@
-import { renderMarkdown } from "@/lib/utils/markdown-renderer";
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
+import { renderMarkdown } from '@/lib/utils/markdown-renderer';
 
 interface TypewriterTextProps {
   content: string;
@@ -7,17 +7,13 @@ interface TypewriterTextProps {
   onComplete?: () => void;
 }
 
-export function TypewriterText({
-  content,
-  speed = 15,
-  onComplete,
-}: TypewriterTextProps) {
-  const [displayedContent, setDisplayedContent] = useState("");
+export function TypewriterText({ content, speed = 15, onComplete }: TypewriterTextProps) {
+  const [displayedContent, setDisplayedContent] = useState('');
   const [isTyping, setIsTyping] = useState(true);
 
   useEffect(() => {
     // Reset when content changes significantly, but handled properly below
-    setDisplayedContent("");
+    setDisplayedContent('');
     setIsTyping(true);
   }, [content]);
 
@@ -42,9 +38,7 @@ export function TypewriterText({
   return (
     <div className="typewriter-content">
       {renderMarkdown(displayedContent)}
-      {isTyping && (
-        <span className="inline-block w-2 h-4 ml-1 bg-primary animate-pulse" />
-      )}
+      {isTyping && <span className="inline-block w-2 h-4 ml-1 bg-primary animate-pulse" />}
     </div>
   );
 }

@@ -88,11 +88,20 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Create duas updated_at function
+-- Create duas updated_at function (uses BIGINT timestamp)
 CREATE OR REPLACE FUNCTION update_duas_updated_at()
 RETURNS TRIGGER AS $$
 BEGIN
-  NEW.updated_at = NOW();
+  NEW.updated_at = (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Create trigger function for BIGINT updated_at (Unix timestamp in milliseconds)
+CREATE OR REPLACE FUNCTION update_bigint_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT;
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -149,9 +158,11 @@ CREATE TRIGGER update_webauthn_credentials_updated_at
 CREATE TRIGGER update_user_roles_updated_at BEFORE UPDATE ON user_roles
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
--- AI chat sessions triggers
-CREATE TRIGGER update_ai_chat_sessions_updated_at BEFORE UPDATE ON ai_chat_sessions
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+-- AI chat sessions triggers (uses BIGINT timestamp)
+CREATE TRIGGER update_ai_chat_sessions_updated_at_bigint
+  BEFORE UPDATE ON ai_chat_sessions
+  FOR EACH ROW
+  EXECUTE FUNCTION update_bigint_updated_at();
 
 -- ============================================
 -- HELPER FUNCTIONS

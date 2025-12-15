@@ -32,19 +32,56 @@ export class EnhancedMCPServer {
         description: 'Available spiritual challenges users can join',
         columns: [
           { name: 'id', type: 'string', description: 'Unique challenge ID' },
-          { name: 'title_bn', type: 'string', description: 'Challenge title in Bengali' },
-          { name: 'title_en', type: 'string', description: 'Challenge title in English' },
+          {
+            name: 'title_bn',
+            type: 'string',
+            description: 'Challenge title in Bengali',
+          },
+          {
+            name: 'title_en',
+            type: 'string',
+            description: 'Challenge title in English',
+          },
           {
             name: 'description_bn',
             type: 'string',
             description: 'Challenge description in Bengali',
           },
-          { name: 'arabic_text', type: 'string', description: 'Arabic text for the challenge' },
-          { name: 'translation_bn', type: 'string', description: 'Bengali translation' },
-          { name: 'daily_target_count', type: 'number', description: 'Daily target count' },
-          { name: 'total_days', type: 'number', description: 'Total duration in days' },
-          { name: 'fazilat_bn', type: 'string', description: 'Benefits/virtues in Bengali' },
-          { name: 'category', type: 'string', description: 'Challenge category' },
+          {
+            name: 'arabic_text',
+            type: 'string',
+            description: 'Arabic text for the challenge',
+          },
+          {
+            name: 'translation_bn',
+            type: 'string',
+            description: 'Bengali translation',
+          },
+          {
+            name: 'daily_target_count',
+            type: 'number',
+            description: 'Daily target count',
+          },
+          {
+            name: 'total_days',
+            type: 'number',
+            description: 'Total duration in days',
+          },
+          {
+            name: 'fazilat_bn',
+            type: 'string',
+            description: 'Benefits/virtues in Bengali',
+          },
+          {
+            name: 'reference',
+            type: 'string',
+            description: 'Source/Reference (Quran/Hadith)',
+          },
+          {
+            name: 'category',
+            type: 'string',
+            description: 'Challenge category',
+          },
         ],
       },
       {
@@ -57,15 +94,51 @@ export class EnhancedMCPServer {
             type: 'string',
             description: 'User ID (always filtered by current user)',
           },
-          { name: 'challenge_id', type: 'string', description: 'Related challenge ID' },
-          { name: 'status', type: 'string', description: 'active, paused, or completed' },
-          { name: 'current_day', type: 'number', description: 'Current day in the challenge' },
-          { name: 'current_streak', type: 'number', description: 'Current consecutive days' },
-          { name: 'longest_streak', type: 'number', description: 'Best streak achieved' },
-          { name: 'total_completed_days', type: 'number', description: 'Total days completed' },
-          { name: 'missed_days', type: 'number', description: 'Total days missed' },
-          { name: 'started_at', type: 'timestamp', description: 'When user started' },
-          { name: 'last_completed_at', type: 'timestamp', description: 'Last completion date' },
+          {
+            name: 'challenge_id',
+            type: 'string',
+            description: 'Related challenge ID',
+          },
+          {
+            name: 'status',
+            type: 'string',
+            description: 'active, paused, or completed',
+          },
+          {
+            name: 'current_day',
+            type: 'number',
+            description: 'Current day in the challenge',
+          },
+          {
+            name: 'current_streak',
+            type: 'number',
+            description: 'Current consecutive days',
+          },
+          {
+            name: 'longest_streak',
+            type: 'number',
+            description: 'Best streak achieved',
+          },
+          {
+            name: 'total_completed_days',
+            type: 'number',
+            description: 'Total days completed',
+          },
+          {
+            name: 'missed_days',
+            type: 'number',
+            description: 'Total days missed',
+          },
+          {
+            name: 'started_at',
+            type: 'timestamp',
+            description: 'When user started',
+          },
+          {
+            name: 'last_completed_at',
+            type: 'timestamp',
+            description: 'Last completion date',
+          },
         ],
       },
       {
@@ -73,14 +146,46 @@ export class EnhancedMCPServer {
         description: 'Collection of Islamic prayers and supplications',
         columns: [
           { name: 'id', type: 'string', description: 'Dua ID' },
-          { name: 'title_bn', type: 'string', description: 'Dua title in Bengali' },
-          { name: 'title_en', type: 'string', description: 'Dua title in English' },
-          { name: 'dua_text_ar', type: 'string', description: 'Arabic text of the dua' },
-          { name: 'translation_bn', type: 'string', description: 'Bengali translation' },
-          { name: 'translation_en', type: 'string', description: 'English translation' },
-          { name: 'category', type: 'string', description: 'Category (morning, evening, etc)' },
-          { name: 'benefits', type: 'string', description: 'Benefits of reciting this dua' },
-          { name: 'is_important', type: 'boolean', description: 'Marked as important dua' },
+          {
+            name: 'title_bn',
+            type: 'string',
+            description: 'Dua title in Bengali',
+          },
+          {
+            name: 'title_en',
+            type: 'string',
+            description: 'Dua title in English',
+          },
+          {
+            name: 'dua_text_ar',
+            type: 'string',
+            description: 'Arabic text of the dua',
+          },
+          {
+            name: 'translation_bn',
+            type: 'string',
+            description: 'Bengali translation',
+          },
+          {
+            name: 'translation_en',
+            type: 'string',
+            description: 'English translation',
+          },
+          {
+            name: 'category',
+            type: 'string',
+            description: 'Category (morning, evening, etc)',
+          },
+          {
+            name: 'benefits',
+            type: 'string',
+            description: 'Benefits of reciting this dua',
+          },
+          {
+            name: 'is_important',
+            type: 'boolean',
+            description: 'Marked as important dua',
+          },
         ],
       },
     ];
@@ -135,7 +240,8 @@ export class EnhancedMCPServer {
   }) {
     let query = supabase
       .from('user_challenge_progress')
-      .select(`
+      .select(
+        `
         id,
         status,
         current_day,
@@ -149,9 +255,11 @@ export class EnhancedMCPServer {
           title_bn,
           title_en,
           total_days,
+          reference,
           difficulty_level
         )
-      `)
+      `
+      )
       .eq('user_id', this.userId);
 
     if (args.status) {
@@ -162,7 +270,9 @@ export class EnhancedMCPServer {
       query = query.gte('current_streak', args.minStreak);
     }
 
-    const { data, error } = await query.order('last_completed_at', { ascending: false });
+    const { data, error } = await query.order('last_completed_at', {
+      ascending: false,
+    });
 
     if (error) {
       const { apiLogger } = await import('@/lib/logger');
@@ -221,7 +331,11 @@ export class EnhancedMCPServer {
 
     if (error) {
       const { apiLogger } = await import('@/lib/logger');
-      apiLogger.error('Query duas failed', { userId: this.userId, args, error: error.message });
+      apiLogger.error('Query duas failed', {
+        userId: this.userId,
+        args,
+        error: error.message,
+      });
       throw error;
     }
 
@@ -244,7 +358,8 @@ export class EnhancedMCPServer {
     if (args.challengeId) {
       const { data, error } = await supabase
         .from('user_challenge_progress')
-        .select(`
+        .select(
+          `
           current_day,
           total_completed_days,
           missed_days,
@@ -253,9 +368,11 @@ export class EnhancedMCPServer {
           status,
           challenge_templates (
             title_bn,
-            total_days
+            total_days,
+            reference
           )
-        `)
+        `
+        )
         .eq('user_id', this.userId)
         .eq('challenge_id', args.challengeId)
         .single();
@@ -272,6 +389,7 @@ export class EnhancedMCPServer {
 
       return {
         challengeTitle: (data as any).challenge_templates?.title_bn,
+        reference: (data as any).challenge_templates?.reference,
         currentDay: data.current_day,
         totalDays: (data as any).challenge_templates?.total_days,
         completedDays: data.total_completed_days,
@@ -325,20 +443,25 @@ export class EnhancedMCPServer {
   private async getStreakAnalysis() {
     const { data, error } = await supabase
       .from('user_challenge_progress')
-      .select(`
+      .select(
+        `
         current_streak,
         longest_streak,
         status,
         challenge_templates (
           title_bn
         )
-      `)
+      `
+      )
       .eq('user_id', this.userId)
       .order('current_streak', { ascending: false });
 
     if (error) {
       const { apiLogger } = await import('@/lib/logger');
-      apiLogger.error('Get streak analysis failed', { userId: this.userId, error: error.message });
+      apiLogger.error('Get streak analysis failed', {
+        userId: this.userId,
+        error: error.message,
+      });
       throw error;
     }
 
@@ -406,9 +529,18 @@ export class EnhancedMCPServer {
         description: 'Search and filter duas with multiple criteria',
         parameters: {
           category: { type: 'string', description: 'Filter by category' },
-          searchText: { type: 'string', description: 'Search in titles, translations, benefits' },
-          isImportant: { type: 'boolean', description: 'Filter for important duas only' },
-          limit: { type: 'number', description: 'Maximum results (default 10)' },
+          searchText: {
+            type: 'string',
+            description: 'Search in titles, translations, benefits',
+          },
+          isImportant: {
+            type: 'boolean',
+            description: 'Filter for important duas only',
+          },
+          limit: {
+            type: 'number',
+            description: 'Maximum results (default 10)',
+          },
         },
       },
       {

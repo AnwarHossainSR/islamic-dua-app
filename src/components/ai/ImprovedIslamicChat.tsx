@@ -14,6 +14,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Switch } from '@/components/ui/Switch';
+import { TypewriterText } from '@/components/ui/TypewriterText';
 import { EnhancedAIService } from '@/lib/ai/service';
 import { supabase } from '@/lib/supabase/client';
 import { renderMarkdown } from '@/lib/utils/markdown-renderer';
@@ -392,7 +393,7 @@ export function ImprovedIslamicChat({ initialSessions, hasOpenAIKey }: ImprovedI
               </div>
             ) : (
               <div className="space-y-6">
-                {messages.map((message) => (
+                {messages.map((message, index) => (
                   <div
                     key={message.id}
                     className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
@@ -472,6 +473,11 @@ export function ImprovedIslamicChat({ initialSessions, hasOpenAIKey }: ImprovedI
                               }
                             } catch {
                               // Not JSON, render as regular text
+                            }
+                            // Only use typewriter for the latest AI message
+                            const isLatest = index === messages.length - 1;
+                            if (isLatest && message.role === 'assistant') {
+                              return <TypewriterText content={message.content} />;
                             }
                             return <div>{renderMarkdown(message.content)}</div>;
                           })()}

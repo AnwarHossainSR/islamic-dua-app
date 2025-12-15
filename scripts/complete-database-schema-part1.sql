@@ -217,8 +217,8 @@ CREATE TABLE IF NOT EXISTS duas (
   tags TEXT[],
   audio_url TEXT,
   created_by UUID,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+  created_at BIGINT DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT,
+  updated_at BIGINT DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT
 );
 
 -- Dua Categories table

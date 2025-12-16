@@ -26,6 +26,7 @@ Modern React 19 migration of the Islamic Dua App using Vite, TypeScript, and Sup
    ```
 
    Add your Supabase credentials:
+
    - `VITE_SUPABASE_URL`
    - `VITE_SUPABASE_ANON_KEY`
 
@@ -135,7 +136,7 @@ fix(dashboard): resolve data loading issue
 docs(readme): update installation steps
 ```
 
-See [COMMIT_CONVENTION.md](./COMMIT_CONVENTION.md) for detailed guidelines.
+See [COMMIT_CONVENTION.md](./docs/COMMIT_CONVENTION.md) for detailed guidelines.
 
 ### Pre-commit Hooks
 
@@ -159,7 +160,7 @@ git commit --no-verify -m "your message"
 
 ## Production Deployment
 
-See [PRODUCTION_DEPLOYMENT.md](./PRODUCTION_DEPLOYMENT.md) for comprehensive deployment guide including:
+See [PRODUCTION_DEPLOYMENT.md](./docs/PRODUCTION_DEPLOYMENT.md) for comprehensive deployment guide including:
 
 - Pre-deployment checklist
 - Build and optimization
@@ -172,7 +173,11 @@ See [PRODUCTION_DEPLOYMENT.md](./PRODUCTION_DEPLOYMENT.md) for comprehensive dep
 
 ## Project Documentation
 
-- [COMMIT_CONVENTION.md](./COMMIT_CONVENTION.md) - Commit message guidelines
-- [PRODUCTION_DEPLOYMENT.md](./PRODUCTION_DEPLOYMENT.md) - Deployment guide
-- [PROJECT_STRUCTURE.md](./PROJECT_STRUCTURE.md) - Project structure
-- [PERFORMANCE.md](./PERFORMANCE.md) - Performance optimization
+- [COMMIT_CONVENTION.md](./docs/COMMIT_CONVENTION.md) - Commit message guidelines
+- [PRODUCTION_DEPLOYMENT.md](./docs/PRODUCTION_DEPLOYMENT.md) - Deployment guide
+- [PROJECT_STRUCTURE.md](./docs/PROJECT_STRUCTURE.md) - Project structure
+- [PERFORMANCE.md](./docs/PERFORMANCE.md) - Performance optimization
+
+## Contributing
+
+We welcome contributions! Please see our [Contributing Guidelines](./docs/CONTRIBUTING.md) for details on how to submit pull requests, report issues, and our code of conduct.

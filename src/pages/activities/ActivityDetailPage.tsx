@@ -1,29 +1,15 @@
-import { activitiesApi } from "@/api/activities.api";
-import { Loader } from "@/components/ui";
-import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/Card";
-import { Input } from "@/components/ui/Input";
-import { useAuth } from "@/hooks/useAuth";
-import { formatNumber } from "@/lib/utils";
-import {
-  ArrowLeft,
-  Calendar,
-  Flame,
-  Plus,
-  RotateCcw,
-  Trophy,
-  Users,
-} from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import { toast } from "sonner";
+import { ArrowLeft, Calendar, Flame, Plus, RotateCcw, Trophy, Users } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
+import { toast } from 'sonner';
+import { activitiesApi } from '@/api/activities.api';
+import { Loader } from '@/components/ui';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Input } from '@/components/ui/Input';
+import { useAuth } from '@/hooks/useAuth';
+import { formatNumber } from '@/lib/utils';
 
 export default function ActivityDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -32,7 +18,7 @@ export default function ActivityDetailPage() {
   const [topUsers, setTopUsers] = useState<any[]>([]);
   const [userDailyLogs, setUserDailyLogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [inputCount, setInputCount] = useState("");
+  const [inputCount, setInputCount] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const loadData = async () => {
@@ -47,7 +33,7 @@ export default function ActivityDetailPage() {
       setTopUsers(topUsersData);
       setUserDailyLogs(logsData);
     } catch (error) {
-      console.error("Error loading activity:", error);
+      console.error('Error loading activity:', error);
     } finally {
       setLoading(false);
     }
@@ -56,9 +42,9 @@ export default function ActivityDetailPage() {
   const handleSubmitCount = useCallback(async () => {
     if (!inputCount || !user || !activity) return;
 
-    const count = parseInt(inputCount);
-    if (isNaN(count) || count <= 0) {
-      toast.error("Please enter a valid count");
+    const count = parseInt(inputCount, 10);
+    if (Number.isNaN(count) || count <= 0) {
+      toast.error('Please enter a valid count');
       return;
     }
 
@@ -66,7 +52,7 @@ export default function ActivityDetailPage() {
     try {
       await activitiesApi.addActivityCount(activity.id, user.id, count);
       toast.success(`Added ${count} completions!`);
-      setInputCount("");
+      setInputCount('');
 
       // Update the activity state immediately for better UX
       setActivity((prev: any) => ({
@@ -77,7 +63,7 @@ export default function ActivityDetailPage() {
       // Also refresh data from server
       loadData();
     } catch (error: any) {
-      toast.error(error.message || "Failed to add count");
+      toast.error(error.message || 'Failed to add count');
     } finally {
       setIsSubmitting(false);
     }
@@ -96,9 +82,7 @@ export default function ActivityDetailPage() {
   if (!activity) return <div className="p-6">Activity not found</div>;
 
   const avgPerUser =
-    activity.total_users > 0
-      ? Math.round(activity.total_count / activity.total_users)
-      : 0;
+    activity.total_users > 0 ? Math.round(activity.total_count / activity.total_users) : 0;
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 pb-20">
@@ -110,9 +94,7 @@ export default function ActivityDetailPage() {
         </Button>
         <div className="flex-1">
           <h1 className="text-3xl font-bold">{activity.name_bn}</h1>
-          <p className="text-muted-foreground">
-            {activity.name_en || activity.name_ar}
-          </p>
+          <p className="text-muted-foreground">{activity.name_en || activity.name_ar}</p>
         </div>
       </div>
 
@@ -121,9 +103,7 @@ export default function ActivityDetailPage() {
           <CardContent className="pt-6">
             <div className="flex flex-col items-center text-center">
               <Trophy className="mb-2 h-8 w-8 text-amber-500" />
-              <p className="text-3xl font-bold">
-                {formatNumber(activity.total_count)}
-              </p>
+              <p className="text-3xl font-bold">{formatNumber(activity.total_count)}</p>
               <p className="text-xs text-muted-foreground">Total Completions</p>
             </div>
           </CardContent>
@@ -168,24 +148,21 @@ export default function ActivityDetailPage() {
           <div className="flex items-center gap-3">
             <div
               className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg text-3xl"
-              style={{ backgroundColor: `${activity.color || "#10b981"}20` }}
+              style={{ backgroundColor: `${activity.color || '#10b981'}20` }}
             >
-              {activity.icon || "📿"}
+              {activity.icon || '📿'}
             </div>
             <div>
               <Badge variant="secondary" className="mb-2">
-                {activity.activity_type || "dhikr"}
+                {activity.activity_type || 'dhikr'}
               </Badge>
               <p className="text-sm text-muted-foreground">
-                Slug:{" "}
-                <code className="bg-muted px-2 py-1 rounded">
-                  {activity.unique_slug}
-                </code>
+                Slug: <code className="bg-muted px-2 py-1 rounded">{activity.unique_slug}</code>
               </p>
             </div>
           </div>
 
-          {activity.arabic_text && activity.arabic_text !== "none" && (
+          {activity.arabic_text && activity.arabic_text !== 'none' && (
             <div className="rounded-lg border-2 border-emerald-200 bg-emerald-50 p-6 dark:border-emerald-900 dark:bg-emerald-950">
               <p className="arabic-text text-center text-3xl leading-loose">
                 {activity.arabic_text}
@@ -196,24 +173,18 @@ export default function ActivityDetailPage() {
           <div className="grid gap-4 md:grid-cols-3">
             <div>
               <p className="text-sm font-medium mb-1">Bangla</p>
-              <p className="text-sm text-muted-foreground">
-                {activity.name_bn}
-              </p>
+              <p className="text-sm text-muted-foreground">{activity.name_bn}</p>
             </div>
             {activity.name_ar && (
               <div>
                 <p className="text-sm font-medium mb-1">Arabic</p>
-                <p className="arabic-text text-sm text-muted-foreground">
-                  {activity.name_ar}
-                </p>
+                <p className="arabic-text text-sm text-muted-foreground">{activity.name_ar}</p>
               </div>
             )}
             {activity.name_en && (
               <div>
                 <p className="text-sm font-medium mb-1">English</p>
-                <p className="text-sm text-muted-foreground">
-                  {activity.name_en}
-                </p>
+                <p className="text-sm text-muted-foreground">{activity.name_en}</p>
               </div>
             )}
           </div>
@@ -226,9 +197,7 @@ export default function ActivityDetailPage() {
             <Plus className="h-5 w-5 text-emerald-500" />
             Add Count
           </CardTitle>
-          <CardDescription>
-            Increment your completion count for this activity
-          </CardDescription>
+          <CardDescription>Increment your completion count for this activity</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex gap-3">
@@ -245,7 +214,7 @@ export default function ActivityDetailPage() {
               disabled={!inputCount || isSubmitting}
               className="shrink-0"
             >
-              {isSubmitting ? "Adding..." : "Add Count"}
+              {isSubmitting ? 'Adding...' : 'Add Count'}
             </Button>
           </div>
         </CardContent>
@@ -255,9 +224,7 @@ export default function ActivityDetailPage() {
         <Card>
           <CardHeader>
             <CardTitle>My Daily Completion Details</CardTitle>
-            <CardDescription>
-              Your personal completion history for this activity
-            </CardDescription>
+            <CardDescription>Your personal completion history for this activity</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
@@ -275,10 +242,10 @@ export default function ActivityDetailPage() {
                         <h4 className="font-medium">Day {log.day_number}</h4>
                         {log.mood && (
                           <Badge variant="outline" className="text-xs">
-                            {log.mood === "great" && "😊 Great"}
-                            {log.mood === "good" && "🙂 Good"}
-                            {log.mood === "okay" && "😐 Okay"}
-                            {log.mood === "difficult" && "😓 Difficult"}
+                            {log.mood === 'great' && '😊 Great'}
+                            {log.mood === 'good' && '🙂 Good'}
+                            {log.mood === 'okay' && '😐 Okay'}
+                            {log.mood === 'difficult' && '😓 Difficult'}
                           </Badge>
                         )}
                       </div>
@@ -286,9 +253,7 @@ export default function ActivityDetailPage() {
                         <span>
                           Completed: {log.count_completed}/{log.target_count}
                         </span>
-                        <span>
-                          {new Date(log.completion_date).toLocaleDateString()}
-                        </span>
+                        <span>{new Date(log.completion_date).toLocaleDateString()}</span>
                       </div>
                       {log.notes && (
                         <p className="mt-1 text-sm text-muted-foreground italic">
@@ -298,9 +263,7 @@ export default function ActivityDetailPage() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-2xl font-bold text-emerald-600">
-                      {log.count_completed}
-                    </div>
+                    <div className="text-2xl font-bold text-emerald-600">{log.count_completed}</div>
                     <div className="text-xs text-muted-foreground">count</div>
                   </div>
                 </div>
@@ -328,15 +291,13 @@ export default function ActivityDetailPage() {
                 >
                   <div className="flex items-center gap-3">
                     <Badge
-                      variant={index < 3 ? "default" : "outline"}
+                      variant={index < 3 ? 'default' : 'outline'}
                       className="h-8 w-8 flex items-center justify-center rounded-full text-sm font-bold shrink-0"
                     >
                       #{index + 1}
                     </Badge>
                     <div>
-                      <p className="font-medium">
-                        User {user.user_id.slice(0, 8)}...
-                      </p>
+                      <p className="font-medium">User {user.user_id.slice(0, 8)}...</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4 shrink-0">
@@ -344,9 +305,7 @@ export default function ActivityDetailPage() {
                       <p className="text-2xl font-bold text-emerald-600">
                         {formatNumber(user.total_completed)}
                       </p>
-                      <p className="text-xs text-muted-foreground">
-                        completions
-                      </p>
+                      <p className="text-xs text-muted-foreground">completions</p>
                     </div>
                     {user.longest_streak > 0 && (
                       <div className="text-right">

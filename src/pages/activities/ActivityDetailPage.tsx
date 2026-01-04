@@ -1,11 +1,13 @@
-import { ArrowLeft, Calendar, Flame, RotateCcw, Trophy, Users } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { ArrowLeft, Calendar, Flame, Plus, RotateCcw, Trophy, Users } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { toast } from 'sonner';
 import { activitiesApi } from '@/api/activities.api';
 import { Loader } from '@/components/ui';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Input } from '@/components/ui/Input';
 import { useAuth } from '@/hooks/useAuth';
 import { formatNumber } from '@/lib/utils';
 
@@ -16,10 +18,8 @@ export default function ActivityDetailPage() {
   const [topUsers, setTopUsers] = useState<any[]>([]);
   const [userDailyLogs, setUserDailyLogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (id && user) loadData();
-  }, [id, user]);
+  const [inputCount, setInputCount] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const loadData = async () => {
     if (!id || !user) return;
@@ -38,6 +38,40 @@ export default function ActivityDetailPage() {
       setLoading(false);
     }
   };
+
+  const handleSubmitCount = useCallback(async () => {
+    if (!inputCount || !user || !activity) return;
+
+    const count = parseInt(inputCount, 10);
+    if (Number.isNaN(count) || count <= 0) {
+      toast.error('Please enter a valid count');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await activitiesApi.addActivityCount(activity.id, user.id, count);
+      toast.success(`Added ${count} completions!`);
+      setInputCount('');
+
+      // Update the activity state immediately for better UX
+      setActivity((prev: any) => ({
+        ...prev,
+        total_count: (prev.total_count || 0) + count,
+      }));
+
+      // Also refresh data from server
+      loadData();
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to add count');
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [inputCount, user, activity, loadData]);
+
+  useEffect(() => {
+    if (id && user) loadData();
+  }, [id, user]);
 
   if (loading)
     return (
@@ -153,6 +187,35 @@ export default function ActivityDetailPage() {
                 <p className="text-sm text-muted-foreground">{activity.name_en}</p>
               </div>
             )}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Plus className="h-5 w-5 text-emerald-500" />
+            Add Count
+          </CardTitle>
+          <CardDescription>Increment your completion count for this activity</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex gap-3">
+            <Input
+              type="number"
+              placeholder="Enter count"
+              value={inputCount}
+              onChange={(e) => setInputCount(e.target.value)}
+              min="1"
+              className="flex-1"
+            />
+            <Button
+              onClick={handleSubmitCount}
+              disabled={!inputCount || isSubmitting}
+              className="shrink-0"
+            >
+              {isSubmitting ? 'Adding...' : 'Add Count'}
+            </Button>
           </div>
         </CardContent>
       </Card>

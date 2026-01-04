@@ -4,10 +4,12 @@ export const activitiesApi = {
   getUserActivities: async (userId: string) => {
     const { data, error } = await supabase
       .from('user_activity_stats')
-      .select(`
+      .select(
+        `
         *,
         activity:activity_stats(*)
-      `)
+      `
+      )
       .eq('user_id', userId)
       .order('total_completed', { ascending: false });
 
@@ -80,5 +82,37 @@ export const activitiesApi = {
       longestStreak,
       totalDaysCompleted,
     };
+  },
+
+  addActivityCount: async (activityId: string, userId: string, count: number) => {
+    // Update activity stats total_count
+    const { data: activity } = await supabase
+      .from('activity_stats')
+      .select('total_count')
+      .eq('id', activityId)
+      .single();
+
+    if (activity) {
+      await supabase
+        .from('activity_stats')
+        .update({ total_count: (activity.total_count || 0) + count })
+        .eq('id', activityId);
+    }
+
+    // Update user activity stats
+    const { data: userStats } = await supabase
+      .from('user_activity_stats')
+      .select('total_completed')
+      .eq('user_id', userId)
+      .eq('activity_stat_id', activityId)
+      .single();
+
+    if (userStats) {
+      await supabase
+        .from('user_activity_stats')
+        .update({ total_completed: (userStats.total_completed || 0) + count })
+        .eq('user_id', userId)
+        .eq('activity_stat_id', activityId);
+    }
   },
 };

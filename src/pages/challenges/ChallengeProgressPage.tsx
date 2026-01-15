@@ -7,6 +7,7 @@ import {
   Flame,
   Maximize2,
   Minimize2,
+  Plus,
   RotateCcw,
   Target,
   Trophy,
@@ -115,6 +116,15 @@ export default function ChallengeProgressPage() {
   const handleIncrement = useCallback(() => {
     if (count < target && !isAlreadyCompleted) {
       const newCount = count + 1;
+      setCount(newCount);
+      vibrate();
+      saveToLocalStorage(newCount);
+    }
+  }, [count, target, vibrate, isAlreadyCompleted, setCount, saveToLocalStorage]);
+
+  const handleIncrement100 = useCallback(() => {
+    if (count < target && !isAlreadyCompleted) {
+      const newCount = Math.min(count + 100, target);
       setCount(newCount);
       vibrate();
       saveToLocalStorage(newCount);
@@ -480,7 +490,7 @@ export default function ChallengeProgressPage() {
               </div>
             </div>
 
-            <div className="flex justify-center mb-4">
+            <div className="flex justify-center mb-4 gap-2">
               <Button
                 variant="outline"
                 size="sm"
@@ -491,6 +501,18 @@ export default function ChallengeProgressPage() {
                 <Edit3 className="mr-1 h-3 w-3" />
                 {inputMode ? 'Switch to Tap' : 'Direct Input'}
               </Button>
+              {!inputMode && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleIncrement100}
+                  disabled={count >= target}
+                  className="text-xs"
+                >
+                  <Plus className="mr-1 h-3 w-3" />
+                  +100
+                </Button>
+              )}
             </div>
 
             <Activity mode={inputMode ? 'visible' : 'hidden'}>

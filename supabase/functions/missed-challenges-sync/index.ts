@@ -36,6 +36,12 @@ Deno.serve(async (req) => {
 
     // Get yesterday's date in Bangladesh timezone
     const now = new Date();
+    // Calculate date 3 months ago (approx 90 days) for cleanup
+    const threeMonthsAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+    const threeMonthsAgoBd = new Date(
+      threeMonthsAgo.toLocaleString('en-US', { timeZone: 'Asia/Dhaka' })
+    );
+    const cleanupDate = threeMonthsAgoBd.toLocaleDateString('en-CA');
     const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
     const yesterdayBd = new Date(yesterday.toLocaleString('en-US', { timeZone: 'Asia/Dhaka' }));
     const yesterdayDate = yesterdayBd.toLocaleDateString('en-CA');
@@ -94,6 +100,22 @@ Deno.serve(async (req) => {
 
     console.log(`Sync completed. Total missed: ${totalMissed}`);
 
+    // Cleanup old data
+    try {
+      const { error: cleanupError, count: deletedCount } = await supabaseClient
+        .from('user_missed_challenges')
+        .delete({ count: 'exact' })
+        .lt('missed_date', cleanupDate);
+
+      if (cleanupError) {
+        console.error('Error cleaning up old data:', cleanupError);
+      } else {
+        console.log(`Cleanup completed. Deleted ${deletedCount} records older than ${cleanupDate}`);
+      }
+    } catch (cleanupErr) {
+      console.error('Cleanup execution failed:', cleanupErr);
+    }
+
     return new Response(
       JSON.stringify({
         success: true,
@@ -105,7 +127,7 @@ Deno.serve(async (req) => {
     );
   } catch (error) {
     console.error('Sync failed:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: (error as Error).message || 'Unknown error' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

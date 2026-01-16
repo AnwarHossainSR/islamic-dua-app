@@ -1,6 +1,13 @@
 export { Badge } from './Badge';
 export { Button } from './Button';
-export { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './Card';
+export {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from './Card';
 export {
   Dialog,
   DialogContent,
@@ -10,7 +17,8 @@ export {
   DialogTrigger,
 } from './Dialog';
 export { Input } from './Input';
-export { FullPageLoader, Loader } from './loader';
+export * from './loader';
+export * from './Pagination';
 export { Progress } from './Progress';
 export {
   Select,

@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { missedChallengesApi } from '@/api/missed-challenges.api';
-import { Loader } from '@/components/ui';
+import { Loader, Pagination } from '@/components/ui';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
@@ -22,6 +22,8 @@ export default function MissedChallengesPage() {
   const [lastSyncTime, setLastSyncTime] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
   useEffect(() => {
     if (user) loadData();
@@ -76,6 +78,11 @@ export default function MissedChallengesPage() {
 
   const sortedDates = Object.keys(groupedByDate).sort(
     (a, b) => new Date(b).getTime() - new Date(a).getTime()
+  );
+
+  const paginatedDates = sortedDates.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
   );
 
   if (loading)
@@ -165,8 +172,8 @@ export default function MissedChallengesPage() {
       </div>
 
       <div className="space-y-6">
-        {sortedDates.length > 0 ? (
-          sortedDates.map((date) => (
+        {paginatedDates.length > 0 ? (
+          paginatedDates.map((date) => (
             <Card key={date}>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -224,6 +231,14 @@ export default function MissedChallengesPage() {
               </Button>
             </CardContent>
           </Card>
+        )}
+        {sortedDates.length > 0 && (
+          <Pagination
+            currentPage={currentPage}
+            totalItems={sortedDates.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+          />
         )}
       </div>
     </div>

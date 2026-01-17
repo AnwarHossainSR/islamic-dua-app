@@ -22,9 +22,8 @@ export const logsApi = {
   clearAllLogs: async () => {
     try {
       const { apiLogger } = await import('@/lib/logger');
-      apiLogger.info('Clearing all logs', { timestamp: Date.now() });
 
-      const { data, error } = await supabaseAdmin
+      const { error } = await supabaseAdmin
         .from('api_logs')
         .delete()
         .lt('timestamp', Date.now() + 1000000);
@@ -36,8 +35,6 @@ export const logsApi = {
         });
         throw error;
       }
-
-      apiLogger.info('Logs cleared successfully', { deletedCount: data });
     } catch (error: any) {
       const { apiLogger } = await import('@/lib/logger');
       apiLogger.error('Clear logs exception', { error: error.message });

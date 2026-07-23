@@ -1,7 +1,20 @@
+import { randomBytes } from 'node:crypto';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'dev-insecure-secret-change-me';
+/**
+ * Signing secret for JWT sessions. Must be provided via JWT_SECRET in any real
+ * deployment. When it is missing (e.g. local dev), a random per-process secret
+ * is generated so no secret is ever hard-coded in source — the trade-off is
+ * that sessions do not survive a dev-server restart.
+ */
+const JWT_SECRET: string = (() => {
+  const fromEnv = process.env.JWT_SECRET;
+  if (fromEnv && fromEnv.length > 0) return fromEnv;
+  // biome-ignore lint/suspicious/noConsole: startup warning is intentional
+  console.warn('[auth] JWT_SECRET is not set — using an ephemeral random secret.');
+  return randomBytes(32).toString('hex');
+})();
 const TOKEN_TTL = '30d';
 
 export interface AuthUser {

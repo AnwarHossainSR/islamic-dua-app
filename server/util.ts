@@ -10,6 +10,18 @@ export function nowMs(): number {
   return Date.now();
 }
 
+/**
+ * Validate a SQL identifier (table/column name) before it is interpolated into
+ * a query. Table/column names cannot be passed as bound parameters, so callers
+ * must guarantee they are safe; this rejects anything but plain identifiers.
+ */
+export function safeIdentifier(name: string): string {
+  if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(name)) {
+    throw new Error(`Unsafe SQL identifier: ${name}`);
+  }
+  return name;
+}
+
 /** ISO-8601 timestamp (matches Postgres TIMESTAMPTZ columns stored as TEXT). */
 export function nowIso(): string {
   return new Date().toISOString();

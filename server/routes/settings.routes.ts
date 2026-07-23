@@ -1,6 +1,6 @@
 import { all, count, one, run } from '../db';
 import { ApiError, type ApiRequest, type Router, requireUser } from '../http';
-import { coerceBooleansAll, nowIso } from '../util';
+import { coerceBooleansAll, nowIso, safeIdentifier } from '../util';
 
 const BACKUP_TABLES = [
   'permissions',
@@ -81,7 +81,7 @@ export function registerSettingsRoutes(router: Router) {
     for (const table of BACKUP_TABLES) {
       let rows: Record<string, unknown>[] = [];
       try {
-        rows = await all<Record<string, unknown>>(`SELECT * FROM ${table}`);
+        rows = await all<Record<string, unknown>>(`SELECT * FROM ${safeIdentifier(table)}`);
       } catch {
         continue;
       }
@@ -119,6 +119,6 @@ export function registerSettingsRoutes(router: Router) {
     if (!EXPORTABLE.has(params.table)) {
       throw new ApiError(400, 'Table is not exportable');
     }
-    return all(`SELECT * FROM ${params.table}`);
+    return all(`SELECT * FROM ${safeIdentifier(params.table)}`);
   });
 }

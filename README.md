@@ -1,6 +1,7 @@
 # Islamic Dua App - React 19
 
-Modern React 19 migration of the Islamic Dua App using Vite, TypeScript, and Supabase.
+Modern React 19 build of the Islamic Dua App using Vite, TypeScript, and a
+self-hosted SQLite/Turso backend.
 
 ## Features
 
@@ -8,8 +9,31 @@ Modern React 19 migration of the Islamic Dua App using Vite, TypeScript, and Sup
 - **Vite**: Fast build tool and dev server
 - **TypeScript**: Full type safety
 - **Tailwind CSS 4**: Latest styling with `@import "tailwindcss"`
-- **Supabase**: Backend and authentication
+- **SQLite / Turso backend**: Own REST API (`/api/*`) backed by libSQL — runs
+  against a local SQLite file or a hosted [Turso](https://turso.tech) database
+- **JWT auth**: Email/password auth with bcrypt hashing and JWT sessions
 - **React Router 6**: Client-side routing
+
+## Architecture
+
+The app used to talk to Supabase directly from the browser. It now ships with
+its own backend so the database is never exposed to the client:
+
+- `server/` — framework-agnostic API (libSQL client, JWT auth, route handlers).
+  The same handlers run both as a **Vercel serverless function** (`api/[...path].ts`)
+  and as **Vite dev middleware** (`server/vite-plugin.ts`), so `npm run dev`
+  needs no external services.
+- `src/lib/api/http.ts` + `src/lib/auth/session.ts` — the client HTTP + session
+  layer that replaced the Supabase client. The `src/api/*.ts` modules keep the
+  same method signatures and call `/api/*`.
+
+### Database target (pick one)
+
+`@libsql/client` reads the target from env, so the exact same code works for
+both hosting modes:
+
+- **Local SQLite file** (default): `DATABASE_URL=file:./data/local.db`
+- **Turso**: `TURSO_DATABASE_URL=libsql://…` + `TURSO_AUTH_TOKEN=…`
 
 ## Setup
 
@@ -25,12 +49,18 @@ Modern React 19 migration of the Islamic Dua App using Vite, TypeScript, and Sup
    cp .env.example .env
    ```
 
-   Add your Supabase credentials:
+   Set `JWT_SECRET`. Leave the database vars unset to use a local SQLite file,
+   or set the Turso vars to use a hosted database.
 
-   - `VITE_SUPABASE_URL`
-   - `VITE_SUPABASE_ANON_KEY`
+3. **Create the schema (and optional seed data)**
 
-3. **Run development server**
+   ```bash
+   npm run db:setup
+   # optionally seed a super_admin:
+   # ADMIN_EMAIL=admin@example.com ADMIN_PASSWORD=secret npm run db:setup
+   ```
+
+4. **Run development server**
    ```bash
    npm run dev
    ```

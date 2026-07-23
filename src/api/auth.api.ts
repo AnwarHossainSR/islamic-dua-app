@@ -1,10 +1,9 @@
-import { supabase } from '@/lib/supabase/client';
+import { session } from '@/lib/auth/session';
 
 export const authApi = {
   signIn: async (email: string, password: string) => {
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) throw error;
+      const data = await session.signInWithPassword(email, password);
       const { apiLogger } = await import('@/lib/logger');
       apiLogger.info('User signed in', { email });
       return data;
@@ -17,8 +16,7 @@ export const authApi = {
 
   signUp: async (email: string, password: string) => {
     try {
-      const { data, error } = await supabase.auth.signUp({ email, password });
-      if (error) throw error;
+      const data = await session.signUp(email, password);
       const { apiLogger } = await import('@/lib/logger');
       apiLogger.info('User signed up', { email });
       return data;
@@ -31,8 +29,7 @@ export const authApi = {
 
   signOut: async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
+      await session.signOut();
       const { apiLogger } = await import('@/lib/logger');
       apiLogger.info('User signed out');
     } catch (error: any) {
@@ -43,14 +40,6 @@ export const authApi = {
   },
 
   getSession: async () => {
-    try {
-      const { data, error } = await supabase.auth.getSession();
-      if (error) throw error;
-      return data.session;
-    } catch (error: any) {
-      const { apiLogger } = await import('@/lib/logger');
-      apiLogger.error('Get session failed', { error: error.message });
-      throw error;
-    }
+    return session.getSession();
   },
 };

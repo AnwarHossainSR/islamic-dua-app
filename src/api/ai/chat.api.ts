@@ -1,4 +1,5 @@
-import { supabase } from '@/lib/supabase/client';
+import { http } from '@/lib/api/http';
+import { session } from '@/lib/auth/session';
 
 export interface ChatSession {
   id: string;
@@ -24,56 +25,29 @@ export const chatApi = {
     title: string,
     chatMode: 'general' | 'database' = 'database'
   ): Promise<ChatSession> {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) throw new Error('Unauthorized');
-
-    const { data, error } = await supabase
-      .from('ai_chat_sessions')
-      .insert({
-        user_id: user.id,
-        title,
-        chat_mode: chatMode,
-      })
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data;
+    return http.post<ChatSession>('/ai/sessions', { title, chatMode });
   },
 
   async getSessions(): Promise<ChatSession[]> {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) return [];
-
-    const { data, error } = await supabase
-      .from('ai_chat_sessions')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('updated_at', { ascending: false });
-
-    if (error) throw error;
-    return data || [];
+    if (!session.getUser()) return [];
+    return http.get<ChatSession[]>('/ai/sessions');
   },
 
   async getMessages(sessionId: string): Promise<ChatMessage[]> {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) throw new Error('Unauthorized');
+    return http.get<ChatMessage[]>(`/ai/sessions/${sessionId}/messages`);
+  },
 
-    const { data, error } = await supabase
-      .from('ai_chat_messages')
-      .select('*')
-      .eq('session_id', sessionId)
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: true });
-
-    if (error) throw error;
-    return data || [];
+  async saveMessage(
+    sessionId: string,
+    role: 'user' | 'assistant',
+    content: string,
+    metadata?: unknown
+  ): Promise<ChatMessage> {
+    return http.post<ChatMessage>(`/ai/sessions/${sessionId}/messages`, {
+      role,
+      content,
+      metadata,
+    });
   },
 
   async sendMessage(
@@ -81,20 +55,13 @@ export const chatApi = {
     message: string,
     chatMode: 'general' | 'database'
   ): Promise<any> {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const user = session.getUser();
     if (!user) throw new Error('Unauthorized');
 
     // Save user message
-    await supabase.from('ai_chat_messages').insert({
-      session_id: sessionId,
-      user_id: user.id,
-      role: 'user',
-      content: message,
-    });
+    await http.post(`/ai/sessions/${sessionId}/messages`, { role: 'user', content: message });
 
-    // Call AI endpoint
+    // Call AI endpoint (external/serverless AI completion)
     const response = await fetch('/api/ai/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -109,34 +76,19 @@ export const chatApi = {
     const aiResponse = await response.json();
 
     // Save AI response
-    await supabase.from('ai_chat_messages').insert({
-      session_id: sessionId,
-      user_id: user.id,
+    await http.post(`/ai/sessions/${sessionId}/messages`, {
       role: 'assistant',
       content: aiResponse.message,
-      metadata: JSON.stringify({
+      metadata: {
         relatedDuas: aiResponse.relatedDuas || [],
         suggestions: aiResponse.suggestions || [],
-      }),
+      },
     });
-
-    // Update session timestamp
-    await supabase
-      .from('ai_chat_sessions')
-      .update({ updated_at: new Date().toISOString() })
-      .eq('id', sessionId);
 
     return aiResponse;
   },
 
   async clearAll(): Promise<void> {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) throw new Error('Unauthorized');
-
-    const { error } = await supabase.from('ai_chat_sessions').delete().eq('user_id', user.id);
-
-    if (error) throw error;
+    await http.delete('/ai/sessions');
   },
 };

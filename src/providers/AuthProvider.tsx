@@ -1,9 +1,8 @@
-import type { User } from '@supabase/supabase-js';
 import { createContext, useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase/client';
+import { type AppUser, session } from '@/lib/auth/session';
 
 interface AuthContextType {
-  user: User | null;
+  user: AppUser | null;
   loading: boolean;
   signOut: () => Promise<void>;
 }
@@ -11,26 +10,22 @@ interface AuthContextType {
 export const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AppUser | null>(session.getUser());
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
+    // Validate the persisted token against the backend on mount.
+    session.refresh().then((u) => {
+      setUser(u);
       setLoading(false);
     });
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
-
-    return () => subscription.unsubscribe();
+    const { unsubscribe } = session.onAuthStateChange((u) => setUser(u));
+    return () => unsubscribe();
   }, []);
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    await session.signOut();
     setUser(null);
   };
 

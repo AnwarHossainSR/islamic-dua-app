@@ -4,11 +4,14 @@ import react from '@vitejs/plugin-react';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { defineConfig } from 'vite';
 import viteCompression from 'vite-plugin-compression';
+import { apiDevServer } from './server/vite-plugin';
 
 export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
+    // Serves /api/* against the local SQLite/Turso backend during `npm run dev`.
+    apiDevServer(),
     // Bundle analyzer - generates stats.html
     visualizer({
       open: true,

@@ -1,3 +1,4 @@
+import { requireSelfOrAdmin } from '../authz';
 import { all, one, run } from '../db';
 import { type ApiRequest, type Router, requireUser } from '../http';
 import { coerceBooleansAll } from '../util';
@@ -29,7 +30,8 @@ export function registerActivityRoutes(router: Router) {
   });
 
   // user_activity_stats joined with activity_stats
-  router.get('/activities/user/:userId', async (_req, params) => {
+  router.get('/activities/user/:userId', async (req: ApiRequest, params) => {
+    await requireSelfOrAdmin(req, params.userId);
     const rows = await all<Record<string, unknown>>(
       'SELECT * FROM user_activity_stats WHERE user_id = ? ORDER BY total_completed DESC',
       [params.userId]
@@ -42,7 +44,8 @@ export function registerActivityRoutes(router: Router) {
     return rows;
   });
 
-  router.get('/activities/user/:userId/challenge-stats', async (_req, params) => {
+  router.get('/activities/user/:userId/challenge-stats', async (req: ApiRequest, params) => {
+    await requireSelfOrAdmin(req, params.userId);
     const rows = await all<{
       current_streak: number;
       longest_streak: number;
@@ -61,6 +64,7 @@ export function registerActivityRoutes(router: Router) {
   });
 
   router.get('/activities/:activityId/top-users', async (req: ApiRequest, params) => {
+    requireUser(req);
     const limit = Number(req.query.limit) || 10;
     const rows = await all(
       'SELECT * FROM user_activity_stats WHERE activity_stat_id = ? ORDER BY total_completed DESC LIMIT ?',
@@ -69,7 +73,8 @@ export function registerActivityRoutes(router: Router) {
     return rows;
   });
 
-  router.get('/activities/:activityId/daily-logs/:userId', async (_req, params) => {
+  router.get('/activities/:activityId/daily-logs/:userId', async (req: ApiRequest, params) => {
+    await requireSelfOrAdmin(req, params.userId);
     const mappings = await all<{ challenge_id: string }>(
       'SELECT challenge_id FROM challenge_activity_mapping WHERE activity_stat_id = ?',
       [params.activityId]
@@ -86,13 +91,15 @@ export function registerActivityRoutes(router: Router) {
     return rows;
   });
 
-  router.get('/activities/:activityId', async (_req, params) => {
+  router.get('/activities/:activityId', async (req: ApiRequest, params) => {
+    requireUser(req);
     return one('SELECT * FROM activity_stats WHERE id = ?', [params.activityId]);
   });
 
+  // Count is always attributed to the authenticated user (never a body-supplied id).
   router.post('/activities/:activityId/count', async (req: ApiRequest, params) => {
-    requireUser(req);
-    const { userId, count } = (req.body ?? {}) as { userId?: string; count?: number };
+    const user = requireUser(req);
+    const { count } = (req.body ?? {}) as { count?: number };
     const c = Number(count) || 0;
     await run('UPDATE activity_stats SET total_count = total_count + ? WHERE id = ?', [
       c,
@@ -100,7 +107,7 @@ export function registerActivityRoutes(router: Router) {
     ]);
     await run(
       'UPDATE user_activity_stats SET total_completed = total_completed + ? WHERE user_id = ? AND activity_stat_id = ?',
-      [c, userId ?? '', params.activityId]
+      [c, user.id, params.activityId]
     );
     return { success: true };
   });

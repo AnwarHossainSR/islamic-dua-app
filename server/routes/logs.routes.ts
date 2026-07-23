@@ -1,9 +1,11 @@
+import { requireAdmin } from '../authz';
 import { all, count, run } from '../db';
 import type { ApiRequest, Router } from '../http';
 import { uuid } from '../util';
 
 export function registerLogRoutes(router: Router) {
   router.get('/logs', async (req: ApiRequest) => {
+    await requireAdmin(req);
     const page = Number(req.query.page) || 1;
     const level = req.query.level || 'all';
     const limit = Number(req.query.limit) || 25;
@@ -39,7 +41,8 @@ export function registerLogRoutes(router: Router) {
     return { success: true };
   });
 
-  router.delete('/logs', async () => {
+  router.delete('/logs', async (req: ApiRequest) => {
+    await requireAdmin(req);
     await run('DELETE FROM api_logs');
     return { success: true };
   });

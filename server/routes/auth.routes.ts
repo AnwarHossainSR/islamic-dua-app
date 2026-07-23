@@ -9,16 +9,19 @@ interface AuthUserRow {
   password_hash: string;
 }
 
-async function ensureAdminRecord(userId: string, email: string) {
-  const existing = await one('SELECT id FROM admin_users WHERE user_id = ?', [userId]);
-  if (existing) return;
-  // First ever user becomes super_admin, everyone else an editor.
-  const others = await all('SELECT id FROM admin_users LIMIT 1');
-  const role = others.length === 0 ? 'super_admin' : 'editor';
+/**
+ * Bootstrap only: the very first registered account becomes super_admin so the
+ * admin panel is reachable on a fresh database. Every subsequent signup is a
+ * regular user with NO admin_users row — admin membership must be granted
+ * explicitly by an admin via the users endpoints.
+ */
+async function bootstrapFirstAdmin(userId: string, email: string) {
+  const anyAdmin = await all('SELECT id FROM admin_users LIMIT 1');
+  if (anyAdmin.length > 0) return;
   await run(
     `INSERT INTO admin_users (id, user_id, email, role, is_active, created_at, updated_at)
-     VALUES (?, ?, ?, ?, 1, ?, ?)`,
-    [uuid(), userId, email, role, nowIso(), nowIso()]
+     VALUES (?, ?, ?, 'super_admin', 1, ?, ?)`,
+    [uuid(), userId, email, nowIso(), nowIso()]
   );
 }
 
@@ -37,7 +40,7 @@ export function registerAuthRoutes(router: Router) {
        VALUES (?, ?, ?, 1, ?, ?)`,
       [id, email, hash, nowIso(), nowIso()]
     );
-    await ensureAdminRecord(id, email);
+    await bootstrapFirstAdmin(id, email);
 
     const user = { id, email };
     return { user, token: signToken(user) };

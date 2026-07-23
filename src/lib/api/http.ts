@@ -57,13 +57,25 @@ async function request<T>(method: string, path: string, opts: RequestOptions = {
   });
 
   const text = await res.text();
-  const data = text ? JSON.parse(text) : null;
+  // Parse defensively: a non-JSON body (HTML 5xx gateway page, proxy error)
+  // must not throw a SyntaxError that masks the real HTTP status.
+  let data: unknown = null;
+  if (text) {
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = null;
+    }
+  }
 
   if (!res.ok) {
     const message =
-      (data && typeof data === 'object' && 'error' in data && (data as { error: string }).error) ||
-      `Request failed with status ${res.status}`;
-    throw new Error(message);
+      data && typeof data === 'object' && 'error' in data
+        ? String((data as { error: unknown }).error)
+        : `Request failed with status ${res.status}`;
+    const error = new Error(message) as Error & { status?: number };
+    error.status = res.status;
+    throw error;
   }
   return data as T;
 }

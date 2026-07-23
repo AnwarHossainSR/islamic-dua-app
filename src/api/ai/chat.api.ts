@@ -50,44 +50,6 @@ export const chatApi = {
     });
   },
 
-  async sendMessage(
-    sessionId: string,
-    message: string,
-    chatMode: 'general' | 'database'
-  ): Promise<any> {
-    const user = session.getUser();
-    if (!user) throw new Error('Unauthorized');
-
-    // Save user message
-    await http.post(`/ai/sessions/${sessionId}/messages`, { role: 'user', content: message });
-
-    // Call AI endpoint (external/serverless AI completion)
-    const response = await fetch('/api/ai/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sessionId, message, chatMode, userId: user.id }),
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Failed to get AI response');
-    }
-
-    const aiResponse = await response.json();
-
-    // Save AI response
-    await http.post(`/ai/sessions/${sessionId}/messages`, {
-      role: 'assistant',
-      content: aiResponse.message,
-      metadata: {
-        relatedDuas: aiResponse.relatedDuas || [],
-        suggestions: aiResponse.suggestions || [],
-      },
-    });
-
-    return aiResponse;
-  },
-
   async clearAll(): Promise<void> {
     await http.delete('/ai/sessions');
   },

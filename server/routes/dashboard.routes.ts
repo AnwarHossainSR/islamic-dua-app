@@ -1,5 +1,6 @@
+import { requireSelfOrAdmin } from '../authz';
 import { all, count, one } from '../db';
-import type { ApiRequest, Router } from '../http';
+import { type ApiRequest, type Router, requireUser } from '../http';
 
 function bdToday(): string {
   const now = new Date();
@@ -17,7 +18,8 @@ function bdWeekAgo(): string {
 }
 
 export function registerDashboardRoutes(router: Router) {
-  router.get('/dashboard/user/:userId/stats', async (_req, params) => {
+  router.get('/dashboard/user/:userId/stats', async (req: ApiRequest, params) => {
+    await requireSelfOrAdmin(req, params.userId);
     const userId = params.userId;
     const userActivities = await all<{ total_completed: number }>(
       'SELECT total_completed FROM user_activity_stats WHERE user_id = ?',
@@ -52,7 +54,8 @@ export function registerDashboardRoutes(router: Router) {
     };
   });
 
-  router.get('/dashboard/global/stats', async () => {
+  router.get('/dashboard/global/stats', async (req: ApiRequest) => {
+    requireUser(req);
     const totalActivities = await count('SELECT count(*) AS c FROM activity_stats');
     const activities = await all<{ total_count: number }>('SELECT total_count FROM activity_stats');
     const totalCompletions = activities.reduce((sum, a) => sum + Number(a.total_count || 0), 0);
@@ -80,6 +83,7 @@ export function registerDashboardRoutes(router: Router) {
   });
 
   router.get('/dashboard/user/:userId/top-activities', async (req: ApiRequest, params) => {
+    await requireSelfOrAdmin(req, params.userId);
     const limit = Number(req.query.limit) || 10;
     const rows = await all<Record<string, unknown>>(
       `SELECT uas.total_completed, a.id, a.name_bn, a.name_ar, a.name_en, a.icon, a.color
@@ -102,6 +106,7 @@ export function registerDashboardRoutes(router: Router) {
   });
 
   router.get('/dashboard/global/top-activities', async (req: ApiRequest) => {
+    requireUser(req);
     const limit = Number(req.query.limit) || 10;
     return all(
       'SELECT id, name_bn, name_ar, name_en, total_count, total_users, icon, color FROM activity_stats ORDER BY total_count DESC LIMIT ?',

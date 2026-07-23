@@ -1,24 +1,28 @@
+import { randomBytes } from 'node:crypto';
 import { hashPassword } from '../auth';
+import { requireAdmin, requireSuperAdmin } from '../authz';
 import { all, one, run } from '../db';
-import { ApiError, type ApiRequest, type Router, requireUser } from '../http';
+import { ApiError, type ApiRequest, type Router } from '../http';
 import { coerceBooleansAll, nowIso, uuid } from '../util';
 
 export function registerUserRoutes(router: Router) {
   router.get('/users', async (req: ApiRequest) => {
-    requireUser(req);
+    await requireAdmin(req);
     // admin_users already carries email in this schema.
     const rows = await all('SELECT * FROM admin_users ORDER BY created_at DESC');
     return coerceBooleansAll(rows, ['is_active']);
   });
 
   router.post('/users', async (req: ApiRequest) => {
-    requireUser(req);
     const { email, role, password } = (req.body ?? {}) as {
       email?: string;
       role?: string;
       password?: string;
     };
     if (!email || !role) throw new ApiError(400, 'Email and role are required');
+    // Only super_admin may mint another super_admin.
+    if (role === 'super_admin') await requireSuperAdmin(req);
+    else await requireAdmin(req);
 
     let authUser = await one<{ id: string; email: string }>(
       'SELECT id, email FROM auth_users WHERE email = ?',
@@ -28,7 +32,8 @@ export function registerUserRoutes(router: Router) {
     let userCreated = false;
 
     if (!authUser) {
-      generatedPassword = password || `${Math.random().toString(36).slice(-8)}A1!`;
+      // Cryptographically secure default password.
+      generatedPassword = password || `${randomBytes(9).toString('base64url')}A1!`;
       const id = uuid();
       const hash = await hashPassword(generatedPassword);
       await run(
@@ -54,8 +59,17 @@ export function registerUserRoutes(router: Router) {
   });
 
   router.put('/users/:id', async (req: ApiRequest, params) => {
-    requireUser(req);
     const { role, is_active } = (req.body ?? {}) as { role?: string; is_active?: boolean };
+    // Changing to/from super_admin requires super_admin; other edits require admin.
+    const target = await one<{ role: string }>('SELECT role FROM admin_users WHERE id = ?', [
+      params.id,
+    ]);
+    if (role === 'super_admin' || target?.role === 'super_admin') {
+      await requireSuperAdmin(req);
+    } else {
+      await requireAdmin(req);
+    }
+
     const sets: string[] = [];
     const args: (string | number)[] = [];
     if (role !== undefined) {
@@ -73,7 +87,15 @@ export function registerUserRoutes(router: Router) {
   });
 
   router.delete('/users/:id', async (req: ApiRequest, params) => {
-    requireUser(req);
+    // Deleting a super_admin requires super_admin; otherwise admin suffices.
+    const target = await one<{ role: string }>('SELECT role FROM admin_users WHERE id = ?', [
+      params.id,
+    ]);
+    if (target?.role === 'super_admin') {
+      await requireSuperAdmin(req);
+    } else {
+      await requireAdmin(req);
+    }
     await run('DELETE FROM admin_users WHERE id = ?', [params.id]);
     return { success: true };
   });

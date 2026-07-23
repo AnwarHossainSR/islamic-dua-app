@@ -1,9 +1,11 @@
+import { requireSelfOrAdmin } from '../authz';
 import { all, count, one, run } from '../db';
 import { type ApiRequest, type Router, requireUser } from '../http';
 import { uuid } from '../util';
 
 export function registerMissedChallengeRoutes(router: Router) {
-  router.get('/missed-challenges/user/:userId', async (_req, params) => {
+  router.get('/missed-challenges/user/:userId', async (req: ApiRequest, params) => {
+    await requireSelfOrAdmin(req, params.userId);
     const rows = await all<Record<string, unknown>>(
       `SELECT m.*, c.title_bn AS challenge_title_bn, c.icon AS challenge_icon, c.color AS challenge_color
        FROM user_missed_challenges m
@@ -19,7 +21,8 @@ export function registerMissedChallengeRoutes(router: Router) {
     }));
   });
 
-  router.get('/missed-challenges/user/:userId/summary', async (_req, params) => {
+  router.get('/missed-challenges/user/:userId/summary', async (req: ApiRequest, params) => {
+    await requireSelfOrAdmin(req, params.userId);
     const userId = params.userId;
     const now = new Date();
     const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
@@ -60,7 +63,7 @@ export function registerMissedChallengeRoutes(router: Router) {
   });
 
   router.post('/missed-challenges/user/:userId/sync', async (req: ApiRequest, params) => {
-    requireUser(req);
+    await requireSelfOrAdmin(req, params.userId);
     const userId = params.userId;
     const activeProgress = await all<{ challenge_id: string }>(
       "SELECT challenge_id FROM user_challenge_progress WHERE user_id = ? AND status = 'active'",
@@ -93,7 +96,8 @@ export function registerMissedChallengeRoutes(router: Router) {
     return { success: true, missedCount: missed.length };
   });
 
-  router.get('/missed-challenges/last-sync', async () => {
+  router.get('/missed-challenges/last-sync', async (req: ApiRequest) => {
+    requireUser(req);
     const row = await one<{ created_at: number }>(
       'SELECT created_at FROM user_missed_challenges ORDER BY created_at DESC LIMIT 1'
     );

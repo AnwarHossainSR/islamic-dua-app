@@ -76,12 +76,14 @@ export function registerChallengeRoutes(router: Router) {
     return { data: coerceBooleans(data, PROGRESS_BOOLS), error: null };
   });
 
-  router.get('/challenges/progress/:progressId', async (_req, params) => {
+  router.get('/challenges/progress/:progressId', async (req: ApiRequest, params) => {
+    const user = requireUser(req);
     const progress = await one<Record<string, unknown>>(
       'SELECT * FROM user_challenge_progress WHERE id = ?',
       [params.progressId]
     );
     if (!progress) throw new ApiError(404, 'Progress not found');
+    if (progress.user_id !== user.id) throw new ApiError(403, 'Forbidden');
     const challenge = await one('SELECT * FROM challenge_templates WHERE id = ?', [
       progress.challenge_id as string,
     ]);
@@ -97,8 +99,8 @@ export function registerChallengeRoutes(router: Router) {
   });
 
   router.post('/challenges/progress/:progressId/restart', async (req: ApiRequest, params) => {
-    requireUser(req);
-    const { challengeId } = (req.body ?? {}) as { challengeId?: string };
+    const user = requireUser(req);
+    await assertOwnsProgress(user.id, params.progressId);
     await run(
       `UPDATE user_challenge_progress SET
         current_day = 1, status = 'active', current_streak = 0, longest_streak = 0,
@@ -109,12 +111,8 @@ export function registerChallengeRoutes(router: Router) {
     await run('DELETE FROM user_challenge_daily_logs WHERE user_progress_id = ?', [
       params.progressId,
     ]);
-    if (challengeId) {
-      await run(
-        'UPDATE challenge_templates SET total_completions = total_completions + 1 WHERE id = ?',
-        [challengeId]
-      );
-    }
+    // Note: restarting is not a completion — challenge_templates.total_completions
+    // is only incremented in the daily-complete flow.
     return { success: true };
   });
 
@@ -234,6 +232,7 @@ export function registerChallengeRoutes(router: Router) {
       mood?: string;
     };
     const progressId = params.progressId;
+    await assertOwnsProgress(user.id, progressId);
     const dayNumber = Number(b.dayNumber);
     const countCompleted = Number(b.countCompleted);
     const targetCount = Number(b.targetCount);
@@ -344,4 +343,14 @@ export function registerChallengeRoutes(router: Router) {
 
 function nowISO(): string {
   return new Date().toISOString();
+}
+
+/** Ensure a progress row belongs to the given user, else 403/404. */
+async function assertOwnsProgress(userId: string, progressId: string): Promise<void> {
+  const row = await one<{ user_id: string }>(
+    'SELECT user_id FROM user_challenge_progress WHERE id = ?',
+    [progressId]
+  );
+  if (!row) throw new ApiError(404, 'Progress not found');
+  if (row.user_id !== userId) throw new ApiError(403, 'Forbidden');
 }

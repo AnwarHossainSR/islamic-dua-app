@@ -1,5 +1,6 @@
+import { requireAdmin } from '../authz';
 import { all, count, one, run } from '../db';
-import { ApiError, type ApiRequest, type Router, requireUser } from '../http';
+import { ApiError, type ApiRequest, type Router } from '../http';
 import { coerceBooleansAll, nowIso, safeIdentifier } from '../util';
 
 const BACKUP_TABLES = [
@@ -22,16 +23,18 @@ const BACKUP_TABLES = [
 ];
 
 export function registerSettingsRoutes(router: Router) {
+  // Unauthenticated callers only see public settings; authenticated users see all.
   router.get('/settings', async (req: ApiRequest) => {
     const category = req.query.category;
+    const publicOnly = req.user ? '' : ' AND is_public = 1';
     const rows = category
-      ? await all('SELECT * FROM app_settings WHERE category = ?', [category])
-      : await all('SELECT * FROM app_settings');
+      ? await all(`SELECT * FROM app_settings WHERE category = ?${publicOnly}`, [category])
+      : await all(`SELECT * FROM app_settings${req.user ? '' : ' WHERE is_public = 1'}`);
     return coerceBooleansAll(rows, ['is_public']);
   });
 
   router.put('/settings/:key', async (req: ApiRequest, params) => {
-    requireUser(req);
+    await requireAdmin(req);
     const { value } = (req.body ?? {}) as { value?: unknown };
     await run('UPDATE app_settings SET value = ?, updated_at = ? WHERE key = ?', [
       JSON.stringify(value),
@@ -41,7 +44,8 @@ export function registerSettingsRoutes(router: Router) {
     return { success: true };
   });
 
-  router.get('/settings/db-stats', async () => {
+  router.get('/settings/db-stats', async (req: ApiRequest) => {
+    await requireAdmin(req);
     const duasCount = await count('SELECT count(*) AS c FROM duas');
     const challengesCount = await count('SELECT count(*) AS c FROM challenge_templates');
     const activeUsers = await count('SELECT count(*) AS c FROM user_challenge_progress');
@@ -57,25 +61,26 @@ export function registerSettingsRoutes(router: Router) {
   });
 
   router.get('/settings/credentials', async (req: ApiRequest) => {
-    requireUser(req);
+    await requireAdmin(req);
     return all('SELECT * FROM webauthn_credentials ORDER BY created_at DESC');
   });
 
   router.delete('/settings/credentials/:credentialId', async (req: ApiRequest, params) => {
-    requireUser(req);
+    await requireAdmin(req);
     await run('DELETE FROM webauthn_credentials WHERE credential_id = ?', [params.credentialId]);
     return { success: true };
   });
 
   // Backups: generate a portable SQL dump directly from the DB. Cloud storage
   // (Supabase Storage) is not available; the client downloads the SQL text.
-  router.get('/settings/backups', async () => {
+  router.get('/settings/backups', async (req: ApiRequest) => {
+    await requireAdmin(req);
     // No external storage backend — kept for UI parity.
     return [];
   });
 
   router.post('/settings/backups', async (req: ApiRequest) => {
-    requireUser(req);
+    await requireAdmin(req);
     let sql = '-- Islamic Dua App Database Backup\n';
     sql += `-- Generated on: ${new Date().toISOString()}\n\n`;
     for (const table of BACKUP_TABLES) {
@@ -108,14 +113,14 @@ export function registerSettingsRoutes(router: Router) {
   });
 
   router.post('/settings/optimize', async (req: ApiRequest) => {
-    requireUser(req);
+    await requireAdmin(req);
     return { success: true };
   });
 
   // Raw table export for the Settings > Data Export feature (whitelisted).
   const EXPORTABLE = new Set(['challenge_templates', 'duas', 'app_settings']);
   router.get('/settings/export/:table', async (req: ApiRequest, params) => {
-    requireUser(req);
+    await requireAdmin(req);
     if (!EXPORTABLE.has(params.table)) {
       throw new ApiError(400, 'Table is not exportable');
     }

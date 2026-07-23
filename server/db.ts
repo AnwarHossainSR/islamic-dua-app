@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { mkdirSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type Client, createClient, type InValue } from '@libsql/client';
@@ -21,6 +21,15 @@ function resolveConfig(): { url: string; authToken?: string } {
     return { url: tursoUrl, authToken: process.env.TURSO_AUTH_TOKEN };
   }
   const url = process.env.DATABASE_URL || 'file:./data/local.db';
+  // @libsql/client does not create missing parent directories for file URLs,
+  // so ensure it exists before the client opens the database.
+  if (url.startsWith('file:')) {
+    try {
+      mkdirSync(dirname(url.slice('file:'.length)), { recursive: true });
+    } catch {
+      /* best-effort */
+    }
+  }
   return { url };
 }
 

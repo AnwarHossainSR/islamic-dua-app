@@ -61,15 +61,23 @@ export const session = {
     if (!token) return null;
     try {
       const { user } = await http.get<{ user: AppUser | null }>('/auth/session');
+      // If sign-out happened while this refresh was in flight, the token is
+      // gone — don't restore the user from a stale response.
+      if (!getToken()) return null;
       writeUser(user);
       notify(user);
       return user;
-    } catch {
-      // Invalid/expired token — clear it.
-      setToken(null);
-      writeUser(null);
-      notify(null);
-      return null;
+    } catch (err) {
+      // Only sign out on an auth rejection (401/403). A transient network or
+      // server error must not log the user out — keep the stored session.
+      const status = (err as { status?: number })?.status;
+      if (status === 401 || status === 403) {
+        setToken(null);
+        writeUser(null);
+        notify(null);
+        return null;
+      }
+      return readUser();
     }
   },
 

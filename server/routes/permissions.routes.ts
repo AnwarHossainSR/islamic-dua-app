@@ -1,3 +1,4 @@
+import { requireAdmin, requireSelfOrAdmin } from '../authz';
 import { all, one, run } from '../db';
 import { ApiError, type ApiRequest, type Router, requireUser } from '../http';
 import { coerceBooleans, uuid } from '../util';
@@ -5,11 +6,13 @@ import { coerceBooleans, uuid } from '../util';
 const ROLES = ['user', 'editor', 'admin', 'super_admin'];
 
 export function registerPermissionRoutes(router: Router) {
-  router.get('/permissions', async () => {
+  router.get('/permissions', async (req: ApiRequest) => {
+    requireUser(req);
     return all('SELECT * FROM permissions ORDER BY resource ASC');
   });
 
-  router.get('/permissions/roles', async () => {
+  router.get('/permissions/roles', async (req: ApiRequest) => {
+    requireUser(req);
     const result = [];
     for (const role of ROLES) {
       const permissions = await all(
@@ -23,7 +26,8 @@ export function registerPermissionRoutes(router: Router) {
     return result;
   });
 
-  router.get('/permissions/user/:userId', async (_req, params) => {
+  router.get('/permissions/user/:userId', async (req: ApiRequest, params) => {
+    await requireSelfOrAdmin(req, params.userId);
     const adminUser = await one<Record<string, unknown>>(
       'SELECT * FROM admin_users WHERE user_id = ?',
       [params.userId]
@@ -44,7 +48,7 @@ export function registerPermissionRoutes(router: Router) {
   });
 
   router.post('/permissions/roles/:role', async (req: ApiRequest, params) => {
-    requireUser(req);
+    await requireAdmin(req);
     const { permissionId } = (req.body ?? {}) as { permissionId?: string };
     if (!permissionId) throw new ApiError(400, 'permissionId is required');
     await run('INSERT OR IGNORE INTO role_permissions (id, role, permission_id) VALUES (?, ?, ?)', [
@@ -56,7 +60,7 @@ export function registerPermissionRoutes(router: Router) {
   });
 
   router.delete('/permissions/roles/:role/:permissionId', async (req: ApiRequest, params) => {
-    requireUser(req);
+    await requireAdmin(req);
     await run('DELETE FROM role_permissions WHERE role = ? AND permission_id = ?', [
       params.role,
       params.permissionId,
@@ -65,7 +69,7 @@ export function registerPermissionRoutes(router: Router) {
   });
 
   router.post('/permissions', async (req: ApiRequest) => {
-    requireUser(req);
+    await requireAdmin(req);
     const p = (req.body ?? {}) as {
       name?: string;
       description?: string;
@@ -82,7 +86,7 @@ export function registerPermissionRoutes(router: Router) {
   });
 
   router.put('/permissions/:id', async (req: ApiRequest, params) => {
-    requireUser(req);
+    await requireAdmin(req);
     const p = (req.body ?? {}) as Record<string, unknown>;
     const cols = ['name', 'description', 'resource', 'action'];
     const sets: string[] = [];
@@ -100,7 +104,7 @@ export function registerPermissionRoutes(router: Router) {
   });
 
   router.delete('/permissions/:id', async (req: ApiRequest, params) => {
-    requireUser(req);
+    await requireAdmin(req);
     await run('DELETE FROM permissions WHERE id = ?', [params.id]);
     return { success: true };
   });

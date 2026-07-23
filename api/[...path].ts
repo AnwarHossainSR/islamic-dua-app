@@ -1,5 +1,16 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+import type { IncomingMessage, ServerResponse } from 'node:http';
 import { handleApi } from '../server/app';
+
+/**
+ * Minimal shapes for the Vercel Node request/response we actually use. Avoids a
+ * dependency on `@vercel/node` (and its vulnerable transitive tree) since we
+ * only need `req.body` on top of the standard Node http types.
+ */
+type VercelRequest = IncomingMessage & { body?: unknown; query?: Record<string, unknown> };
+type VercelResponse = ServerResponse & {
+  status: (code: number) => VercelResponse;
+  json: (body: unknown) => VercelResponse;
+};
 
 /**
  * Vercel serverless catch-all for every `/api/*` request.

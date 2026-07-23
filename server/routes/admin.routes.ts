@@ -1,6 +1,6 @@
-import { all, one, run } from '../db';
+import { all, run } from '../db';
 import { type ApiRequest, type Router, requireUser } from '../http';
-import { coerceBooleansAll, nowIso, uuid } from '../util';
+import { coerceBooleansAll, nowIso } from '../util';
 
 export function registerAdminRoutes(router: Router) {
   router.get('/admin/users', async (req: ApiRequest) => {
@@ -9,22 +9,16 @@ export function registerAdminRoutes(router: Router) {
     return coerceBooleansAll(rows, ['is_active']);
   });
 
+  // Role is stored on admin_users (the source of truth for the permission
+  // system). userId is the auth user id (admin_users.user_id).
   router.put('/admin/users/:userId/role', async (req: ApiRequest, params) => {
     requireUser(req);
     const { role } = (req.body ?? {}) as { role?: string };
-    const existing = await one('SELECT id FROM user_roles WHERE user_id = ?', [params.userId]);
-    if (existing) {
-      await run('UPDATE user_roles SET role = ?, updated_at = ? WHERE user_id = ?', [
-        role ?? 'user',
-        nowIso(),
-        params.userId,
-      ]);
-    } else {
-      await run(
-        'INSERT INTO user_roles (id, user_id, role, created_at, updated_at) VALUES (?, ?, ?, ?, ?)',
-        [uuid(), params.userId, role ?? 'user', nowIso(), nowIso()]
-      );
-    }
+    await run('UPDATE admin_users SET role = ?, updated_at = ? WHERE user_id = ?', [
+      role ?? 'editor',
+      nowIso(),
+      params.userId,
+    ]);
     return { success: true };
   });
 

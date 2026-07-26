@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
+import { chatApi } from '@/api/ai/chat.api';
 import { ImprovedIslamicChat } from '@/components/ai/ImprovedIslamicChat';
 import { ENV } from '@/config/env';
-import { supabase } from '@/lib/supabase/client';
+import { session } from '@/lib/auth/session';
 
 interface ChatSession {
   id: string;
@@ -27,21 +28,12 @@ export default function AIPage() {
 
   const loadSessions = async () => {
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) {
+      if (!session.getUser()) {
         setLoading(false);
         return;
       }
 
-      const { data, error } = await supabase
-        .from('ai_chat_sessions')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('updated_at', { ascending: false });
-
-      if (error) throw error;
+      const data = await chatApi.getSessions();
       setSessions(data || []);
     } catch (error) {
       console.error('Failed to load chat sessions:', error);

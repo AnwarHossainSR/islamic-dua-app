@@ -1,8 +1,8 @@
-import { supabase } from './supabase/client';
+import { http } from '@/lib/api/http';
 
 async function logToDatabase(level: string, message: string, meta?: any) {
   try {
-    await supabase.from('api_logs').insert({
+    await http.post('/logs', {
       level,
       message,
       meta: meta ? JSON.stringify(meta) : null,

@@ -58,9 +58,8 @@ export default function UsersPage() {
 
   const getCurrentUser = async () => {
     try {
-      const {
-        data: { user },
-      } = await import('@/lib/supabase/client').then((m) => m.supabase.auth.getUser());
+      const { session } = await import('@/lib/auth/session');
+      const user = session.getUser();
       if (user) setCurrentUserId(user.id);
     } catch (error) {
       console.error('Failed to get current user:', error);

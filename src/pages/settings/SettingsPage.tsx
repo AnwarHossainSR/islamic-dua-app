@@ -27,8 +27,8 @@ import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Progress } from '@/components/ui/Progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
+import { http } from '@/lib/api/http';
 import { apiLogger } from '@/lib/logger';
-import { supabase } from '@/lib/supabase/client';
 
 export default function SettingsPage() {
   const [dbStats, setDbStats] = useState<any>(null);
@@ -382,7 +382,7 @@ export default function SettingsPage() {
                     variant="outline"
                     onClick={async () => {
                       try {
-                        const { data } = await supabase.from('challenge_templates').select('*');
+                        const data = await http.get('/settings/export/challenge_templates');
                         const jsonString = JSON.stringify(data, null, 2);
                         const blob = new Blob([jsonString], {
                           type: 'application/json',
@@ -408,7 +408,7 @@ export default function SettingsPage() {
                     variant="outline"
                     onClick={async () => {
                       try {
-                        const { data } = await supabase.from('duas').select('*');
+                        const data = await http.get('/settings/export/duas');
                         const jsonString = JSON.stringify(data, null, 2);
                         const blob = new Blob([jsonString], {
                           type: 'application/json',
@@ -434,7 +434,7 @@ export default function SettingsPage() {
                     variant="outline"
                     onClick={async () => {
                       try {
-                        const { data } = await supabase.from('app_settings').select('*');
+                        const data = await http.get('/settings/export/app_settings');
                         const jsonString = JSON.stringify(data, null, 2);
                         const blob = new Blob([jsonString], {
                           type: 'application/json',

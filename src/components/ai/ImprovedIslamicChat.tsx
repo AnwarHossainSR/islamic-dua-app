@@ -11,12 +11,13 @@ import {
   X,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { chatApi } from '@/api/ai/chat.api';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Switch } from '@/components/ui/Switch';
 import { TypewriterText } from '@/components/ui/TypewriterText';
 import { EnhancedAIService } from '@/lib/ai/service';
-import { supabase } from '@/lib/supabase/client';
+import { session as authSession } from '@/lib/auth/session';
 import { renderMarkdown } from '@/lib/utils/markdown-renderer';
 
 interface ChatMessage {
@@ -61,13 +62,7 @@ export function ImprovedIslamicChat({ initialSessions, hasOpenAIKey }: ImprovedI
 
   const loadMessages = async (sessionId: string) => {
     try {
-      const { data, error } = await supabase
-        .from('ai_chat_messages')
-        .select('*')
-        .eq('session_id', sessionId)
-        .order('created_at', { ascending: true });
-
-      if (error) throw error;
+      const data = await chatApi.getMessages(sessionId);
       setMessages(data || []);
     } catch (error: any) {
       const { apiLogger } = await import('@/lib/logger');
@@ -80,23 +75,10 @@ export function ImprovedIslamicChat({ initialSessions, hasOpenAIKey }: ImprovedI
 
   const createNewSession = async () => {
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!authSession.getUser()) return;
 
       const title = `Chat ${new Date().toLocaleDateString()}`;
-      const { data, error } = await supabase
-        .from('ai_chat_sessions')
-        .insert({
-          user_id: user.id,
-          title,
-          chat_mode: chatMode,
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
+      const data = await chatApi.createSession(title, chatMode);
       setSessions((prev) => [data, ...prev]);
       setCurrentSession(data);
       setMessages([]);
@@ -116,26 +98,13 @@ export function ImprovedIslamicChat({ initialSessions, hasOpenAIKey }: ImprovedI
     let session = currentSession;
     if (!session) {
       try {
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-        if (!user) {
+        if (!authSession.getUser()) {
           setLoading(false);
           return;
         }
 
         const title = messageText.slice(0, 50) + (messageText.length > 50 ? '...' : '');
-        const { data, error } = await supabase
-          .from('ai_chat_sessions')
-          .insert({
-            user_id: user.id,
-            title,
-            chat_mode: chatMode,
-          })
-          .select()
-          .single();
-
-        if (error) throw error;
+        const data = await chatApi.createSession(title, chatMode);
         setSessions((prev) => [data, ...prev]);
         setCurrentSession(data);
         session = data;
@@ -157,17 +126,12 @@ export function ImprovedIslamicChat({ initialSessions, hasOpenAIKey }: ImprovedI
     setMessages((prev) => [...prev, userMessage]);
 
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      const user = authSession.getUser();
       if (!user) throw new Error('Unauthorized');
 
-      await supabase.from('ai_chat_messages').insert({
-        session_id: session?.id || '',
-        user_id: user.id,
-        role: 'user',
-        content: messageText,
-      });
+      if (session?.id) {
+        await chatApi.saveMessage(session.id, 'user', messageText);
+      }
 
       const previousMessages = messages.slice(-4).map((msg) => ({
         role: msg.role,
@@ -196,22 +160,11 @@ export function ImprovedIslamicChat({ initialSessions, hasOpenAIKey }: ImprovedI
         created_at: new Date().toISOString(),
       };
 
-      await supabase.from('ai_chat_messages').insert({
-        session_id: session?.id || '',
-        user_id: user.id,
-        role: 'assistant',
-        content: response.message,
-        metadata: JSON.stringify({
+      if (session?.id) {
+        await chatApi.saveMessage(session.id, 'assistant', response.message, {
           relatedDuas: response.relatedDuas || [],
           suggestions: response.suggestions || [],
-        }),
-      });
-
-      if (session?.id) {
-        await supabase
-          .from('ai_chat_sessions')
-          .update({ updated_at: new Date().toISOString() })
-          .eq('id', session.id);
+        });
       }
 
       setMessages((prev) => [...prev, assistantMessage]);
@@ -235,12 +188,9 @@ export function ImprovedIslamicChat({ initialSessions, hasOpenAIKey }: ImprovedI
 
   const handleClearAll = async () => {
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!authSession.getUser()) return;
 
-      await supabase.from('ai_chat_sessions').delete().eq('user_id', user.id);
+      await chatApi.clearAll();
 
       setSessions([]);
       setCurrentSession(null);

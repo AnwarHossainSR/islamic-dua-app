@@ -2,7 +2,7 @@ import { Fingerprint } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
-import { supabase } from '@/lib/supabase/client';
+import { session } from '@/lib/auth/session';
 import { authenticateCredential, isWebAuthnSupported } from '@/lib/webauthn/client';
 
 interface BiometricLoginProps {
@@ -53,12 +53,7 @@ export function BiometricLogin({ onError, onSuccess }: BiometricLoginProps) {
 
       const result = await authResponse.json();
 
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: result.user.email,
-        password: result.user.id,
-      });
-
-      if (signInError) throw signInError;
+      await session.signInWithPassword(result.user.email, result.user.id);
 
       onSuccess();
       navigate('/');
